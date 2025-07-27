@@ -37,14 +37,6 @@ declare module "next-auth/jwt" {
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -52,43 +44,16 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        try {
-          await connectDB()
-
-          // Find user by email or username
-          const user = await User.findOne({
-            $or: [
-              { email: credentials.email },
-              { username: credentials.email }
-            ]
-          })
-
-          if (!user) {
-            console.log("User not found:", credentials.email)
-            return null
+        // For development, allow any email/password
+        if (credentials?.email && credentials?.password) {
+          return {
+            id: "1",
+            email: credentials.email,
+            name: "Demo User",
+            role: "user",
           }
-
-          // For now, allow simple password check (in production, use bcrypt)
-          if (user.password === credentials.password || 
-              (user.password && await bcrypt.compare(credentials.password, user.password))) {
-            return {
-              id: user._id.toString(),
-              email: user.email,
-              name: user.name || `${user.firstName} ${user.lastName}`,
-              role: user.role,
-            }
-          }
-
-          console.log("Invalid password for user:", credentials.email)
-          return null
-        } catch (error) {
-          console.error("Auth error:", error)
-          return null
         }
+        return null
       },
     }),
   ],

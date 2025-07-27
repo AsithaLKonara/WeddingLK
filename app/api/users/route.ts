@@ -109,6 +109,39 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { email, ...updates } = body
+    if (!email) {
+      return NextResponse.json({
+        success: false,
+        error: "Email is required to update user profile",
+      }, { status: 400 })
+    }
+    const userIndex = users.findIndex((user) => user.email === email)
+    if (userIndex === -1) {
+      return NextResponse.json({
+        success: false,
+        error: "User not found",
+      }, { status: 404 })
+    }
+    users[userIndex] = { ...users[userIndex], ...updates }
+    return NextResponse.json({
+      success: true,
+      data: users[userIndex],
+      message: "User profile updated successfully",
+    })
+  } catch (error) {
+    console.error("Error updating user profile:", error)
+    return NextResponse.json({
+      success: false,
+      error: "Failed to update user profile",
+      message: error instanceof Error ? error.message : "Unknown error",
+    }, { status: 500 })
+  }
+}
+
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,

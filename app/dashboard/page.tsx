@@ -9,6 +9,9 @@ import { CheckCircle, AlertCircle } from "lucide-react"
 // Import UI components directly since they have named exports
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Progress } from "@/components/ui/progress"
+import { useSession } from "next-auth/react"
+import { Badge } from "@/components/ui/badge"
+import { Trophy, Star, Award } from "lucide-react"
 
 // Import organism components directly since they have named exports
 import { DashboardHeader } from "@/components/organisms/dashboard-header"
@@ -17,51 +20,92 @@ import { QuickActions } from "@/components/organisms/quick-actions"
 import { UpcomingTasks } from "@/components/organisms/upcoming-tasks"
 import { SavedVenues } from "@/components/organisms/saved-venues"
 import { RecentActivity } from "@/components/organisms/recent-activity"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
+const DEMO_EMAIL = "john@example.com" // Replace with session/email context in production
+
+function fetchUserProfile() {
+  return fetch("/api/users").then(res => res.json())
+}
+
+function updateUserProfile(data: any) {
+  return fetch("/api/users", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  }).then(res => res.json())
+}
 
 export default function DashboardPage() {
   const router = useRouter()
-  
+  const queryClient = useQueryClient()
+  const { data: session } = useSession()
+
+  // Use session user's email if available
+  const email = session?.user?.email || DEMO_EMAIL
+
+  // Fetch user profile
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: fetchUserProfile
+  })
+  const user = data?.data?.find((u: any) => u.email === email)
+
+  // Profile update mutation
+  const mutation = useMutation({
+    mutationFn: updateUserProfile,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+  })
+
+  // Profile form state
+  const [name, setName] = useState("")
+  const [role, setRole] = useState("")
+  const [phone, setPhone] = useState("")
+  const [weddingDate, setWeddingDate] = useState("")
+  const [preferences, setPreferences] = useState("")
+
   // Onboarding/email verification state
   const [onboardingIncomplete, setOnboardingIncomplete] = useState(false)
   const [emailUnverified, setEmailUnverified] = useState(false)
-  
-  // Profile completion (mocked for now)
-  const profileCompletion = 70
-  const profileSuggestions = [
-    "Add a profile photo",
-    "Verify your email address",
-    "Complete your onboarding steps",
-    "Fill in your wedding date",
+
+  // Profile completion logic with gamification
+  const profileFields = [
+    { key: 'name', label: 'Name', weight: 20 },
+    { key: 'role', label: 'Role', weight: 15 },
+    { key: 'phone', label: 'Phone', weight: 15 },
+    { key: 'weddingDate', label: 'Wedding Date', weight: 25 },
+    { key: 'preferences', label: 'Preferences', weight: 25 }
   ]
-  
+
+  const profileCompletion = user ? profileFields.reduce((total, field) => {
+    return total + (user[field.key] ? field.weight : 0)
+  }, 0) : 0
+
+  const profileSuggestions = profileFields
+    .filter(field => !user?.[field.key])
+    .map(field => `Add your ${field.label.toLowerCase()}`)
+
+  // XP and badges system
+  const xp = Math.floor(profileCompletion * 10) // 10 XP per completion percentage
+  const level = Math.floor(xp / 100) + 1 // Level up every 100 XP
+  const badges = []
+  if (profileCompletion >= 100) badges.push({ name: "Profile Master", icon: Trophy, color: "bg-yellow-500" })
+  if (profileCompletion >= 50) badges.push({ name: "Halfway There", icon: Star, color: "bg-blue-500" })
+  if (user?.name) badges.push({ name: "Name Set", icon: Award, color: "bg-green-500" })
+
+  // Set form state when user loads
   useEffect(() => {
-    // Check user type and redirect accordingly
-    const userType = typeof window !== 'undefined' ? localStorage.getItem('userType') : null
-    if (userType === 'vendor') {
-      const vendorId = typeof window !== 'undefined' ? localStorage.getItem('vendorId') : null
-      if (vendorId) {
-        fetch(`/api/vendors?vendorId=${vendorId}`)
-          .then(res => res.json())
-          .then(data => {
-            if (!data.vendor || !data.vendor.onboardingComplete) {
-              setOnboardingIncomplete(true)
-              router.replace('/dashboard/vendor/onboarding')
-            }
-            // Example: check email verification
-            if (data.vendor && data.vendor.user && data.vendor.user.isVerified === false) {
-              setEmailUnverified(true)
-            }
-          })
-          .catch(err => {
-            console.error('Error fetching vendor data:', err)
-          })
-      }
-    } else {
-      // For couples/planners, check email verification (mocked)
-      const isVerified = typeof window !== 'undefined' ? localStorage.getItem('isVerified') : null
-      if (isVerified === 'false') setEmailUnverified(true)
+    if (user) {
+      setName(user.name || "")
+      setRole(user.role || "")
+      setPhone(user.phone || "")
+      setWeddingDate(user.weddingDate || "")
+      setPreferences(user.preferences || "")
     }
-  }, [router])
+  }, [user])
+
+  if (isLoading) return <div className="p-8 text-center">Loading profile...</div>
+  if (isError) return <div className="p-8 text-center text-red-500">Failed to load profile.</div>
 
   return (
     <MainLayout>
@@ -87,8 +131,8 @@ export default function DashboardPage() {
               </AlertDescription>
             </Alert>
           )}
-          
-          {/* Profile Completion Widget */}
+
+          {/* Enhanced Profile Completion Widget with Gamification */}
           <div className="max-w-lg mx-auto mb-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col gap-4">
               <div className="flex items-center gap-2">
@@ -97,14 +141,107 @@ export default function DashboardPage() {
                 <span className="ml-auto text-sm text-gray-500">{profileCompletion}%</span>
               </div>
               <Progress value={profileCompletion} className="h-2" />
+              
+              {/* XP and Level System */}
+              <div className="flex items-center justify-between text-sm">
+                <span>Level {level}</span>
+                <span>{xp} XP</span>
+              </div>
+              
+              {/* Badges */}
+              {badges.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {badges.map((badge, i) => (
+                    <Badge key={i} className={`${badge.color} text-white`}>
+                      <badge.icon className="h-3 w-3 mr-1" />
+                      {badge.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
               <ul className="list-disc pl-6 text-sm text-gray-600 dark:text-gray-300">
-                {profileSuggestions.map((s, i) => (
+                {profileSuggestions.length === 0 ? <li>All set! You're ready to plan your perfect wedding!</li> : profileSuggestions.map((s, i) => (
                   <li key={i}>{s}</li>
                 ))}
               </ul>
             </div>
           </div>
-          
+
+          {/* Enhanced Profile Update Form */}
+          <div className="max-w-lg mx-auto mb-8">
+            <form
+              className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col gap-4"
+              onSubmit={e => {
+                e.preventDefault()
+                mutation.mutate({ email, name, role, phone, weddingDate, preferences })
+              }}
+            >
+              <h3 className="font-semibold text-lg mb-2">Complete Your Profile</h3>
+              
+              <div>
+                <label className="font-semibold">Name</label>
+                <input
+                  className="w-full p-2 border rounded mt-1"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Enter your name"
+                />
+              </div>
+              
+              <div>
+                <label className="font-semibold">Role</label>
+                <input
+                  className="w-full p-2 border rounded mt-1"
+                  value={role}
+                  onChange={e => setRole(e.target.value)}
+                  placeholder="Enter your role (e.g. couple, vendor)"
+                />
+              </div>
+              
+              <div>
+                <label className="font-semibold">Phone</label>
+                <input
+                  className="w-full p-2 border rounded mt-1"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  placeholder="Enter your phone number"
+                />
+              </div>
+              
+              <div>
+                <label className="font-semibold">Wedding Date</label>
+                <input
+                  type="date"
+                  className="w-full p-2 border rounded mt-1"
+                  value={weddingDate}
+                  onChange={e => setWeddingDate(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <label className="font-semibold">Preferences</label>
+                <textarea
+                  className="w-full p-2 border rounded mt-1"
+                  value={preferences}
+                  onChange={e => setPreferences(e.target.value)}
+                  placeholder="Tell us about your wedding preferences (venue style, budget, etc.)"
+                  rows={3}
+                />
+              </div>
+              
+              <button
+                type="submit"
+                className="bg-blue-600 text-white rounded px-4 py-2 mt-2 hover:bg-blue-700 transition-colors"
+                                      disabled={mutation.isPending}
+              >
+                                  {mutation.isPending ? "Saving..." : "Save Profile"}
+              </button>
+              {mutation.isError && <div className="text-red-500">Failed to update profile.</div>}
+              {mutation.isSuccess && <div className="text-green-600">Profile updated!</div>}
+            </form>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">

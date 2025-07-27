@@ -4,8 +4,11 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { ErrorBoundary } from "@/components/organisms/error-boundary"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const inter = Inter({ subsets: ["latin"] })
+const queryClient = new QueryClient()
 
 export const metadata: Metadata = {
   title: "Wedding Dreams Lanka - Plan Your Perfect Wedding",
@@ -22,9 +25,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <ErrorBoundary>
+          <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             {children}
           </ThemeProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
         </ErrorBoundary>
       </body>
     </html>

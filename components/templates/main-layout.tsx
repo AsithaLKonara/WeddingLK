@@ -1,7 +1,6 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { PreloadResources } from "@/components/ui/performance-optimizer"
 import { PageLoader } from "@/components/ui/loading-spinner"
 
 // Import components directly since they have named exports
@@ -21,7 +20,7 @@ export function MainLayout({
 }: MainLayoutProps) {
   return (
     <>
-      <PreloadResources />
+      {/* Preload critical resources */}
       
       <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
         {showHeader && (
@@ -65,7 +64,7 @@ function PerformanceMonitor() {
       // Monitor First Input Delay (FID)
       const fidObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        entries.forEach((entry) => {
+        entries.forEach((entry: any) => {
           console.log('FID:', entry.processingStart - entry.startTime)
         })
       })
