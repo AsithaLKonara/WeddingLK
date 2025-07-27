@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Docker support
+  output: 'standalone',
+  
   // Performance optimizations
   experimental: {
     optimizePackageImports: [

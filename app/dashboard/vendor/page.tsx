@@ -304,7 +304,7 @@ export default function VendorDashboardPage() {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Bookings</CardTitle>
+              <CardTitle>Bookings</CardTitle>
                 <Button onClick={() => exportToCSV(filterBookings(bookings), 'bookings')}>
                   <Download className="h-4 w-4 mr-2" />
                   Export
@@ -568,11 +568,11 @@ export default function VendorDashboardPage() {
                         </p>
                         <p className="text-gray-600 text-sm mb-4">{service.description}</p>
                         <div className="flex gap-2">
-                          <Button
+                                <Button
                             size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setEditService(service)
+                                  variant="outline"
+                                  onClick={() => {
+                                    setEditService(service)
                               setServiceForm({
                                 name: service.name,
                                 price: String(service.price),
@@ -584,8 +584,8 @@ export default function VendorDashboardPage() {
                             }}
                           >
                             <Edit className="h-3 w-3 mr-1" />
-                            Edit
-                          </Button>
+                                  Edit
+                                </Button>
                           <Button
                             size="sm"
                             variant="destructive"
@@ -606,33 +606,33 @@ export default function VendorDashboardPage() {
           {/* Edit Service Dialog */}
           <Dialog open={isEditServiceOpen} onOpenChange={setIsEditServiceOpen}>
             <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Edit Service</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Service Name</label>
+                                <DialogHeader>
+                                  <DialogTitle>Edit Service</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">Service Name</label>
                   <Input
-                    value={serviceForm.name}
-                    onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Price (LKR)</label>
+                                      value={serviceForm.name}
+                                      onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">Price (LKR)</label>
                   <Input
-                    type="number"
-                    value={serviceForm.price}
-                    onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
+                                      type="number"
+                                      value={serviceForm.price}
+                                      onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">Description</label>
                   <Textarea
-                    value={serviceForm.description}
-                    onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
-                    rows={3}
-                  />
-                </div>
+                                      value={serviceForm.description}
+                                      onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
+                                      rows={3}
+                                    />
+                                  </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Image URL</label>
                   <Input
@@ -648,18 +648,18 @@ export default function VendorDashboardPage() {
                     onChange={(e) => setServiceForm({ ...serviceForm, isAvailable: e.target.checked })}
                   />
                   <label htmlFor="editIsAvailable" className="text-sm">Available for booking</label>
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
+                                  </div>
+                                </div>
+                                <DialogFooter>
+                                  <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                  </DialogClose>
                 <Button onClick={handleUpdateService} disabled={updateServiceMutation.isPending}>
                   {updateServiceMutation.isPending ? "Updating..." : "Update Service"}
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
         </TabsContent>
 
         <TabsContent value="reviews">

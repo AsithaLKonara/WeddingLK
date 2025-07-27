@@ -134,8 +134,8 @@ export function LoadingSkeleton({ type, rows = 3, className = "" }: LoadingSkele
 
 // Lazy Load Component
 export function LazyLoad({ 
-  children, 
-  threshold = 0.1, 
+  children,
+  threshold = 0.1,
   placeholder = <LoadingSkeleton type="card" />,
   className = "" 
 }: LazyLoadProps) {
@@ -196,7 +196,7 @@ export function PerformanceOptimizer({
 
   // Handle error state
   if (error) {
-    return (
+  return (
       <div className={`text-center py-8 ${className}`}>
         <div className="text-red-500 mb-4">
           <svg className="h-12 w-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -212,10 +212,10 @@ export function PerformanceOptimizer({
           >
             Try again
           </button>
-        )}
-      </div>
-    )
-  }
+      )}
+    </div>
+  )
+}
 
   // Handle SSR hydration
   if (!isClient) {

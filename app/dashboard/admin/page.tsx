@@ -270,7 +270,7 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Users</CardTitle>
+              <CardTitle>Users</CardTitle>
                                             <Button onClick={() => exportToCSV((usersData as any)?.data || [], 'users')}>
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
@@ -303,24 +303,24 @@ export default function AdminDashboardPage() {
               {usersLoading ? (
                 <div className="text-center py-8">Loading users...</div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                     {filterData((usersData as any)?.data || [], searchTerm, statusFilter).map((user: any) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.role}</TableCell>
+                    <TableRow key={user.id}>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.role}</TableCell>
                         <TableCell>{getStatusBadge(user.status)}</TableCell>
-                        <TableCell>
+                      <TableCell>
                           <div className="flex gap-2">
                             <Button size="sm" variant="outline">
                               <Eye className="h-3 w-3" />
@@ -343,11 +343,11 @@ export default function AdminDashboardPage() {
                               </Button>
                             )}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
               )}
             </CardContent>
           </Card>
@@ -357,7 +357,7 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Vendors</CardTitle>
+              <CardTitle>Vendors</CardTitle>
                                             <Button onClick={() => exportToCSV((vendorsData as any)?.data || [], 'vendors')}>
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
@@ -390,24 +390,24 @@ export default function AdminDashboardPage() {
               {vendorsLoading ? (
                 <div className="text-center py-8">Loading vendors...</div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
                       <TableHead>Category</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                     {filterData((vendorsData as any)?.data || [], searchTerm, statusFilter).map((vendor: any) => (
-                      <TableRow key={vendor.id}>
-                        <TableCell>{vendor.name}</TableCell>
-                        <TableCell>{vendor.email}</TableCell>
+                    <TableRow key={vendor.id}>
+                      <TableCell>{vendor.name}</TableCell>
+                      <TableCell>{vendor.email}</TableCell>
                         <TableCell>{vendor.category}</TableCell>
                         <TableCell>{getStatusBadge(vendor.status)}</TableCell>
-                        <TableCell>
+                      <TableCell>
                           <div className="flex gap-2">
                             <Button size="sm" variant="outline">
                               <Eye className="h-3 w-3" />
@@ -431,11 +431,11 @@ export default function AdminDashboardPage() {
                               </>
                             )}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
               )}
             </CardContent>
           </Card>
@@ -445,7 +445,7 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Bookings</CardTitle>
+              <CardTitle>Bookings</CardTitle>
                                             <Button onClick={() => exportToCSV((bookingsData as any)?.bookings || [], 'bookings')}>
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
@@ -478,24 +478,24 @@ export default function AdminDashboardPage() {
               {bookingsLoading ? (
                 <div className="text-center py-8">Loading bookings...</div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Date</TableHead>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Date</TableHead>
                       <TableHead>Guests</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                     {filterData((bookingsData as any)?.bookings || [], searchTerm, statusFilter).map((booking: any) => (
                       <TableRow key={booking._id}>
                         <TableCell>{booking.contactInfo?.name || "N/A"}</TableCell>
                         <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
                         <TableCell>{booking.guests || "N/A"}</TableCell>
                         <TableCell>{getStatusBadge(booking.status)}</TableCell>
-                        <TableCell>
+                      <TableCell>
                           <div className="flex gap-2">
                             <Button size="sm" variant="outline">
                               <Eye className="h-3 w-3" />
@@ -519,11 +519,11 @@ export default function AdminDashboardPage() {
                               </>
                             )}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
               )}
             </CardContent>
           </Card>
