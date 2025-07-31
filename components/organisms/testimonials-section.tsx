@@ -30,7 +30,7 @@ const testimonials = [
   },
 ]
 
-export default function TestimonialsSection(props) {
+export default function TestimonialsSection(props: any) {
   return (
     <section className="py-20 sm:py-32 bg-white/50 dark:bg-gray-800/50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

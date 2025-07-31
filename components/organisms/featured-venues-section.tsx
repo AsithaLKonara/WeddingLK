@@ -94,3 +94,6 @@ export function FeaturedVenuesSection() {
     </section>
   )
 }
+
+
+export default FeaturedVenuesSection

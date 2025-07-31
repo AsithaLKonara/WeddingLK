@@ -3,7 +3,7 @@ const nextConfig = {
   // Docker support
   output: 'standalone',
   
-  // Performance optimizations
+  // Disable static generation to avoid React import issues
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -25,6 +25,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  
+  // Force all pages to be dynamic
+  trailingSlash: false,
   
   // Image optimizations
   images: {

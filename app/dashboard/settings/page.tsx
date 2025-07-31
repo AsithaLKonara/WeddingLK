@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,35 +12,38 @@ import { User, Bell, Shield, CreditCard } from "lucide-react"
 
 import { useToast } from "@/hooks/use-toast"
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// Dynamic imports for better performance
+const Select = dynamic(() => import("@/components/ui/select").then(mod => ({ default: mod.Select })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-8 rounded" /> 
+})
 
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const SelectContent = dynamic(() => import("@/components/ui/select").then(mod => ({ default: mod.SelectContent })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-8 rounded" /> 
+})
 
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const SelectItem = dynamic(() => import("@/components/ui/select").then(mod => ({ default: mod.SelectItem })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-8 rounded" /> 
+})
 
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const SelectTrigger = dynamic(() => import("@/components/ui/select").then(mod => ({ default: mod.SelectTrigger })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-8 rounded" /> 
+})
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const SelectValue = dynamic(() => import("@/components/ui/select").then(mod => ({ default: mod.SelectValue })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-8 rounded" /> 
+})
 
-// Input will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const Switch = dynamic(() => import("@/components/ui/switch").then(mod => ({ default: mod.Switch })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-6 rounded" /> 
+})
 
-// Label will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const InputOTP = dynamic(() => import("@/components/ui/input-otp").then(mod => ({ default: mod.InputOTP })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-10 rounded" /> 
+})
 
-const Select = dynamic(() => import("@/components/ui/select"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const SelectContent = dynamic(() => import("@/components/ui/select"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const SelectItem = dynamic(() => import("@/components/ui/select"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const SelectTrigger = dynamic(() => import("@/components/ui/select"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const SelectValue = dynamic(() => import("@/components/ui/select"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const Switch = dynamic(() => import("@/components/ui/switch"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const InputOTP = dynamic(() => import("@/components/ui/input-otp"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const InputOTPSlot = dynamic(() => import("@/components/ui/input-otp"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const InputOTPSlot = dynamic(() => import("@/components/ui/input-otp").then(mod => ({ default: mod.InputOTPSlot })), { 
+  loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-10 rounded" /> 
+})
 
 // Dialog will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 

@@ -101,3 +101,6 @@ export function VendorReviews({ vendorId }: VendorReviewsProps) {
     </Card>
   )
 }
+
+
+export default VendorReviews

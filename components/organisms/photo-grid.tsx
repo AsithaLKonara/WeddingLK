@@ -341,3 +341,6 @@ export function PhotoGrid({ category, venue }: PhotoGridProps) {
     </>
   )
 }
+
+
+export default PhotoGrid

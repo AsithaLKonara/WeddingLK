@@ -11,12 +11,14 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
     <NextThemesProvider 
       attribute="class" 
-      defaultTheme="light" 
+      defaultTheme="system" 
       enableSystem 
       disableTransitionOnChange
-      suppressHydrationWarning
     >
       {children}
     </NextThemesProvider>
   )
 }
+
+
+export default ThemeProvider

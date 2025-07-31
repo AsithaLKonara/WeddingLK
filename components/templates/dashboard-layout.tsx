@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { ReactNode, useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -312,3 +313,5 @@ export function DashboardLayout({
     </div>
   )
 } 
+
+export default DashboardLayout

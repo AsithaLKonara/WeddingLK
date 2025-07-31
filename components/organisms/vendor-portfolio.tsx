@@ -91,3 +91,6 @@ export function VendorPortfolio({ portfolio }: VendorPortfolioProps) {
     </Card>
   )
 }
+
+
+export default VendorPortfolio

@@ -84,3 +84,6 @@ export function FeedStories() {
     </Card>
   )
 }
+
+
+export default FeedStories

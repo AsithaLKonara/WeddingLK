@@ -1,14 +1,10 @@
-import type React from "react"
+import React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/providers/theme-provider"
-import { ErrorBoundary } from "@/components/organisms/error-boundary"
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { RootProviders } from "@/components/providers/root-providers"
 
 const inter = Inter({ subsets: ["latin"] })
-const queryClient = new QueryClient()
 
 export const metadata: Metadata = {
   title: "Wedding Dreams Lanka - Plan Your Perfect Wedding",
@@ -24,14 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <ErrorBoundary>
-          <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        </ErrorBoundary>
+        <RootProviders>
+          {children}
+        </RootProviders>
       </body>
     </html>
   )

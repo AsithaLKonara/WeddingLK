@@ -4,16 +4,16 @@ import dynamic from "next/dynamic"
 import { motion } from "framer-motion"
 
 // Lazy load components for better performance
-const AboutHero = dynamic(() => import("@/components/organisms/about-hero"), { 
+const AboutHero = dynamic(() => import("@/components/organisms/about-hero").then(mod => ({ default: mod.default })), { 
   loading: () => <div className="h-96 bg-gray-100 dark:bg-gray-800 animate-pulse" /> 
 })
-const AboutStory = dynamic(() => import("@/components/organisms/about-story"), { 
+const AboutStory = dynamic(() => import("@/components/organisms/about-story").then(mod => ({ default: mod.default })), { 
   loading: () => <div className="py-20 bg-gray-50 dark:bg-gray-900 animate-pulse" /> 
 })
-const TeamSection = dynamic(() => import("@/components/organisms/team-section"), { 
+const TeamSection = dynamic(() => import("@/components/organisms/team-section").then(mod => ({ default: mod.default })), { 
   loading: () => <div className="py-20 bg-white dark:bg-gray-900 animate-pulse" /> 
 })
-const StatsSection = dynamic(() => import("@/components/organisms/stats-section"), { 
+const StatsSection = dynamic(() => import("@/components/organisms/stats-section").then(mod => ({ default: mod.default })), { 
   loading: () => <div className="py-20 bg-gray-50 dark:bg-gray-800 animate-pulse" /> 
 })
 

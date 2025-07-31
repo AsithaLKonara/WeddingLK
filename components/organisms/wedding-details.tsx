@@ -101,3 +101,6 @@ export function WeddingDetails() {
     </Card>
   )
 }
+
+
+export default WeddingDetails

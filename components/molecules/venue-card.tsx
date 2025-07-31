@@ -89,3 +89,6 @@ export function VenueCard({
     </motion.div>
   )
 }
+
+
+export default VenueCard

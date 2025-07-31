@@ -180,3 +180,6 @@ export function StatsSection() {
     </section>
   )
 }
+
+
+export default StatsSection

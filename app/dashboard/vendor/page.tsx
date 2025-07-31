@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { BarChart2, ClipboardList, Package, Star, Calendar, MessageCircle, Filter, Search, Download, TrendingUp, Users, DollarSign, Clock, MapPin, Phone, Mail, Image as ImageIcon, Plus, Edit, Trash2, Reply, Send, Bell } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -811,3 +812,6 @@ const exportToCSV = (data: any[], filename: string) => {
   a.click()
   window.URL.revokeObjectURL(url)
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

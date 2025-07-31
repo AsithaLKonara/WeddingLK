@@ -142,3 +142,6 @@ export function VenueGrid({ filters, sortBy, onSortChange, viewMode, onViewModeC
     </div>
   )
 }
+
+
+export default VenueGrid

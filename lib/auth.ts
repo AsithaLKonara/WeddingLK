@@ -1,10 +1,5 @@
 import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import GoogleProvider from "next-auth/providers/google"
-import FacebookProvider from "next-auth/providers/facebook"
-import { connectDB } from "./db"
-import { User } from "./models/user"
-import bcrypt from "bcryptjs"
 
 // Extend the built-in session types
 declare module "next-auth" {
@@ -46,14 +41,14 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         // For development, allow any email/password
         if (credentials?.email && credentials?.password) {
-          return {
+            return {
             id: "1",
             email: credentials.email,
             name: "Demo User",
             role: "user",
+            }
           }
-        }
-        return null
+          return null
       },
     }),
   ],

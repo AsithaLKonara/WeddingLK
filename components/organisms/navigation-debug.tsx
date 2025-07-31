@@ -288,3 +288,6 @@ export function NavigationDebug() {
     </div>
   )
 }
+
+
+export default NavigationDebug

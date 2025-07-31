@@ -37,7 +37,7 @@ export function WeddingTimeline() {
     time: "",
     duration: "",
     location: "",
-    type: "ceremony" as const,
+    type: "ceremony" as TimelineEvent['type'],
     participants: ""
   })
 
@@ -134,7 +134,7 @@ export function WeddingTimeline() {
     },
   ])
 
-  const getEventIcon = (type: string) => {
+  const getEventIcon = (type: TimelineEvent['type']) => {
     switch (type) {
       case "ceremony":
         return Calendar
@@ -149,7 +149,7 @@ export function WeddingTimeline() {
     }
   }
 
-  const getEventColor = (type: string) => {
+  const getEventColor = (type: TimelineEvent['type']) => {
     switch (type) {
       case "ceremony":
         return "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200"
@@ -293,7 +293,7 @@ export function WeddingTimeline() {
       time: event.time,
       duration: event.duration,
       location: event.location,
-      type: event.type,
+      type: event.type as TimelineEvent['type'],
       participants: event.participants.join(", ")
     })
   }
@@ -693,3 +693,6 @@ export function WeddingTimeline() {
     </div>
   )
 }
+
+
+export default WeddingTimeline

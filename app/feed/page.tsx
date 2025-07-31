@@ -1,17 +1,12 @@
 "use client"
 
-import dynamic from "next/dynamic"
-
+import React from "react"
 import { useState } from "react"
 import { MainLayout } from "@/components/templates/main-layout"
-
+import { FeedStories } from "@/components/organisms/feed-stories"
+import { FeedPosts } from "@/components/organisms/feed-posts"
+import { FeedSidebar } from "@/components/organisms/feed-sidebar"
 import { motion } from "framer-motion"
-
-const FeedStories = dynamic(() => import("@/components/organisms/feed-stories"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const FeedPosts = dynamic(() => import("@/components/organisms/feed-posts"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const FeedSidebar = dynamic(() => import("@/components/organisms/feed-sidebar"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function FeedPage() {
   const [activeFilter, setActiveFilter] = useState("all")
@@ -67,3 +62,6 @@ export default function FeedPage() {
     </MainLayout>
   )
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

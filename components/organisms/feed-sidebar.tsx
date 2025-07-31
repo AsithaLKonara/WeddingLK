@@ -127,3 +127,6 @@ export function FeedSidebar() {
     </div>
   )
 }
+
+
+export default FeedSidebar

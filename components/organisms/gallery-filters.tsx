@@ -151,3 +151,6 @@ export function GalleryFilters({
     </div>
   )
 }
+
+
+export default GalleryFilters

@@ -1,9 +1,9 @@
 "use client"
 
+import React, { useState } from "react"
 import { motion } from "framer-motion"
 import { Heart, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
 import { MainLayout } from "@/components/templates/main-layout"
 
 // Import UI components directly since they have named exports
@@ -138,3 +138,6 @@ export default function LoginPage() {
     </MainLayout>
   )
 }
+
+// Prevent static generation and force dynamic rendering
+export const dynamic = 'force-dynamic'

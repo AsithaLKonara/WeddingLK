@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -219,7 +220,7 @@ export function SimilarVenues({ currentVenueId, currentVenueLocation, currentVen
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {similarVenues.map((venue) => (
                 <div key={venue.id} className="relative group">
-                  <VenueCard {...venue} />
+                  <VenueCard {...venue} id={parseInt(venue.id)} />
                   
                   {/* Similarity indicator */}
                   {venue.similarity && (
@@ -270,3 +271,6 @@ export function SimilarVenues({ currentVenueId, currentVenueLocation, currentVen
     </Card>
   )
 }
+
+
+export default SimilarVenues

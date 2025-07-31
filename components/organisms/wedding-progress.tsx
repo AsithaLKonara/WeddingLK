@@ -430,3 +430,6 @@ export function WeddingProgress() {
     </Card>
   )
 }
+
+
+export default WeddingProgress

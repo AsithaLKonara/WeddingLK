@@ -10,7 +10,7 @@ import { Search, Calendar, Users, Sparkles, Mic, MicOff } from "lucide-react"
 import { LocationDropdown } from "@/components/molecules/location-dropdown"
 import { AISearchResults } from "@/components/molecules/ai-search-results"
 
-export default function AISearchSection(props) {
+export default function AISearchSection(props: any) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedLocation, setSelectedLocation] = useState("")
   const [selectedDate, setSelectedDate] = useState("")

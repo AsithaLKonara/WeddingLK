@@ -54,3 +54,6 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     </AnimatePresence>
   )
 }
+
+
+export default MobileMenu

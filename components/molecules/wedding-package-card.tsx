@@ -194,3 +194,6 @@ export function WeddingPackageCard({ package: pkg }: WeddingPackageCardProps) {
     </motion.div>
   )
 }
+
+
+export default WeddingPackageCard

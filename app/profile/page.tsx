@@ -1,14 +1,10 @@
 "use client"
 
-import dynamic from "next/dynamic"
-
+import React from "react"
 import { MainLayout } from "@/components/templates/main-layout"
-
+import { ProfileHeader } from "@/components/organisms/profile-header"
+import { ProfileTabs } from "@/components/organisms/profile-tabs"
 import { motion } from "framer-motion"
-
-const ProfileHeader = dynamic(() => import("@/components/organisms/profile-header"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const ProfileTabs = dynamic(() => import("@/components/organisms/profile-tabs"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function ProfilePage() {
   return (
@@ -29,3 +25,6 @@ export default function ProfilePage() {
     </MainLayout>
   )
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

@@ -1,18 +1,25 @@
 # Development Dockerfile for WeddingLK Next.js application
 FROM node:18-alpine
 
-# Install dependencies
-RUN apk add --no-cache libc6-compat
+# Install dependencies including Python and build tools for native modules
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    git \
+    krb5-dev \
+    e2fsprogs-dev
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 
-# Install dependencies
+# Install dependencies with legacy peer deps to avoid conflicts
 RUN \
-  if [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  if [ -f package-lock.json ]; then npm ci --legacy-peer-deps; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile --legacy-peer-deps; \
   else echo "Lockfile not found." && exit 1; \
   fi
 

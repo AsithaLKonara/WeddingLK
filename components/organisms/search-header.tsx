@@ -42,3 +42,6 @@ export function SearchHeader() {
     </div>
   )
 }
+
+
+export default SearchHeader

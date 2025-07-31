@@ -26,3 +26,6 @@ export function FeatureCard({ icon: Icon, title, description, className = "" }: 
     </motion.div>
   )
 }
+
+
+export default FeatureCard

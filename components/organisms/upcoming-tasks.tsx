@@ -554,3 +554,6 @@ export function UpcomingTasks() {
     </Card>
   )
 }
+
+
+export default UpcomingTasks

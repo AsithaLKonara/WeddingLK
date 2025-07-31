@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -300,3 +300,6 @@ export function PaymentForm({ booking, onPaymentSuccess }: PaymentFormProps) {
     </div>
   )
 }
+
+
+export default PaymentForm

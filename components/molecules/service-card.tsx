@@ -34,3 +34,6 @@ export function ServiceCard({ icon: Icon, title, description, color, count, clas
     </motion.div>
   )
 }
+
+
+export default ServiceCard

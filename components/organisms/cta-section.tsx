@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Sparkles } from "lucide-react"
 import Link from "next/link"
 
-export default function CTASection(props) {
+export default function CTASection(props: any) {
   return (
     <section className="py-20 sm:py-32">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

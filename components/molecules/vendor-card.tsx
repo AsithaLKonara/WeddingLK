@@ -87,3 +87,6 @@ export function VendorCard({
     </motion.div>
   )
 }
+
+
+export default VendorCard

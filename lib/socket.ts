@@ -9,13 +9,13 @@ export interface SocketServer extends NetServer {
 export interface SocketWithIO extends NextApiRequest {
   socket: {
     server: SocketServer
-  }
+  } & NextApiRequest['socket']
 }
 
 export interface NextApiResponseWithSocket extends NextApiResponse {
   socket: {
     server: SocketServer
-  }
+  } & NextApiResponse['socket']
 }
 
 export const initSocket = (req: SocketWithIO, res: NextApiResponseWithSocket) => {

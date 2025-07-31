@@ -101,3 +101,6 @@ export function PersonalInfo() {
     </Card>
   )
 }
+
+
+export default PersonalInfo

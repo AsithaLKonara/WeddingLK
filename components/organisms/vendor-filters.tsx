@@ -107,3 +107,6 @@ export function VendorFilters({ filters, onFiltersChange }: VendorFiltersProps) 
     </Card>
   )
 }
+
+
+export default VendorFilters

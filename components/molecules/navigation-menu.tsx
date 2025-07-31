@@ -27,3 +27,6 @@ export function NavigationMenu() {
     </nav>
   )
 }
+
+
+export default NavigationMenu

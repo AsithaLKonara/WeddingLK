@@ -187,3 +187,6 @@ export const LazyMainLayout = lazy(() => import("@/components/templates/main-lay
 
 // Lazy loading for theme provider
 export const LazyThemeProvider = lazy(() => import("@/components/providers/theme-provider"))
+
+
+export default LazyComponent

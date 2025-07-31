@@ -191,3 +191,6 @@ export function QuickActions() {
     </Card>
   )
 }
+
+
+export default QuickActions

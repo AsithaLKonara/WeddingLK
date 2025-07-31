@@ -134,3 +134,6 @@ export function VendorContact({ vendor }: VendorContactProps) {
     </Card>
   )
 }
+
+
+export default VendorContact

@@ -181,3 +181,6 @@ export function BookingConfirmation({ booking }: BookingConfirmationProps) {
     </div>
   )
 }
+
+
+export default BookingConfirmation

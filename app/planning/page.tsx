@@ -1,21 +1,14 @@
 "use client"
 
-import dynamic from "next/dynamic"
-
+import React from "react"
 import { useState } from "react"
 import { MainLayout } from "@/components/templates/main-layout"
-
+import { PlanningTabs } from "@/components/organisms/planning-tabs"
+import { WeddingChecklist } from "@/components/organisms/wedding-checklist"
+import { WeddingTimeline } from "@/components/organisms/wedding-timeline"
+import { BudgetTracker } from "@/components/organisms/budget-tracker"
+import { GuestList } from "@/components/organisms/guest-list"
 import { motion } from "framer-motion"
-
-const PlanningTabs = dynamic(() => import("@/components/organisms/planning-tabs"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const WeddingChecklist = dynamic(() => import("@/components/organisms/wedding-checklist"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const WeddingTimeline = dynamic(() => import("@/components/organisms/wedding-timeline"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const BudgetTracker = dynamic(() => import("@/components/organisms/budget-tracker"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const GuestList = dynamic(() => import("@/components/organisms/guest-list"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function PlanningPage() {
   const [activeTab, setActiveTab] = useState("checklist")
@@ -73,3 +66,6 @@ export default function PlanningPage() {
     </MainLayout>
   )
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

@@ -100,20 +100,21 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
 // Hook for functional components
 export function useErrorHandler() {
-  return (error: Error, errorInfo?: any) => {
-    console.error("Error handled:", error, errorInfo)
+  const [error, setError] = React.useState<Error | null>(null)
 
-    // Log to monitoring service
-    fetch("/api/errors", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: error.message,
-        stack: error.stack,
-        timestamp: new Date().toISOString(),
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-      }),
-    }).catch(console.error)
-  }
+  const handleError = React.useCallback((error: Error) => {
+    console.error("Error handled:", error)
+    setError(error)
+  }, [])
+
+  const clearError = React.useCallback(() => {
+    setError(null)
+  }, [])
+
+  return { error, handleError, clearError }
+}
+
+// Default export for lazy loading
+export default function ErrorBoundaryWrapper(props: ErrorBoundaryProps) {
+  return <ErrorBoundary {...props} />
 }

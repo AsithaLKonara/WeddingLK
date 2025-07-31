@@ -86,3 +86,6 @@ export function VendorGrid({ category, filters }: VendorGridProps) {
     </div>
   )
 }
+
+
+export default VendorGrid

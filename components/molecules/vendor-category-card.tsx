@@ -51,3 +51,6 @@ export function VendorCategoryCard({ title, count, image, description, className
     </motion.div>
   )
 }
+
+
+export default VendorCategoryCard

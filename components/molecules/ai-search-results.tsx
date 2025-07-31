@@ -289,3 +289,6 @@ export function AISearchResults({ results }: AISearchResultsProps) {
     </div>
   )
 }
+
+
+export default AISearchResults

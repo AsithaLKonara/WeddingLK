@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -239,7 +240,7 @@ export default function AIEnhancementsPage() {
                                   <div>
                                     <span className="font-medium block mb-2">Suggestions:</span>
                                     <ul className="space-y-1">
-                                      {feature.demo.output.suggestions.map((suggestion, index) => (
+                                      {feature.demo.output.suggestions?.map((suggestion, index) => (
                                         <li
                                           key={index}
                                           className="text-sm text-gray-600 dark:text-gray-400 flex items-center"
@@ -247,7 +248,7 @@ export default function AIEnhancementsPage() {
                                           <Star className="h-3 w-3 mr-2 text-yellow-500" />
                                           {suggestion}
                                         </li>
-                                      ))}
+                                      )) || []}
                                     </ul>
                                   </div>
                                 </div>
@@ -255,7 +256,7 @@ export default function AIEnhancementsPage() {
 
                               {feature.id === "budget-optimizer" && (
                                 <div className="space-y-3">
-                                  {feature.demo.output.allocations.map((allocation, index) => (
+                                  {feature.demo.output.allocations?.map((allocation, index) => (
                                     <div key={index} className="flex items-center justify-between">
                                       <span className="font-medium">{allocation.category}:</span>
                                       <div className="text-right">
@@ -263,13 +264,13 @@ export default function AIEnhancementsPage() {
                                         <div className="text-sm text-gray-500">{allocation.percentage}%</div>
                                       </div>
                                     </div>
-                                  ))}
+                                  )) || []}
                                 </div>
                               )}
 
                               {feature.id === "vendor-matcher" && (
                                 <div className="space-y-3">
-                                  {feature.demo.output.matches.map((match, index) => (
+                                  {feature.demo.output.matches?.map((match, index) => (
                                     <div key={index} className="flex items-center justify-between">
                                       <div>
                                         <div className="font-medium">{match.name}</div>
@@ -277,7 +278,7 @@ export default function AIEnhancementsPage() {
                                       </div>
                                       <Badge className="bg-green-100 text-green-800">{match.score}% match</Badge>
                                     </div>
-                                  ))}
+                                  )) || []}
                                 </div>
                               )}
 
@@ -291,11 +292,11 @@ export default function AIEnhancementsPage() {
                                   <div>
                                     <span className="font-medium block mb-2">Generated Elements:</span>
                                     <div className="flex flex-wrap gap-2">
-                                      {feature.demo.output.elements.map((element, index) => (
+                                      {feature.demo.output.elements?.map((element, index) => (
                                         <Badge key={index} variant="outline">
                                           {element}
                                         </Badge>
-                                      ))}
+                                      )) || []}
                                     </div>
                                   </div>
                                 </div>
@@ -389,3 +390,6 @@ export default function AIEnhancementsPage() {
     </div>
   )
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

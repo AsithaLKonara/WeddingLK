@@ -27,3 +27,5 @@ export function FavoriteVendors() {
     </Card>
   )
 } 
+
+export default FavoriteVendors

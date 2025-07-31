@@ -73,3 +73,6 @@ export function FeaturesSection() {
     </section>
   )
 }
+
+
+export default FeaturesSection

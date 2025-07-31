@@ -103,3 +103,6 @@ export function VendorProfile({ vendor }: VendorProfileProps) {
     </Card>
   )
 }
+
+
+export default VendorProfile

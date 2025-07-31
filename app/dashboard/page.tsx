@@ -63,11 +63,11 @@ export default function DashboardPage() {
   const [phone, setPhone] = useState("")
   const [weddingDate, setWeddingDate] = useState("")
   const [preferences, setPreferences] = useState("")
-
+  
   // Onboarding/email verification state
   const [onboardingIncomplete, setOnboardingIncomplete] = useState(false)
   const [emailUnverified, setEmailUnverified] = useState(false)
-
+  
   // Profile completion logic with gamification
   const profileFields = [
     { key: 'name', label: 'Name', weight: 20 },
@@ -101,7 +101,7 @@ export default function DashboardPage() {
       setPhone(user.phone || "")
       setWeddingDate(user.weddingDate || "")
       setPreferences(user.preferences || "")
-    }
+            }
   }, [user])
 
   if (isLoading) return <div className="p-8 text-center">Loading profile...</div>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
               </AlertDescription>
             </Alert>
           )}
-
+          
           {/* Enhanced Profile Completion Widget with Gamification */}
           <div className="max-w-lg mx-auto mb-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col gap-4">
@@ -241,7 +241,7 @@ export default function DashboardPage() {
               {mutation.isSuccess && <div className="text-green-600">Profile updated!</div>}
             </form>
           </div>
-
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">

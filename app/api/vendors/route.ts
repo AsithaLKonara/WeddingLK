@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
-import { Vendor } from "@/lib/models/vendor"
 
 // Mock vendor data
 const vendors = [
@@ -36,7 +35,21 @@ const vendors = [
 
 export async function GET(request: NextRequest) {
   try {
+    // Skip during build time
+    if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
+      return NextResponse.json({
+        success: true,
+        data: vendors,
+        count: vendors.length,
+        filters: {},
+      })
+    }
+
     await connectDB()
+    
+    // Dynamically import the Vendor model
+    const { Vendor } = await import("@/lib/models/vendor")
+    
     const { searchParams } = new URL(request.url)
     const vendorId = searchParams.get("vendorId")
     if (vendorId) {
@@ -161,7 +174,16 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Skip during build time
+    if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
+      return NextResponse.json({ error: "Service unavailable during build" }, { status: 503 })
+    }
+
     await connectDB()
+    
+    // Dynamically import the Vendor model
+    const { Vendor } = await import("@/lib/models/vendor")
+    
     const body = await request.json()
     const { vendorId, services, portfolio, packages, availability, onboardingComplete } = body
     if (!vendorId) {

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
           validationResult = registrationSchema.parse(data)
         } catch (error) {
           if (error instanceof z.ZodError) {
-            errors = error.errors.map((err) => `${err.path.join(".")}: ${err.message}`)
+            errors = error.issues.map((err: z.ZodIssue) => `${err.path.join(".")}: ${err.message}`)
           }
         }
         break
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
           validationResult = bookingSchema.parse(data)
         } catch (error) {
           if (error instanceof z.ZodError) {
-            errors = error.errors.map((err) => `${err.path.join(".")}: ${err.message}`)
+            errors = error.issues.map((err: z.ZodIssue) => `${err.path.join(".")}: ${err.message}`)
           }
         }
         break
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
           validationResult = paymentSchema.parse(data)
         } catch (error) {
           if (error instanceof z.ZodError) {
-            errors = error.errors.map((err) => `${err.path.join(".")}: ${err.message}`)
+            errors = error.issues.map((err: z.ZodIssue) => `${err.path.join(".")}: ${err.message}`)
           }
         }
         break

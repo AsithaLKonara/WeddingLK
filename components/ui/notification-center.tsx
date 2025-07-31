@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useEffect } from 'react'
 import { Bell, X, Check, Trash2, MessageCircle, Calendar, Star, DollarSign, Package, Users, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -310,3 +311,5 @@ export function NotificationCenter({
     </Dialog>
   )
 } 
+
+export default NotificationCenter

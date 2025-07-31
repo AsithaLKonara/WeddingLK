@@ -163,3 +163,6 @@ export function PageLoader({ text = "Loading..." }: { text?: string }) {
     </div>
   )
 }
+
+
+export default LoadingSpinner

@@ -110,3 +110,6 @@ export function LocationDropdown({ value, onChange, placeholder = "Select locati
     </Popover>
   )
 }
+
+
+export default LocationDropdown

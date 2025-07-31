@@ -187,3 +187,6 @@ export function TeamSection() {
     </section>
   )
 }
+
+
+export default TeamSection

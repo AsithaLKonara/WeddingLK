@@ -1,15 +1,9 @@
 "use client"
+import React from "react"
 import { MainLayout } from "@/components/templates/main-layout"
-import dynamic from "next/dynamic"
+import { ContactForm } from "@/components/organisms/contact-form"
+import { ContactInfo } from "@/components/organisms/contact-info"
 import { motion } from "framer-motion"
-
-// Lazy load components for better performance
-const ContactForm = dynamic(() => import("@/components/organisms/contact-form"), { 
-  loading: () => <div className="h-96 bg-gray-100 dark:bg-gray-800 animate-pulse" /> 
-})
-const ContactInfo = dynamic(() => import("@/components/organisms/contact-info"), { 
-  loading: () => <div className="py-20 bg-gray-50 dark:bg-gray-900 animate-pulse" /> 
-})
 
 export default function ContactPage() {
   return (
@@ -39,3 +33,6 @@ export default function ContactPage() {
     </MainLayout>
   )
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 import { PageLoader } from "@/components/ui/loading-spinner"
 
 // Import components directly since they have named exports
@@ -93,3 +93,6 @@ function PerformanceMonitor() {
 
   return null
 }
+
+
+export default MainLayout

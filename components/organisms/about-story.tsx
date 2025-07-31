@@ -184,3 +184,6 @@ export function AboutStory() {
     </section>
   )
 }
+
+
+export default AboutStory

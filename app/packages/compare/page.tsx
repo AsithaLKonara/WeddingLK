@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { MainLayout } from "@/components/templates/main-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,22 +9,23 @@ import { Badge } from "@/components/ui/badge"
 import { Check, X, Star, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+interface PackageFeatures {
+  [key: string]: boolean
+}
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Badge will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+interface Package {
+  id: number
+  title: string
+  price: number
+  originalPrice: number
+  rating: number
+  features: PackageFeatures
+}
 
 export default function ComparePackagesPage() {
   const router = useRouter()
 
-  const packages = [
+  const packages: Package[] = [
     {
       id: 1,
       title: "Premium Elite Package",
@@ -158,3 +160,6 @@ export default function ComparePackagesPage() {
     </MainLayout>
   )
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Sparkles, Crown, Star, Award } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-export default function WeddingPackagesSection(props) {
+export default function WeddingPackagesSection(props: any) {
   const router = useRouter()
   const packages = [
     {

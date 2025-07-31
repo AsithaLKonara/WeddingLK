@@ -1,0 +1,31 @@
+# Minimal Dockerfile for WeddingLK - Copy built application
+FROM node:18-alpine
+
+# Install only runtime dependencies
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production --ignore-scripts
+
+# Copy the built application (we'll build it locally first)
+COPY .next ./.next
+COPY public ./public
+COPY next.config.mjs ./
+
+# Create a simple start script
+RUN echo '#!/bin/sh\nnode server.js' > start.sh && chmod +x start.sh
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Start the application
+CMD ["./start.sh"] 

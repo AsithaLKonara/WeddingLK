@@ -64,3 +64,6 @@ export function PlanningTabs({ activeTab, onTabChange }: PlanningTabsProps) {
     </div>
   )
 }
+
+
+export default PlanningTabs

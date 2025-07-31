@@ -1,0 +1,28 @@
+# Production Dockerfile for WeddingLK - Development mode for now
+FROM node:18-alpine
+
+# Install runtime dependencies
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Copy existing node_modules to avoid network issues
+COPY node_modules ./node_modules
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Start the application in development mode (avoids build issues)
+CMD ["npm", "run", "dev"] 

@@ -21,3 +21,6 @@ export function Logo({ variant = "dark", className = "" }: LogoProps) {
     </Link>
   )
 }
+
+
+export default Logo

@@ -38,3 +38,6 @@ export function DashboardHeader() {
     </div>
   )
 }
+
+
+export default DashboardHeader

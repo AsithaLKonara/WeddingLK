@@ -1,15 +1,11 @@
 "use client"
 
-import dynamic from "next/dynamic"
-
+import React from "react"
 import { useState } from "react"
 import { MainLayout } from "@/components/templates/main-layout"
-
+import { GalleryFilters } from "@/components/organisms/gallery-filters"
+import { PhotoGrid } from "@/components/organisms/photo-grid"
 import { motion } from "framer-motion"
-
-const GalleryFilters = dynamic(() => import("@/components/organisms/gallery-filters"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-const PhotoGrid = dynamic(() => import("@/components/organisms/photo-grid"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
@@ -61,3 +57,6 @@ export default function GalleryPage() {
     </MainLayout>
   )
 }
+
+// Prevent static generation and force dynamic rendering
+export const dynamic = 'force-dynamic'

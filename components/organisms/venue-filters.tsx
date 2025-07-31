@@ -143,3 +143,6 @@ export function VenueFilters({ filters, onFiltersChange }: VenueFiltersProps) {
     </Card>
   )
 }
+
+
+export default VenueFilters

@@ -1,4 +1,4 @@
-import type React from "react"
+import React from "react"
 import { cn } from "@/lib/utils"
 
 interface EmptyStateProps {
@@ -19,3 +19,6 @@ export function EmptyState({ title, description, icon, action, className }: Empt
     </div>
   )
 }
+
+
+export default EmptyState

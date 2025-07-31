@@ -30,7 +30,7 @@ const categories = [
   },
 ]
 
-export default function VendorCategoriesSection(props) {
+export default function VendorCategoriesSection(props: any) {
   return (
     <section className="py-20 bg-gray-50 dark:bg-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

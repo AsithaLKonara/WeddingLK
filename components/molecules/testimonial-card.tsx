@@ -45,3 +45,6 @@ export function TestimonialCard({ name, role, content, avatar, rating, className
     </motion.div>
   )
 }
+
+
+export default TestimonialCard

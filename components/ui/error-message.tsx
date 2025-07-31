@@ -14,3 +14,6 @@ export function ErrorMessage({ message, className }: ErrorMessageProps) {
     </div>
   )
 }
+
+
+export default ErrorMessage

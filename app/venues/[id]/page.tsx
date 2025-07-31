@@ -1,10 +1,18 @@
 "use client"
 
 import dynamic from "next/dynamic"
-
 import { MainLayout } from "@/components/templates/main-layout"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
-import { motion } from "framer-motion"
+const VenueHero = dynamic(() => import("@/components/organisms/venue-hero"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const VenueDetails = dynamic(() => import("@/components/organisms/venue-details"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const VenueGallery = dynamic(() => import("@/components/organisms/venue-gallery"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const VenueReviews = dynamic(() => import("@/components/organisms/venue-reviews"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const SimilarVenues = dynamic(() => import("@/components/organisms/similar-venues"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const VenueBooking = dynamic(() => import("@/components/organisms/venue-booking"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 interface VenuePageProps {
   params: Promise<{
@@ -15,80 +23,63 @@ interface VenuePageProps {
 export default async function VenuePage({ params }: VenuePageProps) {
   const { id } = await params
   
+  // Mock venue data - replace with actual API call
   const venue = {
-    id,
-    name: "Grand Ballroom at Hilton",
+    id: id,
+    name: "Grand Ballroom Hotel",
     location: "Colombo",
-    price: 150000,
     capacity: 300,
-    rating: 4.8,
-    reviewCount: 156,
-    description: "Elegant ballroom with stunning city views, perfect for your dream wedding.",
-    amenities: ["Parking", "Catering", "Decoration", "Music System", "Photography"],
-    images: [
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-    ],
+    price: 150000,
+    rating: 4.7,
+    reviewCount: 89,
+    description: "Luxurious wedding venue with stunning ocean views",
+    images: ["/placeholder.jpg", "/placeholder.jpg", "/placeholder.jpg"],
+    amenities: ["Parking", "Catering", "Decoration", "Audio/Visual", "Bridal Suite"],
     contact: {
-      phone: "+94771234567",
-      email: "events@hilton.lk",
-      website: "www.hilton.lk",
-    },
+      phone: "+94 11 234 5678",
+      email: "events@grandballroom.lk",
+      website: "www.grandballroom.lk"
+    }
   }
 
   return (
     <MainLayout>
       <div className="min-h-screen bg-white dark:bg-gray-900">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <VenueHero venue={venue} />
-        </motion.div>
+        <VenueHero venue={venue} />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="container mx-auto px-4 py-8">
           <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <VenueDetails venue={venue} />
-              </motion.div>
+            <div className="lg:col-span-2">
+              <Tabs defaultValue="details" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="details">Details</TabsTrigger>
+                  <TabsTrigger value="gallery">Gallery</TabsTrigger>
+                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                  <TabsTrigger value="similar">Similar</TabsTrigger>
+                </TabsList>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-              >
-                <VenueGallery images={venue.images} />
-              </motion.div>
+                <TabsContent value="details">
+                  <VenueDetails venue={venue} />
+                </TabsContent>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-              >
-                <VenueReviews venueId={venue.id} />
-              </motion.div>
+                <TabsContent value="gallery">
+                  <VenueGallery images={venue.images} />
+                </TabsContent>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-              >
-                <SimilarVenues currentVenueId={venue.id} />
-              </motion.div>
+                <TabsContent value="reviews">
+                  <VenueReviews venueId={venue.id} />
+                </TabsContent>
+
+                <TabsContent value="similar">
+                  <SimilarVenues currentVenueId={venue.id} />
+                </TabsContent>
+              </Tabs>
             </div>
 
             <div className="lg:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="sticky top-24"
-              >
+              <div className="sticky top-24">
                 <VenueBooking venue={venue} />
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>

@@ -41,3 +41,6 @@ export function FeedPosts({ activeFilter, onFilterChange }: FeedPostsProps) {
     </div>
   )
 }
+
+
+export default FeedPosts

@@ -37,3 +37,6 @@ export function VendorCategories({ selectedCategory, onCategoryChange }: VendorC
     </div>
   )
 }
+
+
+export default VendorCategories

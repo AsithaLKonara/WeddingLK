@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useEffect, ReactNode } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -353,3 +354,6 @@ export function useMemoryMonitor() {
 
   return memoryInfo
 }
+
+
+export default LoadingSkeleton
