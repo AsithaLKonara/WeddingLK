@@ -1,88 +1,294 @@
 "use client"
 
-import { VendorCard } from "@/components/molecules/vendor-card"
+import React, { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SlidersHorizontal } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/hooks/use-toast"
+import { MapPin, Star, Calendar, Heart, Eye, Phone, Mail } from "lucide-react"
+import Link from "next/link"
 
-interface VendorGridProps {
+interface Vendor {
+  _id: string
+  name: string
+  businessName: string
   category: string
-  filters: any
+  description: string
+  location: {
+    address: string
+    city: string
+    province: string
+  }
+  contact: {
+    phone: string
+    email: string
+    website?: string
+  }
+  services: Array<{
+    name: string
+    description: string
+    price: number
+  }>
+  portfolio: string[]
+  pricing: {
+    startingPrice: number
+    currency: string
+  }
+  rating: {
+    average: number
+    count: number
+  }
 }
 
-export function VendorGrid({ category, filters }: VendorGridProps) {
-  // Mock vendors data
-  const vendors = [
-    {
-      id: 1,
-      name: "Perfect Moments Photography",
-      category: "Photography",
-      location: "Colombo",
-      rating: 4.9,
-      price: 75000,
-      image: "/placeholder.svg?height=200&width=300",
-      portfolio: ["/placeholder.svg?height=150&width=200"],
-    },
-    {
-      id: 2,
-      name: "Delicious Catering Co.",
-      category: "Catering",
-      location: "Galle",
-      rating: 4.7,
-      price: 2500,
-      image: "/placeholder.svg?height=200&width=300",
-      portfolio: ["/placeholder.svg?height=150&width=200"],
-    },
-    {
-      id: 3,
-      name: "Harmony Live Band",
-      category: "Entertainment",
-      location: "Kandy",
-      rating: 4.8,
-      price: 45000,
-      image: "/placeholder.svg?height=200&width=300",
-      portfolio: ["/placeholder.svg?height=150&width=200"],
-    },
-  ]
+interface VendorGridProps {
+  limit?: number
+  category?: string
+  location?: string
+  className?: string
+}
 
-  return (
-    <div className="space-y-6">
-      {/* Header with controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{vendors.length} vendors found</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300">Trusted professionals for your wedding</p>
-        </div>
+export function VendorGrid({ limit = 6, category, location, className = "" }: VendorGridProps) {
+  const [vendors, setVendors] = useState<Vendor[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
 
-        <div className="flex items-center space-x-4">
-          <Select defaultValue="popular">
-            <SelectTrigger className="w-40">
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="popular">Most Popular</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-              <SelectItem value="rating">Highest Rated</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+  useEffect(() => {
+    loadVendors()
+  }, [limit, category, location])
 
-      {/* Vendors Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {vendors.map((vendor) => (
-          <VendorCard key={vendor.id} {...vendor} />
+  const loadVendors = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      // Build query parameters
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        offset: '0',
+      })
+
+      if (category) {
+        params.append('category', category)
+      }
+
+      if (location) {
+        params.append('location', location)
+      }
+
+      const response = await fetch(`/api/vendors?${params}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setVendors(data.vendors)
+      } else {
+        setError(data.error || 'Failed to load vendors')
+        toast({
+          title: "Error",
+          description: data.error || 'Failed to load vendors',
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error loading vendors:', error)
+      setError('Failed to load vendors')
+      toast({
+        title: "Error",
+        description: 'Failed to load vendors',
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
+      currency: currency || 'LKR',
+      minimumFractionDigits: 0,
+    }).format(price)
+  }
+
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      photographer: 'bg-blue-100 text-blue-800',
+      caterer: 'bg-green-100 text-green-800',
+      decorator: 'bg-purple-100 text-purple-800',
+      music: 'bg-yellow-100 text-yellow-800',
+      transport: 'bg-red-100 text-red-800',
+      makeup: 'bg-pink-100 text-pink-800',
+      jewelry: 'bg-orange-100 text-orange-800',
+      clothing: 'bg-indigo-100 text-indigo-800',
+    }
+    return colors[category.toLowerCase()] || 'bg-gray-100 text-gray-800'
+  }
+
+  const handleFavorite = (vendorId: string) => {
+    // TODO: Implement favorite functionality
+    toast({
+      title: "Added to favorites",
+      description: "Vendor added to your favorites list",
+    })
+  }
+
+  const handleContact = (vendor: Vendor) => {
+    // TODO: Implement contact functionality
+    toast({
+      title: "Contact Vendor",
+      description: `Contacting ${vendor.businessName}`,
+    })
+  }
+
+  if (isLoading) {
+    return (
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+        {Array.from({ length: limit }).map((_, index) => (
+          <Card key={index} className="overflow-hidden">
+            <Skeleton className="h-48 w-full" />
+            <CardHeader className="p-4">
+              <Skeleton className="h-6 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-2/3" />
+            </CardContent>
+          </Card>
         ))}
       </div>
+    )
+  }
 
-      {/* Load More */}
-      <div className="text-center pt-8">
-        <Button variant="outline" size="lg">
-          Load More Vendors
+  if (error) {
+    return (
+      <div className={`text-center py-8 ${className}`}>
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button onClick={loadVendors} variant="outline">
+          Try Again
         </Button>
       </div>
+    )
+  }
+
+  if (vendors.length === 0) {
+    return (
+      <div className={`text-center py-8 ${className}`}>
+        <p className="text-gray-500 mb-4">No vendors found</p>
+        <Button onClick={loadVendors} variant="outline">
+          Refresh
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+      {vendors.map((vendor) => (
+        <Card key={vendor._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          <div className="relative">
+            <img
+              src={vendor.portfolio[0] || '/placeholder.svg'}
+              alt={vendor.businessName}
+              className="w-full h-48 object-cover"
+            />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute top-2 right-2 h-8 w-8 p-0 bg-white/80 hover:bg-white"
+              onClick={() => handleFavorite(vendor._id)}
+            >
+              <Heart className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <CardHeader className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-semibold mb-1 line-clamp-1">
+                  {vendor.businessName}
+                </CardTitle>
+                <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span>{vendor.location.city}, {vendor.location.province}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Badge className={getCategoryColor(vendor.category)}>
+                {vendor.category}
+              </Badge>
+              <div className="flex items-center text-sm text-gray-600">
+                <Star className="h-4 w-4 mr-1 text-yellow-500" />
+                <span>{vendor.rating.average.toFixed(1)} ({vendor.rating.count})</span>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-4 pt-0">
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                {vendor.description}
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {vendor.services.slice(0, 2).map((service, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {service.name}
+                  </Badge>
+                ))}
+                {vendor.services.length > 2 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{vendor.services.length - 2} more
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-lg font-semibold text-green-600">
+                  {formatPrice(vendor.pricing.startingPrice, vendor.pricing.currency)}
+                </p>
+                <p className="text-xs text-gray-500">Starting price</p>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                >
+                  <Link href={`/vendors/${vendor._id}`}>
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Link>
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleContact(vendor)}
+                >
+                  <Phone className="h-4 w-4 mr-1" />
+                  Contact
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t">
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center">
+                  <Phone className="h-3 w-3 mr-1" />
+                  <span>{vendor.contact.phone}</span>
+                </div>
+                <div className="flex items-center">
+                  <Mail className="h-3 w-3 mr-1" />
+                  <span>{vendor.contact.email}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   )
 }

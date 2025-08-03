@@ -1,207 +1,304 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { connectDB } from "@/lib/db"
+import { NextRequest, NextResponse } from 'next/server'
+import { connectDB } from '@/lib/db'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
-// Mock vendor data
-const vendors = [
-  {
-    id: 1,
-    name: "Perfect Moments Photography",
-    category: "Photography",
-    location: "Colombo",
-    rating: 4.9,
-    price: 75000,
-    portfolio: ["/placeholder.svg?height=300&width=400"],
-    contact: {
-      phone: "+94771234567",
-      email: "info@perfectmoments.lk",
-    },
-    createdAt: "2024-01-01T00:00:00.000Z",
-  },
-  {
-    id: 2,
-    name: "Delicious Catering Co.",
-    category: "Catering",
-    location: "Galle",
-    rating: 4.7,
-    price: 2500,
-    portfolio: ["/placeholder.svg?height=300&width=400"],
-    contact: {
-      phone: "+94771234568",
-      email: "orders@deliciouscatering.lk",
-    },
-    createdAt: "2024-01-01T00:00:00.000Z",
-  },
-]
-
+// GET /api/vendors - Get vendors with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
-    // Skip during build time
-    if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
+    const { searchParams } = new URL(request.url)
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const offset = parseInt(searchParams.get('offset') || '0')
+    const category = searchParams.get('category')
+    const location = searchParams.get('location')
+    const minPrice = searchParams.get('minPrice')
+    const maxPrice = searchParams.get('maxPrice')
+    const rating = searchParams.get('rating')
+    const vendorId = searchParams.get('vendorId')
+
+    await connectDB()
+
+    // Dynamically import the Vendor model
+    const { Vendor } = await import('@/lib/models/vendor')
+
+    // If specific vendor ID is requested
+    if (vendorId) {
+      const vendor = await Vendor.findById(vendorId)
+        .populate('owner', 'firstName lastName email')
+        .populate('reviews.user', 'firstName lastName')
+      
+      if (!vendor) {
+        return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
+      }
+
       return NextResponse.json({
         success: true,
-        data: vendors,
-        count: vendors.length,
-        filters: {},
+        vendor,
       })
     }
 
-    await connectDB()
-    
-    // Dynamically import the Vendor model
-    const { Vendor } = await import("@/lib/models/vendor")
-    
-    const { searchParams } = new URL(request.url)
-    const vendorId = searchParams.get("vendorId")
-    if (vendorId) {
-      const vendor = await Vendor.findById(vendorId)
-      if (!vendor) {
-        return NextResponse.json({ success: false, error: "Vendor not found" }, { status: 404 })
-      }
-      return NextResponse.json({ success: true, vendor })
-    }
-    const category = searchParams.get("category")
-    const location = searchParams.get("location")
-
-    let filteredVendors = vendors
+    // Build query
+    const query: any = {}
 
     if (category) {
-      filteredVendors = filteredVendors.filter((vendor) =>
-        vendor.category.toLowerCase().includes(category.toLowerCase()),
-      )
+      query.category = { $regex: category, $options: 'i' }
     }
 
     if (location) {
-      filteredVendors = filteredVendors.filter((vendor) =>
-        vendor.location.toLowerCase().includes(location.toLowerCase()),
-      )
+      query['location.city'] = { $regex: location, $options: 'i' }
     }
 
-    const response = NextResponse.json({
+    if (minPrice || maxPrice) {
+      query['pricing.startingPrice'] = {}
+      if (minPrice) query['pricing.startingPrice'].$gte = parseInt(minPrice)
+      if (maxPrice) query['pricing.startingPrice'].$lte = parseInt(maxPrice)
+    }
+
+    if (rating) {
+      query['rating.average'] = { $gte: parseFloat(rating) }
+    }
+
+    // Get vendors with pagination
+    const vendors = await Vendor.find(query)
+      .populate('owner', 'firstName lastName email')
+      .populate('reviews.user', 'firstName lastName')
+      .sort({ 'rating.average': -1, createdAt: -1 })
+      .limit(limit)
+      .skip(offset)
+
+    const total = await Vendor.countDocuments(query)
+
+    return NextResponse.json({
       success: true,
-      data: filteredVendors,
-      count: filteredVendors.length,
-      filters: { category, location },
+      vendors,
+      pagination: {
+        page: Math.floor(offset / limit) + 1,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
     })
-
-    response.headers.set("Access-Control-Allow-Origin", "*")
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-    return response
   } catch (error) {
-    console.error("Error fetching vendors:", error)
+    console.error('Error fetching vendors:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to fetch vendors",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
+      { error: 'Failed to fetch vendors' },
+      { status: 500 }
     )
   }
 }
 
+// POST /api/vendors - Create new vendor
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
+    const {
+      name,
+      businessName,
+      category,
+      description,
+      location,
+      contact,
+      services,
+      portfolio,
+      pricing,
+    } = body
 
-    // Validate required fields
-    if (!body.name || !body.category || !body.location) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Missing required fields",
-          required: ["name", "category", "location"],
-        },
-        { status: 400 },
-      )
-    }
-
-    const newVendor = {
-      id: Math.max(...vendors.map((v) => v.id), 0) + 1,
-      name: body.name,
-      category: body.category,
-      location: body.location,
-      rating: body.rating || 0,
-      price: Number(body.price) || 0,
-      portfolio: body.portfolio || ["/placeholder.svg?height=300&width=400"],
-      contact: {
-        phone: body.contact?.phone || "",
-        email: body.contact?.email || "",
-      },
-      createdAt: new Date().toISOString(),
-    }
-
-    vendors.push(newVendor)
-
-    const response = NextResponse.json(
-      {
-        success: true,
-        data: newVendor,
-        message: "Vendor created successfully",
-      },
-      { status: 201 },
-    )
-
-    response.headers.set("Access-Control-Allow-Origin", "*")
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-    return response
-  } catch (error) {
-    console.error("Error creating vendor:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to create vendor",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    )
-  }
-}
-
-export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  })
-}
-
-export async function PATCH(request: NextRequest) {
-  try {
-    // Skip during build time
-    if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
-      return NextResponse.json({ error: "Service unavailable during build" }, { status: 503 })
+    if (!name || !businessName || !category || !description || !location || !contact) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     await connectDB()
-    
+
     // Dynamically import the Vendor model
-    const { Vendor } = await import("@/lib/models/vendor")
-    
+    const { Vendor } = await import('@/lib/models/vendor')
+
+    // Create vendor
+    const vendor = await Vendor.create({
+      name,
+      businessName,
+      category,
+      description,
+      location,
+      contact,
+      services: services || [],
+      portfolio: portfolio || [],
+      pricing: pricing || { startingPrice: 0, currency: 'LKR' },
+      owner: session.user.id,
+    })
+
+    const populatedVendor = await Vendor.findById(vendor._id)
+      .populate('owner', 'firstName lastName email')
+
+    return NextResponse.json({
+      success: true,
+      vendor: populatedVendor,
+      message: 'Vendor created successfully',
+    })
+  } catch (error) {
+    console.error('Error creating vendor:', error)
+    return NextResponse.json(
+      { error: 'Failed to create vendor' },
+      { status: 500 }
+    )
+  }
+}
+
+// PUT /api/vendors - Update vendor
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { vendorId, ...updateData } = body
+
+    if (!vendorId) {
+      return NextResponse.json({ error: 'Vendor ID is required' }, { status: 400 })
+    }
+
+    await connectDB()
+
+    // Dynamically import the Vendor model
+    const { Vendor } = await import('@/lib/models/vendor')
+
+    const vendor = await Vendor.findById(vendorId)
+    if (!vendor) {
+      return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
+    }
+
+    // Check if user is owner or admin
+    if (vendor.owner.toString() !== session.user.id && session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      updateData,
+      { new: true }
+    )
+      .populate('owner', 'firstName lastName email')
+      .populate('reviews.user', 'firstName lastName')
+
+    return NextResponse.json({
+      success: true,
+      vendor: updatedVendor,
+      message: 'Vendor updated successfully',
+    })
+  } catch (error) {
+    console.error('Error updating vendor:', error)
+    return NextResponse.json(
+      { error: 'Failed to update vendor' },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE /api/vendors - Delete vendor
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const vendorId = searchParams.get('vendorId')
+
+    if (!vendorId) {
+      return NextResponse.json({ error: 'Vendor ID is required' }, { status: 400 })
+    }
+
+    await connectDB()
+
+    // Dynamically import the Vendor model
+    const { Vendor } = await import('@/lib/models/vendor')
+
+    const vendor = await Vendor.findById(vendorId)
+    if (!vendor) {
+      return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
+    }
+
+    // Check if user is owner or admin
+    if (vendor.owner.toString() !== session.user.id && session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
+    await Vendor.findByIdAndDelete(vendorId)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Vendor deleted successfully',
+    })
+  } catch (error) {
+    console.error('Error deleting vendor:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete vendor' },
+      { status: 500 }
+    )
+  }
+}
+
+// PATCH /api/vendors - Update vendor onboarding
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { vendorId, services, portfolio, packages, availability, onboardingComplete } = body
+
     if (!vendorId) {
-      return NextResponse.json({ success: false, error: "Missing vendorId" }, { status: 400 })
+      return NextResponse.json({ error: 'Missing vendorId' }, { status: 400 })
     }
+
+    await connectDB()
+
+    // Dynamically import the Vendor model
+    const { Vendor } = await import('@/lib/models/vendor')
+
+    const vendor = await Vendor.findById(vendorId)
+    if (!vendor) {
+      return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
+    }
+
+    // Check if user is owner or admin
+    if (vendor.owner.toString() !== session.user.id && session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
     const update: any = {}
     if (services) update.services = services
     if (portfolio) update.portfolio = portfolio
-    if (packages) update["pricing.packages"] = packages
+    if (packages) update['pricing.packages'] = packages
     if (availability) update.availability = availability
     if (typeof onboardingComplete === 'boolean') update.onboardingComplete = onboardingComplete
-    const vendor = await Vendor.findByIdAndUpdate(vendorId, { $set: update }, { new: true })
-    if (!vendor) {
-      return NextResponse.json({ success: false, error: "Vendor not found" }, { status: 404 })
-    }
-    return NextResponse.json({ success: true, vendor })
+
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      { $set: update },
+      { new: true }
+    )
+      .populate('owner', 'firstName lastName email')
+
+    return NextResponse.json({
+      success: true,
+      vendor: updatedVendor,
+      message: 'Vendor onboarding updated successfully',
+    })
   } catch (error) {
-    console.error("Error updating vendor onboarding:", error)
-    return NextResponse.json({ success: false, error: "Failed to update vendor onboarding", message: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+    console.error('Error updating vendor onboarding:', error)
+    return NextResponse.json(
+      { error: 'Failed to update vendor onboarding' },
+      { status: 500 }
+    )
   }
 }

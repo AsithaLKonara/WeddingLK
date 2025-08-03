@@ -1,76 +1,76 @@
 "use client"
 
-import React from "react"
-import { useState, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import React, { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Search, Filter, MapPin, Calendar, Users, DollarSign, Star, X } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
-
-interface SearchFilters {
-  query: string
-  category: string
-  location: string
-  priceRange: [number, number]
-  capacity: [number, number]
-  rating: number
-  amenities: string[]
-  date: string
-  sortBy: string
-}
+import { Search, MapPin, Calendar, Users, DollarSign, Star, Filter, X } from "lucide-react"
+import Link from "next/link"
 
 interface SearchResult {
-  id: string
-  type: 'venue' | 'vendor' | 'service'
+  _id: string
+  type: "venue" | "vendor"
   name: string
+  businessName?: string
+  location: {
+    city: string
+    province: string
+  }
+  pricing: {
+    basePrice?: number
+    startingPrice?: number
+    currency: string
+  }
+  rating: {
+    average: number
+    count: number
+  }
+  capacity?: {
+    min: number
+    max: number
+  }
+  category?: string
+  images: string[]
+  amenities?: string[]
+  services?: Array<{
+    name: string
+    description: string
+    price: number
+  }>
+}
+
+interface SearchFilters {
   location: string
-  price: number
-  rating: number
-  capacity?: number
+  date: string
+  guestCount: number
+  budget: {
+    min: number
+    max: number
+  }
+  type: "venue" | "vendor" | "all"
   category: string
-  image: string
-  amenities: string[]
+  rating: number
 }
 
 export function AdvancedSearch() {
   const { toast } = useToast()
+  const [filters, setFilters] = useState<SearchFilters>({
+    location: "",
+    date: "",
+    guestCount: 0,
+    budget: { min: 0, max: 1000000 },
+    type: "all",
+    category: "",
+    rating: 0,
+  })
+  const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [filters, setFilters] = useState<SearchFilters>({
-    query: "",
-    category: "all",
-    location: "",
-    priceRange: [0, 500000],
-    capacity: [0, 500],
-    rating: 0,
-    amenities: [],
-    date: "",
-    sortBy: "relevance"
-  })
-
-  const categories = [
-    { value: "all", label: "All Categories" },
-    { value: "venues", label: "Venues" },
-    { value: "photography", label: "Photography" },
-    { value: "catering", label: "Catering" },
-    { value: "entertainment", label: "Entertainment" },
-    { value: "decoration", label: "Decoration" },
-    { value: "transportation", label: "Transportation" },
-    { value: "beauty", label: "Beauty & Styling" },
-    { value: "music", label: "Music & DJ" },
-  ]
-
-  const amenities = [
-    "Parking", "Catering", "Audio/Visual", "Garden", "Beach Access",
-    "Accommodation", "Photography", "Transportation", "Decoration",
-    "Entertainment", "Spa Services", "Childcare"
-  ]
 
   const sortOptions = [
     { value: "relevance", label: "Relevance" },
@@ -83,53 +83,79 @@ export function AdvancedSearch() {
   const handleSearch = useCallback(async () => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Build query parameters
+      const params = new URLSearchParams()
       
-      // Mock results based on filters
-      const mockResults: SearchResult[] = [
-        {
-          id: "1",
-          type: "venue",
-          name: "Grand Ballroom Hotel",
-          location: "Colombo",
-          price: 150000,
-          rating: 4.8,
-          capacity: 300,
-          category: "venues",
-          image: "/placeholder.svg",
-          amenities: ["Parking", "Catering", "Audio/Visual"]
-        },
-        {
-          id: "2",
-          type: "vendor",
-          name: "Perfect Moments Photography",
-          location: "Kandy",
-          price: 45000,
-          rating: 4.9,
-          category: "photography",
-          image: "/placeholder.svg",
-          amenities: ["Photography", "Videography"]
-        },
-        {
-          id: "3",
-          type: "service",
-          name: "Elegant Catering Services",
-          location: "Galle",
-          price: 25000,
-          rating: 4.7,
-          category: "catering",
-          image: "/placeholder.svg",
-          amenities: ["Catering", "Setup", "Cleanup"]
-        }
-      ]
+      if (filters.location) params.append('location', filters.location)
+      if (filters.date) params.append('date', filters.date)
+      if (filters.guestCount > 0) params.append('guestCount', filters.guestCount.toString())
+      if (filters.budget.min > 0) params.append('minPrice', filters.budget.min.toString())
+      if (filters.budget.max < 1000000) params.append('maxPrice', filters.budget.max.toString())
+      if (filters.type !== 'all') params.append('type', filters.type)
+      if (filters.category) params.append('category', filters.category)
+      if (filters.rating > 0) params.append('rating', filters.rating.toString())
 
-      setResults(mockResults)
+      // Search venues
+      let venueResults: SearchResult[] = []
+      if (filters.type === 'all' || filters.type === 'venue') {
+        const venueResponse = await fetch(`/api/venues?${params}`)
+        const venueData = await venueResponse.json()
+        if (venueData.success) {
+          venueResults = venueData.venues.map((venue: any) => ({
+            _id: venue._id,
+            type: 'venue' as const,
+            name: venue.name,
+            location: venue.location,
+            pricing: venue.pricing,
+            rating: venue.rating,
+            capacity: venue.capacity,
+            images: venue.images,
+            amenities: venue.amenities,
+          }))
+        }
+      }
+
+      // Search vendors
+      let vendorResults: SearchResult[] = []
+      if (filters.type === 'all' || filters.type === 'vendor') {
+        const vendorResponse = await fetch(`/api/vendors?${params}`)
+        const vendorData = await vendorResponse.json()
+        if (vendorData.success) {
+          vendorResults = vendorData.vendors.map((vendor: any) => ({
+            _id: vendor._id,
+            type: 'vendor' as const,
+            name: vendor.name,
+            businessName: vendor.businessName,
+            location: vendor.location,
+            pricing: vendor.pricing,
+            rating: vendor.rating,
+            category: vendor.category,
+            images: vendor.portfolio,
+            services: vendor.services,
+          }))
+        }
+      }
+
+      // Combine and sort results
+      const allResults = [...venueResults, ...vendorResults]
+      
+      // Apply additional client-side filtering
+      const filteredResults = allResults.filter(result => {
+        if (filters.rating > 0 && result.rating.average < filters.rating) return false
+        if (filters.guestCount > 0 && result.type === 'venue' && result.capacity) {
+          if (result.capacity.max < filters.guestCount) return false
+        }
+        return true
+      })
+
+      setResults(filteredResults)
+      
       toast({
         title: "Search Complete",
-        description: `Found ${mockResults.length} results for your search.`,
+        description: `Found ${filteredResults.length} results for your search.`,
       })
     } catch (error) {
+      console.error('Search error:', error)
       toast({
         title: "Search Error",
         description: "Failed to perform search. Please try again.",
@@ -144,238 +170,290 @@ export function AdvancedSearch() {
     setFilters(prev => ({ ...prev, [key]: value }))
   }
 
-  const handleAmenityToggle = (amenity: string) => {
+  const handleBudgetChange = (type: 'min' | 'max', value: number) => {
     setFilters(prev => ({
       ...prev,
-      amenities: prev.amenities.includes(amenity)
-        ? prev.amenities.filter(a => a !== amenity)
-        : [...prev.amenities, amenity]
+      budget: { ...prev.budget, [type]: value }
     }))
   }
 
   const clearFilters = () => {
     setFilters({
-      query: "",
-      category: "all",
       location: "",
-      priceRange: [0, 500000],
-      capacity: [0, 500],
-      rating: 0,
-      amenities: [],
       date: "",
-      sortBy: "relevance"
+      guestCount: 0,
+      budget: { min: 0, max: 1000000 },
+      type: "all",
+      category: "",
+      rating: 0,
     })
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-LK", {
-      style: "currency",
-      currency: "LKR",
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
+      currency: currency || 'LKR',
       minimumFractionDigits: 0,
-    }).format(amount)
+    }).format(price)
+  }
+
+  const getResultLink = (result: SearchResult) => {
+    return result.type === 'venue' ? `/venues/${result._id}` : `/vendors/${result._id}`
+  }
+
+  const getResultTitle = (result: SearchResult) => {
+    return result.type === 'venue' ? result.name : (result.businessName || result.name)
   }
 
   return (
     <div className="space-y-6">
-      {/* Search Bar */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search venues, vendors, services..."
-                  value={filters.query}
-                  onChange={(e) => handleFilterChange("query", e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              Filters
-            </Button>
-            <Button onClick={handleSearch} disabled={isLoading}>
-              {isLoading ? "Searching..." : "Search"}
-            </Button>
+      {/* Search Header */}
+      <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Find Your Perfect Wedding Vendors</h2>
+        
+        {/* Quick Search */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <Input
+              placeholder="Location (e.g., Colombo, Kandy)"
+              value={filters.location}
+              onChange={(e) => handleFilterChange('location', e.target.value)}
+              className="h-12"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex-1">
+            <Input
+              type="date"
+              value={filters.date}
+              onChange={(e) => handleFilterChange('date', e.target.value)}
+              className="h-12"
+            />
+          </div>
+          <div className="flex-1">
+            <Input
+              type="number"
+              placeholder="Guest count"
+              value={filters.guestCount || ''}
+              onChange={(e) => handleFilterChange('guestCount', parseInt(e.target.value) || 0)}
+              className="h-12"
+            />
+          </div>
+          <Button onClick={handleSearch} className="h-12 px-8">
+            <Search className="h-4 w-4 mr-2" />
+            Search
+          </Button>
+        </div>
+
+        {/* Filter Toggle */}
+        <div className="mt-4 flex items-center justify-between">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            {showFilters ? 'Hide' : 'Show'} Filters
+          </Button>
+          
+          {Object.values(filters).some(val => 
+            typeof val === 'string' ? val !== '' : 
+            typeof val === 'number' ? val > 0 :
+            typeof val === 'object' ? Object.values(val).some(v => v !== 0 && v !== '') : false
+          ) && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X className="h-4 w-4 mr-2" />
+              Clear Filters
+            </Button>
+          )}
+        </div>
+      </div>
 
       {/* Advanced Filters */}
       {showFilters && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Advanced Filters</span>
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                <X className="h-4 w-4 mr-2" />
-                Clear All
-              </Button>
-            </CardTitle>
+            <CardTitle>Advanced Filters</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Category and Location */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Category</label>
-                <Select value={filters.category} onValueChange={(value) => handleFilterChange("category", value)}>
+                <Label>Type</Label>
+                <Select value={filters.type} onValueChange={(value) => handleFilterChange('type', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="venue">Venues</SelectItem>
+                    <SelectItem value="vendor">Vendors</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
               <div>
-                <label className="text-sm font-medium mb-2 block">Location</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Label>Category</Label>
+                <Select value={filters.category} onValueChange={(value) => handleFilterChange('category', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="photographer">Photography</SelectItem>
+                    <SelectItem value="caterer">Catering</SelectItem>
+                    <SelectItem value="decorator">Decoration</SelectItem>
+                    <SelectItem value="music">Music</SelectItem>
+                    <SelectItem value="transport">Transport</SelectItem>
+                    <SelectItem value="makeup">Makeup</SelectItem>
+                    <SelectItem value="jewelry">Jewelry</SelectItem>
+                    <SelectItem value="clothing">Clothing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Minimum Rating</Label>
+                <Select value={filters.rating.toString()} onValueChange={(value) => handleFilterChange('rating', parseFloat(value))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Any Rating</SelectItem>
+                    <SelectItem value="4.5">4.5+ Stars</SelectItem>
+                    <SelectItem value="4.0">4.0+ Stars</SelectItem>
+                    <SelectItem value="3.5">3.5+ Stars</SelectItem>
+                    <SelectItem value="3.0">3.0+ Stars</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Budget Range (LKR)</Label>
+                <div className="flex gap-2">
                   <Input
-                    placeholder="Enter location..."
-                    value={filters.location}
-                    onChange={(e) => handleFilterChange("location", e.target.value)}
-                    className="pl-10"
+                    type="number"
+                    placeholder="Min"
+                    value={filters.budget.min || ''}
+                    onChange={(e) => handleBudgetChange('min', parseInt(e.target.value) || 0)}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={filters.budget.max || ''}
+                    onChange={(e) => handleBudgetChange('max', parseInt(e.target.value) || 1000000)}
                   />
                 </div>
               </div>
-            </div>
-
-            {/* Price Range */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Price Range: {formatCurrency(filters.priceRange[0])} - {formatCurrency(filters.priceRange[1])}
-              </label>
-              <Slider
-                value={filters.priceRange}
-                onValueChange={(value) => handleFilterChange("priceRange", value)}
-                max={500000}
-                min={0}
-                step={10000}
-                className="w-full"
-              />
-            </div>
-
-            {/* Capacity Range */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Capacity: {filters.capacity[0]} - {filters.capacity[1]} guests
-              </label>
-              <Slider
-                value={filters.capacity}
-                onValueChange={(value) => handleFilterChange("capacity", value)}
-                max={500}
-                min={0}
-                step={10}
-                className="w-full"
-              />
-            </div>
-
-            {/* Rating */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Minimum Rating: {filters.rating} stars
-              </label>
-              <Slider
-                value={[filters.rating]}
-                onValueChange={(value) => handleFilterChange("rating", value[0])}
-                max={5}
-                min={0}
-                step={0.5}
-                className="w-full"
-              />
-            </div>
-
-            {/* Amenities */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">Amenities</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {amenities.map((amenity) => (
-                  <div key={amenity} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={amenity}
-                      checked={filters.amenities.includes(amenity)}
-                      onCheckedChange={() => handleAmenityToggle(amenity)}
-                    />
-                    <label htmlFor={amenity} className="text-sm">
-                      {amenity}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Sort By */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">Sort By</label>
-              <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange("sortBy", value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Search Results */}
-      {results.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Search Results ({results.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {results.map((result) => (
-                <div key={result.id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{result.name}</h3>
-                      <Badge variant="outline">{result.type}</Badge>
-                      <Badge variant="outline">{result.category}</Badge>
+      {/* Results */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="overflow-hidden">
+              <Skeleton className="h-48 w-full" />
+              <CardHeader className="p-4">
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : results.length > 0 ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">{results.length} results found</h3>
+            <Select defaultValue="relevance">
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {results.map((result) => (
+              <Card key={result._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative">
+                  <img
+                    src={result.images[0] || '/placeholder.svg'}
+                    alt={getResultTitle(result)}
+                    className="w-full h-48 object-cover"
+                  />
+                  <Badge className="absolute top-2 left-2">
+                    {result.type === 'venue' ? 'Venue' : 'Vendor'}
+                  </Badge>
+                </div>
+
+                <CardHeader className="p-4">
+                  <CardTitle className="text-lg font-semibold line-clamp-1">
+                    {getResultTitle(result)}
+                  </CardTitle>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    <span>{result.location.city}, {result.location.province}</span>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-4 pt-0">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                      <span className="text-sm font-medium">{result.rating.average.toFixed(1)}</span>
+                      <span className="text-sm text-gray-500 ml-1">({result.rating.count})</span>
                     </div>
-                    <p className="text-sm text-gray-600">{result.location}</p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-sm">{result.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4 text-green-600" />
-                        <span className="text-sm">{formatCurrency(result.price)}</span>
-                      </div>
-                      {result.capacity && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4 text-blue-600" />
-                          <span className="text-sm">{result.capacity} guests</span>
-                        </div>
+                    <div className="text-lg font-semibold text-green-600">
+                      {formatPrice(
+                        result.pricing.basePrice || result.pricing.startingPrice || 0,
+                        result.pricing.currency
                       )}
                     </div>
                   </div>
-                  <Button variant="outline">View Details</Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
+                  {result.type === 'venue' && result.capacity && (
+                    <div className="flex items-center text-sm text-gray-600 mb-3">
+                      <Users className="h-4 w-4 mr-1" />
+                      <span>Capacity: {result.capacity.min}-{result.capacity.max} guests</span>
+                    </div>
+                  )}
+
+                  {result.type === 'vendor' && result.category && (
+                    <div className="mb-3">
+                      <Badge variant="secondary">{result.category}</Badge>
+                    </div>
+                  )}
+
+                  <Button asChild className="w-full">
+                    <Link href={getResultLink(result)}>
+                      View Details
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No results found</h3>
+          <p className="text-gray-600 mb-4">Try adjusting your search criteria or filters</p>
+          <Button onClick={clearFilters} variant="outline">
+            Clear Filters
+          </Button>
+        </div>
       )}
     </div>
   )

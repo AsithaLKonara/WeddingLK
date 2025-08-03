@@ -1,144 +1,264 @@
 "use client"
-import { VenueCard } from "@/components/molecules/venue-card"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Grid, List, SlidersHorizontal } from "lucide-react"
 
-interface VenueGridProps {
-  filters: any
-  sortBy: string
-  onSortChange: (sort: string) => void
-  viewMode: string
-  onViewModeChange: (mode: string) => void
+import React, { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useToast } from "@/hooks/use-toast"
+import { MapPin, Users, Star, Calendar, Heart, Eye } from "lucide-react"
+import Link from "next/link"
+
+interface Venue {
+  _id: string
+  name: string
+  description: string
+  location: {
+    address: string
+    city: string
+    province: string
+  }
+  capacity: {
+    min: number
+    max: number
+  }
+  pricing: {
+    basePrice: number
+    currency: string
+  }
+  amenities: string[]
+  images: string[]
+  rating: {
+    average: number
+    count: number
+  }
+  featured: boolean
+  isActive: boolean
 }
 
-export function VenueGrid({ filters, sortBy, onSortChange, viewMode, onViewModeChange }: VenueGridProps) {
-  // Mock venues data
-  const venues = [
-    {
-      id: 1,
-      name: "Grand Ballroom Hotel",
-      location: "Colombo",
-      capacity: 300,
-      price: 150000,
-      rating: 4.8,
-      image: "/placeholder.svg?height=300&width=400",
-      amenities: ["Parking", "Catering", "Decoration", "Sound System"],
-    },
-    {
-      id: 2,
-      name: "Garden Paradise Resort",
-      location: "Kandy",
-      capacity: 200,
-      price: 120000,
-      rating: 4.6,
-      image: "/placeholder.svg?height=300&width=400",
-      amenities: ["Garden", "Pool", "Accommodation", "Photography"],
-    },
-    {
-      id: 3,
-      name: "Seaside Wedding Villa",
-      location: "Galle",
-      capacity: 150,
-      price: 100000,
-      rating: 4.9,
-      image: "/placeholder.svg?height=300&width=400",
-      amenities: ["Beach View", "Photography", "Catering"],
-    },
-    {
-      id: 4,
-      name: "Mountain View Resort",
-      location: "Ella",
-      capacity: 120,
-      price: 90000,
-      rating: 4.7,
-      image: "/placeholder.svg?height=300&width=400",
-      amenities: ["Mountain View", "Garden", "Accommodation"],
-    },
-    {
-      id: 5,
-      name: "City Center Ballroom",
-      location: "Colombo",
-      capacity: 250,
-      price: 130000,
-      rating: 4.5,
-      image: "/placeholder.svg?height=300&width=400",
-      amenities: ["Parking", "AC", "Sound System", "WiFi"],
-    },
-    {
-      id: 6,
-      name: "Lakeside Pavilion",
-      location: "Kandy",
-      capacity: 180,
-      price: 110000,
-      rating: 4.8,
-      image: "/placeholder.svg?height=300&width=400",
-      amenities: ["Lake View", "Garden", "Catering", "Decoration"],
-    },
-  ]
+interface VenueGridProps {
+  limit?: number
+  featured?: boolean
+  location?: string
+  className?: string
+}
 
-  return (
-    <div className="space-y-6">
-      {/* Header with controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{venues.length} venues found</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300">Perfect venues for your special day</p>
-        </div>
+export function VenueGrid({ limit = 6, featured = false, location, className = "" }: VenueGridProps) {
+  const [venues, setVenues] = useState<Venue[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
 
-        <div className="flex items-center space-x-4">
-          {/* Sort */}
-          <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="w-40">
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="popular">Most Popular</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-              <SelectItem value="rating">Highest Rated</SelectItem>
-              <SelectItem value="capacity">Capacity</SelectItem>
-            </SelectContent>
-          </Select>
+  useEffect(() => {
+    loadVenues()
+  }, [limit, featured, location])
 
-          {/* View Mode */}
-          <div className="flex border rounded-lg">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => onViewModeChange("grid")}
-              className="rounded-r-none"
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => onViewModeChange("list")}
-              className="rounded-l-none"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+  const loadVenues = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
 
-      {/* Venues Grid */}
-      <div
-        className={`grid gap-6 ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}
-      >
-        {venues.map((venue) => (
-          <VenueCard key={venue.id} {...venue} />
+      // Build query parameters
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        offset: '0',
+      })
+
+      if (featured) {
+        params.append('featured', 'true')
+      }
+
+      if (location) {
+        params.append('location', location)
+      }
+
+      const response = await fetch(`/api/venues?${params}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setVenues(data.venues)
+      } else {
+        setError(data.error || 'Failed to load venues')
+        toast({
+          title: "Error",
+          description: data.error || 'Failed to load venues',
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error loading venues:', error)
+      setError('Failed to load venues')
+      toast({
+        title: "Error",
+        description: 'Failed to load venues',
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
+      currency: currency || 'LKR',
+      minimumFractionDigits: 0,
+    }).format(price)
+  }
+
+  const handleFavorite = (venueId: string) => {
+    // TODO: Implement favorite functionality
+    toast({
+      title: "Added to favorites",
+      description: "Venue added to your favorites list",
+    })
+  }
+
+  if (isLoading) {
+    return (
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+        {Array.from({ length: limit }).map((_, index) => (
+          <Card key={index} className="overflow-hidden">
+            <Skeleton className="h-48 w-full" />
+            <CardHeader className="p-4">
+              <Skeleton className="h-6 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-2/3" />
+            </CardContent>
+          </Card>
         ))}
       </div>
+    )
+  }
 
-      {/* Load More */}
-      <div className="text-center pt-8">
-        <Button variant="outline" size="lg">
-          Load More Venues
+  if (error) {
+    return (
+      <div className={`text-center py-8 ${className}`}>
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button onClick={loadVenues} variant="outline">
+          Try Again
         </Button>
       </div>
+    )
+  }
+
+  if (venues.length === 0) {
+    return (
+      <div className={`text-center py-8 ${className}`}>
+        <p className="text-gray-500 mb-4">No venues found</p>
+        <Button onClick={loadVenues} variant="outline">
+          Refresh
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+      {venues.map((venue) => (
+        <Card key={venue._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          <div className="relative">
+            <img
+              src={venue.images[0] || '/placeholder.svg'}
+              alt={venue.name}
+              className="w-full h-48 object-cover"
+            />
+            {venue.featured && (
+              <Badge className="absolute top-2 left-2 bg-yellow-500 text-white">
+                Featured
+              </Badge>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute top-2 right-2 h-8 w-8 p-0 bg-white/80 hover:bg-white"
+              onClick={() => handleFavorite(venue._id)}
+            >
+              <Heart className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <CardHeader className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-semibold mb-1 line-clamp-1">
+                  {venue.name}
+                </CardTitle>
+                <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span>{venue.location.city}, {venue.location.province}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center text-sm text-gray-600">
+                  <Users className="h-4 w-4 mr-1" />
+                  <span>{venue.capacity.min}-{venue.capacity.max}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <Star className="h-4 w-4 mr-1 text-yellow-500" />
+                  <span>{venue.rating.average.toFixed(1)} ({venue.rating.count})</span>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-4 pt-0">
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                {venue.description}
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {venue.amenities.slice(0, 3).map((amenity, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {amenity}
+                  </Badge>
+                ))}
+                {venue.amenities.length > 3 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{venue.amenities.length - 3} more
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-lg font-semibold text-green-600">
+                  {formatPrice(venue.pricing.basePrice, venue.pricing.currency)}
+                </p>
+                <p className="text-xs text-gray-500">Starting price</p>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                >
+                  <Link href={`/venues/${venue._id}`}>
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Link>
+                </Button>
+                <Button
+                  size="sm"
+                  asChild
+                >
+                  <Link href={`/venues/${venue._id}`}>
+                    <Calendar className="h-4 w-4 mr-1" />
+                    Book Now
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   )
 }

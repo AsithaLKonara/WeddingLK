@@ -1,9 +1,32 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
+import { connectDB } from '@/lib/db'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
+// Initialize Stripe
+let stripe: any = null
+async function getStripe() {
+  if (!stripe) {
+    const Stripe = await import('stripe')
+    stripe = new Stripe.default(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2023-10-16',
+    })
+  }
+  return stripe
+}
+
+// POST /api/payments - Process payments
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { type, amount, currency, paymentMethod, metadata } = body
+
+    await connectDB()
 
     // Process different payment types
     let response
@@ -42,28 +65,55 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Process subscription payment
 async function processSubscriptionPayment(data: any) {
-  // Integrate with local payment gateways
   const { plan, vendorId, paymentMethod } = data
 
-  // Mock payment processing - replace with actual gateway integration
-  const paymentResponse = await mockPaymentGateway({
-    amount: plan.price,
-    currency: "LKR",
-    method: paymentMethod, // ezCash, mCash, card, bank
-    description: `Wedding.lk ${plan.name} Subscription`,
+  // Dynamically import models
+  const { User } = await import('@/lib/models/user')
+  const { Vendor } = await import('@/lib/models/vendor')
+
+  const stripe = await getStripe()
+
+  // Create payment intent
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: plan.price * 100, // Convert to cents
+    currency: 'lkr',
+    payment_method_types: ['card'],
+    metadata: {
+      type: 'subscription',
+      plan: plan.name,
+      vendorId,
+      description: `Wedding.lk ${plan.name} Subscription`,
+    },
   })
 
+  // Update vendor subscription
+  if (vendorId) {
+    await Vendor.findByIdAndUpdate(vendorId, {
+      subscription: {
+        plan: plan.name,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      },
+    })
+  }
+
   return {
-    paymentId: paymentResponse.id,
-    status: "completed",
+    paymentId: paymentIntent.id,
+    clientSecret: paymentIntent.client_secret,
+    status: paymentIntent.status,
     subscriptionId: `sub_${Date.now()}`,
     nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   }
 }
 
+// Process commission payment
 async function processCommissionPayment(data: any) {
   const { bookingId, vendorId, amount, location } = data
+
+  // Dynamically import models
+  const { Booking } = await import('@/lib/models/booking')
+  const { Vendor } = await import('@/lib/models/vendor')
 
   // Location-based commission rates
   const commissionRates = {
@@ -77,6 +127,21 @@ async function processCommissionPayment(data: any) {
   const rate = commissionRates[location as keyof typeof commissionRates] || commissionRates.default
   const commissionAmount = amount * rate
 
+  // Update booking with commission
+  await Booking.findByIdAndUpdate(bookingId, {
+    'payment.commission': {
+      amount: commissionAmount,
+      rate,
+      vendorAmount: amount - commissionAmount,
+      status: 'pending_vendor_payout',
+    },
+  })
+
+  // Update vendor earnings
+  await Vendor.findByIdAndUpdate(vendorId, {
+    $inc: { 'earnings.total': amount - commissionAmount },
+  })
+
   return {
     commissionAmount,
     rate,
@@ -85,49 +150,191 @@ async function processCommissionPayment(data: any) {
   }
 }
 
+// Process booking payment
 async function processBookingPayment(data: any) {
-  const { venueId, packageId, amount, installments } = data
+  const { venueId, packageId, amount, installments, paymentMethodId } = data
 
-  if (installments) {
+  // Dynamically import models
+  const { Booking } = await import('@/lib/models/booking')
+  const { Venue } = await import('@/lib/models/venue')
+
+  const stripe = await getStripe()
+
+  if (installments && installments > 1) {
     // Process installment payment
     const installmentAmount = amount / installments
+
+    // Create payment intent for first installment
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: installmentAmount * 100, // Convert to cents
+      currency: 'lkr',
+      payment_method_types: ['card'],
+      metadata: {
+        type: 'booking_installment',
+        venueId,
+        packageId,
+        installmentNumber: 1,
+        totalInstallments: installments,
+      },
+    })
+
     return {
       type: "installment",
+      paymentId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret,
       totalAmount: amount,
       installmentAmount,
       installmentsRemaining: installments - 1,
       nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     }
-  }
+  } else {
+    // Process full payment
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // Convert to cents
+      currency: 'lkr',
+      payment_method_types: ['card'],
+      metadata: {
+        type: 'booking_full',
+        venueId,
+        packageId,
+      },
+    })
 
-  return {
-    type: "full_payment",
-    amount,
-    status: "completed",
-    bookingConfirmed: true,
+    return {
+      type: "full_payment",
+      paymentId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret,
+      amount,
+      status: "pending_confirmation",
+      bookingConfirmed: false,
+    }
   }
 }
 
+// Process premium payment
 async function processPremiumPayment(data: any) {
   const { userId, plan, duration } = data
 
+  // Dynamically import models
+  const { User } = await import('@/lib/models/user')
+
+  const stripe = await getStripe()
+
+  // Create payment intent
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: plan.price * 100, // Convert to cents
+    currency: 'lkr',
+    payment_method_types: ['card'],
+    metadata: {
+      type: 'premium_upgrade',
+      userId,
+      plan: plan.name,
+      duration,
+    },
+  })
+
+  // Update user subscription
+  await User.findByIdAndUpdate(userId, {
+    subscription: {
+      plan: plan.name,
+      expiresAt: new Date(Date.now() + duration * 30 * 24 * 60 * 60 * 1000),
+    },
+  })
+
   return {
+    paymentId: paymentIntent.id,
+    clientSecret: paymentIntent.client_secret,
     premiumUntil: new Date(Date.now() + duration * 30 * 24 * 60 * 60 * 1000),
     features: plan.features,
-    status: "active",
+    status: "pending_confirmation",
   }
 }
 
-// Mock payment gateway - replace with actual Sri Lankan payment gateways
-async function mockPaymentGateway(data: any) {
-  // Simulate payment processing delay
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+// GET /api/payments - Get payment status
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-  return {
-    id: `pay_${Date.now()}`,
-    status: "completed",
-    amount: data.amount,
-    currency: data.currency,
-    method: data.method,
+    const { searchParams } = new URL(request.url)
+    const paymentId = searchParams.get('paymentId')
+
+    if (!paymentId) {
+      return NextResponse.json({ error: 'Payment ID is required' }, { status: 400 })
+    }
+
+    const stripe = await getStripe()
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentId)
+
+    return NextResponse.json({
+      success: true,
+      payment: {
+        id: paymentIntent.id,
+        status: paymentIntent.status,
+        amount: paymentIntent.amount / 100, // Convert from cents
+        currency: paymentIntent.currency,
+        metadata: paymentIntent.metadata,
+      },
+    })
+  } catch (error) {
+    console.error('Error fetching payment:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch payment' },
+      { status: 500 }
+    )
+  }
+}
+
+// PUT /api/payments - Confirm payment
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { paymentId, bookingId } = body
+
+    if (!paymentId) {
+      return NextResponse.json({ error: 'Payment ID is required' }, { status: 400 })
+    }
+
+    await connectDB()
+
+    const stripe = await getStripe()
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentId)
+
+    if (paymentIntent.status === 'succeeded') {
+      // Update booking status
+      if (bookingId) {
+        const { Booking } = await import('@/lib/models/booking')
+        await Booking.findByIdAndUpdate(bookingId, {
+          'payment.status': 'completed',
+          'payment.transactionId': paymentId,
+          'payment.paidAt': new Date(),
+        })
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Payment confirmed successfully',
+        status: 'completed',
+      })
+    } else {
+      return NextResponse.json({
+        success: false,
+        message: 'Payment not completed',
+        status: paymentIntent.status,
+      })
+    }
+  } catch (error) {
+    console.error('Error confirming payment:', error)
+    return NextResponse.json(
+      { error: 'Failed to confirm payment' },
+      { status: 500 }
+    )
   }
 }
