@@ -176,7 +176,7 @@ export const LazyAnimatedBackground = lazy(() => import("@/components/atoms/anim
 export const LazyLogo = lazy(() => import("@/components/atoms/logo"))
 
 // Lazy loading for error boundary
-export const LazyErrorBoundary = lazy(() => import("@/components/organisms/error-boundary"))
+export const LazyErrorBoundary = lazy(() => import("@/components/organisms/error-boundary").then(module => ({ default: module.ErrorBoundary })))
 
 // Lazy loading for header and footer
 export const LazyHeader = lazy(() => import("@/components/organisms/header"))

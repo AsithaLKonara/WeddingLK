@@ -90,9 +90,9 @@ export class ErrorBoundary extends Component<Props, State> {
         },
         body: JSON.stringify({
           errorId: this.state.errorId,
-          message: error.message,
-          stack: error.stack,
-          componentStack: errorInfo.componentStack,
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
           url: typeof window !== 'undefined' ? window.location.href : '',
           userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',
           timestamp: new Date().toISOString()
@@ -222,8 +222,8 @@ export class ErrorBoundary extends Component<Props, State> {
                     <code className="text-xs bg-gray-100 px-2 py-1 rounded">
                       {this.state.errorId}
                     </code>
-                  </div>
-                )}
+                </div>
+              )}
               </div>
 
               {/* Action Buttons */}

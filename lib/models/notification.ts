@@ -123,7 +123,7 @@ const NotificationSchema = new mongoose.Schema(
 NotificationSchema.index({ recipient: 1, createdAt: -1 })
 NotificationSchema.index({ recipient: 1, isRead: 1 })
 NotificationSchema.index({ recipient: 1, type: 1 })
-NotificationSchema.index({ scheduledFor: 1, isDelivered: false })
+NotificationSchema.index({ scheduledFor: 1, isDelivered: 1 })
 
 // Virtual for notification status
 NotificationSchema.virtual("status").get(function () {

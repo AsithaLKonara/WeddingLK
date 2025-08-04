@@ -1,0 +1,200 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+
+// POST /api/ai-search - AI-powered search
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { 
+      query, 
+      searchType, 
+      filters, 
+      userPreferences, 
+      eventDetails 
+    } = body
+
+    if (!query || !searchType) {
+      return NextResponse.json({ 
+        error: 'Query and search type are required' 
+      }, { status: 400 })
+    }
+
+    // Simplified AI search implementation
+    let results
+    switch (searchType) {
+      case 'venue':
+        results = await searchVenues(query, filters)
+        break
+      case 'vendor':
+        results = await searchVendors(query, userPreferences, eventDetails)
+        break
+      case 'budget':
+        results = await optimizeBudget(query, filters)
+        break
+      case 'timeline':
+        results = await generateTimeline(query, eventDetails)
+        break
+      case 'guest_list':
+        results = await manageGuestList(query, filters)
+        break
+      case 'weather':
+        results = await getWeatherRecommendations(query, eventDetails)
+        break
+      default:
+        return NextResponse.json({ 
+          error: 'Invalid search type' 
+        }, { status: 400 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: results,
+      query,
+      searchType,
+      timestamp: new Date().toISOString()
+    })
+
+  } catch (error) {
+    console.error('AI Search error:', error)
+    return NextResponse.json(
+      { 
+        success: false,
+        error: 'AI search failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    )
+  }
+}
+
+// GET /api/ai-search - Get search suggestions
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const query = searchParams.get('q')
+    const type = searchParams.get('type')
+
+    if (!query) {
+      return NextResponse.json({ 
+        error: 'Query parameter is required' 
+      }, { status: 400 })
+    }
+
+    const suggestions = await getSearchSuggestions(query, type || undefined)
+
+    return NextResponse.json({
+      success: true,
+      suggestions,
+      query,
+      type
+    })
+
+  } catch (error) {
+    console.error('Search suggestions error:', error)
+    return NextResponse.json(
+      { error: 'Failed to get search suggestions' },
+      { status: 500 }
+    )
+  }
+}
+
+// Simplified search functions
+async function searchVenues(query: string, filters: any) {
+  return {
+    venues: [],
+    aiRecommendations: [],
+    totalResults: 0,
+    filters
+  }
+}
+
+async function searchVendors(query: string, userPreferences: any, eventDetails: any) {
+  return {
+    vendors: [],
+    aiRecommendations: [],
+    totalResults: 0,
+    eventDetails
+  }
+}
+
+async function optimizeBudget(query: string, filters: any) {
+  return {
+    breakdown: {
+      venue: { percentage: 40, amount: 0 },
+      catering: { percentage: 25, amount: 0 },
+      photography: { percentage: 15, amount: 0 },
+      decoration: { percentage: 10, amount: 0 },
+      entertainment: { percentage: 5, amount: 0 },
+      miscellaneous: { percentage: 5, amount: 0 }
+    },
+    suggestions: [
+      'Consider off-peak season for better rates',
+      'Book vendors early for better prices',
+      'Negotiate package deals with venues'
+    ]
+  }
+}
+
+async function generateTimeline(query: string, eventDetails: any) {
+  return {
+    timeline: [
+      { month: 12, tasks: ['Book venue', 'Set budget'] },
+      { month: 10, tasks: ['Book photographer', 'Choose caterer'] },
+      { month: 8, tasks: ['Send invitations', 'Book entertainment'] },
+      { month: 6, tasks: ['Finalize details', 'Plan rehearsal'] },
+      { month: 1, tasks: ['Final fittings', 'Confirm vendors'] }
+    ]
+  }
+}
+
+async function manageGuestList(query: string, filters: any) {
+  return {
+    recommendations: [
+      'Prioritize family and close friends',
+      'Consider venue capacity limits',
+      'Plan for dietary restrictions'
+    ],
+    seating: {
+      family: 'Front rows',
+      friends: 'Middle section',
+      colleagues: 'Back rows'
+    }
+  }
+}
+
+async function getWeatherRecommendations(query: string, eventDetails: any) {
+  return {
+    weather: 'Expected sunny with occasional showers',
+    backupPlan: 'Indoor ceremony option available',
+    recommendations: [
+      'Provide umbrellas for guests',
+      'Plan indoor backup for outdoor ceremony',
+      'Adjust photography timing'
+    ]
+  }
+}
+
+async function getSearchSuggestions(query: string, type?: string) {
+  const suggestions = [
+    'Wedding venues in Colombo',
+    'Photographers in Sri Lanka',
+    'Wedding planners near me',
+    'Catering services for weddings',
+    'Wedding decoration ideas'
+  ]
+  
+  return suggestions.filter(suggestion => 
+    suggestion.toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 5)
+} 

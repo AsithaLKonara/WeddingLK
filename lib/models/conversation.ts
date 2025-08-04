@@ -249,7 +249,7 @@ ConversationSchema.statics.getUserConversations = async function (userId: string
 
 // Instance method to add participant
 ConversationSchema.methods.addParticipant = function (userId: string, role: string) {
-  const existingParticipant = this.participants.find(p => p.user.toString() === userId)
+  const existingParticipant = this.participants.find((p: any) => p.user.toString() === userId)
   
   if (existingParticipant) {
     if (!existingParticipant.isActive) {
@@ -270,7 +270,7 @@ ConversationSchema.methods.addParticipant = function (userId: string, role: stri
 
 // Instance method to remove participant
 ConversationSchema.methods.removeParticipant = function (userId: string) {
-  const participant = this.participants.find(p => p.user.toString() === userId)
+  const participant = this.participants.find((p: any) => p.user.toString() === userId)
   
   if (participant) {
     participant.isActive = false
@@ -290,9 +290,9 @@ ConversationSchema.methods.updateLastMessage = function (message: any) {
   }
   
   // Update unread counts for other participants
-  this.participants.forEach(participant => {
+  this.participants.forEach((participant: any) => {
     if (participant.user.toString() !== message.sender.toString() && participant.isActive) {
-      const unreadEntry = this.unreadCounts.find(u => u.user.toString() === participant.user.toString())
+              const unreadEntry = this.unreadCounts.find((u: any) => u.user.toString() === participant.user.toString())
       
       if (unreadEntry) {
         unreadEntry.count += 1
@@ -310,7 +310,7 @@ ConversationSchema.methods.updateLastMessage = function (message: any) {
 
 // Instance method to mark as read
 ConversationSchema.methods.markAsRead = function (userId: string) {
-  const unreadEntry = this.unreadCounts.find(u => u.user.toString() === userId)
+  const unreadEntry = this.unreadCounts.find((u: any) => u.user.toString() === userId)
   
   if (unreadEntry) {
     unreadEntry.count = 0
@@ -333,7 +333,7 @@ ConversationSchema.methods.archive = function (userId: string) {
 
 // Instance method to pin conversation
 ConversationSchema.methods.pin = function (userId: string) {
-  const existingPin = this.pinnedBy.find(p => p.user.toString() === userId)
+  const existingPin = this.pinnedBy.find((p: any) => p.user.toString() === userId)
   
   if (!existingPin) {
     this.pinnedBy.push({
@@ -347,7 +347,7 @@ ConversationSchema.methods.pin = function (userId: string) {
 
 // Instance method to unpin conversation
 ConversationSchema.methods.unpin = function (userId: string) {
-  this.pinnedBy = this.pinnedBy.filter(p => p.user.toString() !== userId)
+  this.pinnedBy = this.pinnedBy.filter((p: any) => p.user.toString() !== userId)
   return this.save()
 }
 

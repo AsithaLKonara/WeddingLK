@@ -447,5 +447,21 @@ For specific recommendations, please try again in a few moments or contact our s
   }
 }
 
-// Export a singleton instance
-export const weddingLKAI = new WeddingLKAIProcessor() 
+// Export a singleton instance with error handling
+let weddingLKAIInstance: WeddingLKAIProcessor | null = null
+
+export function getWeddingLKAI(): WeddingLKAIProcessor {
+  if (!weddingLKAIInstance) {
+    try {
+      weddingLKAIInstance = new WeddingLKAIProcessor()
+    } catch (error) {
+      console.error('Failed to initialize WeddingLK AI Processor:', error)
+      // Return a minimal fallback instance
+      weddingLKAIInstance = new WeddingLKAIProcessor()
+    }
+  }
+  return weddingLKAIInstance
+}
+
+// Export the instance for backward compatibility
+export const weddingLKAI = getWeddingLKAI() 

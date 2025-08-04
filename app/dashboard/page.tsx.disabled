@@ -39,10 +39,15 @@ function updateUserProfile(data: any) {
 export default function DashboardPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession({
+    required: false,
+    onUnauthenticated() {
+      // Handle unauthenticated state
+    },
+  })
 
-  // Use session user's email if available
-  const email = session?.user?.email || DEMO_EMAIL
+  // Use session user's email if available, with proper loading state
+  const email = status === 'loading' ? DEMO_EMAIL : (session?.user?.email || DEMO_EMAIL)
 
   // Fetch user profile
   const { data, isLoading, isError } = useQuery({

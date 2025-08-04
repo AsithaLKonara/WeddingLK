@@ -80,7 +80,12 @@ interface Conversation {
 }
 
 export default function MessagesPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useSession({
+    required: false,
+    onUnauthenticated() {
+      // Handle unauthenticated state
+    },
+  })
   const router = useRouter()
   const { toast } = useToast()
   const [conversations, setConversations] = useState<Conversation[]>([])

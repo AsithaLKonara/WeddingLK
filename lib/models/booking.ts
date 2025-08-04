@@ -200,14 +200,14 @@ BookingSchema.virtual("totalAmount").get(function () {
 
 // Virtual for remaining amount
 BookingSchema.virtual("remainingAmount").get(function () {
-  const total = this.totalAmount
+  const total = this.price?.amount || 0
   const paid = this.payment?.amountPaid || 0
   return Math.max(0, total - paid)
 })
 
 // Virtual for payment percentage
 BookingSchema.virtual("paymentPercentage").get(function () {
-  const total = this.totalAmount
+  const total = this.price?.amount || 0
   if (total === 0) return 0
   const paid = this.payment?.amountPaid || 0
   return Math.round((paid / total) * 100)
@@ -221,8 +221,8 @@ BookingSchema.pre("save", function (next) {
   }
   
   // Update payment status based on amount paid
-  if (this.payment?.amountPaid && this.totalAmount) {
-    if (this.payment.amountPaid >= this.totalAmount) {
+  if (this.payment?.amountPaid && this.price?.amount) {
+    if (this.payment.amountPaid >= this.price.amount) {
       this.payment.status = "completed"
     } else if (this.payment.amountPaid > 0) {
       this.payment.status = "partial"

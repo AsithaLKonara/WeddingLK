@@ -82,7 +82,7 @@ export function VendorContact({ vendor }: VendorContactProps) {
           conversationType: 'direct',
           vendorId: vendor._id,
           title: `Inquiry about ${vendor.businessName}`,
-          description: `Inquiry from ${formData.name || session.user.firstName} about ${vendor.businessName}`,
+          description: `Inquiry from ${formData.name || session.user.name} about ${vendor.businessName}`,
         })
       })
 
@@ -99,7 +99,7 @@ export function VendorContact({ vendor }: VendorContactProps) {
         body: JSON.stringify({
           conversationId: conversationData.conversation._id,
           recipientId: vendor._id,
-          content: `Hi ${vendor.name},\n\n${formData.message}\n\nEvent Details:\n- Date: ${formData.eventDate}\n- Guest Count: ${formData.guestCount}\n- Budget: ${formData.budget}\n\nContact Information:\n- Name: ${formData.name || session.user.firstName}\n- Email: ${formData.email || session.user.email}\n- Phone: ${formData.phone || session.user.phone}`,
+          content: `Hi ${vendor.name},\n\n${formData.message}\n\nEvent Details:\n- Date: ${formData.eventDate}\n- Guest Count: ${formData.guestCount}\n- Budget: ${formData.budget}\n\nContact Information:\n- Name: ${formData.name || session.user.name}\n- Email: ${formData.email || session.user.email}\n- Phone: ${formData.phone || 'Not provided'}`,
           messageType: 'text',
         })
       })
@@ -177,7 +177,7 @@ export function VendorContact({ vendor }: VendorContactProps) {
                 placeholder="Your full name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                defaultValue={session?.user?.firstName ? `${session.user.firstName} ${session.user.lastName}` : ""}
+                defaultValue={session?.user?.name || ""}
               />
             </div>
             
@@ -202,7 +202,7 @@ export function VendorContact({ vendor }: VendorContactProps) {
               placeholder="+94 77 123 4567"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              defaultValue={session?.user?.phone || ""}
+              defaultValue=""
             />
           </div>
           
