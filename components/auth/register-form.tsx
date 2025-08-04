@@ -44,7 +44,7 @@ export function RegisterForm() {
     setErrors({})
     try {
       // Inline validation
-      let err: any = {}
+      const err: any = {}
       if (!formData.firstName) err.firstName = "First name is required"
       if (!formData.lastName) err.lastName = "Last name is required"
       if (!formData.email) err.email = "Email is required"

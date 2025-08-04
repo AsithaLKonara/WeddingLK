@@ -12,9 +12,12 @@ import { useToast } from "@/hooks/use-toast"
 
 interface VenueBookingProps {
   venue: {
-    id: string
+    _id: string
     name: string
-    price: number
+    pricing?: {
+      basePrice: number
+      currency: string
+    }
   }
 }
 
@@ -33,7 +36,7 @@ export function VenueBooking({ venue }: VenueBookingProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    let err: any = {}
+    const err: any = {}
     if (!bookingData.date) err.date = "Date is required"
     if (!bookingData.guests || isNaN(Number(bookingData.guests)) || Number(bookingData.guests) <= 0) err.guests = "Enter a valid number of guests"
     if (!bookingData.name) err.name = "Name is required"
@@ -169,7 +172,7 @@ export function VenueBooking({ venue }: VenueBookingProps) {
             <div className="flex justify-between items-center mb-4">
               <span className="text-sm text-gray-600 dark:text-gray-400">Starting from</span>
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                LKR {venue.price.toLocaleString()}
+                LKR {(venue.pricing?.basePrice || 0).toLocaleString()}
               </span>
             </div>
 

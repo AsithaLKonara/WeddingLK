@@ -8,9 +8,10 @@ import Image from "next/image"
 
 interface VenueGalleryProps {
   images: string[]
+  venueName: string
 }
 
-export function VenueGallery({ images }: VenueGalleryProps) {
+export function VenueGallery({ images, venueName }: VenueGalleryProps) {
   const [currentImage, setCurrentImage] = useState(0)
 
   const nextImage = () => {
@@ -31,7 +32,7 @@ export function VenueGallery({ images }: VenueGalleryProps) {
         <div className="relative h-96 rounded-lg overflow-hidden">
           <Image
             src={images[currentImage] || "/placeholder.svg?height=400&width=600"}
-            alt={`Gallery image ${currentImage + 1}`}
+            alt={`${venueName} gallery image ${currentImage + 1}`}
             fill
             className="object-cover"
           />
@@ -77,7 +78,7 @@ export function VenueGallery({ images }: VenueGalleryProps) {
             >
               <Image
                 src={image || "/placeholder.svg?height=80&width=120"}
-                alt={`Thumbnail ${index + 1}`}
+                alt={`${venueName} thumbnail ${index + 1}`}
                 fill
                 className="object-cover hover:opacity-80 transition-opacity"
               />

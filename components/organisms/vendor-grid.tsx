@@ -46,6 +46,12 @@ interface VendorGridProps {
   category?: string
   location?: string
   className?: string
+  filters?: {
+    location: string
+    priceRange: number[]
+    rating: number
+    experience: string
+  }
 }
 
 export function VendorGrid({ limit = 6, category, location, className = "" }: VendorGridProps) {

@@ -4,25 +4,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Clock, DollarSign, Phone, Mail, Globe } from "lucide-react"
+import Image from "next/image"
 
 interface VendorProfileProps {
   vendor: {
-    id: string
-    name: string
+    _id: string
+    businessName: string
     category: string
-    location: string
-    rating: number
-    reviewCount: number
-    experience: string
-    price: number
-    avatar: string
-    coverImage: string
+    location: {
+      address: string
+      city: string
+      province: string
+      coordinates?: { lat: number; lng: number }
+    }
+    rating?: { average: number; count: number }
+    experience?: number
+    pricing?: { startingPrice: number }
+    avatar?: string
+    coverImage?: string
     description: string
-    services: string[]
+    services?: Array<{
+      name: string
+      description: string
+      price: number
+    }>
     contact: {
       phone: string
       email: string
-      website: string
+      website?: string
     }
   }
 }
@@ -31,14 +40,16 @@ export function VendorProfile({ vendor }: VendorProfileProps) {
   return (
     <Card className="mb-8">
       <div className="relative h-48 bg-gradient-to-r from-rose-500 to-pink-600 rounded-t-lg">
-        <img
-          src={vendor.coverImage}
-          alt={vendor.name}
-          className="w-full h-full object-cover rounded-t-lg"
+        <Image
+          src={vendor.coverImage || '/placeholder-venue.jpg'}
+          alt={vendor.businessName}
+          fill
+          className="object-cover rounded-t-lg"
+          priority
         />
         <div className="absolute inset-0 bg-black bg-opacity-40 rounded-t-lg" />
         <div className="absolute bottom-4 left-4 text-white">
-          <h1 className="text-3xl font-bold">{vendor.name}</h1>
+          <h1 className="text-3xl font-bold">{vendor.businessName}</h1>
           <p className="text-lg opacity-90">{vendor.category}</p>
         </div>
       </div>
@@ -46,11 +57,11 @@ export function VendorProfile({ vendor }: VendorProfileProps) {
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <Star className="h-5 w-5 text-yellow-500 fill-current" />
-              <span className="font-semibold">{vendor.rating}</span>
-              <span className="text-gray-500">({vendor.reviewCount} reviews)</span>
-            </div>
+                      <div className="flex items-center space-x-1">
+            <Star className="h-5 w-5 text-yellow-500 fill-current" />
+            <span className="font-semibold">{vendor.rating?.average || 0}</span>
+            <span className="text-gray-500">({vendor.rating?.count || 0} reviews)</span>
+          </div>
             <Badge variant="secondary">{vendor.category}</Badge>
           </div>
           <Button>Contact Vendor</Button>
@@ -59,15 +70,15 @@ export function VendorProfile({ vendor }: VendorProfileProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="flex items-center space-x-2">
             <MapPin className="h-4 w-4 text-gray-500" />
-            <span>{vendor.location}</span>
+            <span>{vendor.location.address}, {vendor.location.city}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4 text-gray-500" />
-            <span>{vendor.experience} experience</span>
+            <span>{vendor.experience || 0} years experience</span>
           </div>
           <div className="flex items-center space-x-2">
             <DollarSign className="h-4 w-4 text-gray-500" />
-            <span>Starting from LKR {vendor.price.toLocaleString()}</span>
+            <span>Starting from LKR {(vendor.pricing?.startingPrice || 0).toLocaleString()}</span>
           </div>
         </div>
 
@@ -76,9 +87,9 @@ export function VendorProfile({ vendor }: VendorProfileProps) {
         <div className="space-y-4">
           <h3 className="font-semibold">Services Offered</h3>
           <div className="flex flex-wrap gap-2">
-            {vendor.services.map((service, index) => (
-              <Badge key={index} variant="outline">{service}</Badge>
-            ))}
+            {vendor.services?.map((service, index) => (
+              <Badge key={index} variant="outline">{service.name}</Badge>
+            )) || <span className="text-gray-500">No services listed</span>}
           </div>
         </div>
 

@@ -67,9 +67,12 @@ export default function TestDemoPage() {
             </CardHeader>
             <CardContent>
                 <VenueBooking venue={{
-                  id: "demo-venue-1",
+                  _id: "demo-venue-1",
                   name: "Demo Venue",
-                  price: 50000
+                  pricing: {
+                    basePrice: 50000,
+                    currency: "LKR"
+                  }
                 }} />
             </CardContent>
           </Card>

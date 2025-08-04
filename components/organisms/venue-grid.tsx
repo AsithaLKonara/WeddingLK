@@ -41,6 +41,17 @@ interface VenueGridProps {
   featured?: boolean
   location?: string
   className?: string
+  filters?: {
+    location: string
+    priceRange: number[]
+    capacity: string
+    amenities: string[]
+    rating: number
+  }
+  sortBy?: string
+  onSortChange?: (value: string) => void
+  viewMode?: string
+  onViewModeChange?: (value: string) => void
 }
 
 export function VenueGrid({ limit = 6, featured = false, location, className = "" }: VenueGridProps) {

@@ -7,20 +7,24 @@ import Image from "next/image"
 
 interface VenueHeroProps {
   venue: {
-    id: string
+    _id: string
     name: string
-    location: string
-    capacity: number
-    price: number
-    rating: number
-    reviewCount: number
-    images: string[]
-    amenities: string[]
+    location: {
+      address: string
+      city: string
+      province: string
+      coordinates?: { lat: number; lng: number }
+    }
+    capacity: { min: number; max: number }
+    pricing?: { basePrice: number; currency: string }
+    rating?: { average: number; count: number }
+    images?: string[]
+    amenities?: string[]
     description: string
-    contact: {
+    contact?: {
       phone: string
       email: string
-      website: string
+      website?: string
     }
   }
 }
@@ -31,7 +35,7 @@ export function VenueHero({ venue }: VenueHeroProps) {
       {/* Hero Image */}
       <div className="relative h-96 md:h-[500px]">
         <Image
-          src={venue.images[0] || "/placeholder.svg?height=500&width=1200"}
+          src={venue.images?.[0] || "/placeholder.svg?height=500&width=1200"}
           alt={venue.name}
           fill
           className="object-cover"
@@ -54,8 +58,8 @@ export function VenueHero({ venue }: VenueHeroProps) {
             <Badge className="bg-green-500 text-white">Available</Badge>
             <div className="flex items-center">
               <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-              <span className="font-medium">{venue.rating}</span>
-              <span className="text-white/80 ml-1">({venue.reviewCount} reviews)</span>
+              <span className="font-medium">{venue.rating?.average || 0}</span>
+              <span className="text-white/80 ml-1">({venue.rating?.count || 0} reviews)</span>
             </div>
           </div>
 
@@ -64,11 +68,11 @@ export function VenueHero({ venue }: VenueHeroProps) {
           <div className="flex items-center space-x-4 text-white/90">
             <div className="flex items-center">
               <MapPin className="h-4 w-4 mr-1" />
-              {venue.location}
+              {venue.location.address}, {venue.location.city}
             </div>
             <div className="flex items-center">
               <Users className="h-4 w-4 mr-1" />
-              Up to {venue.capacity} guests
+              Up to {venue.capacity.max} guests
             </div>
           </div>
         </div>
@@ -78,7 +82,7 @@ export function VenueHero({ venue }: VenueHeroProps) {
       <div className="bg-white dark:bg-gray-800 border-b px-6 py-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">LKR {venue.price.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">LKR {(venue.pricing?.basePrice || 0).toLocaleString()}</div>
             <div className="text-sm text-gray-600 dark:text-gray-400">Starting price per event</div>
           </div>
 

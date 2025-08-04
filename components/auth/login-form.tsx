@@ -33,7 +33,7 @@ export function LoginForm() {
     setErrors({})
     setOtpStatus(null)
     // Inline validation
-    let err: any = {}
+    const err: any = {}
     if (!formData.email) err.email = "Email is required"
     if (!formData.password) err.password = "Password is required"
     if (Object.keys(err).length > 0) {

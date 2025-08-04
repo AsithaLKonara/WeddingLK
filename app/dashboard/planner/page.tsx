@@ -137,7 +137,7 @@ export default function PlannerDashboardPage() {
   // Add Task Modal
   const handleAddTask = async () => {
     // Client-side validation
-    let errors: { task?: string; date?: string } = {}
+    const errors: { task?: string; date?: string } = {}
     if (!taskForm.task) errors.task = "Task name is required"
     if (!taskForm.date) errors.date = "Date is required"
     setTaskFormErrors(errors)
@@ -167,7 +167,7 @@ export default function PlannerDashboardPage() {
   const handleEditTask = async () => {
     if (!editTask) return
     // Client-side validation
-    let errors: { task?: string; date?: string } = {}
+    const errors: { task?: string; date?: string } = {}
     if (!taskForm.task) errors.task = "Task name is required"
     if (!taskForm.date) errors.date = "Date is required"
     setTaskFormErrors(errors)

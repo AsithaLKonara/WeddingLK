@@ -26,7 +26,7 @@ interface VendorContactProps {
     contact: {
       phone: string
       email: string
-      website: string
+      website?: string
     }
     rating: {
       average: number

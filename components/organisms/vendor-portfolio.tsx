@@ -6,18 +6,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useState } from "react"
 
 interface VendorPortfolioProps {
-  portfolio: string[]
+  images: string[]
+  vendorName: string
 }
 
-export function VendorPortfolio({ portfolio }: VendorPortfolioProps) {
+export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % portfolio.length)
+    setCurrentIndex((prev) => (prev + 1) % images.length)
   }
 
   const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + portfolio.length) % portfolio.length)
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
   }
 
   return (
@@ -30,13 +31,13 @@ export function VendorPortfolio({ portfolio }: VendorPortfolioProps) {
         <div className="relative">
           <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
             <img
-              src={portfolio[currentIndex]}
-              alt={`Portfolio image ${currentIndex + 1}`}
+              src={images[currentIndex]}
+              alt={`${vendorName} portfolio image ${currentIndex + 1}`}
               className="w-full h-full object-cover"
             />
           </div>
           
-          {portfolio.length > 1 && (
+          {images.length > 1 && (
             <>
               <Button
                 variant="outline"
@@ -58,9 +59,9 @@ export function VendorPortfolio({ portfolio }: VendorPortfolioProps) {
           )}
         </div>
 
-        {portfolio.length > 1 && (
+        {images.length > 1 && (
           <div className="flex justify-center mt-4 space-x-2">
-            {portfolio.map((_, index) => (
+            {images.map((_: string, index: number) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full ${
@@ -73,7 +74,7 @@ export function VendorPortfolio({ portfolio }: VendorPortfolioProps) {
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
-          {portfolio.map((image, index) => (
+          {images.map((image: string, index: number) => (
             <button
               key={index}
               className="aspect-square bg-gray-100 dark:bg-gray-800 rounded overflow-hidden"
@@ -81,7 +82,7 @@ export function VendorPortfolio({ portfolio }: VendorPortfolioProps) {
             >
               <img
                 src={image}
-                alt={`Thumbnail ${index + 1}`}
+                alt={`${vendorName} thumbnail ${index + 1}`}
                 className="w-full h-full object-cover hover:opacity-75 transition-opacity"
               />
             </button>

@@ -8,9 +8,13 @@ interface VenueDetailsProps {
   venue: {
     name: string
     description: string
-    amenities: string[]
-    capacity: number
-    location: string
+    amenities?: string[]
+    capacity: { min: number; max: number }
+    location: {
+      address: string
+      city: string
+      province: string
+    }
   }
 }
 
@@ -49,7 +53,7 @@ export function VenueDetails({ venue }: VenueDetailsProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {venue.amenities.map((amenity, index) => {
+            {venue.amenities?.map((amenity, index) => {
               const IconComponent = getAmenityIcon(amenity)
               return (
                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -57,7 +61,7 @@ export function VenueDetails({ venue }: VenueDetailsProps) {
                   <span className="text-sm font-medium text-gray-900 dark:text-white">{amenity}</span>
                 </div>
               )
-            })}
+            }) || <span className="text-gray-500">No amenities listed</span>}
           </div>
         </CardContent>
       </Card>
@@ -71,11 +75,11 @@ export function VenueDetails({ venue }: VenueDetailsProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Maximum Capacity</span>
-              <Badge variant="secondary">{venue.capacity} guests</Badge>
+              <Badge variant="secondary">{venue.capacity.max} guests</Badge>
             </div>
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Location</span>
-              <Badge variant="secondary">{venue.location}</Badge>
+              <Badge variant="secondary">{venue.location.address}, {venue.location.city}</Badge>
             </div>
           </div>
         </CardContent>
