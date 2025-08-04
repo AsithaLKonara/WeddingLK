@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { payHereIntegration } from '@/lib/payhere-integration'
 
 // Initialize Stripe
 let stripe: any = null
@@ -9,7 +10,7 @@ async function getStripe() {
   if (!stripe) {
     const Stripe = await import('stripe')
     stripe = new Stripe.default(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2023-10-16',
+      apiVersion: '2025-06-30.basil',
     })
   }
   return stripe
@@ -42,6 +43,21 @@ export async function POST(request: NextRequest) {
         break
       case "premium":
         response = await processPremiumPayment(body)
+        break
+      case "payhere":
+        response = await processPayHerePayment(body)
+        break
+      case "installment":
+        response = await processInstallmentPayment(body)
+        break
+      case "ezcash":
+        response = await processEzCashPayment(body)
+        break
+      case "mcash":
+        response = await processMCashPayment(body)
+        break
+      case "bank_transfer":
+        response = await processBankTransferPayment(body)
         break
       default:
         throw new Error("Invalid payment type")
@@ -247,6 +263,127 @@ async function processPremiumPayment(data: any) {
     premiumUntil: new Date(Date.now() + duration * 30 * 24 * 60 * 60 * 1000),
     features: plan.features,
     status: "pending_confirmation",
+  }
+}
+
+// Process PayHere payment
+async function processPayHerePayment(data: any) {
+  const { orderId, amount, customer, items, returnUrl, cancelUrl, notifyUrl } = data
+
+  const paymentRequest = await payHereIntegration.createPaymentRequest({
+    orderId,
+    amount,
+    currency: 'LKR',
+    customer,
+    items,
+    returnUrl,
+    cancelUrl,
+    notifyUrl
+  })
+
+  return {
+    paymentUrl: payHereIntegration.buildPaymentUrl(paymentRequest),
+    paymentMethod: 'PayHere',
+    orderId,
+    amount,
+    status: 'pending'
+  }
+}
+
+// Process installment payment
+async function processInstallmentPayment(data: any) {
+  const { orderId, totalAmount, installments, customer, items, returnUrl, cancelUrl, notifyUrl } = data
+
+  const installmentPayment = await payHereIntegration.createInstallmentPayment({
+    orderId,
+    totalAmount,
+    installments,
+    customer,
+    items,
+    returnUrl,
+    cancelUrl,
+    notifyUrl
+  })
+
+  return {
+    paymentUrl: installmentPayment.paymentUrl,
+    paymentMethod: 'Installment',
+    orderId,
+    totalAmount,
+    monthlyPayment: installmentPayment.monthlyPayment,
+    installments,
+    installmentPlan: installmentPayment.installmentPlan,
+    status: 'pending'
+  }
+}
+
+// Process eZ Cash payment
+async function processEzCashPayment(data: any) {
+  const { orderId, amount, customer, items, returnUrl, cancelUrl, notifyUrl } = data
+
+  const ezCashPayment = await payHereIntegration.createEzCashPayment({
+    orderId,
+    amount,
+    customer,
+    items,
+    returnUrl,
+    cancelUrl,
+    notifyUrl
+  })
+
+  return {
+    paymentUrl: ezCashPayment.paymentUrl,
+    paymentMethod: 'eZ Cash',
+    orderId,
+    amount,
+    status: 'pending'
+  }
+}
+
+// Process mCash payment
+async function processMCashPayment(data: any) {
+  const { orderId, amount, customer, items, returnUrl, cancelUrl, notifyUrl } = data
+
+  const mCashPayment = await payHereIntegration.createMCashPayment({
+    orderId,
+    amount,
+    customer,
+    items,
+    returnUrl,
+    cancelUrl,
+    notifyUrl
+  })
+
+  return {
+    paymentUrl: mCashPayment.paymentUrl,
+    paymentMethod: 'mCash',
+    orderId,
+    amount,
+    status: 'pending'
+  }
+}
+
+// Process bank transfer payment
+async function processBankTransferPayment(data: any) {
+  const { orderId, amount, customer, items, returnUrl, cancelUrl, notifyUrl } = data
+
+  const bankTransferPayment = await payHereIntegration.createBankTransferPayment({
+    orderId,
+    amount,
+    customer,
+    items,
+    returnUrl,
+    cancelUrl,
+    notifyUrl
+  })
+
+  return {
+    paymentUrl: bankTransferPayment.paymentUrl,
+    paymentMethod: 'Bank Transfer',
+    orderId,
+    amount,
+    bankDetails: bankTransferPayment.bankDetails,
+    status: 'pending'
   }
 }
 
