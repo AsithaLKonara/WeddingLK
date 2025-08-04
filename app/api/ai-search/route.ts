@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const suggestions = await getSearchSuggestions(query, type)
+    const suggestions = await getSearchSuggestions(query, type || undefined)
 
     return NextResponse.json({
       success: true,

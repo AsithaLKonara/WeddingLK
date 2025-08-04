@@ -329,10 +329,10 @@ async function getVenueGallery(venueId: string | null) {
     const { Venue } = await import('@/lib/models/venue')
     const venue = await Venue.findById(venueId).select('gallery').lean()
     
-    if (!venue || !venue.gallery) return []
+    if (!venue || !(venue as any).gallery) return []
 
     const galleryItems = await Promise.all(
-      (venue.gallery as string[]).map(async (imageId: string) => {
+      ((venue as any).gallery as string[]).map(async (imageId: string) => {
         try {
           const imageInfo = await cloudinaryIntegration.getImageInfo(imageId)
           return {
@@ -366,10 +366,10 @@ async function getVendorGallery(vendorId: string | null) {
     const { Vendor } = await import('@/lib/models/vendor')
     const vendor = await Vendor.findById(vendorId).select('portfolio').lean()
     
-    if (!vendor || !vendor.portfolio) return []
+    if (!vendor || !(vendor as any).portfolio) return []
 
     const galleryItems = await Promise.all(
-      (vendor.portfolio as string[]).map(async (imageId: string) => {
+      ((vendor as any).portfolio as string[]).map(async (imageId: string) => {
         try {
           const imageInfo = await cloudinaryIntegration.getImageInfo(imageId)
           return {
@@ -403,10 +403,10 @@ async function getEventGallery(eventId: string | null) {
     const { Booking } = await import('@/lib/models/booking')
     const booking = await Booking.findById(eventId).select('photos').lean()
     
-    if (!booking || !booking.photos) return []
+    if (!booking || !(booking as any).photos) return []
 
     const galleryItems = await Promise.all(
-      (booking.photos as string[]).map(async (imageId: string) => {
+      ((booking as any).photos as string[]).map(async (imageId: string) => {
         try {
           const imageInfo = await cloudinaryIntegration.getImageInfo(imageId)
           return {
@@ -453,9 +453,9 @@ async function searchGallery(tags: string | null) {
 // Update gallery records after deletion
 async function updateGalleryRecords(publicIds: string[], type: string) {
   try {
-    const { Venue, Vendor, Booking } = await import('@/lib/models/venue')
-    const { Vendor: VendorModel } = await import('@/lib/models/vendor')
-    const { Booking: BookingModel } = await import('@/lib/models/booking')
+    const { Venue } = await import('@/lib/models/venue')
+    const { Vendor } = await import('@/lib/models/vendor')
+    const { Booking } = await import('@/lib/models/booking')
 
     switch (type) {
       case 'venue_gallery':
@@ -465,13 +465,13 @@ async function updateGalleryRecords(publicIds: string[], type: string) {
         )
         break
       case 'vendor_portfolio':
-        await VendorModel.updateMany(
+        await Vendor.updateMany(
           { portfolio: { $in: publicIds } },
           { $pull: { portfolio: { $in: publicIds } } }
         )
         break
       case 'event_photos':
-        await BookingModel.updateMany(
+        await Booking.updateMany(
           { photos: { $in: publicIds } },
           { $pull: { photos: { $in: publicIds } } }
         )

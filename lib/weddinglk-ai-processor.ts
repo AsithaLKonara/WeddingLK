@@ -447,4 +447,5 @@ For specific recommendations, please try again in a few moments or contact our s
   }
 }
 
+// Export a singleton instance
 export const weddingLKAI = new WeddingLKAIProcessor() 
