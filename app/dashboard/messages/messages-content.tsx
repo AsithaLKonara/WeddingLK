@@ -12,10 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search, MessageSquare, Send, Paperclip, Image as ImageIcon, Smile, MoreVertical } from "lucide-react"
 import Link from "next/link"
 
-// Force dynamic rendering to prevent SSR issues
-export const dynamic = 'force-dynamic'
-
-export default function MessagesPage() {
+export default function MessagesContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)

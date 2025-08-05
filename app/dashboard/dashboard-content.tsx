@@ -1,146 +1,35 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Calendar, 
-  Users, 
-  DollarSign, 
-  Star, 
-  TrendingUp, 
-  TrendingDown,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Plus
-} from "lucide-react"
+import { Calendar, Users, DollarSign, CheckSquare, MessageCircle, Settings, LayoutDashboard, TrendingUp, Bell } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardContent() {
-  const { data: session, status } = useSession({
-    required: false,
-    onUnauthenticated() {
-      // Handle unauthenticated state
-    },
-  })
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Mock data for dashboard
-  const dashboardData = {
-    upcomingEvents: [
-      {
-        id: 1,
-        title: "Venue Site Visit",
-        date: "2024-03-25",
-        time: "10:00 AM",
-        type: "meeting",
-        status: "confirmed"
-      },
-      {
-        id: 2,
-        title: "Photographer Consultation",
-        date: "2024-03-28",
-        time: "2:00 PM",
-        type: "consultation",
-        status: "pending"
-      },
-      {
-        id: 3,
-        title: "Wedding Planning Session",
-        date: "2024-04-02",
-        time: "11:00 AM",
-        type: "planning",
-        status: "confirmed"
-      }
-    ],
-    recentBookings: [
-      {
-        id: 1,
-        vendor: "Grand Ballroom Hotel",
-        service: "Venue Booking",
-        amount: 50000,
-        status: "confirmed",
-        date: "2024-03-20"
-      },
-      {
-        id: 2,
-        vendor: "Perfect Moments Photography",
-        service: "Photography Package",
-        amount: 25000,
-        status: "pending",
-        date: "2024-03-18"
-      }
-    ],
-    budgetOverview: {
-      total: 500000,
-      spent: 75000,
-      remaining: 425000,
-      categories: [
-        { name: "Venue", spent: 50000, budget: 200000 },
-        { name: "Photography", spent: 25000, budget: 80000 },
-        { name: "Catering", spent: 0, budget: 120000 },
-        { name: "Decoration", spent: 0, budget: 60000 },
-        { name: "Music", spent: 0, budget: 40000 }
-      ]
-    },
-    quickStats: {
-      totalVendors: 12,
-      totalBookings: 8,
-      totalSpent: 75000,
-      averageRating: 4.8
+  useEffect(() => {
+    if (status === 'loading') {
+      setIsLoading(true)
+    } else if (status === 'unauthenticated') {
+      router.push('/login')
+    } else {
+      setIsLoading(false)
     }
-  }
+  }, [status, router])
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-green-100 text-green-800'
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'cancelled':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getEventIcon = (type: string) => {
-    switch (type) {
-      case 'meeting':
-        return <Users className="h-4 w-4" />
-      case 'consultation':
-        return <Star className="h-4 w-4" />
-      case 'planning':
-        return <Calendar className="h-4 w-4" />
-      default:
-        return <Clock className="h-4 w-4" />
-    }
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('si-LK', {
-      style: 'currency',
-      currency: 'LKR',
-      minimumFractionDigits: 0
-    }).format(amount)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
-
-  // Show loading state during session check
-  if (status === 'loading') {
+  // Show loading state
+  if (isLoading || status === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
         </div>
       </div>
     )
@@ -153,20 +42,13 @@ export default function DashboardContent() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>
-              Please log in to access your dashboard
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button asChild className="w-full">
-              <Link href="/login">
-                Login to Dashboard
-              </Link>
+              <Link href="/login">Login to Dashboard</Link>
             </Button>
             <Button variant="outline" asChild className="w-full">
-              <Link href="/register">
-                Create Account
-              </Link>
+              <Link href="/register">Create Account</Link>
             </Button>
           </CardContent>
         </Card>
@@ -174,202 +56,182 @@ export default function DashboardContent() {
     )
   }
 
+  const user = session.user
+
   return (
-    <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto py-8 px-4 md:px-6">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Welcome back, {session.user?.name || 'User'}!</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Here's what's happening with your wedding planning
-          </p>
+          <h1 className="text-3xl font-bold">Welcome back, {user?.name || user?.email || 'User'}!</h1>
+          <p className="text-gray-600 mt-2">Here's what's happening with your wedding planning</p>
         </div>
-        <Button asChild>
-          <Link href="/planning">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Task
-          </Link>
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="icon">
+            <Bell className="h-5 w-5" />
+          </Button>
+          <Button variant="outline" size="icon">
+            <Settings className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Vendors</CardTitle>
+            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">2</div>
+            <p className="text-xs text-muted-foreground">Next event in 3 days</p>
+            <Button asChild variant="link" className="p-0 h-auto mt-2">
+              <Link href="/dashboard/planner">View Calendar</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Guest List</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.quickStats.totalVendors}</div>
-            <p className="text-xs text-muted-foreground">
-              +2 from last month
-            </p>
+            <div className="text-2xl font-bold">150</div>
+            <p className="text-xs text-muted-foreground">RSVPs received</p>
+            <Button asChild variant="link" className="p-0 h-auto mt-2">
+              <Link href="/planning?tab=guest-list">Manage Guests</Link>
+            </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.quickStats.totalBookings}</div>
-            <p className="text-xs text-muted-foreground">
-              +1 from last week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+            <CardTitle className="text-sm font-medium">Budget Spent</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(dashboardData.quickStats.totalSpent)}</div>
-            <p className="text-xs text-muted-foreground">
-              15% of total budget
-            </p>
+            <div className="text-2xl font-bold">LKR 450,000</div>
+            <p className="text-xs text-muted-foreground">75% of budget used</p>
+            <Button asChild variant="link" className="p-0 h-auto mt-2">
+              <Link href="/planning?tab=budget-tracker">View Budget</Link>
+            </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Tasks Completed</CardTitle>
+            <CheckSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.quickStats.averageRating}</div>
-            <p className="text-xs text-muted-foreground">
-              From 8 reviews
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Upcoming Events */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2" />
-              Upcoming Events
-            </CardTitle>
-            <CardDescription>
-              Your scheduled meetings and consultations
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {dashboardData.upcomingEvents.map((event) => (
-                <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      {getEventIcon(event.type)}
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{event.title}</h4>
-                      <p className="text-sm text-gray-500">
-                        {formatDate(event.date)} at {event.time}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge className={getStatusColor(event.status)}>
-                    {event.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-            <Button variant="outline" className="w-full mt-4">
-              View All Events
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Recent Bookings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2" />
-              Recent Bookings
-            </CardTitle>
-            <CardDescription>
-              Your latest vendor bookings and payments
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {dashboardData.recentBookings.map((booking) => (
-                <div key={booking.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <h4 className="font-medium">{booking.vendor}</h4>
-                    <p className="text-sm text-gray-500">{booking.service}</p>
-                    <p className="text-xs text-gray-400">{formatDate(booking.date)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{formatCurrency(booking.amount)}</p>
-                    <Badge className={getStatusColor(booking.status)}>
-                      {booking.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Button variant="outline" className="w-full mt-4">
-              View All Bookings
+            <div className="text-2xl font-bold">18/25</div>
+            <p className="text-xs text-muted-foreground">72% complete</p>
+            <Button asChild variant="link" className="p-0 h-auto mt-2">
+              <Link href="/planning?tab=checklist">View Tasks</Link>
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Budget Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <DollarSign className="h-5 w-5 mr-2" />
-            Budget Overview
-          </CardTitle>
-          <CardDescription>
-            Track your wedding budget across different categories
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Total Budget</p>
-                <p className="text-2xl font-bold">{formatCurrency(dashboardData.budgetOverview.total)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium">Spent</p>
-                <p className="text-2xl font-bold text-green-600">{formatCurrency(dashboardData.budgetOverview.spent)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium">Remaining</p>
-                <p className="text-2xl font-bold text-blue-600">{formatCurrency(dashboardData.budgetOverview.remaining)}</p>
-              </div>
-            </div>
+      {/* Quick Actions */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+            <Link href="/planning?tab=checklist">
+              <CheckSquare className="h-6 w-6 mb-2" />
+              Wedding Checklist
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+            <Link href="/dashboard/messages">
+              <MessageCircle className="h-6 w-6 mb-2" />
+              Messages
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+            <Link href="/dashboard/bookings">
+              <Calendar className="h-6 w-6 mb-2" />
+              Bookings
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+            <Link href="/dashboard/payments">
+              <DollarSign className="h-6 w-6 mb-2" />
+              Payments
+            </Link>
+          </Button>
+        </div>
+      </div>
 
-            <div className="space-y-3">
-              {dashboardData.budgetOverview.categories.map((category) => (
-                <div key={category.name} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{category.name}</span>
-                    <span>{formatCurrency(category.spent)} / {formatCurrency(category.budget)}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${Math.min((category.spent / category.budget) * 100, 100)}%` }}
-                    />
-                  </div>
+      {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2" />
+              Recent Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Venue booking confirmed</p>
+                  <p className="text-xs text-gray-500">2 hours ago</p>
                 </div>
-              ))}
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Photographer payment received</p>
+                  <p className="text-xs text-gray-500">1 day ago</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Guest list updated</p>
+                  <p className="text-xs text-gray-500">2 days ago</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Upcoming Deadlines</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Final venue payment</p>
+                  <p className="text-xs text-gray-500">Due in 5 days</p>
+                </div>
+                <Button size="sm" variant="outline">Pay Now</Button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Menu selection</p>
+                  <p className="text-xs text-gray-500">Due in 1 week</p>
+                </div>
+                <Button size="sm" variant="outline">Select</Button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Final guest count</p>
+                  <p className="text-xs text-gray-500">Due in 2 weeks</p>
+                </div>
+                <Button size="sm" variant="outline">Update</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 } 
