@@ -15,84 +15,57 @@ const connectionOptions = {
 // Global variable to track connection status
 let isConnected = false
 
-// Database connection function
+// Connect to database
 export async function connectToDatabase() {
   if (isConnected) {
-    console.log('✅ Using existing database connection')
+    console.log('Database already connected')
     return
   }
 
   try {
-    console.log('🔄 Connecting to MongoDB...')
-    
     await mongoose.connect(MONGODB_URI, connectionOptions)
-    
     isConnected = true
-    console.log('✅ Successfully connected to MongoDB')
-    
-    // Handle connection events
-    mongoose.connection.on('error', (error) => {
-      console.error('❌ MongoDB connection error:', error)
-      isConnected = false
-    })
-    
-    mongoose.connection.on('disconnected', () => {
-      console.log('⚠️ MongoDB disconnected')
-      isConnected = false
-    })
-    
-    mongoose.connection.on('reconnected', () => {
-      console.log('🔄 MongoDB reconnected')
-      isConnected = true
-    })
-    
+    console.log('✅ Database connected successfully')
   } catch (error) {
-    console.error('❌ Failed to connect to MongoDB:', error)
+    console.error('❌ Database connection failed:', error)
     throw error
   }
 }
 
-// Disconnect function
+// Disconnect from database
 export async function disconnectFromDatabase() {
   if (!isConnected) {
+    console.log('Database not connected')
     return
   }
-  
+
   try {
     await mongoose.disconnect()
     isConnected = false
-    console.log('✅ Disconnected from MongoDB')
+    console.log('✅ Database disconnected successfully')
   } catch (error) {
-    console.error('❌ Error disconnecting from MongoDB:', error)
+    console.error('❌ Database disconnection failed:', error)
+    throw error
   }
 }
 
-// Health check function
+// Check database health
 export async function checkDatabaseHealth() {
   try {
     if (!isConnected) {
-      return { status: 'disconnected', message: 'Database not connected' }
+      return { status: 'error', message: 'Database not connected' }
     }
-    
+
     // Ping the database with proper null checking
     const db = mongoose.connection.db
     if (!db) {
       return { status: 'error', message: 'Database instance not available' }
     }
-    
     await db.admin().ping()
     
-    return { 
-      status: 'healthy', 
-      message: 'Database connection is healthy',
-      collections: Object.keys(mongoose.connection.collections)
-    }
+    return { status: 'healthy', message: 'Database is healthy' }
   } catch (error) {
-    return { 
-      status: 'error', 
-      message: 'Database health check failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }
+    return { status: 'error', message: `Database health check failed: ${error}` }
   }
 }
 
@@ -107,5 +80,26 @@ export function getConnectionStatus() {
   }
 }
 
-// Export mongoose instance for direct access
-export { mongoose } 
+// Handle connection events
+mongoose.connection.on('connected', () => {
+  console.log('✅ Mongoose connected to MongoDB')
+  isConnected = true
+})
+
+mongoose.connection.on('error', (error) => {
+  console.error('❌ Mongoose connection error:', error)
+  isConnected = false
+})
+
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ Mongoose disconnected from MongoDB')
+  isConnected = false
+})
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await disconnectFromDatabase()
+  process.exit(0)
+})
+
+export default mongoose 

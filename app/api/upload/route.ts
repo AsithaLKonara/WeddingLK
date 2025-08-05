@@ -1,15 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+
+// Mock upload data storage
+const uploads = [
+  {
+    id: 'img_1',
+    url: 'https://via.placeholder.com/800x600/ff6b6b/ffffff?text=Wedding+Venue+1',
+    thumbnail: 'https://via.placeholder.com/300x200/ff6b6b/ffffff?text=Venue+1',
+    filename: 'venue_1.jpg',
+    uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+    type: 'venue',
+    entityId: 'venue_1',
+    width: 800,
+    height: 600,
+    size: 1024000,
+    format: 'jpeg',
+    uploadedBy: 'user_123'
+  },
+  {
+    id: 'img_2',
+    url: 'https://via.placeholder.com/800x600/4ecdc4/ffffff?text=Wedding+Venue+2',
+    thumbnail: 'https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Venue+2',
+    filename: 'venue_2.jpg',
+    uploadedAt: new Date(Date.now() - 172800000).toISOString(),
+    type: 'venue',
+    entityId: 'venue_2',
+    width: 800,
+    height: 600,
+    size: 1536000,
+    format: 'jpeg',
+    uploadedBy: 'user_123'
+  },
+  {
+    id: 'img_3',
+    url: 'https://via.placeholder.com/800x600/45b7d1/ffffff?text=Wedding+Venue+3',
+    thumbnail: 'https://via.placeholder.com/300x200/45b7d1/ffffff?text=Venue+3',
+    filename: 'venue_3.jpg',
+    uploadedAt: new Date(Date.now() - 259200000).toISOString(),
+    type: 'venue',
+    entityId: 'venue_3',
+    width: 800,
+    height: 600,
+    size: 2048000,
+    format: 'jpeg',
+    uploadedBy: 'user_123'
+  }
+]
 
 // POST /api/upload - Handle file uploads
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const formData = await request.formData()
     const file = formData.get('file') as File
     const type = formData.get('type') as string
@@ -36,10 +75,10 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Mock upload result
+    // Create upload record
     const uploadId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     
-    const uploadResult = {
+    const newUpload = {
       id: uploadId,
       url: `https://via.placeholder.com/800x600/cccccc/666666?text=${encodeURIComponent(file.name)}`,
       thumbnail: `https://via.placeholder.com/300x200/cccccc/666666?text=${encodeURIComponent(file.name)}`,
@@ -52,12 +91,15 @@ export async function POST(request: NextRequest) {
       uploadedAt: new Date().toISOString(),
       entityId,
       uploadType: type,
-      uploadedBy: session.user.email
+      uploadedBy: 'user_123'
     }
+
+    // Add to uploads array
+    uploads.push(newUpload)
 
     return NextResponse.json({
       success: true,
-      data: uploadResult,
+      data: newUpload,
       message: 'File uploaded successfully'
     })
 
@@ -67,7 +109,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Upload failed',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'Internal server error'
       },
       { status: 500 }
     )
@@ -77,11 +119,6 @@ export async function POST(request: NextRequest) {
 // GET /api/upload - Get upload status and gallery
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const { searchParams } = new URL(request.url)
     const entityId = searchParams.get('entityId')
     const type = searchParams.get('type')
@@ -92,52 +129,14 @@ export async function GET(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Mock gallery data
-    const mockGallery = [
-      {
-        id: 'img_1',
-        url: 'https://via.placeholder.com/800x600/ff6b6b/ffffff?text=Wedding+Venue+1',
-        thumbnail: 'https://via.placeholder.com/300x200/ff6b6b/ffffff?text=Venue+1',
-        filename: 'venue_1.jpg',
-        uploadedAt: new Date(Date.now() - 86400000).toISOString(),
-        type: 'venue',
-        width: 800,
-        height: 600,
-        size: 1024000,
-        format: 'jpeg'
-      },
-      {
-        id: 'img_2',
-        url: 'https://via.placeholder.com/800x600/4ecdc4/ffffff?text=Wedding+Venue+2',
-        thumbnail: 'https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Venue+2',
-        filename: 'venue_2.jpg',
-        uploadedAt: new Date(Date.now() - 172800000).toISOString(),
-        type: 'venue',
-        width: 800,
-        height: 600,
-        size: 1536000,
-        format: 'jpeg'
-      },
-      {
-        id: 'img_3',
-        url: 'https://via.placeholder.com/800x600/45b7d1/ffffff?text=Wedding+Venue+3',
-        thumbnail: 'https://via.placeholder.com/300x200/45b7d1/ffffff?text=Venue+3',
-        filename: 'venue_3.jpg',
-        uploadedAt: new Date(Date.now() - 259200000).toISOString(),
-        type: 'venue',
-        width: 800,
-        height: 600,
-        size: 2048000,
-        format: 'jpeg'
-      }
-    ]
-
-    const filteredGallery = mockGallery.filter(img => img.type === type)
+    const filteredUploads = uploads.filter(upload => 
+      upload.type === type && upload.entityId === entityId
+    )
 
     return NextResponse.json({
       success: true,
-      data: filteredGallery,
-      total: filteredGallery.length
+      data: filteredUploads,
+      total: filteredUploads.length
     })
 
   } catch (error) {
@@ -146,7 +145,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: 'Failed to load gallery',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'Internal server error'
       },
       { status: 500 }
     )
@@ -156,11 +155,6 @@ export async function GET(request: NextRequest) {
 // DELETE /api/upload - Delete uploaded file
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const { searchParams } = new URL(request.url)
     const fileId = searchParams.get('fileId')
 
@@ -170,7 +164,12 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Mock delete operation
+    // Remove from uploads array
+    const index = uploads.findIndex(upload => upload.id === fileId)
+    if (index > -1) {
+      uploads.splice(index, 1)
+    }
+
     return NextResponse.json({
       success: true,
       message: 'File deleted successfully'
@@ -182,7 +181,7 @@ export async function DELETE(request: NextRequest) {
       {
         success: false,
         error: 'Delete failed',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'Internal server error'
       },
       { status: 500 }
     )

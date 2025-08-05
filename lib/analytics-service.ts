@@ -176,16 +176,16 @@ export class AnalyticsService {
   }
 
   // Get popular pages
-  static async getPopularPages(): Promise<any[]> {
+  static async getPopularPages(): Promise<Array<{page: string, count: number}>> {
     try {
       const pageViews = this.events
         .filter(event => event.event === 'page_view')
         .map(event => event.properties.page)
 
-      const pageCounts = pageViews.reduce((acc, page) => {
-        acc[page] = (acc[page] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+      const pageCounts: Record<string, number> = {}
+      pageViews.forEach(page => {
+        pageCounts[page] = (pageCounts[page] || 0) + 1
+      })
 
       return Object.entries(pageCounts)
         .map(([page, count]) => ({ page, count }))
