@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { CloudinaryService } from '@/lib/cloudinary-service'
-import { connectToDatabase } from '@/lib/database'
 
 // POST /api/upload - Handle file uploads
 export async function POST(request: NextRequest) {
@@ -12,14 +10,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Connect to database
-    await connectToDatabase()
-
     const formData = await request.formData()
     const file = formData.get('file') as File
     const type = formData.get('type') as string
     const entityId = formData.get('entityId') as string
-    const folder = formData.get('folder') as string
 
     if (!file || !type || !entityId) {
       return NextResponse.json({
@@ -42,46 +36,20 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Convert file to buffer
-    const buffer = Buffer.from(await file.arrayBuffer())
-
-    // Upload to Cloudinary
-    const uploadResult = await CloudinaryService.uploadBuffer(buffer, {
-      folder: folder || `weddinglk/${type}`,
-      tags: [type, entityId, session.user.email],
-      context: {
-        type,
-        entityId,
-        uploadedBy: session.user.email,
-        originalName: file.name
-      },
-      quality: 'auto' as any,
-      format: 'auto'
-    })
-
-    if (!uploadResult.success) {
-      return NextResponse.json({
-        success: false,
-        error: uploadResult.error || 'Upload failed'
-      }, { status: 500 })
-    }
-
-    // Generate optimized URLs
-    const optimizedUrl = CloudinaryService.generateOptimizedUrl(uploadResult.public_id, 800, 600)
-    const thumbnailUrl = CloudinaryService.generateThumbnailUrl(uploadResult.public_id, 300, 200)
-
-    const uploadResponse = {
-      id: uploadResult.public_id,
-      url: uploadResult.secure_url,
-      optimizedUrl,
-      thumbnailUrl,
+    // Mock upload result
+    const uploadId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    
+    const uploadResult = {
+      id: uploadId,
+      url: `https://via.placeholder.com/800x600/cccccc/666666?text=${encodeURIComponent(file.name)}`,
+      thumbnail: `https://via.placeholder.com/300x200/cccccc/666666?text=${encodeURIComponent(file.name)}`,
       filename: file.name,
-      size: uploadResult.bytes,
+      size: file.size,
       type: file.type,
-      width: uploadResult.width,
-      height: uploadResult.height,
-      format: uploadResult.format,
-      uploadedAt: uploadResult.created_at,
+      width: 800,
+      height: 600,
+      format: file.type.split('/')[1],
+      uploadedAt: new Date().toISOString(),
       entityId,
       uploadType: type,
       uploadedBy: session.user.email
@@ -89,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: uploadResponse,
+      data: uploadResult,
       message: 'File uploaded successfully'
     })
 
@@ -114,13 +82,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Connect to database
-    await connectToDatabase()
-
     const { searchParams } = new URL(request.url)
     const entityId = searchParams.get('entityId')
     const type = searchParams.get('type')
-    const folder = searchParams.get('folder')
 
     if (!entityId || !type) {
       return NextResponse.json({
@@ -128,38 +92,52 @@ export async function GET(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Search for files in Cloudinary
-    const searchResult = await CloudinaryService.searchFiles({
-      folder: folder || `weddinglk/${type}`,
-      tags: [type, entityId],
-      max_results: 50
-    })
+    // Mock gallery data
+    const mockGallery = [
+      {
+        id: 'img_1',
+        url: 'https://via.placeholder.com/800x600/ff6b6b/ffffff?text=Wedding+Venue+1',
+        thumbnail: 'https://via.placeholder.com/300x200/ff6b6b/ffffff?text=Venue+1',
+        filename: 'venue_1.jpg',
+        uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        type: 'venue',
+        width: 800,
+        height: 600,
+        size: 1024000,
+        format: 'jpeg'
+      },
+      {
+        id: 'img_2',
+        url: 'https://via.placeholder.com/800x600/4ecdc4/ffffff?text=Wedding+Venue+2',
+        thumbnail: 'https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Venue+2',
+        filename: 'venue_2.jpg',
+        uploadedAt: new Date(Date.now() - 172800000).toISOString(),
+        type: 'venue',
+        width: 800,
+        height: 600,
+        size: 1536000,
+        format: 'jpeg'
+      },
+      {
+        id: 'img_3',
+        url: 'https://via.placeholder.com/800x600/45b7d1/ffffff?text=Wedding+Venue+3',
+        thumbnail: 'https://via.placeholder.com/300x200/45b7d1/ffffff?text=Venue+3',
+        filename: 'venue_3.jpg',
+        uploadedAt: new Date(Date.now() - 259200000).toISOString(),
+        type: 'venue',
+        width: 800,
+        height: 600,
+        size: 2048000,
+        format: 'jpeg'
+      }
+    ]
 
-    if (!searchResult.success) {
-      return NextResponse.json({
-        success: false,
-        error: searchResult.error || 'Failed to load gallery'
-      }, { status: 500 })
-    }
-
-    // Transform Cloudinary resources to gallery format
-    const gallery = searchResult.resources?.map(resource => ({
-      id: resource.public_id,
-      url: resource.secure_url,
-      thumbnail: CloudinaryService.generateThumbnailUrl(resource.public_id, 300, 200),
-      filename: resource.public_id.split('/').pop() || '',
-      uploadedAt: resource.created_at,
-      type: resource.resource_type,
-      width: resource.width,
-      height: resource.height,
-      size: resource.bytes,
-      format: resource.format
-    })) || []
+    const filteredGallery = mockGallery.filter(img => img.type === type)
 
     return NextResponse.json({
       success: true,
-      data: gallery,
-      total: gallery.length
+      data: filteredGallery,
+      total: filteredGallery.length
     })
 
   } catch (error) {
@@ -183,28 +161,16 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Connect to database
-    await connectToDatabase()
-
     const { searchParams } = new URL(request.url)
-    const publicId = searchParams.get('publicId')
+    const fileId = searchParams.get('fileId')
 
-    if (!publicId) {
+    if (!fileId) {
       return NextResponse.json({
-        error: 'Public ID is required'
+        error: 'File ID is required'
       }, { status: 400 })
     }
 
-    // Delete from Cloudinary
-    const deleteResult = await CloudinaryService.deleteFile(publicId)
-
-    if (!deleteResult.success) {
-      return NextResponse.json({
-        success: false,
-        error: deleteResult.error || 'Delete failed'
-      }, { status: 500 })
-    }
-
+    // Mock delete operation
     return NextResponse.json({
       success: true,
       message: 'File deleted successfully'

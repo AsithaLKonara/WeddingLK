@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectDB } from '@/lib/db'
-import { Notification } from '@/lib/models/notification'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-// GET /api/notifications - Get user notifications
+// GET /api/notifications - Get notifications
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,39 +12,77 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '20')
-    const offset = parseInt(searchParams.get('offset') || '0')
-    const type = searchParams.get('type')
-    const isRead = searchParams.get('isRead')
-    const includeArchived = searchParams.get('includeArchived') === 'true'
 
-    await connectDB()
-
-    const options: any = {
-      limit,
-      offset,
-      includeArchived,
-    }
-
-    if (type) options.type = type
-    if (isRead !== null) options.isRead = isRead === 'true'
-
-    const notifications = await Notification.getUserNotifications(session.user.id, options)
+    // Mock notifications data
+    const mockNotifications = [
+      {
+        id: 'notif_1',
+        title: 'Booking Confirmed',
+        message: 'Your booking at Grand Ballroom Hotel has been confirmed for December 15th, 2024.',
+        type: 'success',
+        read: false,
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        actionUrl: '/dashboard/bookings'
+      },
+      {
+        id: 'notif_2',
+        title: 'Payment Received',
+        message: 'Payment of LKR 50,000 has been received for your venue booking.',
+        type: 'info',
+        read: false,
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        actionUrl: '/dashboard/payments'
+      },
+      {
+        id: 'notif_3',
+        title: 'New Message',
+        message: 'You have a new message from Perfect Moments Photography.',
+        type: 'info',
+        read: true,
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        actionUrl: '/dashboard/messages'
+      },
+      {
+        id: 'notif_4',
+        title: 'Task Reminder',
+        message: 'Don\'t forget to finalize your guest list by next week.',
+        type: 'warning',
+        read: false,
+        createdAt: new Date(Date.now() - 172800000).toISOString(),
+        actionUrl: '/planning?tab=guest-list'
+      },
+      {
+        id: 'notif_5',
+        title: 'Venue Tour Scheduled',
+        message: 'Your venue tour at Garden Palace is scheduled for tomorrow at 2 PM.',
+        type: 'info',
+        read: true,
+        createdAt: new Date(Date.now() - 259200000).toISOString(),
+        actionUrl: '/dashboard/bookings'
+      }
+    ]
 
     return NextResponse.json({
       success: true,
-      notifications,
-      hasMore: notifications.length === limit,
+      data: mockNotifications.slice(0, limit),
+      total: mockNotifications.length,
+      unreadCount: mockNotifications.filter(n => !n.read).length
     })
+
   } catch (error) {
-    console.error('Error fetching notifications:', error)
+    console.error('Notifications fetch error:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch notifications' },
+      {
+        success: false,
+        error: 'Failed to fetch notifications',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
 }
 
-// POST /api/notifications - Create notification
+// POST /api/notifications - Mark notification as read
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -55,130 +91,28 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const {
-      recipientId,
-      type,
-      title,
-      message,
-      data = {},
-      deliveryChannels = { inApp: true },
-      scheduledFor,
-      expiresAt,
-    } = body
+    const { notificationId, action } = body
 
-    if (!recipientId || !type || !title || !message) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    if (!notificationId || !action) {
+      return NextResponse.json({
+        error: 'Notification ID and action are required'
+      }, { status: 400 })
     }
 
-    await connectDB()
+    // Mock notification update
+    return NextResponse.json({
+      success: true,
+      message: 'Notification updated successfully'
+    })
 
-    const notification = await Notification.createNotification({
-      recipient: recipientId,
-      sender: session.user.id,
-      type,
-      title,
-      message,
-      data,
-      deliveryChannels,
-      scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
-      expiresAt: expiresAt ? new Date(expiresAt) : undefined,
-      metadata: {
-        userAgent: request.headers.get('user-agent') || '',
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
-        deviceType: 'web',
+  } catch (error) {
+    console.error('Notification update error:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to update notification',
+        message: error instanceof Error ? error.message : 'Unknown error'
       },
-    })
-
-    const populatedNotification = await Notification.findById(notification._id)
-      .populate('sender', 'firstName lastName email profileImage')
-      .populate('data.bookingId', 'bookingNumber date')
-      .populate('data.venueId', 'name')
-      .populate('data.vendorId', 'businessName')
-
-    return NextResponse.json({
-      success: true,
-      notification: populatedNotification,
-    })
-  } catch (error) {
-    console.error('Error creating notification:', error)
-    return NextResponse.json(
-      { error: 'Failed to create notification' },
-      { status: 500 }
-    )
-  }
-}
-
-// PUT /api/notifications - Mark notifications as read
-export async function PUT(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const { notificationIds, markAllAsRead = false } = body
-
-    await connectDB()
-
-    if (markAllAsRead) {
-      await Notification.markAllAsRead(session.user.id)
-    } else if (notificationIds && notificationIds.length > 0) {
-      await Notification.markAsRead(notificationIds, session.user.id)
-    } else {
-      return NextResponse.json({ error: 'No notification IDs provided' }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: markAllAsRead ? 'All notifications marked as read' : 'Notifications marked as read',
-    })
-  } catch (error) {
-    console.error('Error updating notifications:', error)
-    return NextResponse.json(
-      { error: 'Failed to update notifications' },
-      { status: 500 }
-    )
-  }
-}
-
-// DELETE /api/notifications - Archive notification
-export async function DELETE(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { searchParams } = new URL(request.url)
-    const notificationId = searchParams.get('notificationId')
-
-    if (!notificationId) {
-      return NextResponse.json({ error: 'Notification ID is required' }, { status: 400 })
-    }
-
-    await connectDB()
-
-    const notification = await Notification.findById(notificationId)
-    if (!notification) {
-      return NextResponse.json({ error: 'Notification not found' }, { status: 404 })
-    }
-
-    // Check if user is the recipient
-    if (notification.recipient.toString() !== session.user.id) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
-    }
-
-    await notification.archive()
-
-    return NextResponse.json({
-      success: true,
-      message: 'Notification archived successfully',
-    })
-  } catch (error) {
-    console.error('Error archiving notification:', error)
-    return NextResponse.json(
-      { error: 'Failed to archive notification' },
       { status: 500 }
     )
   }

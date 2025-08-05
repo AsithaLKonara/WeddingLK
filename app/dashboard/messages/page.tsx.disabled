@@ -1,132 +1,156 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import { useEffect, useState, useRef } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Search, 
-  Send, 
-  MoreVertical, 
-  Phone, 
-  Video,
-  Paperclip,
-  Smile
-} from "lucide-react"
-import { Suspense } from "react"
+import { Search, MessageSquare, Send, Paperclip, Image as ImageIcon, Smile, MoreVertical } from "lucide-react"
 import Link from "next/link"
 
-// Loading component for Suspense
-function MessagesLoading() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading messages...</p>
-      </div>
-    </div>
-  )
-}
+// Force dynamic rendering to prevent SSR issues
+export const dynamic = 'force-dynamic'
 
-// Main messages component
-function MessagesContent() {
-  const { data: session, status } = useSession({
-    required: false,
-    onUnauthenticated() {
-      // Handle unauthenticated state
-    },
-  })
-
-  // Mock data for messages
-  const mockContacts = [
+export default function MessagesPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
+  const [conversations, setConversations] = useState([
     {
-      id: '1',
-      name: 'Grand Ballroom Hotel',
-      avatar: '/placeholder-venue.jpg',
-      lastMessage: 'Thank you for the venue tour! We loved it.',
-      time: '2 hours ago',
-      unreadCount: 0,
-      isOnline: true
+      id: "1",
+      name: "Perfect Moments Photography",
+      lastMessage: "Looking forward to your wedding!",
+      time: "10:30 AM",
+      unread: 2,
+      avatar: "/placeholder-user.jpg",
+      status: "online"
     },
     {
-      id: '2',
-      name: 'Perfect Moments Photography',
-      avatar: '/placeholder-user.jpg',
-      lastMessage: 'When would you like to schedule the consultation?',
-      time: '1 day ago',
-      unreadCount: 1,
-      isOnline: false
+      id: "2",
+      name: "Grand Ballroom Hotel",
+      lastMessage: "Your booking is confirmed.",
+      time: "Yesterday",
+      unread: 0,
+      avatar: "/placeholder-user.jpg",
+      status: "offline"
     },
     {
-      id: '3',
-      name: 'Elegant Catering',
-      avatar: '/placeholder-user.jpg',
-      lastMessage: 'We can accommodate your dietary requirements.',
-      time: '2 days ago',
-      unreadCount: 0,
-      isOnline: true
+      id: "3",
+      name: "Elegant Decorators",
+      lastMessage: "Here are the new design options.",
+      time: "2 days ago",
+      unread: 1,
+      avatar: "/placeholder-user.jpg",
+      status: "online"
+    },
+    {
+      id: "4",
+      name: "Sweet Dreams Catering",
+      lastMessage: "Menu tasting scheduled for next week.",
+      time: "3 days ago",
+      unread: 0,
+      avatar: "/placeholder-user.jpg",
+      status: "away"
     }
-  ]
+  ])
+  const [selectedConversation, setSelectedConversation] = useState(conversations[0])
+  const [messages, setMessages] = useState([
+    { id: "m1", sender: "other", content: "Hi! How can I help you with your wedding photography?", time: "10:28 AM", status: "read" },
+    { id: "m2", sender: "me", content: "I'd like to inquire about your wedding photography packages.", time: "10:30 AM", status: "read" },
+    { id: "m3", sender: "other", content: "Certainly! We have several packages starting from LKR 150,000. What's your wedding date?", time: "10:35 AM", status: "read" },
+    { id: "m4", sender: "me", content: "It's on December 15th, 2024. Can you tell me more about the packages?", time: "10:40 AM", status: "read" },
+    { id: "m5", sender: "other", content: "Perfect! For December weddings, we offer special rates. Let me send you our package details.", time: "10:45 AM", status: "delivered" }
+  ])
+  const [newMessage, setNewMessage] = useState("")
+  const [isTyping, setIsTyping] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const mockMessages = [
-    {
-      id: '1',
-      sender: 'Grand Ballroom Hotel',
-      content: 'Thank you for the venue tour! We loved it.',
-      time: '2 hours ago',
-      isOwn: false
-    },
-    {
-      id: '2',
-      sender: 'You',
-      content: 'Thank you! Yes, it\'s a beautiful venue. When is your wedding date?',
-      time: '2 hours ago',
-      isOwn: true
-    },
-    {
-      id: '3',
-      sender: 'Grand Ballroom Hotel',
-      content: 'We\'re planning for June 15th, 2024. Do you have availability?',
-      time: '1 hour ago',
-      isOwn: false
-    },
-    {
-      id: '4',
-      sender: 'You',
-      content: 'Let me check our calendar for you.',
-      time: '30 minutes ago',
-      isOwn: true
+  useEffect(() => {
+    if (status === 'loading') {
+      setIsLoading(true)
+    } else if (status === 'unauthenticated') {
+      router.push('/login')
+    } else {
+      setIsLoading(false)
     }
-  ]
+  }, [status, router])
 
-  // Show loading state during session check
-  if (status === 'loading') {
-    return <MessagesLoading />
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  const handleSendMessage = () => {
+    if (newMessage.trim()) {
+      const message = {
+        id: `m${messages.length + 1}`,
+        sender: "me",
+        content: newMessage,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: "sending"
+      }
+      setMessages([...messages, message])
+      setNewMessage("")
+      
+      // Simulate message delivery
+      setTimeout(() => {
+        setMessages(prev => prev.map(msg => 
+          msg.id === message.id ? { ...msg, status: "delivered" } : msg
+        ))
+      }, 1000)
+      
+      // Simulate typing response
+      setTimeout(() => {
+        setIsTyping(true)
+        setTimeout(() => {
+          setIsTyping(false)
+          const response = {
+            id: `m${messages.length + 2}`,
+            sender: "other",
+            content: "Thanks for your message! I'll get back to you soon.",
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            status: "read"
+          }
+          setMessages(prev => [...prev, response])
+        }, 2000)
+      }, 2000)
+    }
   }
 
-  // Show login prompt if not authenticated
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading messages...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>
-              Please log in to access your messages
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button asChild className="w-full">
-              <Link href="/login">
-                Login to Messages
-              </Link>
+              <Link href="/login">Login to Messages</Link>
             </Button>
             <Button variant="outline" asChild className="w-full">
-              <Link href="/register">
-                Create Account
-              </Link>
+              <Link href="/register">Create Account</Link>
             </Button>
           </CardContent>
         </Card>
@@ -135,146 +159,145 @@ function MessagesContent() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Messages</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Chat with your vendors and venues
-          </p>
+    <div className="flex h-[calc(100vh-64px)] bg-gray-50 dark:bg-gray-900">
+      {/* Left Pane: Conversations List */}
+      <div className="w-1/3 border-r bg-white dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+        <div className="p-4 border-b dark:border-gray-700">
+          <h2 className="text-xl font-semibold mb-4">Messages</h2>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input placeholder="Search conversations..." className="pl-10" />
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Phone className="h-4 w-4 mr-2" />
-            Call
-          </Button>
-          <Button variant="outline">
-            <Video className="h-4 w-4 mr-2" />
-            Video
-          </Button>
-        </div>
+        <ScrollArea className="flex-1">
+          {conversations.map((conv) => (
+            <div
+              key={conv.id}
+              className={`flex items-center p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                selectedConversation.id === conv.id ? "bg-blue-50 dark:bg-blue-900/20 border-r-2 border-blue-500" : ""
+              }`}
+              onClick={() => setSelectedConversation(conv)}
+            >
+              <div className="relative">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={conv.avatar} alt={conv.name} />
+                  <AvatarFallback>{conv.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+                  conv.status === 'online' ? 'bg-green-500' : 
+                  conv.status === 'away' ? 'bg-yellow-500' : 'bg-gray-400'
+                }`}></div>
+              </div>
+              <div className="ml-3 flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium truncate">{conv.name}</p>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{conv.time}</span>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{conv.lastMessage}</p>
+                {conv.unread > 0 && (
+                  <Badge variant="destructive" className="mt-1 text-xs">
+                    {conv.unread}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          ))}
+        </ScrollArea>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Contacts List */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Contacts</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input placeholder="Search contacts..." className="pl-10" />
+      {/* Right Pane: Chat Interface */}
+      <div className="flex-1 flex flex-col bg-white dark:bg-gray-800">
+        {/* Chat Header */}
+        <div className="p-4 border-b dark:border-gray-700 flex items-center justify-between">
+          <div className="flex items-center">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={selectedConversation.avatar} alt={selectedConversation.name} />
+              <AvatarFallback>{selectedConversation.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="ml-3">
+              <h3 className="text-lg font-semibold">{selectedConversation.name}</h3>
+              <p className="text-sm text-gray-500">
+                {selectedConversation.status === 'online' ? 'Online' : 
+                 selectedConversation.status === 'away' ? 'Away' : 'Offline'}
+              </p>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="space-y-1">
-              {mockContacts.map((contact) => (
+          </div>
+          <Button variant="ghost" size="icon">
+            <MoreVertical className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Messages Area */}
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-4">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
+              >
                 <div
-                  key={contact.id}
-                  className="flex items-center space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                  className={`max-w-[70%] p-3 rounded-lg relative ${
+                    msg.sender === "me"
+                      ? "bg-blue-500 text-white rounded-br-none"
+                      : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100 rounded-bl-none"
+                  }`}
                 >
-                  <div className="relative">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={contact.avatar} alt={contact.name} />
-                      <AvatarFallback>{contact.name[0]}</AvatarFallback>
-                    </Avatar>
-                    {contact.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white" />
+                  <p className="text-sm">{msg.content}</p>
+                  <div className={`flex items-center justify-end mt-1 space-x-1 ${
+                    msg.sender === "me" ? "text-blue-100" : "text-gray-500 dark:text-gray-400"
+                  }`}>
+                    <span className="text-xs">{msg.time}</span>
+                    {msg.sender === "me" && (
+                      <span className="text-xs">
+                        {msg.status === "sending" ? "⏳" : 
+                         msg.status === "delivered" ? "✓" : 
+                         msg.status === "read" ? "✓✓" : ""}
+                      </span>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium truncate">{contact.name}</h4>
-                      <span className="text-xs text-gray-500">{contact.time}</span>
-                    </div>
-                    <p className="text-sm text-gray-500 truncate">{contact.lastMessage}</p>
-                  </div>
-                  {contact.unreadCount > 0 && (
-                    <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 text-xs">
-                      {contact.unreadCount}
-                    </Badge>
-                  )}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg rounded-bl-none p-3">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
 
-        {/* Chat Area */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/placeholder-venue.jpg" alt="Grand Ballroom Hotel" />
-                  <AvatarFallback>GB</AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-lg">Grand Ballroom Hotel</CardTitle>
-                  <div className="flex items-center space-x-2">
-                    <div className="h-2 w-2 bg-green-500 rounded-full" />
-                    <span className="text-sm text-gray-500">Online</span>
-                  </div>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="h-96 overflow-y-auto p-4 space-y-4">
-              {mockMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      message.isOwn
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-800'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className={`text-xs mt-1 ${
-                      message.isOwn ? 'text-blue-100' : 'text-gray-500'
-                    }`}>
-                      {message.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="border-t p-4">
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm">
-                  <Paperclip className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Smile className="h-4 w-4" />
-                </Button>
-                <Input
-                  placeholder="Type a message..."
-                  className="flex-1"
-                />
-                <Button size="sm">
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Message Input */}
+        <div className="p-4 border-t dark:border-gray-700">
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="icon">
+              <Paperclip className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <ImageIcon className="h-5 w-5" />
+            </Button>
+            <Input
+              placeholder="Type your message..."
+              className="flex-1"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+            <Button variant="ghost" size="icon">
+              <Smile className="h-5 w-5" />
+            </Button>
+            <Button onClick={handleSendMessage} disabled={!newMessage.trim()}>
+              <Send className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
-  )
-}
-
-// Main export with Suspense wrapper
-export default function MessagesPage() {
-  return (
-    <Suspense fallback={<MessagesLoading />}>
-      <MessagesContent />
-    </Suspense>
   )
 } 
