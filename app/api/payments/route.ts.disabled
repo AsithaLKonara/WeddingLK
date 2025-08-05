@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { PaymentGateway, PaymentRequest } from '@/lib/payment-gateway'
+import { connectToDatabase } from '@/lib/database'
 
 // POST /api/payments - Process payments
 export async function POST(request: NextRequest) {
@@ -10,6 +12,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Connect to database
+    await connectToDatabase()
+
     const body = await request.json()
     const { type, ...paymentData } = body
 
@@ -17,42 +22,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment type is required' }, { status: 400 })
     }
 
-    let response
-    switch (type) {
-      case 'subscription':
-        response = await processSubscriptionPayment(paymentData)
-        break
-      case 'commission':
-        response = await processCommissionPayment(paymentData)
-        break
-      case 'booking':
-        response = await processBookingPayment(paymentData)
-        break
-      case 'premium':
-        response = await processPremiumPayment(paymentData)
-        break
-      case 'payhere':
-        response = await processPayHerePayment(paymentData)
-        break
-      case 'installment':
-        response = await processInstallmentPayment(paymentData)
-        break
-      case 'ezcash':
-        response = await processEzCashPayment(paymentData)
-        break
-      case 'mcash':
-        response = await processMCashPayment(paymentData)
-        break
-      case 'bank_transfer':
-        response = await processBankTransferPayment(paymentData)
-        break
-      default:
-        throw new Error('Invalid payment type')
+    // Create payment request
+    const paymentRequest: PaymentRequest = {
+      amount: paymentData.amount || 0,
+      currency: paymentData.currency || 'LKR',
+      description: paymentData.description || 'WeddingLK Payment',
+      customerEmail: session.user.email,
+      customerName: paymentData.customerName || session.user.name || '',
+      customerPhone: paymentData.customerPhone || '',
+      metadata: {
+        userId: session.user.id || '',
+        type,
+        ...paymentData.metadata
+      },
+      paymentMethod: paymentData.paymentMethod || 'payhere',
+      returnUrl: paymentData.returnUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
+      cancelUrl: paymentData.cancelUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
+    }
+
+    // Process payment
+    const result = await PaymentGateway.processPayment(paymentRequest)
+
+    if (!result.success) {
+      return NextResponse.json({
+        success: false,
+        error: result.error || 'Payment processing failed'
+      }, { status: 400 })
     }
 
     return NextResponse.json({
       success: true,
-      data: response,
+      data: result,
       type,
       timestamp: new Date().toISOString()
     })
@@ -78,11 +78,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Connect to database
+    await connectToDatabase()
+
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type')
     const limit = parseInt(searchParams.get('limit') || '10')
 
-    // Mock payment history
+    // Mock payment history (in production, this would query the database)
     const mockPayments = [
       {
         id: 'pay_1',
@@ -116,7 +119,7 @@ export async function GET(request: NextRequest) {
       }
     ]
 
-    const filteredPayments = type
+    const filteredPayments = type 
       ? mockPayments.filter(payment => payment.type === type)
       : mockPayments
 
@@ -137,112 +140,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-// Payment processing functions
-async function processSubscriptionPayment(data: any) {
-  return {
-    id: `sub_${Date.now()}`,
-    status: 'completed',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: data.method || 'card',
-    description: 'Subscription payment processed successfully'
-  }
-}
-
-async function processCommissionPayment(data: any) {
-  return {
-    id: `com_${Date.now()}`,
-    status: 'pending',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: data.method || 'bank_transfer',
-    description: 'Commission payment initiated'
-  }
-}
-
-async function processBookingPayment(data: any) {
-  return {
-    id: `book_${Date.now()}`,
-    status: 'completed',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: data.method || 'card',
-    description: 'Booking payment processed successfully'
-  }
-}
-
-async function processPremiumPayment(data: any) {
-  return {
-    id: `prem_${Date.now()}`,
-    status: 'completed',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: data.method || 'card',
-    description: 'Premium feature payment processed'
-  }
-}
-
-async function processPayHerePayment(data: any) {
-  return {
-    id: `ph_${Date.now()}`,
-    status: 'pending',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: 'payhere',
-    description: 'PayHere payment initiated',
-    paymentUrl: `https://payhere.lk/pay/${Date.now()}`
-  }
-}
-
-async function processInstallmentPayment(data: any) {
-  return {
-    id: `inst_${Date.now()}`,
-    status: 'pending',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: 'installment',
-    description: 'Installment payment plan created',
-    installments: data.installments || 3
-  }
-}
-
-async function processEzCashPayment(data: any) {
-  return {
-    id: `ez_${Date.now()}`,
-    status: 'pending',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: 'ezcash',
-    description: 'eZ Cash payment initiated'
-  }
-}
-
-async function processMCashPayment(data: any) {
-  return {
-    id: `mc_${Date.now()}`,
-    status: 'pending',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: 'mcash',
-    description: 'mCash payment initiated'
-  }
-}
-
-async function processBankTransferPayment(data: any) {
-  return {
-    id: `bt_${Date.now()}`,
-    status: 'pending',
-    amount: data.amount,
-    currency: data.currency || 'LKR',
-    method: 'bank_transfer',
-    description: 'Bank transfer initiated',
-    bankDetails: {
-      accountNumber: '1234567890',
-      accountName: 'WeddingLK Ltd',
-      bank: 'Commercial Bank of Ceylon',
-      branch: 'Colombo'
-    }
-  }
-}
+} 
