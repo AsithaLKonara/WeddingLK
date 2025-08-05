@@ -1,83 +1,20 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ChatInterface } from '@/components/organisms/chat-interface'
-import { NotificationCenter } from '@/components/ui/notification-center'
-import { useSocket } from '@/hooks/use-socket'
-import { useToast } from '@/hooks/use-toast'
-import {
-  MessageCircle,
-  Users,
-  Search,
-  Plus,
-  Filter,
-  MoreVertical,
-  Phone,
+import { useSession } from "next-auth/react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { 
+  Search, 
+  Send, 
+  MoreVertical, 
+  Phone, 
   Video,
-  Archive,
-  Trash2,
-  Settings,
-  Bell,
-  Mail,
-  Calendar,
-  MapPin,
-  DollarSign,
-  Star,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-} from 'lucide-react'
-
-interface Conversation {
-  _id: string
-  participants: Array<{
-    user: {
-      _id: string
-      firstName: string
-      lastName: string
-      email: string
-      profileImage?: string
-      userType: string
-    }
-    role: string
-    isActive: boolean
-  }>
-  conversationType: string
-  title?: string
-  lastMessage?: {
-    content: string
-    sender: {
-      _id: string
-      firstName: string
-      lastName: string
-    }
-    timestamp: string
-    messageType: string
-  }
-  unreadCount: number
-  isPinned: boolean
-  bookingId?: {
-    _id: string
-    bookingNumber: string
-    date: string
-  }
-  venueId?: {
-    _id: string
-    name: string
-  }
-  vendorId?: {
-    _id: string
-    businessName: string
-  }
-}
+  Paperclip,
+  Smile
+} from "lucide-react"
 
 export default function MessagesPage() {
   const { data: session, status } = useSession({
@@ -86,340 +23,212 @@ export default function MessagesPage() {
       // Handle unauthenticated state
     },
   })
-  const router = useRouter()
-  const { toast } = useToast()
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
-  const [isLoading, setIsLoading] = useState(true)
-  const [showNotifications, setShowNotifications] = useState(false)
 
-  const {
-    isConnected,
-    unreadCount: socketUnreadCount,
-  } = useSocket()
+  // Mock data for messages
+  const mockContacts = [
+    {
+      id: '1',
+      name: 'Grand Ballroom Hotel',
+      avatar: '/placeholder-venue.jpg',
+      lastMessage: 'Thank you for the venue tour! We loved it.',
+      time: '2 hours ago',
+      unreadCount: 0,
+      isOnline: true
+    },
+    {
+      id: '2',
+      name: 'Perfect Moments Photography',
+      avatar: '/placeholder-user.jpg',
+      lastMessage: 'When would you like to schedule the consultation?',
+      time: '1 day ago',
+      unreadCount: 1,
+      isOnline: false
+    },
+    {
+      id: '3',
+      name: 'Elegant Catering',
+      avatar: '/placeholder-user.jpg',
+      lastMessage: 'We can accommodate your dietary requirements.',
+      time: '2 days ago',
+      unreadCount: 0,
+      isOnline: true
+    }
+  ]
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (status === 'loading') return
-    if (!session?.user?.email) {
-      router.push('/login')
+  const mockMessages = [
+    {
+      id: '1',
+      sender: 'Grand Ballroom Hotel',
+      content: 'Thank you for the venue tour! We loved it.',
+      time: '2 hours ago',
+      isOwn: false
+    },
+    {
+      id: '2',
+      sender: 'You',
+      content: 'Thank you! Yes, it\'s a beautiful venue. When is your wedding date?',
+      time: '2 hours ago',
+      isOwn: true
+    },
+    {
+      id: '3',
+      sender: 'Grand Ballroom Hotel',
+      content: 'We\'re planning for June 15th, 2024. Do you have availability?',
+      time: '1 hour ago',
+      isOwn: false
+    },
+    {
+      id: '4',
+      sender: 'You',
+      content: 'Let me check our calendar for you.',
+      time: '30 minutes ago',
+      isOwn: true
     }
-  }, [session, status, router])
+  ]
 
-  // Load conversations
-  useEffect(() => {
-    if (session?.user?.email) {
-      loadConversations()
-    }
-  }, [session])
-
-  async function loadConversations() {
-    try {
-      setIsLoading(true)
-      const response = await fetch('/api/conversations')
-      const data = await response.json()
-      
-      if (data.success) {
-        setConversations(data.conversations)
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to load conversations",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error('Error loading conversations:', error)
-      toast({
-        title: "Error",
-        description: "Failed to load conversations",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  function getConversationTitle(conversation: Conversation) {
-    if (conversation.title) return conversation.title
-    
-    if (conversation.conversationType === 'direct') {
-      const otherParticipant = conversation.participants.find(
-        p => p.user._id !== session?.user?.id
-      )
-      return otherParticipant ? `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}` : 'Direct Message'
-    }
-    
-    return 'Group Conversation'
-  }
-
-  function getConversationSubtitle(conversation: Conversation) {
-    if (conversation.bookingId) {
-      return `Booking: ${conversation.bookingId.bookingNumber}`
-    }
-    if (conversation.venueId) {
-      return `Venue: ${conversation.venueId.name}`
-    }
-    if (conversation.vendorId) {
-      return `Vendor: ${conversation.vendorId.businessName}`
-    }
-    return conversation.participants.length > 2 ? `${conversation.participants.length} participants` : ''
-  }
-
-  function getStatusIcon(conversation: Conversation) {
-    if (conversation.bookingId) {
-      return <Calendar className="h-4 w-4 text-blue-500" />
-    }
-    if (conversation.venueId) {
-      return <MapPin className="h-4 w-4 text-green-500" />
-    }
-    if (conversation.vendorId) {
-      return <Star className="h-4 w-4 text-yellow-500" />
-    }
-    return <Users className="h-4 w-4 text-gray-500" />
-  }
-
-  const filteredConversations = conversations.filter(conv => {
-    const matchesSearch = getConversationTitle(conv).toLowerCase().includes(searchQuery.toLowerCase())
-    
-    if (activeTab === "all") return matchesSearch
-    if (activeTab === "unread") return matchesSearch && conv.unreadCount > 0
-    if (activeTab === "bookings") return matchesSearch && conv.bookingId
-    if (activeTab === "venues") return matchesSearch && conv.venueId
-    if (activeTab === "vendors") return matchesSearch && conv.vendorId
-    
-    return matchesSearch
-  })
-
-  const stats = {
-    total: conversations.length,
-    unread: conversations.filter(c => c.unreadCount > 0).length,
-    bookings: conversations.filter(c => c.bookingId).length,
-    venues: conversations.filter(c => c.venueId).length,
-    vendors: conversations.filter(c => c.vendorId).length,
-  }
-
+  // Show loading state during session check
   if (status === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading messages...</p>
+        </div>
       </div>
     )
   }
 
-  if (!session?.user?.email) {
-    return null
-  }
-
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Messages</h1>
-          <p className="text-gray-600 mt-1">Manage your conversations and communications</p>
+          <h1 className="text-3xl font-bold">Messages</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Chat with your vendors and venues
+          </p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative"
-          >
-            <Bell className="h-4 w-4" />
-            {socketUnreadCount > 0 && (
-              <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
-                {socketUnreadCount > 99 ? '99+' : socketUnreadCount}
-              </Badge>
-            )}
+        <div className="flex items-center space-x-2">
+          <Button variant="outline">
+            <Phone className="h-4 w-4 mr-2" />
+            Call
           </Button>
-          
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4" />
+          <Button variant="outline">
+            <Video className="h-4 w-4 mr-2" />
+            Video
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <MessageCircle className="h-8 w-8 text-blue-500" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Contacts List */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle>Contacts</CardTitle>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input placeholder="Search contacts..." className="pl-10" />
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Unread</p>
-                <p className="text-2xl font-bold text-red-600">{stats.unread}</p>
-              </div>
-              <AlertCircle className="h-8 w-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Bookings</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.bookings}</p>
-              </div>
-              <Calendar className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Venues</p>
-                <p className="text-2xl font-bold text-green-600">{stats.venues}</p>
-              </div>
-              <MapPin className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Vendors</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.vendors}</p>
-              </div>
-              <Star className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Notifications Panel */}
-      {showNotifications && (
-        <div className="mb-6">
-          <NotificationCenter />
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Conversations List */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Conversations</CardTitle>
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search conversations..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardHeader>
-            
-            <CardContent className="p-0">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-5">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="unread">Unread</TabsTrigger>
-                  <TabsTrigger value="bookings">Bookings</TabsTrigger>
-                  <TabsTrigger value="venues">Venues</TabsTrigger>
-                  <TabsTrigger value="vendors">Vendors</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value={activeTab} className="mt-4">
-                  <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                    {isLoading ? (
-                      <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                        <p className="text-sm text-gray-500 mt-2">Loading conversations...</p>
-                      </div>
-                    ) : filteredConversations.length === 0 ? (
-                      <div className="text-center py-8">
-                        <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">No conversations found</p>
-                      </div>
-                    ) : (
-                      filteredConversations.map((conversation) => (
-                        <div
-                          key={conversation._id}
-                          className={`p-3 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${
-                            selectedConversation?._id === conversation._id ? 'bg-blue-50 border border-blue-200' : ''
-                          }`}
-                          onClick={() => setSelectedConversation(conversation)}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              {getStatusIcon(conversation)}
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-medium text-sm truncate">
-                                  {getConversationTitle(conversation)}
-                                </h4>
-                                <div className="flex items-center gap-1">
-                                  {conversation.unreadCount > 0 && (
-                                    <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 text-xs">
-                                      {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
-                                    </Badge>
-                                  )}
-                                  {conversation.isPinned && <Star className="h-3 w-3 text-yellow-500" />}
-                                </div>
-                              </div>
-                              
-                              <p className="text-xs text-gray-500 truncate mt-1">
-                                {getConversationSubtitle(conversation)}
-                              </p>
-                              
-                              {conversation.lastMessage && (
-                                <p className="text-xs text-gray-600 truncate mt-1">
-                                  {conversation.lastMessage.sender.firstName}: {conversation.lastMessage.content}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="space-y-1">
+              {mockContacts.map((contact) => (
+                <div
+                  key={contact.id}
+                  className="flex items-center space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                >
+                  <div className="relative">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={contact.avatar} alt={contact.name} />
+                      <AvatarFallback>{contact.name[0]}</AvatarFallback>
+                    </Avatar>
+                    {contact.isOnline && (
+                      <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white" />
                     )}
                   </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium truncate">{contact.name}</h4>
+                      <span className="text-xs text-gray-500">{contact.time}</span>
+                    </div>
+                    <p className="text-sm text-gray-500 truncate">{contact.lastMessage}</p>
+                  </div>
+                  {contact.unreadCount > 0 && (
+                    <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 text-xs">
+                      {contact.unreadCount}
+                    </Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Chat Interface */}
-        <div className="lg:col-span-3">
-          <Card className="h-[700px]">
-            <CardContent className="p-0 h-full">
-              <ChatInterface
-                conversationId={selectedConversation?._id}
-                onConversationSelect={setSelectedConversation}
-                className="h-full"
-              />
-            </CardContent>
-          </Card>
-        </div>
+        {/* Chat Area */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/placeholder-venue.jpg" alt="Grand Ballroom Hotel" />
+                  <AvatarFallback>GB</AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle className="text-lg">Grand Ballroom Hotel</CardTitle>
+                  <div className="flex items-center space-x-2">
+                    <div className="h-2 w-2 bg-green-500 rounded-full" />
+                    <span className="text-sm text-gray-500">Online</span>
+                  </div>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="h-96 overflow-y-auto p-4 space-y-4">
+              {mockMessages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[70%] rounded-lg p-3 ${
+                      message.isOwn
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-800'
+                    }`}
+                  >
+                    <p className="text-sm">{message.content}</p>
+                    <p className={`text-xs mt-1 ${
+                      message.isOwn ? 'text-blue-100' : 'text-gray-500'
+                    }`}>
+                      {message.time}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t p-4">
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm">
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <Smile className="h-4 w-4" />
+                </Button>
+                <Input
+                  placeholder="Type a message..."
+                  className="flex-1"
+                />
+                <Button size="sm">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

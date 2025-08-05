@@ -16,43 +16,38 @@ export async function POST(request: NextRequest) {
     const entityId = formData.get('entityId') as string
 
     if (!file || !type || !entityId) {
-      return NextResponse.json({ 
-        error: 'File, type, and entityId are required' 
+      return NextResponse.json({
+        error: 'File, type, and entityId are required'
       }, { status: 400 })
     }
 
-    // Validate file type
+    // Validate file type and size
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ 
-        error: 'Invalid file type. Only images are allowed.' 
+      return NextResponse.json({
+        error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed'
       }, { status: 400 })
     }
 
-    // Validate file size (5MB limit)
     const maxSize = 5 * 1024 * 1024 // 5MB
     if (file.size > maxSize) {
-      return NextResponse.json({ 
-        error: 'File too large. Maximum size is 5MB.' 
+      return NextResponse.json({
+        error: 'File size too large. Maximum size is 5MB'
       }, { status: 400 })
     }
 
     // For now, return a mock upload response
     // In production, this would upload to Cloudinary or similar service
     const mockUploadResult = {
-      public_id: `weddinglk_${Date.now()}`,
-      url: `https://via.placeholder.com/800x600/cccccc/666666?text=Uploaded+Image`,
-      secure_url: `https://via.placeholder.com/800x600/cccccc/666666?text=Uploaded+Image`,
-      width: 800,
-      height: 600,
-      format: file.type.split('/')[1],
-      bytes: file.size,
-      tags: [type, entityId],
-      context: {
-        type,
-        entityId,
-        uploadedBy: session.user.email
-      }
+      id: `upload_${Date.now()}`,
+      url: `https://via.placeholder.com/800x600/cccccc/666666?text=${encodeURIComponent(file.name)}`,
+      thumbnail: `https://via.placeholder.com/300x200/cccccc/666666?text=${encodeURIComponent(file.name)}`,
+      filename: file.name,
+      size: file.size,
+      type: file.type,
+      uploadedAt: new Date().toISOString(),
+      entityId,
+      uploadType: type
     }
 
     return NextResponse.json({
@@ -64,7 +59,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Upload failed',
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -74,7 +69,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/upload - Get upload status
+// GET /api/upload - Get upload status and gallery
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -87,42 +82,36 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type')
 
     if (!entityId || !type) {
-      return NextResponse.json({ 
-        error: 'EntityId and type are required' 
+      return NextResponse.json({
+        error: 'EntityId and type are required'
       }, { status: 400 })
     }
 
     // Return mock gallery data
     const mockGallery = [
       {
-        public_id: `weddinglk_${Date.now()}_1`,
-        url: `https://via.placeholder.com/800x600/cccccc/666666?text=Gallery+Image+1`,
-        secure_url: `https://via.placeholder.com/800x600/cccccc/666666?text=Gallery+Image+1`,
-        width: 800,
-        height: 600,
-        format: 'jpeg',
-        bytes: 102400,
-        tags: [type, entityId],
-        context: {
-          type,
-          entityId,
-          uploadedBy: session.user.email
-        }
+        id: 'img_1',
+        url: 'https://via.placeholder.com/800x600/ff6b6b/ffffff?text=Wedding+Venue+1',
+        thumbnail: 'https://via.placeholder.com/300x200/ff6b6b/ffffff?text=Venue+1',
+        filename: 'venue_1.jpg',
+        uploadedAt: new Date(Date.now() - 86400000).toISOString(),
+        type: 'venue'
       },
       {
-        public_id: `weddinglk_${Date.now()}_2`,
-        url: `https://via.placeholder.com/800x600/cccccc/666666?text=Gallery+Image+2`,
-        secure_url: `https://via.placeholder.com/800x600/cccccc/666666?text=Gallery+Image+2`,
-        width: 800,
-        height: 600,
-        format: 'jpeg',
-        bytes: 102400,
-        tags: [type, entityId],
-        context: {
-          type,
-          entityId,
-          uploadedBy: session.user.email
-        }
+        id: 'img_2',
+        url: 'https://via.placeholder.com/800x600/4ecdc4/ffffff?text=Wedding+Venue+2',
+        thumbnail: 'https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Venue+2',
+        filename: 'venue_2.jpg',
+        uploadedAt: new Date(Date.now() - 172800000).toISOString(),
+        type: 'venue'
+      },
+      {
+        id: 'img_3',
+        url: 'https://via.placeholder.com/800x600/45b7d1/ffffff?text=Wedding+Venue+3',
+        thumbnail: 'https://via.placeholder.com/300x200/45b7d1/ffffff?text=Venue+3',
+        filename: 'venue_3.jpg',
+        uploadedAt: new Date(Date.now() - 259200000).toISOString(),
+        type: 'venue'
       }
     ]
 
@@ -133,9 +122,13 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Get uploads error:', error)
+    console.error('Gallery error:', error)
     return NextResponse.json(
-      { error: 'Failed to get uploads' },
+      {
+        success: false,
+        error: 'Failed to load gallery',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

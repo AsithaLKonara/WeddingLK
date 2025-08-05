@@ -11,50 +11,55 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { 
-      query, 
-      searchType, 
-      filters, 
-      userPreferences, 
-      eventDetails 
-    } = body
+    const { query, searchType, filters } = body
 
     if (!query || !searchType) {
-      return NextResponse.json({ 
-        error: 'Query and search type are required' 
+      return NextResponse.json({
+        error: 'Query and search type are required'
       }, { status: 400 })
     }
 
-    // Simplified AI search implementation
-    let results
-    switch (searchType) {
-      case 'venue':
-        results = await searchVenues(query, filters)
-        break
-      case 'vendor':
-        results = await searchVendors(query, userPreferences, eventDetails)
-        break
-      case 'budget':
-        results = await optimizeBudget(query, filters)
-        break
-      case 'timeline':
-        results = await generateTimeline(query, eventDetails)
-        break
-      case 'guest_list':
-        results = await manageGuestList(query, filters)
-        break
-      case 'weather':
-        results = await getWeatherRecommendations(query, eventDetails)
-        break
-      default:
-        return NextResponse.json({ 
-          error: 'Invalid search type' 
-        }, { status: 400 })
+    // Mock AI search results
+    const mockResults = {
+      venues: [
+        {
+          id: 'venue_1',
+          name: 'Grand Ballroom Hotel',
+          location: 'Colombo',
+          price: 50000,
+          rating: 4.8,
+          description: 'Luxurious wedding venue with stunning architecture'
+        },
+        {
+          id: 'venue_2',
+          name: 'Garden Palace',
+          location: 'Kandy',
+          price: 35000,
+          rating: 4.6,
+          description: 'Beautiful garden venue perfect for outdoor weddings'
+        }
+      ],
+      vendors: [
+        {
+          id: 'vendor_1',
+          name: 'Perfect Moments Photography',
+          category: 'Photography',
+          location: 'Colombo',
+          price: 25000,
+          rating: 4.9,
+          description: 'Professional wedding photography services'
+        }
+      ],
+      aiRecommendations: [
+        'Consider booking during off-peak season for better rates',
+        'Book your venue at least 6 months in advance',
+        'Look for venues that offer all-inclusive packages'
+      ]
     }
 
     return NextResponse.json({
       success: true,
-      data: results,
+      data: mockResults,
       query,
       searchType,
       timestamp: new Date().toISOString()
@@ -63,7 +68,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('AI Search error:', error)
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'AI search failed',
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -83,21 +88,28 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q')
-    const type = searchParams.get('type')
 
     if (!query) {
-      return NextResponse.json({ 
-        error: 'Query parameter is required' 
+      return NextResponse.json({
+        error: 'Query parameter is required'
       }, { status: 400 })
     }
 
-    const suggestions = await getSearchSuggestions(query, type || undefined)
+    // Mock search suggestions
+    const suggestions = [
+      'Wedding venues in Colombo',
+      'Photographers in Sri Lanka',
+      'Wedding planners near me',
+      'Catering services for weddings',
+      'Wedding decoration ideas'
+    ].filter(suggestion => 
+      suggestion.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 5)
 
     return NextResponse.json({
       success: true,
       suggestions,
-      query,
-      type
+      query
     })
 
   } catch (error) {
@@ -107,94 +119,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-// Simplified search functions
-async function searchVenues(query: string, filters: any) {
-  return {
-    venues: [],
-    aiRecommendations: [],
-    totalResults: 0,
-    filters
-  }
-}
-
-async function searchVendors(query: string, userPreferences: any, eventDetails: any) {
-  return {
-    vendors: [],
-    aiRecommendations: [],
-    totalResults: 0,
-    eventDetails
-  }
-}
-
-async function optimizeBudget(query: string, filters: any) {
-  return {
-    breakdown: {
-      venue: { percentage: 40, amount: 0 },
-      catering: { percentage: 25, amount: 0 },
-      photography: { percentage: 15, amount: 0 },
-      decoration: { percentage: 10, amount: 0 },
-      entertainment: { percentage: 5, amount: 0 },
-      miscellaneous: { percentage: 5, amount: 0 }
-    },
-    suggestions: [
-      'Consider off-peak season for better rates',
-      'Book vendors early for better prices',
-      'Negotiate package deals with venues'
-    ]
-  }
-}
-
-async function generateTimeline(query: string, eventDetails: any) {
-  return {
-    timeline: [
-      { month: 12, tasks: ['Book venue', 'Set budget'] },
-      { month: 10, tasks: ['Book photographer', 'Choose caterer'] },
-      { month: 8, tasks: ['Send invitations', 'Book entertainment'] },
-      { month: 6, tasks: ['Finalize details', 'Plan rehearsal'] },
-      { month: 1, tasks: ['Final fittings', 'Confirm vendors'] }
-    ]
-  }
-}
-
-async function manageGuestList(query: string, filters: any) {
-  return {
-    recommendations: [
-      'Prioritize family and close friends',
-      'Consider venue capacity limits',
-      'Plan for dietary restrictions'
-    ],
-    seating: {
-      family: 'Front rows',
-      friends: 'Middle section',
-      colleagues: 'Back rows'
-    }
-  }
-}
-
-async function getWeatherRecommendations(query: string, eventDetails: any) {
-  return {
-    weather: 'Expected sunny with occasional showers',
-    backupPlan: 'Indoor ceremony option available',
-    recommendations: [
-      'Provide umbrellas for guests',
-      'Plan indoor backup for outdoor ceremony',
-      'Adjust photography timing'
-    ]
-  }
-}
-
-async function getSearchSuggestions(query: string, type?: string) {
-  const suggestions = [
-    'Wedding venues in Colombo',
-    'Photographers in Sri Lanka',
-    'Wedding planners near me',
-    'Catering services for weddings',
-    'Wedding decoration ideas'
-  ]
-  
-  return suggestions.filter(suggestion => 
-    suggestion.toLowerCase().includes(query.toLowerCase())
-  ).slice(0, 5)
 } 
