@@ -1,309 +1,371 @@
-// Security Service for WeddingLK
-// This service provides advanced security features and protection
+import crypto from 'crypto'
+import { NextRequest } from 'next/server'
+import { connectToDatabase } from './database'
 
-export interface SecurityConfig {
-  rateLimit: {
-    windowMs: number
-    maxRequests: number
-  }
-  encryption: {
-    algorithm: string
-    keyLength: number
-  }
-  validation: {
-    strictMode: boolean
-    sanitizeInput: boolean
-  }
-}
-
-export interface SecurityEvent {
-  id: string
-  type: 'threat' | 'warning' | 'info'
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  message: string
+interface SecurityEvent {
   timestamp: Date
+  type: 'login_attempt' | 'rate_limit' | 'suspicious_activity' | 'blocked_request'
+  ip: string
   userId?: string
-  ipAddress?: string
-  userAgent?: string
+  details: any
+  severity: 'low' | 'medium' | 'high' | 'critical'
 }
 
-export interface SecurityMetrics {
-  totalThreats: number
-  blockedRequests: number
-  suspiciousActivities: number
-  securityScore: number
-  lastIncident: Date
+interface RateLimitInfo {
+  ip: string
+  endpoint: string
+  count: number
+  resetTime: Date
+  blocked: boolean
 }
 
-export class SecurityService {
-  private static events: SecurityEvent[] = []
-  private static blockedIPs = new Set<string>()
-  private static rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+class SecurityService {
+  private rateLimits = new Map<string, RateLimitInfo>()
+  private blockedIPs = new Set<string>()
+  private securityEvents: SecurityEvent[] = []
+  private failedLoginAttempts = new Map<string, { count: number; lastAttempt: Date; blocked: boolean }>()
 
   // Rate limiting
-  static checkRateLimit(ipAddress: string, maxRequests: number = 100, windowMs: number = 15 * 60 * 1000): boolean {
-    try {
-      const now = Date.now()
-      const key = `rate_limit_${ipAddress}`
-      const current = this.rateLimitMap.get(key)
-
-      if (!current || now > current.resetTime) {
-        this.rateLimitMap.set(key, {
-          count: 1,
-          resetTime: now + windowMs
-        })
-        return true
+  isRateLimited(ip: string, endpoint: string, limit: number = 100, windowMs: number = 60000): boolean {
+    const key = `${ip}:${endpoint}`
+    const now = new Date()
+    
+    let rateLimit = this.rateLimits.get(key)
+    
+    if (!rateLimit || now > rateLimit.resetTime) {
+      rateLimit = {
+        ip,
+        endpoint,
+        count: 0,
+        resetTime: new Date(now.getTime() + windowMs),
+        blocked: false
       }
+    }
 
-      if (current.count >= maxRequests) {
-        this.logSecurityEvent('threat', 'high', `Rate limit exceeded for IP: ${ipAddress}`)
-        return false
-      }
+    rateLimit.count++
 
-      current.count++
-      return true
-    } catch (error) {
-      console.error('Rate limit check error:', error)
+    if (rateLimit.count > limit) {
+      rateLimit.blocked = true
+      this.blockIP(ip, `Rate limit exceeded for ${endpoint}`)
+      this.recordSecurityEvent({
+        timestamp: now,
+        type: 'rate_limit',
+        ip,
+        details: { endpoint, count: rateLimit.count, limit },
+        severity: 'medium'
+      })
+    }
+
+    this.rateLimits.set(key, rateLimit)
+    return rateLimit.blocked
+  }
+
+  // IP blocking
+  blockIP(ip: string, reason: string) {
+    this.blockedIPs.add(ip)
+    this.recordSecurityEvent({
+      timestamp: new Date(),
+      type: 'blocked_request',
+      ip,
+      details: { reason },
+      severity: 'high'
+    })
+  }
+
+  isIPBlocked(ip: string): boolean {
+    return this.blockedIPs.has(ip)
+  }
+
+  unblockIP(ip: string) {
+    this.blockedIPs.delete(ip)
+  }
+
+  // Login attempt tracking
+  trackLoginAttempt(ip: string, email: string, success: boolean) {
+    const key = `${ip}:${email}`
+    const now = new Date()
+    
+    let attempts = this.failedLoginAttempts.get(key)
+    
+    if (!attempts) {
+      attempts = { count: 0, lastAttempt: now, blocked: false }
+    }
+
+    if (success) {
+      this.failedLoginAttempts.delete(key)
       return true
     }
+
+    attempts.count++
+    attempts.lastAttempt = now
+
+    // Block after 5 failed attempts for 15 minutes
+    if (attempts.count >= 5) {
+      attempts.blocked = true
+      this.blockIP(ip, `Multiple failed login attempts for ${email}`)
+      this.recordSecurityEvent({
+        timestamp: now,
+        type: 'login_attempt',
+        ip,
+        details: { email, failedAttempts: attempts.count },
+        severity: 'high'
+      })
+    }
+
+    this.failedLoginAttempts.set(key, attempts)
+    return !attempts.blocked
+  }
+
+  isLoginBlocked(ip: string, email: string): boolean {
+    const key = `${ip}:${email}`
+    const attempts = this.failedLoginAttempts.get(key)
+    
+    if (!attempts) return false
+    
+    // Unblock after 15 minutes
+    const now = new Date()
+    const blockDuration = 15 * 60 * 1000 // 15 minutes
+    
+    if (attempts.blocked && (now.getTime() - attempts.lastAttempt.getTime()) > blockDuration) {
+      this.failedLoginAttempts.delete(key)
+      return false
+    }
+    
+    return attempts.blocked
   }
 
   // Input validation and sanitization
-  static validateInput(input: any, type: 'email' | 'password' | 'text' | 'url'): boolean {
-    try {
-      if (!input || typeof input !== 'string') return false
+  validateInput(input: any, rules: any): { isValid: boolean; errors: string[] } {
+    const errors: string[] = []
 
-      switch (type) {
-        case 'email':
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-          return emailRegex.test(input)
-
-        case 'password':
-          // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-          const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
-          return passwordRegex.test(input)
-
-        case 'text':
-          // Basic text validation
-          return input.length > 0 && input.length <= 1000
-
-        case 'url':
-          try {
-            new URL(input)
-            return true
-          } catch {
-            return false
-          }
-
-        default:
-          return false
+    // Email validation
+    if (rules.email && input.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(input.email)) {
+        errors.push('Invalid email format')
       }
-    } catch (error) {
-      console.error('Input validation error:', error)
-      return false
     }
-  }
 
-  // Sanitize HTML input
-  static sanitizeHTML(input: string): string {
-    try {
-      return input
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;')
-    } catch (error) {
-      console.error('HTML sanitization error:', error)
-      return ''
+    // Password validation
+    if (rules.password && input.password) {
+      if (input.password.length < 8) {
+        errors.push('Password must be at least 8 characters long')
+      }
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(input.password)) {
+        errors.push('Password must contain uppercase, lowercase, and number')
+      }
     }
-  }
 
-  // XSS Protection
-  static detectXSS(input: string): boolean {
-    try {
+    // XSS prevention
+    if (rules.preventXSS) {
       const xssPatterns = [
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
         /javascript:/gi,
         /on\w+\s*=/gi,
-        /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
-        /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi
+        /<iframe/gi,
+        /<object/gi,
+        /<embed/gi
       ]
 
-      return xssPatterns.some(pattern => pattern.test(input))
-    } catch (error) {
-      console.error('XSS detection error:', error)
-      return false
+      const inputString = JSON.stringify(input)
+      for (const pattern of xssPatterns) {
+        if (pattern.test(inputString)) {
+          errors.push('Potentially malicious content detected')
+          break
+        }
+      }
     }
-  }
 
-  // SQL Injection Protection
-  static detectSQLInjection(input: string): boolean {
-    try {
+    // SQL injection prevention
+    if (rules.preventSQLInjection) {
       const sqlPatterns = [
-        /(\b(union|select|insert|update|delete|drop|create|alter)\b)/gi,
-        /(\b(or|and)\b\s+\d+\s*=\s*\d+)/gi,
-        /(\b(union|select)\b\s+.*\bfrom\b)/gi,
-        /(--|\/\*|\*\/)/g
+        /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/gi,
+        /(\b(OR|AND)\b\s+\d+\s*=\s*\d+)/gi,
+        /(\b(OR|AND)\b\s+['"]\w+['"]\s*=\s*['"]\w+['"])/gi
       ]
 
-      return sqlPatterns.some(pattern => pattern.test(input))
-    } catch (error) {
-      console.error('SQL injection detection error:', error)
-      return false
+      const inputString = JSON.stringify(input)
+      for (const pattern of sqlPatterns) {
+        if (pattern.test(inputString)) {
+          errors.push('Potentially malicious SQL content detected')
+          break
+        }
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
     }
   }
 
-  // Block suspicious IP
-  static blockIP(ipAddress: string, reason: string): void {
-    try {
-      this.blockedIPs.add(ipAddress)
-      this.logSecurityEvent('threat', 'high', `IP blocked: ${ipAddress} - ${reason}`)
-    } catch (error) {
-      console.error('IP blocking error:', error)
+  // Sanitize input
+  sanitizeInput(input: string): string {
+    return input
+      .replace(/[<>]/g, '') // Remove < and >
+      .replace(/javascript:/gi, '') // Remove javascript: protocol
+      .replace(/on\w+\s*=/gi, '') // Remove event handlers
+      .trim()
+  }
+
+  // Generate secure tokens
+  generateSecureToken(length: number = 32): string {
+    return crypto.randomBytes(length).toString('hex')
+  }
+
+  generateJWTSecret(): string {
+    return crypto.randomBytes(64).toString('hex')
+  }
+
+  // Hash passwords
+  async hashPassword(password: string): Promise<string> {
+    const salt = crypto.randomBytes(16).toString('hex')
+    return new Promise((resolve, reject) => {
+      crypto.pbkdf2(password, salt, 10000, 64, 'sha512', (err, derivedKey) => {
+        if (err) reject(err)
+        else resolve(salt + ':' + derivedKey.toString('hex'))
+      })
+    })
+  }
+
+  // Verify passwords
+  async verifyPassword(password: string, hash: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const [salt, key] = hash.split(':')
+      crypto.pbkdf2(password, salt, 10000, 64, 'sha512', (err, derivedKey) => {
+        if (err) reject(err)
+        else resolve(key === derivedKey.toString('hex'))
+      })
+    })
+  }
+
+  // Request validation middleware
+  validateRequest(request: NextRequest): { isValid: boolean; errors: string[] } {
+    const errors: string[] = []
+    const ip = this.getClientIP(request)
+
+    // Check if IP is blocked
+    if (this.isIPBlocked(ip)) {
+      errors.push('IP address is blocked')
     }
-  }
 
-  // Check if IP is blocked
-  static isIPBlocked(ipAddress: string): boolean {
-    return this.blockedIPs.has(ipAddress)
-  }
+    // Check rate limiting
+    const endpoint = request.nextUrl.pathname
+    if (this.isRateLimited(ip, endpoint)) {
+      errors.push('Rate limit exceeded')
+    }
 
-  // Log security event
-  static logSecurityEvent(type: SecurityEvent['type'], severity: SecurityEvent['severity'], message: string, userId?: string, ipAddress?: string): void {
-    try {
-      const event: SecurityEvent = {
-        id: `security_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        type,
-        severity,
-        message,
+    // Validate headers
+    const userAgent = request.headers.get('user-agent')
+    if (!userAgent || userAgent.length < 10) {
+      errors.push('Invalid user agent')
+    }
+
+    // Check for suspicious patterns
+    const url = request.url
+    if (this.detectSuspiciousPatterns(url)) {
+      this.recordSecurityEvent({
         timestamp: new Date(),
-        userId,
-        ipAddress,
-        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined
-      }
+        type: 'suspicious_activity',
+        ip,
+        details: { url, userAgent },
+        severity: 'medium'
+      })
+    }
 
-      this.events.push(event)
-      console.log('Security event logged:', event)
-    } catch (error) {
-      console.error('Security event logging error:', error)
+    return {
+      isValid: errors.length === 0,
+      errors
     }
   }
 
-  // Get security metrics
-  static getSecurityMetrics(): SecurityMetrics {
-    try {
-      const totalThreats = this.events.filter(event => event.type === 'threat').length
-      const blockedRequests = this.blockedIPs.size
-      const suspiciousActivities = this.events.filter(event => event.severity === 'high' || event.severity === 'critical').length
-      
-      const lastIncident = this.events.length > 0 
-        ? new Date(Math.max(...this.events.map(event => event.timestamp.getTime())))
-        : new Date()
+  // Get client IP
+  getClientIP(request: NextRequest): string {
+    return request.headers.get('x-forwarded-for')?.split(',')[0] ||
+           request.headers.get('x-real-ip') ||
+           request.ip ||
+           'unknown'
+  }
 
-      // Calculate security score (0-100)
-      const securityScore = Math.max(0, 100 - (totalThreats * 5) - (suspiciousActivities * 3))
+  // Detect suspicious patterns
+  private detectSuspiciousPatterns(url: string): boolean {
+    const suspiciousPatterns = [
+      /\.\.\//, // Directory traversal
+      /<script/i, // XSS attempts
+      /javascript:/i, // JavaScript protocol
+      /union\s+select/i, // SQL injection
+      /exec\s*\(/i, // Command execution
+      /eval\s*\(/i, // Code evaluation
+      /document\.cookie/i, // Cookie access
+      /window\.location/i // Location manipulation
+    ]
 
-      return {
-        totalThreats,
-        blockedRequests,
-        suspiciousActivities,
-        securityScore,
-        lastIncident
-      }
-    } catch (error) {
-      console.error('Security metrics error:', error)
-      return {
-        totalThreats: 0,
-        blockedRequests: 0,
-        suspiciousActivities: 0,
-        securityScore: 100,
-        lastIncident: new Date()
+    return suspiciousPatterns.some(pattern => pattern.test(url))
+  }
+
+  // Record security events
+  recordSecurityEvent(event: SecurityEvent) {
+    this.securityEvents.push(event)
+    
+    // Keep only last 1000 events
+    if (this.securityEvents.length > 1000) {
+      this.securityEvents = this.securityEvents.slice(-1000)
+    }
+
+    // Log critical events
+    if (event.severity === 'critical') {
+      console.error('🚨 CRITICAL SECURITY EVENT:', event)
+    }
+  }
+
+  // Get security events
+  getSecurityEvents(severity?: 'low' | 'medium' | 'high' | 'critical'): SecurityEvent[] {
+    let events = this.securityEvents
+    
+    if (severity) {
+      events = events.filter(e => e.severity === severity)
+    }
+    
+    return events.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+  }
+
+  // Get security statistics
+  getSecurityStats() {
+    const now = new Date()
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    
+    const recentEvents = this.securityEvents.filter(e => e.timestamp > last24Hours)
+    
+    return {
+      totalEvents: this.securityEvents.length,
+      eventsLast24h: recentEvents.length,
+      blockedIPs: this.blockedIPs.size,
+      rateLimitedRequests: Array.from(this.rateLimits.values()).filter(r => r.blocked).length,
+      failedLoginAttempts: Array.from(this.failedLoginAttempts.values()).reduce((sum, a) => sum + a.count, 0),
+      severityBreakdown: {
+        low: recentEvents.filter(e => e.severity === 'low').length,
+        medium: recentEvents.filter(e => e.severity === 'medium').length,
+        high: recentEvents.filter(e => e.severity === 'high').length,
+        critical: recentEvents.filter(e => e.severity === 'critical').length
       }
     }
   }
 
-  // Generate security report
-  static generateSecurityReport(): any {
-    try {
-      const metrics = this.getSecurityMetrics()
-      const recentEvents = this.events
-        .filter(event => event.timestamp > new Date(Date.now() - 24 * 60 * 60 * 1000))
-        .slice(-10)
-
-      return {
-        metrics,
-        recentEvents,
-        recommendations: [
-          'Enable two-factor authentication',
-          'Implement session timeout',
-          'Add IP whitelisting',
-          'Enable security headers',
-          'Regular security audits'
-        ]
+  // Clean up old data
+  cleanup() {
+    const now = new Date()
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
+    
+    // Clean up old rate limits
+    for (const [key, rateLimit] of this.rateLimits.entries()) {
+      if (rateLimit.resetTime < now) {
+        this.rateLimits.delete(key)
       }
-    } catch (error) {
-      console.error('Security report error:', error)
-      return {}
     }
-  }
-
-  // Encrypt sensitive data
-  static encryptData(data: string): string {
-    try {
-      // Mock encryption (in production, use proper encryption)
-      return btoa(data)
-    } catch (error) {
-      console.error('Data encryption error:', error)
-      return data
-    }
-  }
-
-  // Decrypt sensitive data
-  static decryptData(encryptedData: string): string {
-    try {
-      // Mock decryption (in production, use proper decryption)
-      return atob(encryptedData)
-    } catch (error) {
-      console.error('Data decryption error:', error)
-      return encryptedData
-    }
-  }
-
-  // Validate session
-  static validateSession(session: any): boolean {
-    try {
-      if (!session || !session.user) return false
-
-      // Check session expiry
-      if (session.expires && new Date() > new Date(session.expires)) {
-        return false
-      }
-
-      // Check user permissions
-      if (!session.user.email || !session.user.id) {
-        return false
-      }
-
-      return true
-    } catch (error) {
-      console.error('Session validation error:', error)
-      return false
-    }
-  }
-
-  // Generate secure token
-  static generateSecureToken(): string {
-    try {
-      const array = new Uint8Array(32)
-      crypto.getRandomValues(array)
-      return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
-    } catch (error) {
-      console.error('Token generation error:', error)
-      return Math.random().toString(36).substr(2, 15)
-    }
+    
+    // Clean up old security events
+    this.securityEvents = this.securityEvents.filter(e => e.timestamp > oneHourAgo)
   }
 }
 
-// Export the security service
-export default SecurityService 
+export default new SecurityService() 
