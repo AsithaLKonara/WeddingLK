@@ -15,8 +15,23 @@ import {
   Paperclip,
   Smile
 } from "lucide-react"
+import { Suspense } from "react"
+import Link from "next/link"
 
-export default function MessagesPage() {
+// Loading component for Suspense
+function MessagesLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading messages...</p>
+      </div>
+    </div>
+  )
+}
+
+// Main messages component
+function MessagesContent() {
   const { data: session, status } = useSession({
     required: false,
     onUnauthenticated() {
@@ -88,12 +103,33 @@ export default function MessagesPage() {
 
   // Show loading state during session check
   if (status === 'loading') {
+    return <MessagesLoading />
+  }
+
+  // Show login prompt if not authenticated
+  if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading messages...</p>
-        </div>
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>
+              Please log in to access your messages
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button asChild className="w-full">
+              <Link href="/login">
+                Login to Messages
+              </Link>
+            </Button>
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/register">
+                Create Account
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -231,5 +267,14 @@ export default function MessagesPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+// Main export with Suspense wrapper
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<MessagesLoading />}>
+      <MessagesContent />
+    </Suspense>
   )
 } 
