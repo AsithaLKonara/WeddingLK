@@ -1,155 +1,124 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
+import { connectDB } from "@/lib/db"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import User from "@/lib/models/user"
 
-// Mock messages data storage
-const messages = [
-  {
-    id: 'msg_1',
-    conversationId: 'conv_1',
-    senderId: 'user_123',
-    recipientId: 'vendor_1',
-    content: 'Hi! I\'m interested in your photography package for my wedding.',
-    type: 'text',
-    status: 'read',
-    timestamp: new Date(Date.now() - 3600000).toISOString()
-  },
-  {
-    id: 'msg_2',
-    conversationId: 'conv_1',
-    senderId: 'vendor_1',
-    recipientId: 'user_123',
-    content: 'Hello! Thank you for your interest. I\'d be happy to discuss your wedding photography needs.',
-    type: 'text',
-    status: 'read',
-    timestamp: new Date(Date.now() - 1800000).toISOString()
-  },
-  {
-    id: 'msg_3',
-    conversationId: 'conv_1',
-    senderId: 'user_123',
-    recipientId: 'vendor_1',
-    content: 'Great! What packages do you offer and what are your rates?',
-    type: 'text',
-    status: 'delivered',
-    timestamp: new Date(Date.now() - 900000).toISOString()
-  }
-]
-
-const conversations = [
-  {
-    id: 'conv_1',
-    participants: ['user_123', 'vendor_1'],
-    lastMessage: 'Great! What packages do you offer and what are your rates?',
-    lastMessageTime: new Date(Date.now() - 900000).toISOString(),
-    unreadCount: 0
-  },
-  {
-    id: 'conv_2',
-    participants: ['user_123', 'venue_1'],
-    lastMessage: 'Your venue tour is confirmed for tomorrow at 2 PM.',
-    lastMessageTime: new Date(Date.now() - 86400000).toISOString(),
-    unreadCount: 1
-  }
-]
-
-// POST /api/messages - Send message
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { conversationId, recipientId, content, type } = body
-
-    if (!recipientId || !content) {
-      return NextResponse.json({
-        error: 'Recipient ID and content are required'
-      }, { status: 400 })
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
-    // Create new message
-    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    await connectDB()
     
-    const newMessage = {
-      id: messageId,
-      conversationId: conversationId || `conv_${Date.now()}`,
-      senderId: 'user_123',
-      recipientId,
-      content,
-      type: type || 'text',
-      status: 'sent',
-      timestamp: new Date().toISOString()
-    }
-
-    // Add to messages array
-    messages.push(newMessage)
-
-    // Update conversation
-    const conversation = conversations.find(c => c.id === newMessage.conversationId)
-    if (conversation) {
-      conversation.lastMessage = content
-      conversation.lastMessageTime = newMessage.timestamp
-    } else {
-      conversations.push({
-        id: newMessage.conversationId,
-        participants: ['user_123', recipientId],
-        lastMessage: content,
-        lastMessageTime: newMessage.timestamp,
-        unreadCount: 0
-      })
-    }
-
+    // Get user's messages
+    const user = await User.findById(session.user.id).populate('messages')
+    
     return NextResponse.json({
       success: true,
-      data: newMessage,
-      message: 'Message sent successfully'
+      messages: user.messages || []
     })
-
   } catch (error) {
-    console.error('Message send error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to send message',
-        message: 'Internal server error'
-      },
-      { status: 500 }
-    )
+    console.error("Error fetching messages:", error)
+    return NextResponse.json({ success: false, error: "Failed to fetch messages" }, { status: 500 })
   }
 }
 
-// GET /api/messages - Get messages
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const conversationId = searchParams.get('conversationId')
-    const limit = parseInt(searchParams.get('limit') || '50')
-
-    if (!conversationId) {
-      // Return conversations list
-      return NextResponse.json({
-        success: true,
-        data: conversations,
-        total: conversations.length
-      })
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
-    // Return messages for specific conversation
-    const conversationMessages = messages
-      .filter(message => message.conversationId === conversationId)
-      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+    const { recipientId, recipientType, subject, message } = await request.json()
+    
+    if (!recipientId || !recipientType || !subject || !message) {
+      return NextResponse.json({ success: false, error: "All fields are required" }, { status: 400 })
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: conversationMessages.slice(-limit),
-      total: conversationMessages.length
-    })
+    await connectDB()
+    
+    const sender = await User.findById(session.user.id)
+    if (!sender) {
+      return NextResponse.json({ success: false, error: "Sender not found" }, { status: 404 })
+    }
 
+    const recipient = await User.findById(recipientId)
+    if (!recipient) {
+      return NextResponse.json({ success: false, error: "Recipient not found" }, { status: 404 })
+    }
+
+    // Create message object
+    const messageObj = {
+      senderId: session.user.id,
+      recipientId,
+      recipientType,
+      subject,
+      message,
+      timestamp: new Date(),
+      read: false
+    }
+
+    // Add message to sender's messages
+    if (!sender.messages) {
+      sender.messages = []
+    }
+    sender.messages.push(messageObj)
+    await sender.save()
+
+    // Add message to recipient's messages
+    if (!recipient.messages) {
+      recipient.messages = []
+    }
+    recipient.messages.push(messageObj)
+    await recipient.save()
+
+    return NextResponse.json({ success: true, message: "Message sent successfully" })
   } catch (error) {
-    console.error('Messages fetch error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch messages',
-        message: 'Internal server error'
-      },
-      { status: 500 }
-    )
+    console.error("Error sending message:", error)
+    return NextResponse.json({ success: false, error: "Failed to send message" }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { messageId, action } = await request.json()
+    
+    if (!messageId || !action) {
+      return NextResponse.json({ success: false, error: "Message ID and action are required" }, { status: 400 })
+    }
+
+    await connectDB()
+    
+    const user = await User.findById(session.user.id)
+    if (!user) {
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 })
+    }
+
+    // Find and update the message
+    if (user.messages) {
+      const messageIndex = user.messages.findIndex((msg: any) => msg._id.toString() === messageId)
+      if (messageIndex !== -1) {
+        if (action === 'mark_read') {
+          user.messages[messageIndex].read = true
+        } else if (action === 'delete') {
+          user.messages.splice(messageIndex, 1)
+        }
+        await user.save()
+      }
+    }
+
+    return NextResponse.json({ success: true, message: "Message updated successfully" })
+  } catch (error) {
+    console.error("Error updating message:", error)
+    return NextResponse.json({ success: false, error: "Failed to update message" }, { status: 500 })
   }
 } 

@@ -1,11 +1,11 @@
-import { connectToDatabase } from './database'
-import User from '@/lib/models/User'
-import Venue from '@/lib/models/Venue'
-import Vendor from '@/lib/models/Vendor'
-import Booking from '@/lib/models/Booking'
-import Payment from '@/lib/models/Payment'
-import Message from '@/lib/models/Message'
-import Notification from '@/lib/models/Notification'
+import { connectToDatabase } from '@/lib/database'
+import Venue from '@/lib/models/venue'
+import Vendor from '@/lib/models/vendor'
+import User from '@/lib/models/user'
+import Booking from '@/lib/models/booking'
+import Payment from '@/lib/models/payment'
+import Message from '@/lib/models/message'
+import Notification from '@/lib/models/notification'
 
 interface AnalyticsMetrics {
   users: {
@@ -79,7 +79,7 @@ class AnalyticsDashboard {
       const newUsersLastMonth = await User.countDocuments({
         createdAt: { $gte: lastMonth, $lt: thisMonth }
       })
-      const userGrowth = lastMonth > 0 ? ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100 : 0
+      const userGrowth = newUsersLastMonth > 0 ? ((newUsersThisMonth - newUsersLastMonth) / newUsersLastMonth) * 100 : 0
 
       // Revenue metrics
       const totalRevenue = await Payment.aggregate([

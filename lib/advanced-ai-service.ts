@@ -1,9 +1,9 @@
 import OpenAI from 'openai'
-import { connectToDatabase } from './database'
-import User from '@/lib/models/User'
-import Venue from '@/lib/models/Venue'
-import Vendor from '@/lib/models/Vendor'
-import Booking from '@/lib/models/Booking'
+import { connectToDatabase } from '@/lib/database'
+import User from '@/lib/models/user'
+import Venue from '@/lib/models/venue'
+import Vendor from '@/lib/models/vendor'
+import Booking from '@/lib/models/booking'
 
 // Initialize OpenAI client conditionally
 let openai: OpenAI | null = null
@@ -358,8 +358,10 @@ class AdvancedAIService {
       humorous: `Well, well, well... look who finally decided to get married! ${speechData.bride} and ${speechData.groom}, I have to say, this day has been a long time coming! As their ${speechData.relationship}, I've seen it all - the good, the bad, and the absolutely ridiculous moments that made us all laugh. But through it all, their love has only grown stronger. They're proof that true love exists, even if it sometimes comes with a side of chaos and lots of laughter!`
     }
 
+    const tone = (speechData.tone || 'formal') as keyof typeof mockSpeeches
+
     return {
-      speech: mockSpeeches[speechData.tone || 'formal'] || mockSpeeches.formal,
+      speech: mockSpeeches[tone] || mockSpeeches.formal,
       duration: speechData.duration || 3,
       tone: speechData.tone || 'formal',
       language: speechData.language || 'English'

@@ -1,48 +1,103 @@
-import mongoose from "mongoose"
+import mongoose, { Schema, Document } from 'mongoose'
 
-const UserSchema = new mongoose.Schema(
-  {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true },
-    password: { type: String, required: true },
-    userType: { type: String, enum: ["couple", "vendor", "planner", "admin"], required: true },
-    weddingDate: { type: Date },
-    profileImage: { type: String },
-    isVerified: { type: Boolean, default: false },
-    subscription: {
-      plan: { type: String, enum: ["free", "premium", "pro"], default: "free" },
-      expiresAt: { type: Date },
-    },
-    preferences: {
-      budget: { type: Number },
-      location: { type: String },
-      guestCount: { type: Number },
-      weddingStyle: { type: String },
-    },
-    favorites: {
-      venues: [{ type: mongoose.Schema.Types.ObjectId, ref: "Venue" }],
-      vendors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Vendor" }],
-    },
-    twoFactorEnabled: { type: Boolean },
-    twoFactorSecret: { type: String },
-    twoFactorTemp: { type: String },
-    verificationToken: { type: String },
-  },
-  {
-    timestamps: true,
-  },
-)
-
-// Set twoFactorEnabled default true for vendors and admins
-UserSchema.pre("save", function (next) {
-  if (this.isNew && (this.userType === "vendor" || this.userType === "admin")) {
-    this.twoFactorEnabled = true
-  } else if (this.isNew && (this.userType === "couple" || this.userType === "planner")) {
-    this.twoFactorEnabled = false
+export interface IUser extends Document {
+  email: string
+  name: string
+  phone?: string
+  role: 'user' | 'vendor' | 'admin'
+  avatar?: string
+  preferences: {
+    weddingDate?: Date
+    budget?: number
+    guestCount?: number
+    location?: string
+    style?: string
   }
-  next()
+  favorites?: {
+    venues: mongoose.Types.ObjectId[]
+    vendors: mongoose.Types.ObjectId[]
+  }
+  messages?: Array<{
+    senderId: mongoose.Types.ObjectId
+    recipientId: mongoose.Types.ObjectId
+    recipientType: string
+    subject: string
+    message: string
+    timestamp: Date
+    read: boolean
+  }>
+  twoFactorTemp?: string
+  isVerified: boolean
+  isActive: boolean
+  lastLogin?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+const UserSchema = new Schema<IUser>({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  phone: {
+    type: String,
+    trim: true
+  },
+  role: {
+    type: String,
+    enum: ['user', 'vendor', 'admin'],
+    default: 'user'
+  },
+  avatar: {
+    type: String
+  },
+  preferences: {
+    weddingDate: Date,
+    budget: Number,
+    guestCount: Number,
+    location: String,
+    style: String
+  },
+  favorites: {
+    venues: [{ type: Schema.Types.ObjectId, ref: 'Venue' }],
+    vendors: [{ type: Schema.Types.ObjectId, ref: 'Vendor' }]
+  },
+  messages: [{
+    senderId: { type: Schema.Types.ObjectId, ref: 'User' },
+    recipientId: { type: Schema.Types.ObjectId, ref: 'User' },
+    recipientType: String,
+    subject: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now },
+    read: { type: Boolean, default: false }
+  }],
+  twoFactorTemp: {
+    type: String
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  lastLogin: Date
+}, {
+  timestamps: true
 })
 
-export const User = mongoose.models.User || mongoose.model("User", UserSchema)
+// Indexes
+UserSchema.index({ email: 1 })
+UserSchema.index({ role: 1 })
+UserSchema.index({ isActive: 1 })
+
+export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema)

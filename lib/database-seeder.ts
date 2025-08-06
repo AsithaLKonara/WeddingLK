@@ -1,9 +1,9 @@
 import { connectToDatabase } from './database'
-import User from './models/User'
-import Venue from './models/Venue'
-import Vendor from './models/Vendor'
-import Booking from './models/Booking'
-import Payment from './models/Payment'
+import User from './models/user'
+import Venue from './models/venue'
+import Vendor from './models/vendor'
+import Booking from './models/booking'
+import Payment from './models/payment'
 
 // Mock data for seeding
 const mockUsers = [

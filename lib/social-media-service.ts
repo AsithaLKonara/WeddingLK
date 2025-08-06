@@ -1,7 +1,7 @@
-import { connectToDatabase } from './database'
-import User from '@/lib/models/User'
-import Venue from '@/lib/models/Venue'
-import Vendor from '@/lib/models/Vendor'
+import { connectToDatabase } from '@/lib/database'
+import Venue from '@/lib/models/venue'
+import Vendor from '@/lib/models/vendor'
+import User from '@/lib/models/user'
 
 interface SocialMediaPost {
   platform: 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'pinterest'

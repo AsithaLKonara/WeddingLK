@@ -1,8 +1,8 @@
-import { connectToDatabase } from './database'
-import User from '@/lib/models/User'
-import Venue from '@/lib/models/Venue'
-import Vendor from '@/lib/models/Vendor'
-import Booking from '@/lib/models/Booking'
+import { connectToDatabase } from '@/lib/database'
+import Venue from '@/lib/models/venue'
+import Vendor from '@/lib/models/vendor'
+import User from '@/lib/models/user'
+import Booking from '@/lib/models/booking'
 
 interface MobileAppConfig {
   apiEndpoints: Record<string, string>

@@ -1,10 +1,11 @@
 import OpenAI from 'openai'
-import { connectToDatabase } from './database'
-import User from '@/lib/models/User'
-import Venue from '@/lib/models/Venue'
-import Vendor from '@/lib/models/Vendor'
-import Booking from '@/lib/models/Booking'
-import Payment from '@/lib/models/Payment'
+import { connectToDatabase } from '@/lib/database'
+import { WeddingLKAIProcessor } from '@/lib/weddinglk-ai-processor'
+import User from '@/lib/models/user'
+import Venue from '@/lib/models/venue'
+import Vendor from '@/lib/models/vendor'
+import Booking from '@/lib/models/booking'
+import Payment from '@/lib/models/payment'
 
 // Initialize OpenAI client conditionally
 let openai: OpenAI | null = null
@@ -254,7 +255,7 @@ class AIService {
   }
 
   // Smart search with semantic understanding
-  async semanticSearch(query: string, filters: any = {}): Promise<any[]> {
+  async semanticSearch(query: string, filters: any = {}): Promise<{ venues: any[], vendors: any[], extractedParams: any }> {
     try {
       await connectToDatabase()
       
@@ -394,10 +395,17 @@ class AIService {
       const bookings = await Booking.find({ userId })
       const payments = await Payment.find({ userId })
 
-      const analysis = {
+      const analysis: {
+        preferences: any
+        bookingHistory: number
+        totalSpent: number
+        favoriteCategories: string[]
+        activityLevel: 'low' | 'medium' | 'high'
+        recommendations: string[]
+      } = {
         preferences: user?.preferences || {},
         bookingHistory: bookings.length,
-        totalSpent: payments.reduce((sum, p) => sum + p.amount, 0),
+        totalSpent: payments.reduce((sum: number, p: any) => sum + p.amount, 0),
         favoriteCategories: this.extractFavoriteCategories(bookings),
         activityLevel: this.calculateActivityLevel(bookings, payments),
         recommendations: []
@@ -438,7 +446,10 @@ class AIService {
 
   private extractFavoriteCategories(bookings: any[]): string[] {
     // Extract favorite vendor categories from bookings
-    const categories = bookings.map(b => b.services).flat()
+    const categories = bookings
+      .map(b => b.services || b.vendorCategory || [])
+      .flat()
+      .filter(Boolean)
     return [...new Set(categories)]
   }
 

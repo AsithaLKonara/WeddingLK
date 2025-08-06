@@ -1,9 +1,9 @@
 import { Server as SocketIOServer } from 'socket.io'
 import { Server as HTTPServer } from 'http'
 import { connectToDatabase } from './database'
-import User from './models/User'
-import Message from './models/Message'
-import Notification from './models/Notification'
+import User from './models/user'
+import Message from './models/message'
+import Notification from './models/notification'
 
 interface AuthenticatedSocket {
   userId: string

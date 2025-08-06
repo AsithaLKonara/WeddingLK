@@ -9,16 +9,17 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
-    <NextThemesProvider 
-      attribute="class" 
-      defaultTheme="system" 
-      enableSystem 
-      disableTransitionOnChange
-    >
-      {children}
-    </NextThemesProvider>
+    <div suppressHydrationWarning>
+      <NextThemesProvider 
+        attribute="class" 
+        defaultTheme="system" 
+        enableSystem 
+        disableTransitionOnChange
+      >
+        {children}
+      </NextThemesProvider>
+    </div>
   )
 }
-
 
 export default ThemeProvider

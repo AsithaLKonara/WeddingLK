@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/database'
-import Venue from '@/lib/models/Venue'
-import Vendor from '@/lib/models/Vendor'
+import Venue from '@/lib/models/venue'
+import Vendor from '@/lib/models/vendor'
 import AIService from '@/lib/ai-service'
 import SecurityService from '@/lib/security-service'
 import PerformanceMonitor from '@/lib/performance-monitor'
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
       }
 
       // AI-powered semantic search
-      const semanticResults = await AIService.semanticSearch(query, filters)
+      const semanticResults: any = await AIService.semanticSearch(query, filters)
       
       // Get personalized recommendations if user is provided
       let aiRecommendations: any[] = []
@@ -150,14 +150,19 @@ export async function POST(request: NextRequest) {
         aiRecommendations = await AIService.getPersonalizedRecommendations(userId)
       }
 
+      // Ensure semanticResults has the expected structure
+      const venues = Array.isArray(semanticResults) ? [] : (semanticResults?.venues || [])
+      const vendors = Array.isArray(semanticResults) ? [] : (semanticResults?.vendors || [])
+      const extractedParams = Array.isArray(semanticResults) ? {} : (semanticResults?.extractedParams || {})
+
       // Enhanced search results with AI insights
       const enhancedResults = {
-        venues: semanticResults.venues.map((venue: any) => ({
+        venues: venues.map((venue: any) => ({
           ...venue.toObject(),
           aiScore: calculateAIScore(venue, query, filters),
           matchReasons: generateMatchReasons(venue, query, filters)
         })),
-        vendors: semanticResults.vendors.map((vendor: any) => ({
+        vendors: vendors.map((vendor: any) => ({
           ...vendor.toObject(),
           aiScore: calculateAIScore(vendor, query, filters),
           matchReasons: generateMatchReasons(vendor, query, filters)
@@ -166,8 +171,8 @@ export async function POST(request: NextRequest) {
         searchInsights: {
           query: query,
           searchType: searchType || 'general',
-          totalResults: semanticResults.venues.length + semanticResults.vendors.length,
-          extractedParams: semanticResults.extractedParams,
+          totalResults: venues.length + vendors.length,
+          extractedParams: extractedParams,
           suggestions: generateSearchSuggestions(query)
         }
       }

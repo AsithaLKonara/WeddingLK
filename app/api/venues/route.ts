@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/database'
-import Venue from '@/lib/models/Venue'
-import User from '@/lib/models/User'
+import Venue from '@/lib/models/venue'
+import User from '@/lib/models/user'
 
 // GET /api/venues - Get venues
 export async function GET(request: NextRequest) {

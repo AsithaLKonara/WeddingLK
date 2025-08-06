@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Upload, X, Image as ImageIcon } from "lucide-react"
 
 import { useToast } from "@/hooks/use-toast"
 
@@ -21,34 +22,6 @@ const steps = [
   "Service Area",
   "Complete",
 ]
-
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Input will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Label will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Progress will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Separator will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Checkbox will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Tooltip will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TooltipContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TooltipProvider will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TooltipTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function VendorOnboardingWizard() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -63,6 +36,7 @@ export default function VendorOnboardingWizard() {
   const [success, setSuccess] = useState(false)
   const [vendorId, setVendorId] = useState<string | null>(null)
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'approved' | 'rejected'>('pending')
+  const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -86,6 +60,74 @@ export default function VendorOnboardingWizard() {
     }
     fetchVendor()
   }, [vendorId])
+
+  const uploadFile = async (file: File, type: 'portfolio' | 'verification') => {
+    try {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', type)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        return data.url
+      } else {
+        throw new Error(data.error || 'Upload failed')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : 'Failed to upload file',
+        variant: "destructive",
+      })
+      return null
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleFileUpload = async (files: FileList, type: 'portfolio' | 'verification') => {
+    const uploadedUrls: string[] = []
+    
+    for (const file of Array.from(files)) {
+      const url = await uploadFile(file, type)
+      if (url) {
+        uploadedUrls.push(url)
+      }
+    }
+
+    if (uploadedUrls.length > 0) {
+      if (type === 'portfolio') {
+        const updated = [...portfolio, ...uploadedUrls]
+        setPortfolio(updated)
+        await patchVendor({ portfolio: updated })
+      } else {
+        const updated = [...verificationDocs, ...uploadedUrls]
+        setVerificationDocs(updated)
+        await patchVendor({ verificationDocs: updated })
+        setVerificationStatus('pending')
+      }
+    }
+  }
+
+  const removeFile = async (index: number, type: 'portfolio' | 'verification') => {
+    if (type === 'portfolio') {
+      const updated = portfolio.filter((_, i) => i !== index)
+      setPortfolio(updated)
+      await patchVendor({ portfolio: updated })
+    } else {
+      const updated = verificationDocs.filter((_, i) => i !== index)
+      setVerificationDocs(updated)
+      await patchVendor({ verificationDocs: updated })
+    }
+  }
 
   const patchVendor = async (data: any) => {
     if (!vendorId) return
@@ -295,20 +337,50 @@ export default function VendorOnboardingWizard() {
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input type="file" multiple accept="image/*" onChange={async e => {
-            if (e.target.files) {
-              const files = Array.from(e.target.files).map(f => f.name)
-              const updated = [...portfolio, ...files]
-              setPortfolio(updated)
-              await patchVendor({ portfolio: updated })
-            }
-          }} />
-          <div className="mt-4 flex flex-wrap gap-2">
-            {portfolio.map((img, idx) => (
-              <div key={idx} className="p-2 border rounded bg-background text-xs text-muted-foreground">{img}</div>
-            ))}
+          
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <div className="mt-2">
+              <label htmlFor="portfolio-upload" className="cursor-pointer">
+                <span className="text-sm font-medium text-rose-600 hover:text-rose-500">
+                  {uploading ? 'Uploading...' : 'Click to upload images'}
+                </span>
+              </label>
+              <input
+                id="portfolio-upload"
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files && handleFileUpload(e.target.files, 'portfolio')}
+                disabled={uploading}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 10MB each</p>
           </div>
-          {/* TODO: Integrate with backend for real uploads */}
+
+          {portfolio.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">Uploaded Images:</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {portfolio.map((url, idx) => (
+                  <div key={idx} className="relative group">
+                    <img
+                      src={url}
+                      alt={`Portfolio ${idx + 1}`}
+                      className="w-full h-24 object-cover rounded border"
+                    />
+                    <button
+                      onClick={() => removeFile(idx, 'portfolio')}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </TooltipProvider>
     )
@@ -477,33 +549,53 @@ export default function VendorOnboardingWizard() {
               <span className="text-red-600">Rejected</span>
             )}
           </div>
-          <div className="mb-2 flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="cursor-pointer">
-                  <Label htmlFor="verification-upload">Upload Documents</Label>
+          
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <div className="mt-2">
+              <label htmlFor="verification-upload" className="cursor-pointer">
+                <span className="text-sm font-medium text-rose-600 hover:text-rose-500">
+                  {uploading ? 'Uploading...' : 'Click to upload documents'}
                 </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <span>Accepted formats: PDF, JPG, PNG. You can upload multiple files. If rejected, please re-upload valid documents.</span>
-              </TooltipContent>
-            </Tooltip>
-            {verificationStatus === 'rejected' && <span className="text-xs text-red-600">Please re-upload valid documents.</span>}
+              </label>
+              <input
+                id="verification-upload"
+                type="file"
+                multiple
+                accept="application/pdf,image/*"
+                className="hidden"
+                onChange={(e) => e.target.files && handleFileUpload(e.target.files, 'verification')}
+                disabled={uploading || verificationStatus === 'approved'}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">PDF, JPG, PNG up to 10MB each</p>
           </div>
-          <Input id="verification-upload" type="file" multiple accept="application/pdf,image/*" onChange={async e => {
-            if (e.target.files) {
-              const files = Array.from(e.target.files).map(f => f.name)
-              setVerificationDocs([...verificationDocs, ...files])
-              await patchVendor({ verificationDocs: [...verificationDocs, ...files] }) // auto-save
-              setVerificationStatus('pending')
-            }
-          }} disabled={verificationStatus === 'approved'} />
+
+          {verificationDocs.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">Uploaded Documents:</h3>
+              <div className="space-y-2">
+                {verificationDocs.map((url, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 border rounded">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm">Document {idx + 1}</span>
+                    </div>
+                    <button
+                      onClick={() => removeFile(idx, 'verification')}
+                      className="text-red-500 hover:text-red-700"
+                      disabled={verificationStatus === 'approved'}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {errors.verificationDocs && <div className="text-xs text-destructive mt-2">{errors.verificationDocs}</div>}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {verificationDocs.map((doc, idx) => (
-              <div key={idx} className="p-2 border rounded bg-background text-xs text-muted-foreground">{doc}</div>
-            ))}
-          </div>
+          
           {verificationStatus === 'approved' && (
             <div className="mt-2 text-green-600 text-sm">Your documents have been approved. You are now verified!</div>
           )}

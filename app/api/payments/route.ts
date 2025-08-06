@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/database'
-import Payment from '@/lib/models/Payment'
-import User from '@/lib/models/User'
+import User from '@/lib/models/user'
+import Payment from '@/lib/models/payment'
 
 // POST /api/payments - Process payments
 export async function POST(request: NextRequest) {
