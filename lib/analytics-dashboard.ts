@@ -1,11 +1,11 @@
-import { connectToDatabase } from '@/lib/database'
-import Venue from '@/lib/models/venue'
-import Vendor from '@/lib/models/vendor'
-import User from '@/lib/models/user'
-import Booking from '@/lib/models/booking'
-import Payment from '@/lib/models/payment'
-import Message from '@/lib/models/message'
-import Notification from '@/lib/models/notification'
+import { connectDB } from "@/lib/db"
+import User from "@/lib/models/user"
+import { Venue } from "@/lib/models/venue"
+import { Vendor } from "@/lib/models/vendor"
+import { Booking } from "@/lib/models/booking"
+import { Payment } from "@/lib/models/payment"
+import { Message } from "@/lib/models/message"
+import { Notification } from "@/lib/models/notification"
 
 interface AnalyticsMetrics {
   users: {
@@ -64,7 +64,7 @@ class AnalyticsDashboard {
   // Get comprehensive analytics metrics
   async getAnalyticsMetrics(): Promise<AnalyticsMetrics> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const now = new Date()
       const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -191,7 +191,7 @@ class AnalyticsDashboard {
         vendors: {
           total: totalVendors,
           active: activeVendors,
-          byCategory: vendorsByCategory.reduce((acc, item) => {
+          byCategory: vendorsByCategory.reduce((acc: Record<string, number>, item: any) => {
             acc[item._id] = item.count
             return acc
           }, {} as Record<string, number>),
@@ -214,7 +214,7 @@ class AnalyticsDashboard {
   // Get chart data for visualizations
   async getChartData(days: number = 30): Promise<ChartData> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const endDate = new Date()
       const startDate = new Date(endDate.getTime() - (days * 24 * 60 * 60 * 1000))
@@ -280,10 +280,10 @@ class AnalyticsDashboard {
       ])
 
       return {
-        revenue: revenueData.map(item => ({ date: item._id, amount: item.amount })),
-        bookings: bookingsData.map(item => ({ date: item._id, count: item.count })),
-        users: usersData.map(item => ({ date: item._id, count: item.count })),
-        categories: categoriesData.map(item => ({ category: item._id, count: item.count }))
+        revenue: revenueData.map((item: any) => ({ date: item._id, amount: item.amount })),
+        bookings: bookingsData.map((item: any) => ({ date: item._id, count: item.count })),
+        users: usersData.map((item: any) => ({ date: item._id, count: item.count })),
+        categories: categoriesData.map((item: any) => ({ category: item._id, count: item.count }))
       }
 
     } catch (error) {
@@ -300,7 +300,7 @@ class AnalyticsDashboard {
   // Get real-time dashboard data
   async getRealTimeData() {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const now = new Date()
       const lastHour = new Date(now.getTime() - (60 * 60 * 1000))

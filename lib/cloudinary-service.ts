@@ -80,7 +80,7 @@ export class CloudinaryService {
                 resource_type: result.resource_type,
                 created_at: result.created_at,
                 tags: result.tags || [],
-                context: result.context,
+                context: result.context as Record<string, string> || {},
               })
             } else {
               reject(new Error('Upload failed'))
@@ -142,7 +142,7 @@ export class CloudinaryService {
         resource_type: result.resource_type,
         created_at: result.created_at,
         tags: result.tags || [],
-        context: result.context,
+        context: result.context as Record<string, string> || {},
       }
     } catch (error) {
       return {
@@ -182,7 +182,7 @@ export class CloudinaryService {
       width?: number
       height?: number
       crop?: string
-      quality?: number
+      quality?: number | string
       format?: string
       effect?: string
     } = {}

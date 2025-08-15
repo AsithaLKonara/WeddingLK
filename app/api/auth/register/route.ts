@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
-import { User } from "@/lib/models/user"
+import User from "@/lib/models/user"
 import bcrypt from "bcryptjs"
 import { Vendor } from "@/lib/models/vendor"
 import crypto from "crypto"

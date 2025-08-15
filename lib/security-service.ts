@@ -283,7 +283,6 @@ class SecurityService {
   getClientIP(request: NextRequest): string {
     return request.headers.get('x-forwarded-for')?.split(',')[0] ||
            request.headers.get('x-real-ip') ||
-           request.ip ||
            'unknown'
   }
 
@@ -348,6 +347,57 @@ class SecurityService {
         high: recentEvents.filter(e => e.severity === 'high').length,
         critical: recentEvents.filter(e => e.severity === 'critical').length
       }
+    }
+  }
+
+  // Get performance alerts
+  async getPerformanceAlerts() {
+    try {
+      // In a real implementation, this would check system performance metrics
+      const alerts = []
+      const now = new Date()
+      
+      // Check for high rate limiting
+      const highRateLimitCount = Array.from(this.rateLimits.values()).filter(r => r.blocked).length
+      if (highRateLimitCount > 10) {
+        alerts.push({
+          type: 'high_rate_limiting',
+          severity: 'high',
+          message: `High rate limiting detected: ${highRateLimitCount} blocked requests`,
+          timestamp: now
+        })
+      }
+      
+      // Check for critical security events
+      const criticalEvents = this.securityEvents.filter(e => 
+        e.severity === 'critical' && 
+        e.timestamp > new Date(now.getTime() - 60 * 60 * 1000) // Last hour
+      )
+      
+      if (criticalEvents.length > 0) {
+        alerts.push({
+          type: 'critical_security_events',
+          severity: 'critical',
+          message: `${criticalEvents.length} critical security events in the last hour`,
+          timestamp: now,
+          details: criticalEvents
+        })
+      }
+      
+      // Check for blocked IPs
+      if (this.blockedIPs.size > 50) {
+        alerts.push({
+          type: 'high_blocked_ips',
+          severity: 'medium',
+          message: `High number of blocked IPs: ${this.blockedIPs.size}`,
+          timestamp: now
+        })
+      }
+      
+      return alerts
+    } catch (error) {
+      console.error('Error getting performance alerts:', error)
+      return []
     }
   }
 

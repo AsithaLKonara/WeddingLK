@@ -2,10 +2,10 @@ import OpenAI from 'openai'
 import { connectToDatabase } from '@/lib/database'
 import { WeddingLKAIProcessor } from '@/lib/weddinglk-ai-processor'
 import User from '@/lib/models/user'
-import Venue from '@/lib/models/venue'
-import Vendor from '@/lib/models/vendor'
-import Booking from '@/lib/models/booking'
-import Payment from '@/lib/models/payment'
+import { Venue } from '@/lib/models/venue'
+import { Vendor } from '@/lib/models/vendor'
+import { Booking } from '@/lib/models/booking'
+import { Payment } from '@/lib/models/payment'
 
 // Initialize OpenAI client conditionally
 let openai: OpenAI | null = null
@@ -78,10 +78,10 @@ class AIService {
         Style: ${preferences.style}
         
         Available Venues:
-        ${venues.map(v => `- ${v.name}: ${v.location}, LKR ${v.price}, ${v.capacity} guests`).join('\n')}
+        ${venues.map((v: any) => `- ${v.name}: ${v.location}, LKR ${v.price}, ${v.capacity} guests`).join('\n')}
         
         Available Vendors:
-        ${vendors.map(v => `- ${v.name}: ${v.category}, ${v.location}, LKR ${v.price}`).join('\n')}
+        ${vendors.map((v: any) => `- ${v.name}: ${v.category}, ${v.location}, LKR ${v.price}`).join('\n')}
         
         Provide 3 venue recommendations and 2 vendor recommendations with reasons.
         Format as JSON array with: type, id, name, reason, confidence (0-1), price

@@ -10,14 +10,14 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
     <div suppressHydrationWarning>
-      <NextThemesProvider 
-        attribute="class" 
-        defaultTheme="system" 
-        enableSystem 
-        disableTransitionOnChange
-      >
-        {children}
-      </NextThemesProvider>
+    <NextThemesProvider 
+      attribute="class" 
+      defaultTheme="system" 
+      enableSystem 
+      disableTransitionOnChange
+    >
+      {children}
+    </NextThemesProvider>
     </div>
   )
 }

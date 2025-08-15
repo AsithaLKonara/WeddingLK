@@ -1,6 +1,6 @@
-import { connectToDatabase } from '@/lib/database'
-import Venue from '@/lib/models/venue'
-import Vendor from '@/lib/models/vendor'
+import { connectDB } from "@/lib/db"
+import { Venue } from "@/lib/models/venue"
+import { Vendor } from "@/lib/models/vendor"
 import User from '@/lib/models/user'
 
 interface SocialMediaPost {
@@ -181,7 +181,7 @@ class SocialMediaService {
   // Share venue to social media
   async shareVenue(venueId: string, platforms: string[]): Promise<SocialMediaResponse[]> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const venue = await Venue.findById(venueId)
       if (!venue) {
@@ -222,7 +222,7 @@ ${venue.description}
   // Share vendor to social media
   async shareVendor(vendorId: string, platforms: string[]): Promise<SocialMediaResponse[]> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const vendor = await Vendor.findById(vendorId)
       if (!vendor) {

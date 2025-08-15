@@ -1,9 +1,9 @@
 import { Server as SocketIOServer } from 'socket.io'
-import { Server as HTTPServer } from 'http'
-import { connectToDatabase } from './database'
-import User from './models/user'
-import Message from './models/message'
-import Notification from './models/notification'
+import { createServer } from 'http'
+import { connectDB } from '@/lib/db'
+import User from '@/lib/models/user'
+import { Message } from '@/lib/models/message'
+import { Notification } from '@/lib/models/notification'
 
 interface AuthenticatedSocket {
   userId: string
@@ -15,7 +15,7 @@ class WebSocketServer {
   private io: SocketIOServer | null = null
   private connectedUsers = new Map<string, AuthenticatedSocket>()
 
-  initialize(server: HTTPServer) {
+  initialize(server: ReturnType<typeof createServer>) {
     this.io = new SocketIOServer(server, {
       cors: {
         origin: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
@@ -38,7 +38,7 @@ class WebSocketServer {
       // Authentication middleware
       socket.on('authenticate', async (data: { token: string }) => {
         try {
-          await connectToDatabase()
+          await connectDB()
           
           // In a real implementation, verify JWT token
           // For now, we'll use a simple user lookup
@@ -87,7 +87,7 @@ class WebSocketServer {
             return
           }
 
-          await connectToDatabase()
+          await connectDB()
           
           // Save message to database
           const message = new Message({
@@ -149,7 +149,7 @@ class WebSocketServer {
       // Real-time notifications
       socket.on('mark_notification_read', async (data: { notificationId: string }) => {
         try {
-          await connectToDatabase()
+          await connectDB()
           
           await Notification.findByIdAndUpdate(data.notificationId, {
             isRead: true,

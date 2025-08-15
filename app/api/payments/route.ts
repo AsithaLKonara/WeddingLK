@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/database'
-import User from '@/lib/models/user'
-import Payment from '@/lib/models/payment'
+import { NextRequest, NextResponse } from "next/server"
+import { connectDB } from "@/lib/db"
+import User from "@/lib/models/user"
+import { Payment } from "@/lib/models/payment"
 
 // POST /api/payments - Process payments
 export async function POST(request: NextRequest) {
   try {
-    await connectToDatabase()
+    await connectDB()
     
     const body = await request.json()
     const { type, amount, currency, description, paymentMethod, userId } = body
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 // GET /api/payments - Get payment history
 export async function GET(request: NextRequest) {
   try {
-    await connectToDatabase()
+    await connectDB()
     
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type')

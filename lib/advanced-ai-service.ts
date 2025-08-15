@@ -1,9 +1,9 @@
 import OpenAI from 'openai'
 import { connectToDatabase } from '@/lib/database'
 import User from '@/lib/models/user'
-import Venue from '@/lib/models/venue'
-import Vendor from '@/lib/models/vendor'
-import Booking from '@/lib/models/booking'
+import { Venue } from '@/lib/models/venue'
+import { Vendor } from '@/lib/models/vendor'
+import { Booking } from '@/lib/models/booking'
 
 // Initialize OpenAI client conditionally
 let openai: OpenAI | null = null
@@ -229,10 +229,10 @@ class AdvancedAIService {
         - Style: ${user.preferences.style}
         
         Available Venues:
-        ${venues.map(v => `- ${v.name}: ${v.location}, LKR ${v.price}, ${v.capacity} guests, Rating: ${v.rating}`).join('\n')}
+        ${venues.map((v: any) => `- ${v.name}: ${v.location}, LKR ${v.price}, ${v.capacity} guests, Rating: ${v.rating}`).join('\n')}
         
         Available Vendors:
-        ${vendors.map(v => `- ${v.name}: ${v.category}, ${v.location}, LKR ${v.price}, Rating: ${v.rating}`).join('\n')}
+        ${vendors.map((v: any) => `- ${v.name}: ${v.category}, ${v.location}, LKR ${v.price}, Rating: ${v.rating}`).join('\n')}
         
         Provide the best venue match and top 3 vendor matches with:
         - Match scores (0-100)

@@ -1,9 +1,9 @@
-import { connectToDatabase } from './database'
-import User from './models/user'
-import Venue from './models/venue'
-import Vendor from './models/vendor'
-import Booking from './models/booking'
-import Payment from './models/payment'
+import { connectDB } from "@/lib/db"
+import User from "@/lib/models/user"
+import { Venue } from "@/lib/models/venue"
+import { Vendor } from "@/lib/models/vendor"
+import { Booking } from "@/lib/models/booking"
+import { Payment } from "@/lib/models/payment"
 
 // Mock data for seeding
 const mockUsers = [
@@ -257,7 +257,7 @@ export async function seedDatabase() {
     console.log('🌱 Starting database seeding...')
     
     // Connect to database
-    await connectToDatabase()
+    await connectDB()
     
     // Clear existing data
     console.log('🧹 Clearing existing data...')

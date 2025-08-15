@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
-    }
+  }
 
     await connectDB()
     
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { recipientId, recipientType, subject, message } = await request.json()
-    
+
     if (!recipientId || !recipientType || !subject || !message) {
       return NextResponse.json({ success: false, error: "All fields are required" }, { status: 400 })
     }
@@ -91,7 +91,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { messageId, action } = await request.json()
-    
+
     if (!messageId || !action) {
       return NextResponse.json({ success: false, error: "Message ID and action are required" }, { status: 400 })
     }

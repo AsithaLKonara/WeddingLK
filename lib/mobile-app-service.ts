@@ -1,8 +1,8 @@
-import { connectToDatabase } from '@/lib/database'
-import Venue from '@/lib/models/venue'
-import Vendor from '@/lib/models/vendor'
-import User from '@/lib/models/user'
-import Booking from '@/lib/models/booking'
+import { connectDB } from "@/lib/db"
+import { Venue } from "@/lib/models/venue"
+import { Vendor } from "@/lib/models/vendor"
+import User from "@/lib/models/user"
+import { Booking } from "@/lib/models/booking"
 
 interface MobileAppConfig {
   apiEndpoints: Record<string, string>
@@ -74,7 +74,7 @@ class MobileAppService {
   // Get mobile-optimized user data
   async getMobileUserData(userId: string): Promise<MobileUserData | null> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const user = await User.findById(userId)
       if (!user) return null
@@ -96,15 +96,23 @@ class MobileAppService {
           lastLogin: user.lastLogin
         },
         preferences: user.preferences || {},
-        bookings: bookings.map(booking => ({
+        bookings: bookings.map((booking: any) => ({
           id: booking._id,
           date: booking.date,
           guestCount: booking.guestCount,
           totalAmount: booking.totalAmount,
           status: booking.status,
           paymentStatus: booking.paymentStatus,
-          venue: booking.venueId,
-          vendor: booking.vendorId,
+          venue: booking.venueId ? {
+            id: booking.venueId._id,
+            name: booking.venueId.name,
+            location: booking.venueId.location
+          } : null,
+          vendor: booking.vendorId ? {
+            id: booking.vendorId._id,
+            name: booking.vendorId.name,
+            category: booking.vendorId.category
+          } : null,
           services: booking.services
         })),
         favorites: favorites,
@@ -134,7 +142,7 @@ class MobileAppService {
           price: venue.price,
           rating: venue.rating
         })),
-        ...vendors.map(vendor => ({
+        ...vendors.map((vendor: any) => ({
           type: 'vendor',
           id: vendor._id,
           name: vendor.name,
@@ -216,7 +224,7 @@ class MobileAppService {
   // Get mobile-optimized venue data
   async getMobileVenues(filters: any = {}): Promise<any[]> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const query: any = { isActive: true }
       
@@ -256,7 +264,7 @@ class MobileAppService {
   // Get mobile-optimized vendor data
   async getMobileVendors(filters: any = {}): Promise<any[]> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const query: any = { isActive: true }
       
@@ -276,7 +284,7 @@ class MobileAppService {
         .select('name category location price rating images services')
         .limit(20)
 
-      return vendors.map(vendor => ({
+      return vendors.map((vendor: any) => ({
         id: vendor._id,
         name: vendor.name,
         category: vendor.category,
@@ -296,7 +304,7 @@ class MobileAppService {
   // Get mobile-optimized booking data
   async getMobileBookings(userId: string): Promise<any[]> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const bookings = await Booking.find({ userId })
         .populate('venueId', 'name location')
@@ -304,7 +312,7 @@ class MobileAppService {
         .sort({ createdAt: -1 })
         .limit(10)
 
-      return bookings.map(booking => ({
+      return bookings.map((booking: any) => ({
         id: booking._id,
         date: booking.date,
         guestCount: booking.guestCount,
