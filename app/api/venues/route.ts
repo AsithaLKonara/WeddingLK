@@ -1,98 +1,94 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { connectDB } from '@/lib/db'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { type NextRequest, NextResponse } from "next/server"
+import { connectDB } from "@/lib/db"
+import { Venue } from "@/lib/models/venue"
 
-// GET /api/venues - Get venues with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const offset = parseInt(searchParams.get('offset') || '0')
-    const location = searchParams.get('location')
-    const minCapacity = searchParams.get('minCapacity')
-    const maxCapacity = searchParams.get('maxCapacity')
-    const minPrice = searchParams.get('minPrice')
-    const maxPrice = searchParams.get('maxPrice')
-    const amenities = searchParams.get('amenities')
-    const featured = searchParams.get('featured')
-    const venueId = searchParams.get('venueId')
+    
+    // Extract and validate query parameters
+    const limit = parseInt(searchParams.get("limit") || "10")
+    const offset = parseInt(searchParams.get("offset") || "0")
+    const location = searchParams.get("location") || ""
+    const minCapacity = parseInt(searchParams.get("minCapacity") || "0")
+    const maxCapacity = parseInt(searchParams.get("maxCapacity") || "999999")
+    const minPrice = parseInt(searchParams.get("minPrice") || "0")
+    const maxPrice = parseInt(searchParams.get("maxPrice") || "999999999")
+    const amenities = searchParams.get("amenities") || ""
+    const featured = searchParams.get("featured") === "true"
+
+    // Input validation
+    if (limit > 100) {
+      return NextResponse.json({ error: "Limit cannot exceed 100" }, { status: 400 })
+    }
+    
+    if (offset < 0) {
+      return NextResponse.json({ error: "Offset cannot be negative" }, { status: 400 })
+    }
+
+    // Query length validation
+    if (location.length > 100) {
+      return NextResponse.json({ error: "Location parameter too long" }, { status: 400 })
+    }
+
+    if (amenities.length > 500) {
+      return NextResponse.json({ error: "Amenities parameter too long" }, { status: 400 })
+    }
+
+    // Sanitize inputs
+    const sanitizedLocation = location.replace(/[<>]/g, '').trim()
+    const sanitizedAmenities = amenities.replace(/[<>]/g, '').trim()
 
     await connectDB()
 
-    // Dynamically import the Venue model
-    const { Venue } = await import('@/lib/models/venue')
-
-    // If specific venue ID is requested
-    if (venueId) {
-      const venue = await Venue.findById(venueId)
-        .populate('owner', 'firstName lastName email')
-        .populate('reviews.user', 'firstName lastName')
-      
-      if (!venue) {
-        return NextResponse.json({ error: 'Venue not found' }, { status: 404 })
-      }
-
-      return NextResponse.json({
-        success: true,
-        venue,
-      })
+    // Build filter object
+    const filter: any = {}
+    
+    if (sanitizedLocation) {
+      filter.location = { $regex: sanitizedLocation, $options: "i" }
+    }
+    
+    if (minCapacity > 0 || maxCapacity < 999999) {
+      filter.capacity = {}
+      if (minCapacity > 0) filter.capacity.$gte = minCapacity
+      if (maxCapacity < 999999) filter.capacity.$lte = maxCapacity
+    }
+    
+    if (minPrice > 0 || maxPrice < 999999999) {
+      filter.price = {}
+      if (minPrice > 0) filter.price.$gte = minPrice
+      if (maxPrice < 999999999) filter.price.$lte = maxPrice
+    }
+    
+    if (featured) {
+      filter.featured = true
+    }
+    
+    if (sanitizedAmenities) {
+      const amenitiesArray = sanitizedAmenities.split(",").map(a => a.trim())
+      filter.amenities = { $in: amenitiesArray }
     }
 
-    // Build query
-    const query: any = { isActive: true }
-
-    if (location) {
-      query['location.city'] = { $regex: location, $options: 'i' }
-    }
-
-    if (minCapacity || maxCapacity) {
-      query.capacity = {}
-      if (minCapacity) query.capacity.$gte = parseInt(minCapacity)
-      if (maxCapacity) query.capacity.$lte = parseInt(maxCapacity)
-    }
-
-    if (minPrice || maxPrice) {
-      query['pricing.basePrice'] = {}
-      if (minPrice) query['pricing.basePrice'].$gte = parseInt(minPrice)
-      if (maxPrice) query['pricing.basePrice'].$lte = parseInt(maxPrice)
-    }
-
-    if (amenities) {
-      const amenityArray = amenities.split(',').map((a: string) => a.trim())
-      query.amenities = { $in: amenityArray }
-    }
-
-    if (featured === 'true') {
-      query.featured = true
-    }
-
-    // Get venues with pagination
-    const venues = await Venue.find(query)
-      .populate('owner', 'firstName lastName email')
-      .populate('reviews.user', 'firstName lastName')
-      .sort({ featured: -1, 'rating.average': -1, createdAt: -1 })
+    const venues = await Venue.find(filter)
+      .sort({ 'rating.average': -1 })
       .limit(limit)
       .skip(offset)
+      .lean()
 
-    const total = await Venue.countDocuments(query)
+    const total = await Venue.countDocuments(filter)
 
     return NextResponse.json({
-      success: true,
       venues,
       pagination: {
-        page: Math.floor(offset / limit) + 1,
-        limit,
         total,
-        pages: Math.ceil(total / limit)
+        limit,
+        offset,
+        hasMore: offset + limit < total
       }
     })
   } catch (error) {
-    console.error('Error fetching venues:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch venues' },
-      { status: 500 }
-    )
+    console.error("Get venues error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
@@ -103,16 +99,16 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
+    
     const body = await request.json()
-    const {
-      name,
-      description,
-      location,
-      capacity,
+    const { 
+      name, 
+      description, 
+      location, 
+      capacity, 
       pricing,
       amenities,
-      images,
+      images, 
     } = body
 
     if (!name || !description || !location || !capacity || !pricing) {
@@ -251,7 +247,7 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+} 
 
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {

@@ -9,7 +9,6 @@ const connectionOptions = {
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
   bufferCommands: false,
-  bufferMaxEntries: 0,
 }
 
 // Global variable to track connection status

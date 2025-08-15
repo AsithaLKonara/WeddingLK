@@ -6,7 +6,6 @@ const BookingSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
     clientId: {
       type: mongoose.Schema.Types.ObjectId,

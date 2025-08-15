@@ -1,89 +1,90 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { connectDB } from '@/lib/db'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { type NextRequest, NextResponse } from "next/server"
+import { connectDB } from "@/lib/db"
+import { Vendor } from "@/lib/models/vendor"
 
-// GET /api/vendors - Get vendors with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const offset = parseInt(searchParams.get('offset') || '0')
-    const category = searchParams.get('category')
-    const location = searchParams.get('location')
-    const minPrice = searchParams.get('minPrice')
-    const maxPrice = searchParams.get('maxPrice')
-    const rating = searchParams.get('rating')
-    const vendorId = searchParams.get('vendorId')
+    
+    // Extract and validate query parameters
+    const limit = parseInt(searchParams.get("limit") || "10")
+    const offset = parseInt(searchParams.get("offset") || "0")
+    const category = searchParams.get("category") || ""
+    const location = searchParams.get("location") || ""
+    const minPrice = parseInt(searchParams.get("minPrice") || "0")
+    const maxPrice = parseInt(searchParams.get("maxPrice") || "999999999")
+    const rating = parseFloat(searchParams.get("rating") || "0")
+    const featured = searchParams.get("featured") === "true"
+
+    // Input validation
+    if (limit > 100) {
+      return NextResponse.json({ error: "Limit cannot exceed 100" }, { status: 400 })
+    }
+    
+    if (offset < 0) {
+      return NextResponse.json({ error: "Offset cannot be negative" }, { status: 400 })
+    }
+
+    // Query length validation
+    if (category.length > 100) {
+      return NextResponse.json({ error: "Category parameter too long" }, { status: 400 })
+    }
+
+    if (location.length > 100) {
+      return NextResponse.json({ error: "Location parameter too long" }, { status: 400 })
+    }
+
+    // Sanitize inputs
+    const sanitizedCategory = category.replace(/[<>]/g, '').trim()
+    const sanitizedLocation = location.replace(/[<>]/g, '').trim()
 
     await connectDB()
 
-    // Dynamically import the Vendor model
-    const { Vendor } = await import('@/lib/models/vendor')
-
-    // If specific vendor ID is requested
-    if (vendorId) {
-      const vendor = await Vendor.findById(vendorId)
-        .populate('owner', 'firstName lastName email')
-        .populate('reviews.user', 'firstName lastName')
-      
-      if (!vendor) {
-        return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
-      }
-
-      return NextResponse.json({
-        success: true,
-        vendor,
-      })
+    // Build filter object
+    const filter: any = {}
+    
+    if (sanitizedCategory) {
+      filter.category = { $regex: sanitizedCategory, $options: "i" }
+    }
+    
+    if (sanitizedLocation) {
+      filter.location = { $regex: sanitizedLocation, $options: "i" }
+    }
+    
+    if (minPrice > 0 || maxPrice < 999999999) {
+      filter.price = {}
+      if (minPrice > 0) filter.price.$gte = minPrice
+      if (maxPrice < 999999999) filter.price.$lte = maxPrice
+    }
+    
+    if (rating > 0) {
+      filter.rating = { $gte: rating }
+    }
+    
+    if (featured) {
+      filter.featured = true
     }
 
-    // Build query
-    const query: any = {}
-
-    if (category) {
-      query.category = { $regex: category, $options: 'i' }
-    }
-
-    if (location) {
-      query['location.city'] = { $regex: location, $options: 'i' }
-    }
-
-    if (minPrice || maxPrice) {
-      query['pricing.startingPrice'] = {}
-      if (minPrice) query['pricing.startingPrice'].$gte = parseInt(minPrice)
-      if (maxPrice) query['pricing.startingPrice'].$lte = parseInt(maxPrice)
-    }
-
-    if (rating) {
-      query['rating.average'] = { $gte: parseFloat(rating) }
-    }
-
-    // Get vendors with pagination
-    const vendors = await Vendor.find(query)
-      .populate('owner', 'firstName lastName email')
-      .populate('reviews.user', 'firstName lastName')
-      .sort({ 'rating.average': -1, createdAt: -1 })
+    const vendors = await Vendor.find(filter)
+      .sort({ rating: -1 })
       .limit(limit)
       .skip(offset)
+      .lean()
 
-    const total = await Vendor.countDocuments(query)
+    const total = await Vendor.countDocuments(filter)
 
     return NextResponse.json({
-      success: true,
       vendors,
       pagination: {
-        page: Math.floor(offset / limit) + 1,
-        limit,
         total,
-        pages: Math.ceil(total / limit)
+        limit,
+        offset,
+        hasMore: offset + limit < total
       }
     })
   } catch (error) {
-    console.error('Error fetching vendors:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch vendors' },
-      { status: 500 }
-    )
+    console.error("Get vendors error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 

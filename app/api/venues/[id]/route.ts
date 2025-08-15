@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import { Venue } from "@/lib/models/venue"
+import mongoose from "mongoose"
 
 export async function GET(
   request: NextRequest,
@@ -8,6 +9,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid venue ID format" }, { status: 400 })
+    }
+    
     await connectDB()
 
     const venue = await Venue.findById(id)
@@ -28,6 +35,12 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid venue ID format" }, { status: 400 })
+    }
+    
     await connectDB()
 
     const update = await request.json()
@@ -50,6 +63,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid venue ID format" }, { status: 400 })
+    }
+    
     await connectDB()
 
     const result = await Venue.findByIdAndDelete(id)
