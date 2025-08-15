@@ -17,8 +17,12 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production --legacy-peer-deps
+# Install dependencies with retry mechanism and better error handling
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci --only=production --legacy-peer-deps --no-audit --no-fund
 
 # Copy source code
 COPY . .
@@ -27,9 +31,6 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
-RUN npm run build
-
-# Create production build
 RUN npm run build
 
 # Expose port
