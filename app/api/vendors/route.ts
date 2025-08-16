@@ -42,25 +42,25 @@ export async function GET(request: NextRequest) {
 
     // Build filter object
     const filter: any = {}
-    
+
     if (sanitizedCategory) {
       filter.category = { $regex: sanitizedCategory, $options: "i" }
     }
-    
+
     if (sanitizedLocation) {
       filter.location = { $regex: sanitizedLocation, $options: "i" }
     }
-    
+
     if (minPrice > 0 || maxPrice < 999999999) {
       filter.price = {}
       if (minPrice > 0) filter.price.$gte = minPrice
       if (maxPrice < 999999999) filter.price.$lte = maxPrice
     }
-    
+
     if (rating > 0) {
       filter.rating = { $gte: rating }
     }
-    
+
     if (featured) {
       filter.featured = true
     }

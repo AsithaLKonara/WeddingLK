@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
 import { Venue } from "@/lib/models/venue"
 import { Vendor } from "@/lib/models/vendor"
-import { performSemanticSearch } from "@/lib/ai-service"
+import aiService from "@/lib/ai-service"
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB()
 
-    const semanticResults = await performSemanticSearch(sanitizedQuery) as any
+    const semanticResults = await aiService.semanticSearch(sanitizedQuery) as any
 
     // Safely extract results with fallbacks
     const venues = Array.isArray(semanticResults) ? [] : (semanticResults?.venues || [])
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+      const body = await request.json()
     const { query } = body
 
     if (!query || typeof query !== 'string') {
@@ -62,10 +62,10 @@ export async function POST(request: NextRequest) {
 
     // Query length validation
     if (query.length > 500) {
-      return NextResponse.json({ 
+        return NextResponse.json({ 
         error: "Query too long. Maximum length is 500 characters." 
-      }, { status: 400 })
-    }
+        }, { status: 400 })
+      }
 
     // Input sanitization
     const sanitizedQuery = query
@@ -78,20 +78,20 @@ export async function POST(request: NextRequest) {
 
     await connectDB()
 
-    const semanticResults = await performSemanticSearch(sanitizedQuery) as any
+    const semanticResults = await aiService.semanticSearch(sanitizedQuery) as any
 
     const venues = Array.isArray(semanticResults) ? [] : (semanticResults?.venues || [])
     const vendors = Array.isArray(semanticResults) ? [] : (semanticResults?.vendors || [])
     const extractedParams = Array.isArray(semanticResults) ? {} : (semanticResults?.extractedParams || {})
 
-    return NextResponse.json({
+      return NextResponse.json({
       query: sanitizedQuery,
       venues,
       vendors,
       extractedParams,
       timestamp: new Date().toISOString()
     })
-  } catch (error) {
+    } catch (error) {
     console.error("AI search POST error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
