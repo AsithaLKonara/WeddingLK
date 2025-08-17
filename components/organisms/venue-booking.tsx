@@ -180,8 +180,11 @@ export function VenueBooking({ venue }: VenueBookingProps) {
               {isSubmitting ? "Sending..." : "Request Booking"}
             </Button>
 
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              We&apos;re excited to help you book your perfect venue!
+            </p>
             <p className="text-xs text-center text-gray-500 mt-2">
-              You won't be charged yet. We'll contact you to confirm details.
+              You won&apos;t be charged yet. We&apos;ll contact you to confirm details.
             </p>
           </div>
         </form>

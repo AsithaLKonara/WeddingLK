@@ -172,8 +172,7 @@ export function TeamSection() {
           <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-8 border border-white/20 dark:border-gray-700/20 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Want to Join Our Team?</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              We're always looking for passionate individuals who want to help create magical wedding experiences across
-              Sri Lanka.
+              We&apos;re passionate about making your wedding dreams come true.
             </p>
             <Button
               size="lg"

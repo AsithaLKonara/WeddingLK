@@ -433,7 +433,7 @@ export function WeddingTimeline() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Event</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete "{event.title}"? This action cannot be undone.
+                                    Are you sure you want to delete &ldquo;{event.title}&rdquo;? This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

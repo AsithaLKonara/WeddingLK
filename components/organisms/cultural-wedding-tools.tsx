@@ -205,7 +205,18 @@ export function CulturalWeddingTools() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Traditional Wedding Tools
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">සාම්ප්‍රදායික විවාහ සැලසුම් සහ ජ්‍යොතිෂ සේවා</p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            Discover Sri Lanka&apos;s rich wedding traditions and cultural practices.
+          </p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            From traditional ceremonies to modern celebrations, we&apos;ve got you covered.
+          </p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            Learn about different cultural wedding customs and how to incorporate them.
+          </p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            Find vendors who specialize in cultural wedding traditions.
+          </p>
         </motion.div>
 
         {/* Tool Selection */}

@@ -147,7 +147,7 @@ export default function VendorOnboardingWizard() {
         setErrors({ api: result.error || "Failed to save data" })
         toast({ title: result.error || "Failed to save data", variant: "destructive" })
       }
-    } catch (e) {
+    } catch (err) {
       setErrors({ api: "Network error" })
       toast({ title: "Network error", variant: "destructive" })
     } finally {

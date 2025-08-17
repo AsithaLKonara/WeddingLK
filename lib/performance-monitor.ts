@@ -293,10 +293,19 @@ class PerformanceMonitor {
       await require('mongoose').connection.db.admin().ping()
       const responseTime = performance.now() - start
 
+      let health: 'healthy' | 'warning' | 'error'
+      if (responseTime < 100) {
+        health = 'healthy'
+      } else if (responseTime < 500) {
+        health = 'warning'
+      } else {
+        health = 'error'
+      }
+
       return {
         connections: require('mongoose').connection.readyState === 1 ? 1 : 0,
         responseTime,
-        health: responseTime < 100 ? 'healthy' : responseTime < 500 ? 'warning' : 'error'
+        health
       }
     } catch (error) {
       return {

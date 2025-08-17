@@ -117,7 +117,7 @@ export function UpcomingTasks() {
       
       toast({
         title: "Task Completed",
-        description: `${taskTitle} has been marked as complete.`,
+        description: `&ldquo;${taskTitle}&rdquo; has been marked as completed.`,
       })
     } catch (error) {
       toast({

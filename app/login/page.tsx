@@ -5,6 +5,9 @@ import { motion } from "framer-motion"
 import { Heart, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { MainLayout } from "@/components/templates/main-layout"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
 // Import UI components directly since they have named exports
 import { Button } from "@/components/ui/button"
@@ -15,6 +18,59 @@ import { Separator } from "@/components/ui/separator"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+  const [errors, setErrors] = useState<any>({})
+  const router = useRouter()
+  const { toast } = useToast()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setErrors({})
+    
+    // Inline validation
+    const err: any = {}
+    if (!formData.email) err.email = "Email is required"
+    if (!formData.password) err.password = "Password is required"
+    if (Object.keys(err).length > 0) {
+      setErrors(err)
+      setIsLoading(false)
+      toast({ title: "Please fix the errors above.", variant: "destructive" })
+      return
+    }
+
+    try {
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        toast({ 
+          title: "Login failed. Please check your credentials.", 
+          variant: "destructive" 
+        })
+      } else if (result?.ok) {
+        toast({ 
+          title: "Login successful! Redirecting...", 
+          variant: "default" 
+        })
+        router.push('/dashboard')
+      }
+    } catch (error) {
+      toast({ 
+        title: "Login failed. Please try again.", 
+        variant: "destructive" 
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <MainLayout>
@@ -34,13 +90,24 @@ export default function LoginPage() {
               <CardDescription>Sign in to your Wedding.lk account</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <form className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input id="email" type="email" placeholder="Enter your email" className="pl-10" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="Enter your email" 
+                      className="pl-10"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      disabled={isLoading}
+                    />
                   </div>
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -52,6 +119,9 @@ export default function LoginPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       className="pl-10 pr-10"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      disabled={isLoading}
                     />
                     <Button
                       type="button"
@@ -59,10 +129,14 @@ export default function LoginPage() {
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3"
                       onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -81,8 +155,8 @@ export default function LoginPage() {
                   </Link>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg">
-                  Sign In
+                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
 
@@ -131,6 +205,17 @@ export default function LoginPage() {
                   Sign up
                 </Link>
               </p>
+
+              {/* Test Credentials Info */}
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800 font-medium mb-2">Test Credentials:</p>
+                <p className="text-xs text-blue-700">
+                  Use any existing user email from the database with any password for testing.
+                </p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Example: Use any email from the seeded users (like the ones shown in the database)
+                </p>
+              </div>
             </CardContent>
           </Card>
         </motion.div>

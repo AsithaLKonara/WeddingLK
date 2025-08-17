@@ -31,12 +31,11 @@ export async function POST(request: NextRequest) {
     // Create user
     const verificationToken = crypto.randomBytes(32).toString("hex")
     const user = new User({
-      firstName,
-      lastName,
+      name: `${firstName} ${lastName}`,
       email,
       phone,
       password: hashedPassword,
-      userType,
+      role: userType,
       weddingDate: weddingDate ? new Date(weddingDate) : undefined,
       isVerified: false,
       verificationToken,

@@ -116,16 +116,21 @@ export function WeddingChecklist() {
     setTaskFormErrors(err)
     if (Object.keys(err).length > 0) return
     setIsTaskSaving(true)
-    await new Promise(res => setTimeout(res, 800))
-    if (isAddOpen) {
-      setChecklist(prev => [...prev, { ...taskForm, id: Date.now().toString(), completed: false }])
-      toast({ title: "Task added!", variant: "default" })
-      setIsAddOpen(false)
-    } else if (isEditOpen && editTask) {
-      setChecklist(prev => prev.map(t => t.id === editTask.id ? { ...taskForm, id: editTask.id, completed: t.completed } : t))
-      toast({ title: "Task updated!", variant: "default" })
-      setIsEditOpen(false)
-      setEditTask(null)
+    try {
+      await new Promise(res => setTimeout(res, 800))
+      if (isAddOpen) {
+        setChecklist(prev => [...prev, { ...taskForm, id: Date.now().toString(), completed: false }])
+        toast({ title: "Task added!", variant: "default" })
+        setIsAddOpen(false)
+      } else if (isEditOpen && editTask) {
+        setChecklist(prev => prev.map(t => t.id === editTask.id ? { ...taskForm, id: editTask.id, completed: t.completed } : t))
+        toast({ title: "Task updated!", variant: "default" })
+        setIsEditOpen(false)
+        setEditTask(null)
+      }
+    } catch (err) {
+      console.error('Error updating task:', err);
+      toast({ title: "Failed to update task", variant: "destructive" });
     }
     setIsTaskSaving(false)
   }

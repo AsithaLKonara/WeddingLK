@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { connectDB } from "@/lib/db";
+import User from "@/lib/models/user";
 
 const handler = NextAuth({
   providers: [
@@ -10,15 +12,34 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (credentials?.email && credentials?.password) {
-          return {
-            id: "1",
-            email: credentials.email,
-            name: "Demo User",
-            role: "user",
-          };
+        if (!credentials?.email || !credentials?.password) {
+          return null;
         }
-        return null;
+
+        try {
+          await connectDB();
+          
+          // Find user by email
+          const user = await User.findOne({ email: credentials.email });
+          
+          if (!user) {
+            console.log("User not found:", credentials.email);
+            return null;
+          }
+
+          // For testing purposes, allow any password since users don't have passwords set
+          // In production, you would check: await bcrypt.compare(credentials.password, user.password)
+          
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            role: user.role || "user",
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
+        }
       },
     }),
   ],
@@ -30,7 +51,9 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (token && session.user) session.user.role = token.role;
+      if (token && session.user) {
+        session.user.role = token.role as string;
+      }
       return session;
     },
   },

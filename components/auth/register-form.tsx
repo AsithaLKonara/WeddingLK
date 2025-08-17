@@ -59,7 +59,7 @@ export function RegisterForm() {
         return
       }
       // Prepare payload
-      let payload: any = { ...formData }
+      const payload: any = { ...formData }
       if (formData.userType !== "vendor") {
         // Remove vendor fields for non-vendors
         delete payload.businessName

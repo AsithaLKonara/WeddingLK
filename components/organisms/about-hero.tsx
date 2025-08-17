@@ -81,14 +81,9 @@ export function AboutHero() {
           </motion.h1>
 
           {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed"
-          >
-            Connecting hearts, creating memories, and making dream weddings come true across Sri Lanka since 2020
-          </motion.p>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+            We&apos;re passionate about making your wedding dreams come true.
+          </p>
 
           {/* Stats */}
           <motion.div

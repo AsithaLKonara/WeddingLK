@@ -104,7 +104,7 @@ export function SavedVenues() {
       setSavedVenues(prev => prev.filter(venue => venue.id !== venueId))
       toast({
         title: "Venue Removed",
-        description: `${venueName} has been removed from your saved venues.`,
+        description: `&ldquo;${venueName}&rdquo; has been removed from your saved venues.`,
       })
     } catch (error) {
       toast({

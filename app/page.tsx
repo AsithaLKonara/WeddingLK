@@ -26,6 +26,7 @@ const VendorCategoriesSection = dynamic(() => import("@/components/organisms/ven
   ssr: true,
 })
 
+
 const VenueSocialFeed = dynamic(() => import("@/components/organisms/venue-social-feed"), { 
   loading: () => <SkeletonLoader variant="card" className="py-20" />,
   ssr: true,
@@ -79,11 +80,12 @@ export default function HomePage() {
           </div>
         </div>
 
-        <PerformanceOptimizer>
+        {/* Temporarily disabled due to Avatar component bundling issue */}
+        {/* <PerformanceOptimizer>
           <Suspense fallback={<SkeletonLoader variant="card" className="py-20" />}>
             <TestimonialsSection />
           </Suspense>
-        </PerformanceOptimizer>
+        </PerformanceOptimizer> */}
 
         <PerformanceOptimizer>
           <Suspense fallback={<SkeletonLoader variant="card" className="py-20" />}>

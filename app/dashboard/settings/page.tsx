@@ -122,10 +122,16 @@ export default function SettingsPage() {
       return
     }
     // Simulate API call
-    setTimeout(() => {
-      setIsSaving(false)
-      toast({ title: "Profile updated!", variant: "default" })
-    }, 1000)
+    try {
+      // Simulate API call
+      setTimeout(() => {
+        setIsSaving(false)
+        toast({ title: "Profile updated!", variant: "default" })
+      }, 1000)
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      toast({ title: "Failed to update profile", variant: "destructive" });
+    }
   }
 
   const handleSaveNotifications = () => {

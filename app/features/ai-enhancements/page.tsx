@@ -170,6 +170,9 @@ export default function AIEnhancementsPage() {
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Transform your platform with cutting-edge AI that understands weddings like a human expert
           </p>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            &ldquo;AI is not just about automation, it&apos;s about enhancing human creativity and making wedding planning more intuitive and personalized.&rdquo;
+          </p>
         </motion.div>
 
         {/* AI Feature Demos */}

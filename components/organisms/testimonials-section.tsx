@@ -1,62 +1,50 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { TestimonialCard } from "@/components/molecules/testimonial-card"
 
-const testimonials = [
-  {
-    name: "Sarah & Michael",
-    role: "Married June 2024",
-    content:
-      "Wedding.lk made our dream wedding a reality. The platform was so easy to use and helped us stay organized throughout the entire planning process.",
-    avatar: "/placeholder.svg?height=60&width=60",
-    rating: 5,
-  },
-  {
-    name: "Priya & Raj",
-    role: "Married August 2024",
-    content:
-      "The vendor network was incredible. We found our photographer, caterer, and decorator all through the platform. Highly recommended!",
-    avatar: "/placeholder.svg?height=60&width=60",
-    rating: 5,
-  },
-  {
-    name: "Emma & David",
-    role: "Married September 2024",
-    content:
-      "From venue booking to guest management, everything was seamless. Our wedding day was perfect thanks to Wedding.lk!",
-    avatar: "/placeholder.svg?height=60&width=60",
-    rating: 5,
-  },
-]
-
-export default function TestimonialsSection(props: any) {
+export default function TestimonialsSection() {
   return (
-    <section className="py-20 sm:py-32 bg-white/50 dark:bg-gray-800/50">
+    <section className="py-20 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Happy Couples</h2>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-            See what our couples have to say about their experience
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            What Our Couples Say
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Hear from happy couples who planned their perfect wedding with us
           </p>
-        </motion.div>
-
-        <div className="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.name}
-              initial={{ y: 50, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Placeholder testimonials - Avatar component temporarily disabled */}
+          {[1, 2, 3].map((i) => (
+            <motion.div 
+              key={i}
+              whileHover={{ y: -5 }} 
+              transition={{ duration: 0.2 }}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700"
             >
-              <TestimonialCard {...testimonial} />
+              <div className="flex items-center mb-4">
+                {[...Array(5)].map((_, star) => (
+                  <div key={star} className="h-4 w-4 text-yellow-400">⭐</div>
+                ))}
+              </div>
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                &ldquo;Wedding Dreams Lanka made our wedding planning so much easier. We found the perfect venue and vendors in just a few days!&rdquo;
+              </p>
+              <div className="flex items-center">
+                <div className="h-10 w-10 mr-3 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                  {i === 1 ? 'JD' : i === 2 ? 'SM' : 'AL'}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {i === 1 ? 'John & Diana' : i === 2 ? 'Sarah & Mike' : 'Alex & Lisa'}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Married {i === 1 ? 'June 2024' : i === 2 ? 'August 2024' : 'September 2024'}
+                  </p>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

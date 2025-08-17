@@ -51,7 +51,7 @@ export function PaymentForm({ booking, onPaymentSuccess }: PaymentFormProps) {
       // Simulate payment processing
       await new Promise((resolve) => setTimeout(resolve, 2000))
       const paymentId = `pay_${Date.now()}`
-      toast({ title: "Payment successful!", variant: "default" })
+      toast({ title: "Payment successful", description: "Your payment has been processed successfully." })
       onPaymentSuccess(paymentId)
       setFormData({ cardNumber: "", expiryDate: "", cvv: "", cardholderName: "", billingAddress: "" })
       setErrors({})

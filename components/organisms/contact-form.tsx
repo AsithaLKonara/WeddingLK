@@ -30,7 +30,7 @@ export function ContactForm() {
       
       toast({ 
         title: "Message sent successfully!", 
-        description: "We'll get back to you within 24 hours.",
+        description: "We&apos;ll get back to you as soon as possible.",
         variant: "default"
       })
       

@@ -154,9 +154,8 @@ export function StatsSection() {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               Ready to Be Part of Our Success Story?
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Join thousands of couples who have trusted us with their special day. Let's make your wedding dreams come
-              true.
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Let&apos;s make your wedding dreams come true.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.button

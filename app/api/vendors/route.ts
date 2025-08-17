@@ -1,6 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
 import { connectDB } from "@/lib/db"
 import { Vendor } from "@/lib/models/vendor"
+
+// Temporary auth options for testing - in production this should come from a proper config file
+const authOptions = {
+  providers: [],
+  session: { strategy: "jwt" as const },
+  callbacks: {
+    async session({ session, token }: any) {
+      if (token && session.user) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
+  },
+}
 
 export async function GET(request: NextRequest) {
   try {

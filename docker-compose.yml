@@ -28,8 +28,7 @@ services:
   weddinglk:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: base
+      dockerfile: Dockerfile.dev
     container_name: weddinglk-app
     restart: unless-stopped
     ports:
@@ -45,13 +44,12 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/.next
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - weddinglk-network
-    command: npm run dev
+    command: sh -c "rm -rf .next && npm run dev"
 
   # MongoDB Express (Admin UI)
   mongo-express:

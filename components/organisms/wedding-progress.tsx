@@ -286,7 +286,7 @@ export function WeddingProgress() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Milestone</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete "{milestone.title}"? This action cannot be undone.
+                          Are you sure you want to delete &ldquo;{milestone.title}&rdquo;? This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

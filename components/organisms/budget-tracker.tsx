@@ -580,7 +580,7 @@ export function BudgetTracker() {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Delete Category</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to delete "{category.name}"? This will also remove all items in this category.
+                              Are you sure you want to delete &ldquo;{category.name}&rdquo;? This will also remove all items in this category.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -668,7 +668,7 @@ export function BudgetTracker() {
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Delete Item</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Are you sure you want to delete "{item.name}"?
+                                      Are you sure you want to delete &ldquo;{item.name}&rdquo;?
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>

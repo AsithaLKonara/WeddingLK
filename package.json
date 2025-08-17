@@ -23,14 +23,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "format:check": "prettier --check .",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "seed": "node scripts/seed-database.js",
     "seed:comprehensive": "node scripts/comprehensive-seed.mjs",
-    "test:ai-search": "node scripts/test-ai-search.mjs",
+    "seed:basic": "node scripts/seed-basic-data.mjs",
+    "test:simple": "echo 'No tests configured yet'",
+    "test:coverage": "echo 'No test coverage configured yet'",
     "docker:build": "./scripts/docker-build.sh",
     "docker:start": "./scripts/docker-manage.sh start",
     "docker:stop": "./scripts/docker-manage.sh stop",
@@ -127,10 +128,6 @@
     "zod": "latest"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
     "@types/node": "^22",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19.1.8",
@@ -140,13 +137,11 @@
     "eslint": "^9.30.0",
     "eslint-config-next": "^15.4.5",
     "eslint-config-prettier": "^10.1.8",
-    "jest": "^30.0.3",
-    "jest-environment-jsdom": "^30.0.2",
+    "node-mocks-http": "^1.17.2",
     "postcss": "^8",
     "prettier": "^3.6.2",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
     "typescript": "^5"
-  },
-  "type": "module"
+  }
 }

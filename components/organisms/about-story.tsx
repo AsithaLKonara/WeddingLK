@@ -20,9 +20,11 @@ export function AboutStory() {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
               How It All Began
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Born from a passion to make every Sri Lankan wedding extraordinary, we've grown from a small startup to
-              the island's most trusted wedding platform.
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              Wedding Dreams Lanka was born from a simple belief: every couple deserves to have their perfect wedding day. We&apos;re passionate about making your wedding dreams come true.
+            </p>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              Our journey began in 2020 when we realized that Sri Lanka&apos;s beautiful wedding industry needed a modern, digital platform to connect couples with the best vendors and venues.
             </p>
           </motion.div>
 
