@@ -1,260 +1,260 @@
-import { Server as NetServer } from 'http'
-import { Server as SocketIOServer } from 'socket.io'
-import { NextApiRequest, NextApiResponse } from 'next'
+import { Server as SocketIOServer } from 'socket.io';
+import { Server as HTTPServer } from 'http';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export interface SocketServer extends NetServer {
-  io?: SocketIOServer
+interface SocketUser {
+  userId: string;
+  email: string;
+  role: string;
+  socketId: string;
 }
 
-export interface SocketWithIO extends NextApiRequest {
-  socket: {
-    server: SocketServer
-  } & NextApiRequest['socket']
+interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  timestamp: Date;
+  type: 'text' | 'image' | 'file';
 }
 
-export interface NextApiResponseWithSocket extends NextApiResponse {
-  socket: {
-    server: SocketServer
-  } & NextApiResponse['socket']
+interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  timestamp: Date;
+  read: boolean;
+  data?: any;
 }
 
-export const initSocket = (req: SocketWithIO, res: NextApiResponseWithSocket) => {
-  if (!res.socket.server.io) {
-    const io = new SocketIOServer(res.socket.server, {
-      path: '/api/socketio',
-      addTrailingSlash: false,
+class SocketService {
+  private io: SocketIOServer | null = null;
+  private connectedUsers: Map<string, SocketUser> = new Map();
+  private userSockets: Map<string, string[]> = new Map();
+
+  initialize(server: HTTPServer) {
+    this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.NEXTAUTH_URL || 'http://localhost:3000',
-        methods: ['GET', 'POST'],
-        credentials: true,
-      },
-    })
+        origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        methods: ["GET", "POST"],
+        credentials: true
+      }
+    });
 
-    // Store user connections
-    const userConnections = new Map<string, string>()
-
-    io.on('connection', (socket) => {
-      console.log('Client connected:', socket.id)
-
-      // Handle user authentication
-      socket.on('authenticate', (data: { userId: string; role: string }) => {
-        const { userId, role } = data
-        userConnections.set(userId, socket.id)
-        socket.join(`user_${userId}`)
-        socket.join(`role_${role}`)
-        
-        console.log(`User ${userId} (${role}) authenticated`)
-      })
-
-      // Handle booking notifications
-      socket.on('booking_request', (data: { 
-        vendorId: string; 
-        bookingId: string; 
-        clientName: string; 
-        date: string 
-      }) => {
-        const { vendorId, bookingId, clientName, date } = data
-        
-        // Notify vendor about new booking
-        io.to(`user_${vendorId}`).emit('new_booking', {
-          type: 'booking_request',
-          bookingId,
-          clientName,
-          date,
-          message: `New booking request from ${clientName} for ${date}`,
-          timestamp: new Date().toISOString(),
-        })
-
-        // Notify admin about new booking
-        io.to('role_admin').emit('new_booking', {
-          type: 'booking_request',
-          bookingId,
-          clientName,
-          date,
-          message: `New booking request from ${clientName}`,
-          timestamp: new Date().toISOString(),
-        })
-      })
-
-      // Handle booking status updates
-      socket.on('booking_status_update', (data: {
-        bookingId: string
-        status: string
-        clientId: string
-        vendorId: string
-      }) => {
-        const { bookingId, status, clientId, vendorId } = data
-        
-        // Notify client about booking status change
-        io.to(`user_${clientId}`).emit('booking_updated', {
-          type: 'booking_status_update',
-          bookingId,
-          status,
-          message: `Your booking has been ${status}`,
-          timestamp: new Date().toISOString(),
-        })
-
-        // Notify vendor about booking status change
-        io.to(`user_${vendorId}`).emit('booking_updated', {
-          type: 'booking_status_update',
-          bookingId,
-          status,
-          message: `Booking ${bookingId} status updated to ${status}`,
-          timestamp: new Date().toISOString(),
-        })
-      })
-
-      // Handle review notifications
-      socket.on('new_review', (data: {
-        vendorId: string
-        reviewId: string
-        clientName: string
-        rating: number
-      }) => {
-        const { vendorId, reviewId, clientName, rating } = data
-        
-        // Notify vendor about new review
-        io.to(`user_${vendorId}`).emit('new_review', {
-          type: 'new_review',
-          reviewId,
-          clientName,
-          rating,
-          message: `New ${rating}-star review from ${clientName}`,
-          timestamp: new Date().toISOString(),
-        })
-      })
-
-      // Handle payment notifications
-      socket.on('payment_received', (data: {
-        vendorId: string
-        amount: number
-        bookingId: string
-      }) => {
-        const { vendorId, amount, bookingId } = data
-        
-        // Notify vendor about payment
-        io.to(`user_${vendorId}`).emit('payment_received', {
-          type: 'payment_received',
-          amount,
-          bookingId,
-          message: `Payment of LKR ${amount.toLocaleString()} received for booking ${bookingId}`,
-          timestamp: new Date().toISOString(),
-        })
-      })
-
-      // Handle chat messages
-      socket.on('send_message', (data: {
-        fromId: string
-        toId: string
-        message: string
-        bookingId?: string
-      }) => {
-        const { fromId, toId, message, bookingId } = data
-        
-        // Send message to recipient
-        io.to(`user_${toId}`).emit('new_message', {
-          type: 'new_message',
-          fromId,
-          message,
-          bookingId,
-          timestamp: new Date().toISOString(),
-        })
-
-        // Send confirmation to sender
-        socket.emit('message_sent', {
-          type: 'message_sent',
-          toId,
-          message,
-          timestamp: new Date().toISOString(),
-        })
-      })
-
-      // Handle service updates
-      socket.on('service_updated', (data: {
-        vendorId: string
-        serviceId: string
-        action: 'created' | 'updated' | 'deleted'
-      }) => {
-        const { vendorId, serviceId, action } = data
-        
-        // Notify admin about service changes
-        io.to('role_admin').emit('service_updated', {
-          type: 'service_updated',
-          vendorId,
-          serviceId,
-          action,
-          message: `Service ${action} by vendor ${vendorId}`,
-          timestamp: new Date().toISOString(),
-        })
-      })
-
-      // Handle user status updates
-      socket.on('user_status_update', (data: {
-        userId: string
-        status: 'online' | 'offline' | 'busy'
-      }) => {
-        const { userId, status } = data
-        
-        // Broadcast user status to relevant connections
-        socket.broadcast.emit('user_status_changed', {
-          type: 'user_status_changed',
-          userId,
-          status,
-          timestamp: new Date().toISOString(),
-        })
-      })
-
-      // Handle disconnect
-      socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id)
-        
-        // Remove user connection
-        for (const [userId, socketId] of userConnections.entries()) {
-          if (socketId === socket.id) {
-            userConnections.delete(userId)
-            break
-          }
-        }
-      })
-    })
-
-    res.socket.server.io = io
+    this.setupEventHandlers();
+    console.log('✅ Socket.IO server initialized');
   }
 
-  return res.socket.server.io
+  private setupEventHandlers() {
+    if (!this.io) return;
+
+    this.io.on('connection', (socket) => {
+      console.log(`🔌 User connected: ${socket.id}`);
+
+      // User authentication
+      socket.on('authenticate', (data: { userId: string; email: string; role: string }) => {
+        this.handleAuthentication(socket, data);
+      });
+
+      // Join user to their personal room
+      socket.on('join-user-room', (userId: string) => {
+        socket.join(`user:${userId}`);
+        console.log(`👤 User ${userId} joined personal room`);
+      });
+
+      // Join vendor/venue room
+      socket.on('join-vendor-room', (vendorId: string) => {
+        socket.join(`vendor:${vendorId}`);
+        console.log(`🏢 Vendor ${vendorId} room joined`);
+      });
+
+      // Join venue room
+      socket.on('join-venue-room', (venueId: string) => {
+        socket.join(`venue:${venueId}`);
+        console.log(`🏛️ Venue ${venueId} room joined`);
+      });
+
+      // Handle private messages
+      socket.on('send-message', (message: Message) => {
+        this.handlePrivateMessage(socket, message);
+      });
+
+      // Handle typing indicators
+      socket.on('typing-start', (data: { receiverId: string; senderId: string }) => {
+        this.handleTypingIndicator(socket, data, true);
+      });
+
+      socket.on('typing-stop', (data: { receiverId: string; senderId: string }) => {
+        this.handleTypingIndicator(socket, data, false);
+      });
+
+      // Handle read receipts
+      socket.on('mark-read', (messageId: string) => {
+        this.handleReadReceipt(socket, messageId);
+      });
+
+      // Handle notifications
+      socket.on('notification-read', (notificationId: string) => {
+        this.handleNotificationRead(socket, notificationId);
+      });
+
+      // Handle disconnection
+      socket.on('disconnect', () => {
+        this.handleDisconnection(socket);
+      });
+    });
+  }
+
+  private handleAuthentication(socket: any, data: { userId: string; email: string; role: string }) {
+    const user: SocketUser = {
+      userId: data.userId,
+      email: data.email,
+      role: data.role,
+      socketId: socket.id
+    };
+
+    this.connectedUsers.set(socket.id, user);
+    
+    if (!this.userSockets.has(data.userId)) {
+      this.userSockets.set(data.userId, []);
+    }
+    this.userSockets.get(data.userId)?.push(socket.id);
+
+    socket.emit('authenticated', { success: true });
+    console.log(`✅ User authenticated: ${data.email} (${data.role})`);
+  }
+
+  private handlePrivateMessage(socket: any, message: Message) {
+    const sender = this.connectedUsers.get(socket.id);
+    if (!sender) {
+      socket.emit('error', { message: 'User not authenticated' });
+      return;
+    }
+
+    // Emit to receiver if online
+    const receiverSockets = this.userSockets.get(message.receiverId);
+    if (receiverSockets) {
+      receiverSockets.forEach(socketId => {
+        this.io?.to(socketId).emit('new-message', {
+          ...message,
+          senderId: sender.userId,
+          timestamp: new Date()
+        });
+      });
+    }
+
+    // Emit back to sender for confirmation
+    socket.emit('message-sent', {
+      ...message,
+      timestamp: new Date()
+    });
+
+    console.log(`💬 Message sent from ${sender.userId} to ${message.receiverId}`);
+  }
+
+  private handleTypingIndicator(socket: any, data: { receiverId: string; senderId: string }, isTyping: boolean) {
+    const sender = this.connectedUsers.get(socket.id);
+    if (!sender) return;
+
+    const receiverSockets = this.userSockets.get(data.receiverId);
+    if (receiverSockets) {
+      receiverSockets.forEach(socketId => {
+        this.io?.to(socketId).emit('typing-indicator', {
+          senderId: sender.userId,
+          isTyping
+        });
+      });
+    }
+  }
+
+  private handleReadReceipt(socket: any, messageId: string) {
+    const user = this.connectedUsers.get(socket.id);
+    if (!user) return;
+
+    // Emit read receipt to message sender
+    socket.emit('read-receipt', { messageId, readBy: user.userId });
+  }
+
+  private handleNotificationRead(socket: any, notificationId: string) {
+    const user = this.connectedUsers.get(socket.id);
+    if (!user) return;
+
+    // Handle notification read logic here
+    console.log(`📖 Notification ${notificationId} marked as read by ${user.userId}`);
+  }
+
+  private handleDisconnection(socket: any) {
+    const user = this.connectedUsers.get(socket.id);
+    if (user) {
+      // Remove from connected users
+      this.connectedUsers.delete(socket.id);
+      
+      // Remove socket from user's socket list
+      const userSockets = this.userSockets.get(user.userId);
+      if (userSockets) {
+        const updatedSockets = userSockets.filter(id => id !== socket.id);
+        if (updatedSockets.length === 0) {
+          this.userSockets.delete(user.userId);
+        } else {
+          this.userSockets.set(user.userId, updatedSockets);
+        }
+      }
+      
+      console.log(`🔌 User disconnected: ${user.email}`);
+    }
+  }
+
+  // Public methods for sending notifications and updates
+
+  sendNotification(userId: string, notification: Notification) {
+    const userSockets = this.userSockets.get(userId);
+    if (userSockets) {
+      userSockets.forEach(socketId => {
+        this.io?.to(socketId).emit('new-notification', notification);
+      });
+    }
+  }
+
+  sendToUser(userId: string, event: string, data: any) {
+    const userSockets = this.userSockets.get(userId);
+    if (userSockets) {
+      userSockets.forEach(socketId => {
+        this.io?.to(socketId).emit(event, data);
+      });
+    }
+  }
+
+  sendToVendor(vendorId: string, event: string, data: any) {
+    this.io?.to(`vendor:${vendorId}`).emit(event, data);
+  }
+
+  sendToVenue(venueId: string, event: string, data: any) {
+    this.io?.to(`venue:${venueId}`).emit(event, data);
+  }
+
+  broadcastToAll(event: string, data: any) {
+    this.io?.emit(event, data);
+  }
+
+  getConnectedUsersCount(): number {
+    return this.connectedUsers.size;
+  }
+
+  isUserOnline(userId: string): boolean {
+    return this.userSockets.has(userId);
+  }
+
+  getOnlineUsers(): string[] {
+    return Array.from(this.userSockets.keys());
+  }
 }
 
-// Helper function to emit notifications from API routes
-export const emitNotification = (event: string, data: any) => {
-  // This would be used in API routes to emit notifications
-  // The actual implementation would need access to the io instance
-  console.log(`Emitting ${event}:`, data)
-}
+// Create singleton instance
+const socketService = new SocketService();
 
-// Notification types
-export interface Notification {
-  id: string
-  type: 'booking_request' | 'booking_status_update' | 'new_review' | 'payment_received' | 'new_message' | 'service_updated' | 'user_status_changed'
-  title: string
-  message: string
-  timestamp: string
-  read: boolean
-  data?: any
-}
+export default socketService;
 
-// Client-side socket hook types
-export interface SocketEvents {
-  'authenticate': (data: { userId: string; role: string }) => void
-  'booking_request': (data: any) => void
-  'booking_status_update': (data: any) => void
-  'new_review': (data: any) => void
-  'payment_received': (data: any) => void
-  'send_message': (data: any) => void
-  'service_updated': (data: any) => void
-  'user_status_update': (data: any) => void
-  'new_booking': (data: any) => void
-  'booking_updated': (data: any) => void
-  'new_message': (data: any) => void
-  'message_sent': (data: any) => void
-  'user_status_changed': (data: any) => void
-} 
+// Export types for use in other files
+export type { SocketUser, Message, Notification }; 

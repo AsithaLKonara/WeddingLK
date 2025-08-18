@@ -1,134 +1,168 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { connectDB } from "@/lib/db"
+import { User } from "@/lib/models/user"
+import { Notification } from "@/lib/models/notification"
 
-// Mock notifications data storage
-const notifications = [
-  {
-    id: 'notif_1',
-    title: 'Booking Confirmed',
-    message: 'Your booking at Grand Ballroom Hotel has been confirmed for December 15th, 2024.',
-    type: 'success',
-    read: false,
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    actionUrl: '/dashboard/bookings'
-  },
-  {
-    id: 'notif_2',
-    title: 'Payment Received',
-    message: 'Payment of LKR 50,000 has been received for your venue booking.',
-    type: 'info',
-    read: false,
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    actionUrl: '/dashboard/payments'
-  },
-  {
-    id: 'notif_3',
-    title: 'New Message',
-    message: 'You have a new message from Perfect Moments Photography.',
-    type: 'info',
-    read: true,
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    actionUrl: '/dashboard/messages'
-  },
-  {
-    id: 'notif_4',
-    title: 'Task Reminder',
-    message: 'Don\'t forget to finalize your guest list by next week.',
-    type: 'warning',
-    read: false,
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    actionUrl: '/planning?tab=guest-list'
-  },
-  {
-    id: 'notif_5',
-    title: 'Venue Tour Scheduled',
-    message: 'Your venue tour at Garden Palace is scheduled for tomorrow at 2 PM.',
-    type: 'info',
-    read: true,
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 259200000).toISOString(),
-    actionUrl: '/dashboard/bookings'
-  }
-]
-
-// GET /api/notifications - Get notifications
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const type = searchParams.get('type')
-
-    let filteredNotifications = notifications
-
-    if (type && type !== 'all') {
-      filteredNotifications = notifications.filter(notification => notification.type === type)
+    const session = await getServerSession()
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    await connectDB()
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const offset = parseInt(searchParams.get('offset') || '0')
+    const unreadOnly = searchParams.get('unreadOnly') === 'true'
+
+    // Build query
+    let query: any = { user: user._id }
+    if (unreadOnly) {
+      query.isRead = false
+    }
+
+    // Get notifications
+    const notifications = await Notification.find(query)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+
+    // Get total count
+    const totalCount = await Notification.countDocuments(query)
+    const unreadCount = await Notification.countDocuments({ 
+      user: user._id, 
+      isRead: false 
+    })
+
     return NextResponse.json({
-      success: true,
-      data: filteredNotifications.slice(0, limit),
-      total: filteredNotifications.length,
-      unreadCount: filteredNotifications.filter(n => !n.read).length
+      notifications,
+      pagination: {
+        total: totalCount,
+        limit,
+        offset,
+        hasMore: offset + limit < totalCount
+      },
+      unreadCount
     })
 
   } catch (error) {
-    console.error('Notifications fetch error:', error)
+    console.error("Error fetching notifications:", error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch notifications',
-        message: 'Internal server error'
-      },
+      { error: "Failed to fetch notifications" },
       { status: 500 }
     )
   }
 }
 
-// POST /api/notifications - Mark notification as read
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession()
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await connectDB()
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
     const body = await request.json()
-    const { notificationId, action } = body
+    const { title, message, type, actionUrl, actionText } = body
 
-    if (!notificationId || !action) {
-      return NextResponse.json({
-        error: 'Notification ID and action are required'
-      }, { status: 400 })
+    if (!title || !message) {
+      return NextResponse.json(
+        { error: "Title and message are required" },
+        { status: 400 }
+      )
     }
 
-    const notification = notifications.find(n => n.id === notificationId)
-    if (!notification) {
-      return NextResponse.json({
-        error: 'Notification not found'
-      }, { status: 404 })
-    }
+    const notification = new Notification({
+      user: user._id,
+      title,
+      message,
+      type: type || 'info',
+      actionUrl,
+      actionText
+    })
 
-    // Update notification based on action
-    if (action === 'mark_read') {
-      notification.read = true
-    } else if (action === 'delete') {
-      const index = notifications.findIndex(n => n.id === notificationId)
-      if (index > -1) {
-        notifications.splice(index, 1)
-      }
-    }
+    await notification.save()
 
-    return NextResponse.json({
-      success: true,
-      message: 'Notification updated successfully'
+    return NextResponse.json({ 
+      success: true, 
+      notification 
     })
 
   } catch (error) {
-    console.error('Notification update error:', error)
+    console.error("Error creating notification:", error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update notification',
-        message: 'Internal server error'
+      { error: "Failed to create notification" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession()
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await connectDB()
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    const body = await request.json()
+    const { notificationId, isRead } = body
+
+    if (!notificationId) {
+      return NextResponse.json(
+        { error: "Notification ID is required" },
+        { status: 400 }
+      )
+    }
+
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, user: user._id },
+      { 
+        isRead: isRead !== undefined ? isRead : true,
+        readAt: isRead ? new Date() : null
       },
+      { new: true }
+    )
+
+    if (!notification) {
+      return NextResponse.json(
+        { error: "Notification not found" },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      notification 
+    })
+
+  } catch (error) {
+    console.error("Error updating notification:", error)
+    return NextResponse.json(
+      { error: "Failed to update notification" },
       { status: 500 }
     )
   }

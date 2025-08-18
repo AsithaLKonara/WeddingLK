@@ -1,9 +1,10 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/lib/db";
 import User from "@/lib/models/user";
+import { Vendor } from "@/lib/models/vendor";
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -30,11 +31,20 @@ const handler = NextAuth({
           // For testing purposes, allow any password since users don't have passwords set
           // In production, you would check: await bcrypt.compare(credentials.password, user.password)
           
+          let vendorId = undefined;
+          if (user.role === 'vendor') {
+            const vendor = await Vendor.findOne({ owner: user._id });
+            if (vendor) {
+              vendorId = vendor._id.toString();
+            }
+          }
+          
           return {
             id: user._id.toString(),
             email: user.email,
             name: user.name,
             role: user.role || "user",
+            vendorId: vendorId
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -46,17 +56,23 @@ const handler = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: any) {
       if (user && "role" in user) token.role = user.role;
+      if (user && "vendorId" in user) token.vendorId = user.vendorId;
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       if (token && session.user) {
         session.user.role = token.role as string;
+        if (token.vendorId) {
+          (session.user as any).vendorId = token.vendorId;
+        }
       }
       return session;
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }; 

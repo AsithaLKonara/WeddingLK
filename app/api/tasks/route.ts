@@ -1,63 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-// Mock tasks data storage
-const tasks = [
-  {
-    id: 'task_1',
-    title: 'Book venue',
-    description: 'Research and book wedding venue',
-    dueDate: '2024-02-15',
-    priority: 'high',
-    status: 'completed',
-    category: 'venue',
-    assignedTo: 'user_123',
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    completedAt: new Date(Date.now() - 43200000).toISOString()
-  },
-  {
-    id: 'task_2',
-    title: 'Book photographer',
-    description: 'Research and book wedding photographer',
-    dueDate: '2024-03-15',
-    priority: 'high',
-    status: 'pending',
-    category: 'photography',
-    assignedTo: 'user_123',
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 172800000).toISOString()
-  },
-  {
-    id: 'task_3',
-    title: 'Finalize guest list',
-    description: 'Create final guest list for wedding',
-    dueDate: '2024-04-15',
-    priority: 'medium',
-    status: 'in_progress',
-    category: 'planning',
-    assignedTo: 'user_123',
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 259200000).toISOString()
-  },
-  {
-    id: 'task_4',
-    title: 'Choose wedding cake',
-    description: 'Select and order wedding cake',
-    dueDate: '2024-05-15',
-    priority: 'low',
-    status: 'pending',
-    category: 'catering',
-    assignedTo: 'user_123',
-    userId: 'user_123',
-    createdAt: new Date(Date.now() - 345600000).toISOString()
-  }
-]
+import { connectDB } from "@/lib/db"
+import { Task } from "@/lib/models/task"
+import { User } from "@/lib/models/user"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 // POST /api/tasks - Create task
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await connectDB()
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
     const body = await request.json()
-    const { title, description, dueDate, priority, category } = body
+    const { title, description, dueDate, priority, category, assignedTo } = body
 
     if (!title || !dueDate) {
       return NextResponse.json({
@@ -65,28 +29,36 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Validate assigned user if provided
+    if (assignedTo) {
+      const assignedUser = await User.findById(assignedTo)
+      if (!assignedUser) {
+        return NextResponse.json({ error: 'Assigned user not found' }, { status: 404 })
+      }
+    }
+
     // Create new task
-    const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
-    const newTask = {
-      id: taskId,
-      title,
-      description: description || '',
-      dueDate,
+    const task = new Task({
+      title: title.trim(),
+      description: description?.trim() || '',
+      dueDate: new Date(dueDate),
       priority: priority || 'medium',
       status: 'pending',
       category: category || 'general',
-      assignedTo: 'user_123',
-      userId: 'user_123',
-      createdAt: new Date().toISOString()
-    }
+      assignedTo: assignedTo || user._id,
+      createdBy: user._id,
+      isActive: true
+    })
 
-    // Add to tasks array
-    tasks.push(newTask)
+    await task.save()
+
+    // Populate related data
+    await task.populate('assignedTo', 'name email')
+    await task.populate('createdBy', 'name email')
 
     return NextResponse.json({
       success: true,
-      data: newTask,
+      data: task,
       message: 'Task created successfully'
     })
 
@@ -106,37 +78,125 @@ export async function POST(request: NextRequest) {
 // GET /api/tasks - Get tasks
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await connectDB()
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const priority = searchParams.get('priority')
     const category = searchParams.get('category')
+    const assignedTo = searchParams.get('assignedTo')
     const limit = parseInt(searchParams.get('limit') || '20')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
-    let filteredTasks = tasks
+    // Build query based on user role
+    let query: any = { isActive: true }
+    
+    if (user.role === 'admin') {
+      // Admin can see all tasks
+    } else if (user.role === 'vendor') {
+      // Vendor can see tasks assigned to them or created by them
+      query.$or = [
+        { assignedTo: user._id },
+        { createdBy: user._id }
+      ]
+    } else {
+      // Regular user can see tasks assigned to them or created by them
+      query.$or = [
+        { assignedTo: user._id },
+        { createdBy: user._id }
+      ]
+    }
 
     if (status) {
-      filteredTasks = filteredTasks.filter(task => task.status === status)
+      query.status = status
     }
 
     if (priority) {
-      filteredTasks = filteredTasks.filter(task => task.priority === priority)
+      query.priority = priority
     }
 
     if (category) {
-      filteredTasks = filteredTasks.filter(task => task.category === category)
+      query.category = category
     }
 
-    const completed = filteredTasks.filter(task => task.status === 'completed').length
-    const pending = filteredTasks.filter(task => task.status === 'pending').length
-    const inProgress = filteredTasks.filter(task => task.status === 'in_progress').length
+    if (assignedTo) {
+      query.assignedTo = assignedTo
+    }
+
+    // Get tasks with pagination
+    const tasks = await Task.find(query)
+      .populate('assignedTo', 'name email avatar')
+      .populate('createdBy', 'name email')
+      .sort({ dueDate: 1, priority: -1, createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+
+    // Get total count
+    const total = await Task.countDocuments(query)
+
+    // Get status counts
+    const statusCounts = await Task.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ])
+
+    const statusSummary = statusCounts.reduce((acc, item) => {
+      acc[item._id] = item.count
+      return acc
+    }, {} as Record<string, number>)
+
+    // Get priority counts
+    const priorityCounts = await Task.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: '$priority',
+          count: { $sum: 1 }
+        }
+      }
+    ])
+
+    const prioritySummary = priorityCounts.reduce((acc, item) => {
+      acc[item._id] = item.count
+      return acc
+    }, {} as Record<string, number>)
+
+    // Get overdue tasks count
+    const overdueCount = await Task.countDocuments({
+      ...query,
+      dueDate: { $lt: new Date() },
+      status: { $nin: ['completed', 'cancelled'] }
+    })
 
     return NextResponse.json({
       success: true,
-      data: filteredTasks.slice(0, limit),
-      total: filteredTasks.length,
-      completed,
-      pending,
-      inProgress
+      data: tasks,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total
+      },
+      summary: {
+        status: statusSummary,
+        priority: prioritySummary,
+        overdue: overdueCount
+      }
     })
 
   } catch (error) {
@@ -155,37 +215,75 @@ export async function GET(request: NextRequest) {
 // PUT /api/tasks - Update task
 export async function PUT(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await connectDB()
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
     const body = await request.json()
-    const { taskId, status, priority, title, description, dueDate } = body
+    const { taskId, title, description, dueDate, priority, status, category, assignedTo } = body
 
     if (!taskId) {
-      return NextResponse.json({
-        error: 'Task ID is required'
-      }, { status: 400 })
+      return NextResponse.json({ error: 'Task ID is required' }, { status: 400 })
     }
 
-    const task = tasks.find(t => t.id === taskId)
+    // Find task and check permissions
+    const task = await Task.findById(taskId)
     if (!task) {
-      return NextResponse.json({
-        error: 'Task not found'
-      }, { status: 404 })
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
-    // Update task
-    if (status) task.status = status
-    if (priority) task.priority = priority
-    if (title) task.title = title
-    if (description) task.description = description
-    if (dueDate) task.dueDate = dueDate
+    // Check if user has permission to update this task
+    if (user.role !== 'admin' && 
+        task.createdBy.toString() !== user._id.toString() &&
+        task.assignedTo.toString() !== user._id.toString()) {
+      return NextResponse.json({ error: 'Unauthorized to update this task' }, { status: 403 })
+    }
+
+    // Validate assigned user if provided
+    if (assignedTo) {
+      const assignedUser = await User.findById(assignedTo)
+      if (!assignedUser) {
+        return NextResponse.json({ error: 'Assigned user not found' }, { status: 404 })
+      }
+    }
+
+    // Update task fields
+    const updateData: any = {}
+    if (title) updateData.title = title.trim()
+    if (description !== undefined) updateData.description = description.trim()
+    if (dueDate) updateData.dueDate = new Date(dueDate)
+    if (priority) updateData.priority = priority
+    if (status) updateData.status = status
+    if (category) updateData.category = category
+    if (assignedTo) updateData.assignedTo = assignedTo
 
     // Set completed date if status is completed
-    if (status === 'completed' && !task.completedAt) {
-      task.completedAt = new Date().toISOString()
+    if (status === 'completed' && task.status !== 'completed') {
+      updateData.completedAt = new Date()
     }
+
+    // Set status change timestamp
+    if (status && status !== task.status) {
+      updateData.statusChangedAt = new Date()
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      updateData,
+      { new: true }
+    ).populate('assignedTo createdBy')
 
     return NextResponse.json({
       success: true,
-      data: task,
+      data: updatedTask,
       message: 'Task updated successfully'
     })
 
@@ -195,6 +293,64 @@ export async function PUT(request: NextRequest) {
       {
         success: false,
         error: 'Failed to update task',
+        message: 'Internal server error'
+      },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE /api/tasks - Delete task
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await connectDB()
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const taskId = searchParams.get('id')
+
+    if (!taskId) {
+      return NextResponse.json({ error: 'Task ID is required' }, { status: 400 })
+    }
+
+    // Find task and check permissions
+    const task = await Task.findById(taskId)
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 })
+    }
+
+    // Check if user has permission to delete this task
+    if (user.role !== 'admin' && task.createdBy.toString() !== user._id.toString()) {
+      return NextResponse.json({ error: 'Unauthorized to delete this task' }, { status: 403 })
+    }
+
+    // Soft delete task
+    await Task.findByIdAndUpdate(taskId, {
+      isActive: false,
+      deletedAt: new Date(),
+      deletedBy: user._id
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: 'Task deleted successfully'
+    })
+
+  } catch (error) {
+    console.error('Task deletion error:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to delete task',
         message: 'Internal server error'
       },
       { status: 500 }

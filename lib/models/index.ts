@@ -1,0 +1,31 @@
+// Import all models to ensure they are registered with Mongoose
+import './user'
+import './vendor'
+import './venue'
+import './booking'
+import './review'
+import './task'
+import './message'
+import './notification'
+import './Payment'
+import './service'
+import './client'
+import './conversation'
+import './venueBoost'
+
+// Export all models for convenience (using named exports)
+export { User } from './user'
+export { Vendor } from './vendor'
+export { Venue } from './venue'
+export { Booking } from './booking'
+export { Review } from './review'
+export { Task } from './task'
+export { Message } from './message'
+export { Notification } from './notification'
+export { Payment } from './Payment'
+export { Service } from './service'
+export { Client } from './client'
+export { Conversation } from './conversation'
+export { default as VenueBoost } from './venueBoost'
+
+console.log('✅ All models registered successfully') 

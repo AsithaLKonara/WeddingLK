@@ -1,237 +1,373 @@
 "use client"
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, Users, DollarSign, CheckSquare, MessageCircle, Settings, LayoutDashboard, TrendingUp, Bell } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { Calendar, CheckCircle, TrendingUp, Users, DollarSign, Star } from "lucide-react"
 import Link from "next/link"
 
+interface DashboardStats {
+  overview: {
+    totalBookings: number
+    totalTasks: number
+    totalVendors: number
+    totalVenues: number
+  }
+  tasks: {
+    total: number
+    completed: number
+    pending: number
+    overdue: number
+  }
+  bookings: {
+    total: number
+    confirmed: number
+    pending: number
+    completed: number
+  }
+  budget: {
+    total: number
+    spent: number
+    remaining: number
+  }
+}
+
+interface RecentActivity {
+  id: string
+  type: 'booking' | 'task'
+  title: string
+  status: string
+  date: string
+  amount?: number
+  priority?: string
+}
+
 export default function DashboardContent() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<DashboardStats>({
+    overview: {
+      totalBookings: 0,
+      totalTasks: 0,
+      totalVendors: 0,
+      totalVenues: 0
+    },
+    tasks: {
+      total: 0,
+      completed: 0,
+      pending: 0,
+      overdue: 0
+    },
+    bookings: {
+      total: 0,
+      confirmed: 0,
+      pending: 0,
+      completed: 0
+    },
+    budget: {
+      total: 0,
+      spent: 0,
+      remaining: 0
+    }
+  })
+
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === 'loading') {
-      setIsLoading(true)
-    } else if (status === 'unauthenticated') {
-      router.push('/login')
-    } else {
-      setIsLoading(false)
-    }
-  }, [status, router])
+    fetchDashboardData()
+  }, [])
 
-  // Show loading state
-  if (isLoading || status === 'loading') {
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      
+      // Fetch user stats
+      const statsResponse = await fetch('/api/dashboard/user-stats')
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json()
+        setStats(statsData.stats)
+      }
+
+      // Fetch recent activity
+      const activityResponse = await fetch('/api/dashboard/recent-activity')
+      if (activityResponse.ok) {
+        const activityData = await activityResponse.json()
+        setRecentActivity(activityData.activities)
+      }
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
     )
   }
-
-  // Show login prompt if not authenticated
-  if (!session) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button asChild className="w-full">
-              <Link href="/login">Login to Dashboard</Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full">
-              <Link href="/register">Create Account</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  const user = session.user
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome back, {user?.name || user?.email || 'User'}!</h1>
-          <p className="text-gray-600 mt-2">Here's what's happening with your wedding planning</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon">
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Button variant="outline" size="icon">
-            <Settings className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="space-y-6">
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">Next event in 3 days</p>
-            <Button asChild variant="link" className="p-0 h-auto mt-2">
-              <Link href="/dashboard/planner">View Calendar</Link>
-            </Button>
+            <div className="text-2xl font-bold">{stats.overview.totalBookings}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.bookings.confirmed} confirmed
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Guest List</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.overview.totalTasks}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.tasks.completed} completed
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Vendors</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">150</div>
-            <p className="text-xs text-muted-foreground">RSVPs received</p>
-            <Button asChild variant="link" className="p-0 h-auto mt-2">
-              <Link href="/planning?tab=guest-list">Manage Guests</Link>
-            </Button>
+            <div className="text-2xl font-bold">{stats.overview.totalVendors}</div>
+            <p className="text-xs text-muted-foreground">
+              Working with you
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Budget Spent</CardTitle>
+            <CardTitle className="text-sm font-medium">Budget Used</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">LKR 450,000</div>
-            <p className="text-xs text-muted-foreground">75% of budget used</p>
-            <Button asChild variant="link" className="p-0 h-auto mt-2">
-              <Link href="/planning?tab=budget-tracker">View Budget</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasks Completed</CardTitle>
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">18/25</div>
-            <p className="text-xs text-muted-foreground">72% complete</p>
-            <Button asChild variant="link" className="p-0 h-auto mt-2">
-              <Link href="/planning?tab=checklist">View Tasks</Link>
-            </Button>
+            <div className="text-2xl font-bold">
+              LKR {stats.budget.spent.toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              of LKR {stats.budget.total.toLocaleString()}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
-            <Link href="/planning?tab=checklist">
-              <CheckSquare className="h-6 w-6 mb-2" />
-              Wedding Checklist
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
-            <Link href="/dashboard/messages">
-              <MessageCircle className="h-6 w-6 mb-2" />
-              Messages
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
-            <Link href="/dashboard/bookings">
-              <Calendar className="h-6 w-6 mb-2" />
-              Bookings
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
-            <Link href="/dashboard/payments">
-              <DollarSign className="h-6 w-6 mb-2" />
-              Payments
-            </Link>
-          </Button>
-        </div>
+      {/* Progress Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Task Progress</CardTitle>
+            <CardDescription>
+              Track your wedding planning tasks
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Overall Progress</span>
+                <span className="text-sm text-gray-500">
+                  {Math.round((stats.tasks.completed / Math.max(stats.tasks.total, 1)) * 100)}%
+                </span>
+              </div>
+              <Progress value={(stats.tasks.completed / Math.max(stats.tasks.total, 1)) * 100} />
+              
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-green-600">{stats.tasks.completed}</div>
+                  <div className="text-sm text-gray-600">Completed</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-yellow-600">{stats.tasks.pending}</div>
+                  <div className="text-sm text-gray-600">Pending</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-red-600">{stats.tasks.overdue}</div>
+                  <div className="text-sm text-gray-600">Overdue</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4">
+              <Link href="/dashboard/planner">
+                <Button variant="outline" className="w-full">View All Tasks</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Booking Status</CardTitle>
+            <CardDescription>
+              Overview of your venue and vendor bookings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">{stats.bookings.confirmed}</div>
+                  <div className="text-sm text-gray-600">Confirmed</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-yellow-600">{stats.bookings.pending}</div>
+                  <div className="text-sm text-gray-600">Pending</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Confirmed Bookings</span>
+                  <span className="font-medium">{stats.bookings.confirmed}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>Pending Bookings</span>
+                  <span className="font-medium">{stats.bookings.pending}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>Completed Bookings</span>
+                  <span className="font-medium">{stats.bookings.completed}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4">
+              <Link href="/dashboard/bookings">
+                <Button variant="outline" className="w-full">View All Bookings</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Venue booking confirmed</p>
-                  <p className="text-xs text-gray-500">2 hours ago</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>
+            Your latest bookings and task updates
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity) => (
+                <div key={activity.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-full ${
+                      activity.type === 'booking' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                    }`}>
+                      {activity.type === 'booking' ? <Calendar className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                    </div>
+                    <div>
+                      <p className="font-medium">{activity.title}</p>
+                      <p className="text-sm text-gray-500">
+                        {activity.type === 'booking' ? 'Booking' : 'Task'} • {activity.date}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant={
+                      activity.status === 'confirmed' || activity.status === 'completed' ? 'default' :
+                      activity.status === 'pending' ? 'secondary' : 'destructive'
+                    }>
+                      {activity.status}
+                    </Badge>
+                    {activity.amount && (
+                      <span className="text-sm font-medium text-green-600">
+                        LKR {activity.amount.toLocaleString()}
+                      </span>
+                    )}
+                    {activity.priority && (
+                      <Badge variant={
+                        activity.priority === 'urgent' ? 'destructive' :
+                        activity.priority === 'high' ? 'default' : 'secondary'
+                      }>
+                        {activity.priority}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No recent activity</p>
+                <p className="text-sm">Start planning your wedding to see activity here</p>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Photographer payment received</p>
-                  <p className="text-xs text-gray-500">1 day ago</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Guest list updated</p>
-                  <p className="text-xs text-gray-500">2 days ago</p>
-                </div>
-              </div>
+            )}
+          </div>
+          
+          {recentActivity.length > 0 && (
+            <div className="mt-4 text-center">
+              <Link href="/dashboard/bookings">
+                <Button variant="outline">View All Activity</Button>
+              </Link>
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Deadlines</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Final venue payment</p>
-                  <p className="text-xs text-gray-500">Due in 5 days</p>
-                </div>
-                <Button size="sm" variant="outline">Pay Now</Button>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Menu selection</p>
-                  <p className="text-xs text-gray-500">Due in 1 week</p>
-                </div>
-                <Button size="sm" variant="outline">Select</Button>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Final guest count</p>
-                  <p className="text-xs text-gray-500">Due in 2 weeks</p>
-                </div>
-                <Button size="sm" variant="outline">Update</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>
+            Common tasks and shortcuts
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link href="/vendors">
+              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+                <Users className="h-6 w-6" />
+                <span className="text-sm">Find Vendors</span>
+              </Button>
+            </Link>
+            
+            <Link href="/venues">
+              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+                <Calendar className="h-6 w-6" />
+                <span className="text-sm">Book Venue</span>
+              </Button>
+            </Link>
+            
+            <Link href="/dashboard/planner">
+              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+                <CheckCircle className="h-6 w-6" />
+                <span className="text-sm">View Tasks</span>
+              </Button>
+            </Link>
+            
+            <Link href="/dashboard/bookings">
+              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+                <TrendingUp className="h-6 w-6" />
+                <span className="text-sm">Bookings</span>
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 } 

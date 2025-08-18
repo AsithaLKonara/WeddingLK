@@ -1,124 +1,156 @@
 import { NextRequest, NextResponse } from "next/server"
-import { connectDB } from "@/lib/db"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import User from "@/lib/models/user"
+import { connectDB } from "@/lib/db"
+import { User } from "@/lib/models/user"
+import { Message } from "@/lib/models/message"
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
-  }
+    const session = await getServerSession()
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
     await connectDB()
-    
-    // Get user's messages
-    const user = await User.findById(session.user.id).populate('messages')
-    
-    return NextResponse.json({
-      success: true,
-      messages: user.messages || []
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const conversationId = searchParams.get('conversationId')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const offset = parseInt(searchParams.get('offset') || '0')
+
+    if (!conversationId) {
+      return NextResponse.json(
+        { error: "Conversation ID is required" },
+        { status: 400 }
+      )
+    }
+
+    // Get messages for the conversation
+    const messages = await Message.find({ 
+      conversationId,
+      $or: [
+        { sender: user._id },
+        { receiver: user._id }
+      ],
+      isDeleted: false
     })
+      .populate('sender', 'name email avatar')
+      .populate('receiver', 'name email avatar')
+      .sort({ createdAt: 1 })
+      .skip(offset)
+      .limit(limit)
+
+    // Get total count
+    const totalCount = await Message.countDocuments({ 
+      conversationId,
+      $or: [
+        { sender: user._id },
+        { receiver: user._id }
+      ],
+      isDeleted: false
+    })
+
+    // Mark messages as read if receiver is current user
+    const unreadMessages = messages.filter(m => 
+      m.receiver.toString() === user._id.toString() && !m.isRead
+    )
+
+    if (unreadMessages.length > 0) {
+      await Message.updateMany(
+        { _id: { $in: unreadMessages.map(m => m._id) } },
+        { isRead: true, readAt: new Date() }
+      )
+    }
+
+    return NextResponse.json({
+      messages,
+      pagination: {
+        total: totalCount,
+        limit,
+        offset,
+        hasMore: offset + limit < totalCount
+      }
+    })
+
   } catch (error) {
     console.error("Error fetching messages:", error)
-    return NextResponse.json({ success: false, error: "Failed to fetch messages" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to fetch messages" },
+      { status: 500 }
+    )
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
-    }
-
-    const { recipientId, recipientType, subject, message } = await request.json()
-
-    if (!recipientId || !recipientType || !subject || !message) {
-      return NextResponse.json({ success: false, error: "All fields are required" }, { status: 400 })
+    const session = await getServerSession()
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     await connectDB()
-    
-    const sender = await User.findById(session.user.id)
-    if (!sender) {
-      return NextResponse.json({ success: false, error: "Sender not found" }, { status: 404 })
+
+    const user = await User.findOne({ email: session.user.email })
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    const recipient = await User.findById(recipientId)
-    if (!recipient) {
-      return NextResponse.json({ success: false, error: "Recipient not found" }, { status: 404 })
+    const body = await request.json()
+    const { receiverId, content, messageType, attachments, replyTo } = body
+
+    if (!receiverId || !content) {
+      return NextResponse.json(
+        { error: "Receiver ID and content are required" },
+        { status: 400 }
+      )
     }
 
-    // Create message object
-    const messageObj = {
-      senderId: session.user.id,
-      recipientId,
-      recipientType,
-      subject,
-      message,
-      timestamp: new Date(),
-      read: false
+    // Check if receiver exists
+    const receiver = await User.findById(receiverId)
+    if (!receiver) {
+      return NextResponse.json(
+        { error: "Receiver not found" },
+        { status: 404 }
+      )
     }
 
-    // Add message to sender's messages
-    if (!sender.messages) {
-      sender.messages = []
-    }
-    sender.messages.push(messageObj)
-    await sender.save()
+    // Generate conversation ID (simple hash of sorted user IDs)
+    const userIds = [user._id.toString(), receiverId].sort()
+    const conversationId = `${userIds[0]}-${userIds[1]}`
 
-    // Add message to recipient's messages
-    if (!recipient.messages) {
-      recipient.messages = []
-    }
-    recipient.messages.push(messageObj)
-    await recipient.save()
+    const message = new Message({
+      sender: user._id,
+      receiver: receiverId,
+      content,
+      messageType: messageType || 'text',
+      attachments: attachments || [],
+      conversationId,
+      replyTo
+    })
 
-    return NextResponse.json({ success: true, message: "Message sent successfully" })
+    await message.save()
+
+    // Populate sender and receiver info
+    await message.populate('sender', 'name email avatar')
+    await message.populate('receiver', 'name email avatar')
+
+    return NextResponse.json({ 
+      success: true, 
+      message 
+    })
+
   } catch (error) {
     console.error("Error sending message:", error)
-    return NextResponse.json({ success: false, error: "Failed to send message" }, { status: 500 })
-  }
-}
-
-export async function PATCH(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
-    }
-
-    const { messageId, action } = await request.json()
-
-    if (!messageId || !action) {
-      return NextResponse.json({ success: false, error: "Message ID and action are required" }, { status: 400 })
-    }
-
-    await connectDB()
-    
-    const user = await User.findById(session.user.id)
-    if (!user) {
-      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 })
-    }
-
-    // Find and update the message
-    if (user.messages) {
-      const messageIndex = user.messages.findIndex((msg: any) => msg._id.toString() === messageId)
-      if (messageIndex !== -1) {
-        if (action === 'mark_read') {
-          user.messages[messageIndex].read = true
-        } else if (action === 'delete') {
-          user.messages.splice(messageIndex, 1)
-        }
-        await user.save()
-      }
-    }
-
-    return NextResponse.json({ success: true, message: "Message updated successfully" })
-  } catch (error) {
-    console.error("Error updating message:", error)
-    return NextResponse.json({ success: false, error: "Failed to update message" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to send message" },
+      { status: 500 }
+    )
   }
 } 

@@ -1,453 +1,328 @@
 "use client"
 
-import { Users, ListChecks, BarChart2 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Label } from "@/components/ui/label"
+import { useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { CheckSquare, Users, Calendar, Settings, TrendingUp, FileText, Clock } from 'lucide-react'
 
-import { useToast } from "@/hooks/use-toast"
-import { useState, useEffect } from "react"
-
-interface Task {
-  _id: string
-  id: string
-  task: string
-  date: string
-  status: string
-}
-
-interface Client {
-  _id: string
-  name: string
-  email: string
-  phone: string
-  weddingDate: string
-}
-
-const mockTasks: Task[] = [
-  { _id: "1", id: "1", task: "Venue Visit with Sarah & Michael", date: "2024-06-20", status: "pending" },
-  { _id: "2", id: "2", task: "Menu Tasting for Priya & Raj", date: "2024-07-01", status: "pending" },
-  { _id: "3", id: "3", task: "Dress Fitting for Emma & David", date: "2024-07-10", status: "done" },
-]
-
-const analyticsData = {
-  totalClients: 12,
-  tasksCompleted: 34,
-  upcomingWeddings: 4,
-}
-
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Tabs will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TabsContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TabsList will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TabsTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Table will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TableBody will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TableCell will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TableHead will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TableHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TableRow will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Dialog will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// DialogContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// DialogHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// DialogTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// DialogFooter will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// DialogTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// DialogClose will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// LoadingSpinner will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Label will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-export default function PlannerDashboardPage() {
-  const { toast } = useToast()
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [tasksLoading, setTasksLoading] = useState(true)
-  const [clients, setClients] = useState<Client[]>([])
-  const [clientsLoading, setClientsLoading] = useState(true)
-  const [loadingId, setLoadingId] = useState<string | null>(null)
-  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
-  const [isEditTaskOpen, setIsEditTaskOpen] = useState(false)
-  const [editTask, setEditTask] = useState<Task | null>(null)
-  const [taskForm, setTaskForm] = useState({ task: "", date: "", status: "pending" })
-  const [taskFormErrors, setTaskFormErrors] = useState<{ task?: string; date?: string }>({})
+export default function PlannerDashboard() {
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState('overview')
+  const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalTasks: 0,
+    completedTasks: 0,
+    activeClients: 0,
+    upcomingEvents: 0
+  })
 
   useEffect(() => {
-    async function fetchTasks() {
-      setTasksLoading(true)
-      try {
-        const res = await fetch("/api/tasks")
-        const data = await res.json()
-        if (res.ok && data.tasks) {
-          setTasks(data.tasks)
-        }
-      } catch (e) {
-        toast({ title: "Failed to load tasks", variant: "destructive" })
-      } finally {
-        setTasksLoading(false)
-      }
-    }
-    async function fetchClients() {
-      setClientsLoading(true)
-      try {
-        const res = await fetch("/api/clients")
-        const data = await res.json()
-        if (res.ok && data.clients) {
-          setClients(data.clients)
-        }
-      } catch (e) {
-        toast({ title: "Failed to load clients", variant: "destructive" })
-      } finally {
-        setClientsLoading(false)
-      }
-    }
-    fetchTasks()
-    fetchClients()
-  }, [toast])
+    const tab = searchParams.get('tab') || 'overview'
+    setActiveTab(tab)
+    fetchPlannerStats()
+  }, [searchParams])
 
-  // Add Task Modal
-  const handleAddTask = async () => {
-    // Client-side validation
-    const errors: { task?: string; date?: string } = {}
-    if (!taskForm.task) errors.task = "Task name is required"
-    if (!taskForm.date) errors.date = "Date is required"
-    setTaskFormErrors(errors)
-    if (Object.keys(errors).length > 0) return
+  const fetchPlannerStats = async () => {
     try {
-      const res = await fetch("/api/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(taskForm),
-      })
-      const data = await res.json()
-      if (res.ok && data.task) {
-        setTasks(prev => [...prev, data.task])
-        setIsAddTaskOpen(false)
-        setTaskForm({ task: "", date: "", status: "pending" })
-        setTaskFormErrors({})
-        toast({ title: "Task added!", variant: "default" })
-      } else {
-        toast({ title: data.error || "Failed to add task", variant: "destructive" })
+      const response = await fetch('/api/dashboard/planner/stats')
+      if (response.ok) {
+        const data = await response.json()
+        setStats(data.stats)
       }
-    } catch {
-      toast({ title: "Failed to add task", variant: "destructive" })
+    } catch (error) {
+      console.error('Error fetching planner stats:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  // Edit Task Modal
-  const handleEditTask = async () => {
-    if (!editTask) return
-    // Client-side validation
-    const errors: { task?: string; date?: string } = {}
-    if (!taskForm.task) errors.task = "Task name is required"
-    if (!taskForm.date) errors.date = "Date is required"
-    setTaskFormErrors(errors)
-    if (Object.keys(errors).length > 0) return
-    try {
-      const res = await fetch("/api/tasks", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: editTask._id, ...taskForm }),
-      })
-      const data = await res.json()
-      if (res.ok && data.task) {
-        setTasks(prev => prev.map(t => t._id === editTask._id ? data.task : t))
-        setIsEditTaskOpen(false)
-        setEditTask(null)
-        setTaskForm({ task: "", date: "", status: "pending" })
-        setTaskFormErrors({})
-        toast({ title: "Task updated!", variant: "default" })
-      } else {
-        toast({ title: data.error || "Failed to update task", variant: "destructive" })
-      }
-    } catch {
-      toast({ title: "Failed to update task", variant: "destructive" })
-    }
-  }
-
-  // Delete Task
-  const handleDeleteTask = async (id: string) => {
-    try {
-      const res = await fetch("/api/tasks", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      })
-      const data = await res.json()
-      if (res.ok && data.success) {
-        setTasks(prev => prev.filter(t => t._id !== id))
-        toast({ title: "Task deleted.", variant: "destructive" })
-      } else {
-        toast({ title: data.error || "Failed to delete task", variant: "destructive" })
-      }
-    } catch {
-      toast({ title: "Failed to delete task", variant: "destructive" })
-    }
-  }
-
-  // Delete Client
-  const handleDeleteClient = async (id: string) => {
-    try {
-      const res = await fetch("/api/clients", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      })
-      const data = await res.json()
-      if (res.ok && data.success) {
-        setClients(prev => prev.filter(c => c._id !== id))
-        toast({ title: "Client deleted.", variant: "destructive" })
-      } else {
-        toast({ title: data.error || "Failed to delete client", variant: "destructive" })
-      }
-    } catch {
-      toast({ title: "Failed to delete client", variant: "destructive" })
-    }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading planner dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <h1 className="text-3xl font-bold mb-8">Planner Dashboard</h1>
-      <Tabs defaultValue="clients" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="clients"><Users className="inline mr-2 h-4 w-4" />Clients</TabsTrigger>
-          <TabsTrigger value="tasks"><ListChecks className="inline mr-2 h-4 w-4" />Tasks</TabsTrigger>
-          <TabsTrigger value="analytics"><BarChart2 className="inline mr-2 h-4 w-4" />Analytics</TabsTrigger>
+    <div className="container mx-auto py-8 px-4 md:px-6">
+      {/* Planner Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-green-100 rounded-full">
+            <CheckSquare className="h-8 w-8 text-green-600" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">Wedding Planner Dashboard</h1>
+            <p className="text-gray-600 mt-2">Manage your wedding planning business</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="icon">
+            <Settings className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+            <CheckSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalTasks}</div>
+            <p className="text-xs text-muted-foreground">Across all clients</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CheckSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.completedTasks}</div>
+            <p className="text-xs text-muted-foreground">{stats.totalTasks > 0 ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0}% completion</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.activeClients}</div>
+            <p className="text-xs text-muted-foreground">Currently planning</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.upcomingEvents}</div>
+            <p className="text-xs text-muted-foreground">Next 30 days</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Planner Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
-        <TabsContent value="clients">
-          {clientsLoading ? (
-            <div className="flex justify-center items-center py-12"><LoadingSpinner /></div>
-          ) : (
+
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Clients</CardTitle>
+                <CardTitle className="flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  Recent Activity
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                  <span className="text-5xl mb-2">👥</span>
-                  <span>No clients yet. Client management coming soon!</span>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">New client added</p>
+                      <p className="text-xs text-gray-500">2 hours ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Task completed</p>
+                      <p className="text-xs text-gray-500">4 hours ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Wedding scheduled</p>
+                      <p className="text-xs text-gray-500">1 day ago</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          )}
-        </TabsContent>
-        <TabsContent value="tasks">
-          {tasksLoading ? (
-            <div className="flex justify-center items-center py-12"><LoadingSpinner /></div>
-          ) : (
+
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Tasks</CardTitle>
-                <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
-                  <DialogTrigger asChild>
-                    <Button>Add Task</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Task</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="task">Task Name</Label>
-                        <input
-                          id="task"
-                          type="text"
-                          value={taskForm.task}
-                          onChange={(e) => setTaskForm({ ...taskForm, task: e.target.value })}
-                          className="w-full p-2 border rounded"
-                        />
-                        {taskFormErrors.task && <p className="text-red-500 text-sm">{taskFormErrors.task}</p>}
-                      </div>
-                      <div>
-                        <Label htmlFor="date">Date</Label>
-                        <input
-                          id="date"
-                          type="date"
-                          value={taskForm.date}
-                          onChange={(e) => setTaskForm({ ...taskForm, date: e.target.value })}
-                          className="w-full p-2 border rounded"
-                        />
-                        {taskFormErrors.date && <p className="text-red-500 text-sm">{taskFormErrors.date}</p>}
-                      </div>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Task Management</p>
+                      <p className="text-xs text-gray-500">Manage planning tasks</p>
                     </div>
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
-                      </DialogClose>
-                      <Button onClick={handleAddTask}>Add Task</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                {tasks.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                    <span className="text-5xl mb-2">📝</span>
-                    <span>No tasks yet. Add your first task!</span>
+                    <Button size="sm" variant="outline" onClick={() => setActiveTab('tasks')}>
+                      Manage Tasks
+                    </Button>
                   </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Task</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tasks.map((task) => (
-                        <TableRow key={task.id}>
-                          <TableCell>{task.task}</TableCell>
-                          <TableCell>{task.date}</TableCell>
-                          <TableCell>{task.status.charAt(0).toUpperCase() + task.status.slice(1)}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Dialog open={isEditTaskOpen} onOpenChange={setIsEditTaskOpen}>
-                                <DialogTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      setEditTask(task)
-                                      setTaskForm({ task: task.task, date: task.date, status: task.status })
-                                    }}
-                                  >
-                                    Edit
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Edit Task</DialogTitle>
-                                  </DialogHeader>
-                                  <div className="space-y-4">
-                                    <div>
-                                      <Label htmlFor="edit-task">Task Name</Label>
-                                      <input
-                                        id="edit-task"
-                                        type="text"
-                                        value={taskForm.task}
-                                        onChange={(e) => setTaskForm({ ...taskForm, task: e.target.value })}
-                                        className="w-full p-2 border rounded"
-                                      />
-                                      {taskFormErrors.task && <p className="text-red-500 text-sm">{taskFormErrors.task}</p>}
-                                    </div>
-                                    <div>
-                                      <Label htmlFor="edit-date">Date</Label>
-                                      <input
-                                        id="edit-date"
-                                        type="date"
-                                        value={taskForm.date}
-                                        onChange={(e) => setTaskForm({ ...taskForm, date: e.target.value })}
-                                        className="w-full p-2 border rounded"
-                                      />
-                                      {taskFormErrors.date && <p className="text-red-500 text-sm">{taskFormErrors.date}</p>}
-                                    </div>
-                                  </div>
-                                  <DialogFooter>
-                                    <DialogClose asChild>
-                                      <Button variant="outline">Cancel</Button>
-                                    </DialogClose>
-                                    <Button onClick={handleEditTask}>Update Task</Button>
-                                  </DialogFooter>
-                                </DialogContent>
-                              </Dialog>
-                              <Button variant="destructive" size="sm" onClick={() => handleDeleteTask(task._id)}>Delete</Button>
-                            </div>
-                            {task.status === "pending" ? (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="mt-2"
-                                disabled={loadingId === task.id}
-                                onClick={async () => {
-                                  setLoadingId(task.id)
-                                  try {
-                                    const res = await fetch("/api/tasks", {
-                                      method: "PATCH",
-                                      headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({ id: task._id, status: "done" }),
-                                    })
-                                    if (res.ok) {
-                                      setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: "done" } : t))
-                                      toast({ title: "Task marked as done!", variant: "default" })
-                                    }
-                                  } catch {
-                                    toast({ title: "Failed to update task", variant: "destructive" })
-                                  } finally {
-                                    setLoadingId(null)
-                                  }
-                                }}
-                              >
-                                {loadingId === task.id ? "Saving..." : "Mark Done"}
-                              </Button>
-                            ) : null}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Total Clients</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{analyticsData.totalClients}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Tasks Completed</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{analyticsData.tasksCompleted}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Upcoming Weddings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{analyticsData.upcomingWeddings}</div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Client Management</p>
+                      <p className="text-xs text-gray-500">Manage client relationships</p>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => setActiveTab('clients')}>
+                      Manage Clients
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Timeline Planning</p>
+                      <p className="text-xs text-gray-500">Create wedding timelines</p>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => setActiveTab('timeline')}>
+                      View Timeline
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="tasks" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <CheckSquare className="h-5 w-5 mr-2" />
+                Task Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckSquare className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Task Management System</p>
+                      <p className="text-sm text-gray-500">Manage all planning tasks</p>
+                    </div>
+                  </div>
+                  <Button>Manage Tasks</Button>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Task management functionality will be implemented here. This will include task creation, 
+                  assignment, tracking, and completion workflows.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="clients" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Users className="h-5 w-5 mr-2" />
+                Client Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Users className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Client Relationship Management</p>
+                      <p className="text-sm text-gray-500">Manage client relationships and projects</p>
+                    </div>
+                  </div>
+                  <Button>Manage Clients</Button>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Client management functionality will be implemented here. This will include client profiles, 
+                  project tracking, and communication tools.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="timeline" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="h-5 w-5 mr-2" />
+                Timeline Planning
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Wedding Timeline Creator</p>
+                      <p className="text-sm text-gray-500">Create and manage wedding timelines</p>
+                    </div>
+                  </div>
+                  <Button>Create Timeline</Button>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Timeline functionality will be implemented here. This will include timeline creation, 
+                  milestone tracking, and deadline management.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Settings className="h-5 w-5 mr-2" />
+                Account Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Settings className="h-5 w-5 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Account Configuration</p>
+                      <p className="text-sm text-gray-500">Manage your account settings</p>
+                    </div>
+                  </div>
+                  <Button>Configure</Button>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Settings functionality will be implemented here. This will include account preferences, 
+                  notification settings, and business profile management.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

@@ -42,19 +42,27 @@ const VendorSchema = new mongoose.Schema({
   location: {
     address: { type: String, required: true },
     city: { type: String, required: true },
-    province: { type: String, required: true }
+    province: { type: String, required: true },
+    serviceAreas: [{ type: String }]
   },
   contact: {
     phone: { type: String, required: true },
     email: { type: String, required: true }
   },
+  pricing: {
+    startingPrice: { type: Number, required: true },
+    currency: { type: String, default: 'LKR' }
+  },
   rating: {
     average: { type: Number, default: 0 },
     count: { type: Number, default: 0 }
   },
+  portfolio: [{ type: String }],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   isVerified: { type: Boolean, default: false },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  featured: { type: Boolean, default: false },
+  onboardingComplete: { type: Boolean, default: false }
 }, { timestamps: true })
 
 // Venue Schema
@@ -131,39 +139,55 @@ async function seedData() {
         name: 'John Vendor',
         businessName: 'Perfect Photography',
         category: 'photographer',
-        description: 'Professional wedding photography services',
+        description: 'Professional wedding photography services with over 10 years of experience',
         location: {
           address: '123 Main St',
           city: 'Colombo',
-          province: 'Western'
+          province: 'Western',
+          serviceAreas: ['Colombo', 'Gampaha', 'Kalutara']
         },
         contact: {
           phone: '+94 11 123 4567',
           email: 'john@perfectphoto.com'
         },
+        pricing: {
+          startingPrice: 25000,
+          currency: 'LKR'
+        },
         rating: { average: 4.8, count: 25 },
+        portfolio: ['/placeholder.jpg'],
         owner: vendorUser._id,
         isVerified: true,
-        isActive: true
+        isActive: true,
+        featured: true,
+        onboardingComplete: true
       },
       {
-        name: 'Sarah Caterer',
-        businessName: 'Elegant Catering',
-        category: 'catering',
-        description: 'Delicious wedding catering services',
+        name: 'Sarah Designer',
+        businessName: 'Elegant Designs',
+        category: 'decorator',
+        description: 'Creative wedding decoration and floral arrangements',
         location: {
           address: '456 Oak Ave',
           city: 'Kandy',
-          province: 'Central'
+          province: 'Central',
+          serviceAreas: ['Kandy', 'Matale', 'Nuwara Eliya']
         },
         contact: {
           phone: '+94 81 234 5678',
-          email: 'sarah@elegantcatering.com'
+          email: 'sarah@elegantdesigns.com'
+        },
+        pricing: {
+          startingPrice: 35000,
+          currency: 'LKR'
         },
         rating: { average: 4.6, count: 18 },
+        portfolio: ['/placeholder.jpg'],
         owner: vendorUser._id,
         isVerified: true,
-        isActive: true
+        isActive: true,
+        featured: true,
+        onboardingComplete: true
       }
     ])
 
@@ -183,7 +207,8 @@ async function seedData() {
         pricing: { basePrice: 50000, currency: 'LKR' },
         rating: { average: 4.7, count: 32 },
         owner: adminUser._id,
-        isActive: true
+        isActive: true,
+        featured: true
       },
       {
         name: 'Garden Palace',
@@ -197,7 +222,8 @@ async function seedData() {
         pricing: { basePrice: 35000, currency: 'LKR' },
         rating: { average: 4.5, count: 15 },
         owner: adminUser._id,
-        isActive: true
+        isActive: true,
+        featured: true
       }
     ])
 
