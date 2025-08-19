@@ -17,7 +17,12 @@ const NotificationSchema = new mongoose.Schema(
     },
     type: { 
       type: String, 
-      enum: ["info", "success", "warning", "error"], 
+      enum: [
+        "info", "success", "warning", "error",
+        "booking_request", "booking_status_update", "new_review",
+        "payment_received", "new_message", "service_updated",
+        "user_status_changed", "vendor_approved", "vendor_rejected"
+      ], 
       default: "info" 
     },
     isRead: { 
@@ -54,7 +59,10 @@ export interface INotification extends mongoose.Document {
   user: mongoose.Types.ObjectId
   title: string
   message: string
-  type: 'info' | 'success' | 'warning' | 'error'
+  type: 'info' | 'success' | 'warning' | 'error' | 
+         'booking_request' | 'booking_status_update' | 'new_review' |
+         'payment_received' | 'new_message' | 'service_updated' |
+         'user_status_changed' | 'vendor_approved' | 'vendor_rejected'
   isRead: boolean
   isActive: boolean
   actionUrl?: string

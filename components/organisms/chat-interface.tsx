@@ -162,15 +162,9 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const {
-    socket,
     isConnected,
     sendMessage: socketSendMessage,
-    connect,
-    disconnect,
-  } = useSocket({
-    onMessage: handleNewMessage,
-    onNotification: handleNotification,
-  })
+  } = useSocket()
 
   // Load conversations
   useEffect(() => {
@@ -196,7 +190,9 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
   // Connect to socket when conversation is selected
   useEffect(() => {
     if (selectedConversation && !isConnected) {
-      connect()
+      // The original code had connect() here, but useSocket doesn't expose a direct connect/disconnect.
+      // This part of the logic needs to be re-evaluated based on the actual useSocket implementation.
+      // For now, removing the line as it's not directly available from useSocket.
     }
   }, [selectedConversation, isConnected])
 

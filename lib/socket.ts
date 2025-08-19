@@ -23,7 +23,10 @@ interface Notification {
   userId: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: 'info' | 'success' | 'warning' | 'error' | 
+         'booking_request' | 'booking_status_update' | 'new_review' |
+         'payment_received' | 'new_message' | 'service_updated' |
+         'user_status_changed' | 'vendor_approved' | 'vendor_rejected';
   timestamp: Date;
   read: boolean;
   data?: any;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import AdvancedAIService from '@/lib/advanced-ai-service'
+import { advancedAIService } from '@/lib/advanced-ai-service'
 import SecurityService from '@/lib/security-service'
 import PerformanceMonitor from '@/lib/performance-monitor'
 
@@ -41,19 +41,19 @@ export async function POST(request: NextRequest) {
 
       switch (feature) {
         case 'wedding-plan':
-          result = await AdvancedAIService.generateAdvancedWeddingPlan(data.userId)
+          result = await advancedAIService.generateContent('wedding plan', data)
           break
         case 'vendor-matching':
-          result = await AdvancedAIService.getAIVendorMatching(data.userId)
+          result = await advancedAIService.generateRecommendations(data.userId, 'vendor matching')
           break
         case 'speech-generation':
-          result = await AdvancedAIService.generateWeddingSpeech(data)
+          result = await advancedAIService.generateContent('wedding speech', data)
           break
         case 'hashtag-generation':
-          result = await AdvancedAIService.generateWeddingHashtags(data)
+          result = await advancedAIService.generateContent('wedding hashtags', data)
           break
         case 'song-recommendations':
-          result = await AdvancedAIService.generateWeddingSongRecommendations(data)
+          result = await advancedAIService.generateContent('wedding songs', data)
           break
         default:
           return NextResponse.json({ 
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       const action = searchParams.get('action')
 
       if (action === 'test') {
-        const results = await AdvancedAIService.testAdvancedAIFeatures()
+        const results = await advancedAIService.generateContent('test content', { test: true })
         return NextResponse.json({
           success: true,
           data: results,

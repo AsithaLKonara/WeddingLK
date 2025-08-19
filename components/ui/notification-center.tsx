@@ -89,15 +89,13 @@ export function NotificationCenter({
 
   const {
     notifications: socketNotifications,
-    unreadCount,
     markNotificationAsRead,
     clearNotifications,
     isConnected
-  } = useSocket({
-    onNotification: (notification) => {
-      setNotifications(prev => [notification, ...prev.slice(0, maxNotifications - 1)])
-    }
-  })
+  } = useSocket()
+
+  // Calculate unread count from notifications
+  const unreadCount = notifications.filter(n => !n.read).length
 
   // Sync notifications from socket
   useEffect(() => {
@@ -280,7 +278,7 @@ export function NotificationCenter({
                           </p>
                           
                           <p className="text-xs text-gray-400 mt-2">
-                            {formatTimeAgo(notification.timestamp)}
+                            {formatTimeAgo(notification.timestamp.toString())}
                           </p>
                         </div>
                       </div>

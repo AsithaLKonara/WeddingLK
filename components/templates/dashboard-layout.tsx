@@ -96,9 +96,10 @@ export function DashboardLayout({
   const [userRole, setUserRole] = useState<string>('user')
 
   const {
-    isConnected,
-    unreadCount,
-    notifications
+    notifications,
+    markNotificationAsRead,
+    clearNotifications,
+    isConnected
   } = useSocket()
 
   // Determine user role and menu items
@@ -288,9 +289,9 @@ export function DashboardLayout({
               {/* Messages */}
               <Button variant="outline" size="icon">
                 <MessageCircle className="h-4 w-4" />
-                {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-red-500 text-white">
-                    {unreadCount > 99 ? '99+' : unreadCount}
+                {notifications.length > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                    {notifications.length > 99 ? '99+' : notifications.length}
                   </Badge>
                 )}
               </Button>

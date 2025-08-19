@@ -85,6 +85,7 @@
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-table": "^8.21.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "autoprefixer": "^10.4.20",
     "bcryptjs": "latest",
     "class-variance-authority": "^0.7.1",
@@ -99,6 +100,7 @@
     "framer-motion": "latest",
     "gcp-metadata": "latest",
     "input-otp": "1.4.1",
+    "jsonwebtoken": "^9.0.2",
     "kerberos": "latest",
     "lighthouse": "^11.7.1",
     "lucide-react": "^0.454.0",
@@ -113,6 +115,7 @@
     "react": "^19",
     "react-day-picker": "^9.8.1",
     "react-dom": "^19",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",
@@ -126,7 +129,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",
-    "zod": "latest"
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/node": "^22",

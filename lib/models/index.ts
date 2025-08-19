@@ -1,31 +1,44 @@
-// Import all models to ensure they are registered with Mongoose
-import './user'
-import './vendor'
-import './venue'
-import './booking'
-import './review'
-import './task'
-import './message'
-import './notification'
-import './Payment'
-import './service'
-import './client'
-import './conversation'
-import './venueBoost'
+// Import all models
+import { User } from './user';
+import { Vendor } from './vendor';
+import { Venue } from './venue';
+import { Booking } from './booking';
+import { Payment } from './Payment';
+import { Review } from './review';
+import { Service } from './service';
+import { Message } from './message';
+import { Notification } from './notification';
+import { Task } from './task';
+import VenueBoost from './venueBoost';
+import { Client } from './client';
+import { Conversation } from './conversation';
+import { VendorProfile } from './vendorProfile';
+import { WeddingPlannerProfile } from './weddingPlannerProfile';
+import { Document } from './document';
 
-// Export all models for convenience (using named exports)
-export { User } from './user'
-export { Vendor } from './vendor'
-export { Venue } from './venue'
-export { Booking } from './booking'
-export { Review } from './review'
-export { Task } from './task'
-export { Message } from './message'
-export { Notification } from './notification'
-export { Payment } from './Payment'
-export { Service } from './service'
-export { Client } from './client'
-export { Conversation } from './conversation'
-export { default as VenueBoost } from './venueBoost'
+// Export all models
+export {
+  User,
+  Vendor,
+  Venue,
+  Booking,
+  Payment,
+  Review,
+  Service,
+  Message,
+  Notification,
+  Task,
+  Client,
+  Conversation,
+  VendorProfile,
+  WeddingPlannerProfile,
+  Document,
+};
+
+// Export VenueBoost as default
+export { default as VenueBoost } from './venueBoost';
+
+// Export User as default as well (for backward compatibility)
+export { User as default } from './user';
 
 console.log('✅ All models registered successfully') 

@@ -2,7 +2,10 @@ import { io, Socket } from "socket.io-client"
 
 export interface Notification {
   id: string
-  type: "info" | "success" | "warning" | "error"
+  type: "info" | "success" | "warning" | "error" | 
+         "booking_request" | "booking_status_update" | "new_review" |
+         "payment_received" | "new_message" | "service_updated" |
+         "user_status_changed" | "vendor_approved" | "vendor_rejected"
   title: string
   message: string
   timestamp: Date
