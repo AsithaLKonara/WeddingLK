@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import dynamic from "next/dynamic"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -110,7 +111,7 @@ export default function SettingsPage() {
     setIsSaving(true)
     setProfileErrors({})
     // Inline validation
-    let err: any = {}
+    const err: any = {}
     if (!profile.firstName) err.firstName = "First name is required"
     if (!profile.lastName) err.lastName = "Last name is required"
     if (!profile.email) err.email = "Email is required"
@@ -235,9 +236,9 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             {/* Avatar Upload */}
             <div className="flex items-center gap-4 mb-4 flex-wrap">
-              <div className="w-16 h-16 rounded-full overflow-hidden border">
+              <div className="w-16 h-16 rounded-full overflow-hidden border relative">
                 {avatar ? (
-                  <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  <Image src={avatar} alt="Avatar" className="w-full h-full object-cover" fill />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">No Photo</div>
                 )}

@@ -23,7 +23,7 @@ export async function handleSocialLogin(profile: SocialProfile): Promise<SocialA
     const { email, provider } = profile;
     
     // Check if user exists by email
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
     
     if (user) {
       // Link social account to existing user

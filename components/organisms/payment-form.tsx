@@ -35,7 +35,7 @@ export function PaymentForm({ booking, onPaymentSuccess }: PaymentFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    let err: any = {}
+    const err: any = {}
     if (!formData.cardNumber || !/^\d{16}$/.test(formData.cardNumber.replace(/\s/g, ""))) err.cardNumber = "Enter a valid 16-digit card number"
     if (!formData.expiryDate || !/^\d{2}\/\d{2}$/.test(formData.expiryDate)) err.expiryDate = "Enter expiry as MM/YY"
     if (!formData.cvv || !/^\d{3,4}$/.test(formData.cvv)) err.cvv = "Enter a valid CVV"

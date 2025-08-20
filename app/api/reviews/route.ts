@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
     const verifiedOnly = searchParams.get('verifiedOnly') === 'true'
 
     // Build query
-    let query: any = { isActive: true }
+    const query: any = { isActive: true }
     
     if (vendorId) {
       query.vendor = vendorId

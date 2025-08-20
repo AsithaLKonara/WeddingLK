@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
 import InstagramProvider from 'next-auth/providers/instagram';
@@ -8,7 +8,7 @@ import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { comparePassword } from '@/lib/auth/password-utils';
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     // Google OAuth
     GoogleProvider({
@@ -95,7 +95,7 @@ export const authOptions = {
   ],
   
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, profile }: { user: any; account: any; profile?: any }) {
       try {
         // Handle social login
         if (account?.provider !== 'credentials') {
@@ -103,63 +103,47 @@ export const authOptions = {
         }
         return true;
       } catch (error) {
-        console.error('Sign in error:', error);
+        console.error('SignIn callback error:', error);
         return false;
       }
     },
-    
-    async jwt({ token, user, account }) {
-      // Add custom claims to JWT
+
+    async jwt({ token, user, account }: { token: any; user: any; account: any }) {
       if (user) {
         token.role = user.role;
-        token.userId = user.id;
+        token.id = user.id;
         token.isEmailVerified = user.isEmailVerified;
         token.status = user.status;
       }
       return token;
     },
-    
-    async session({ session, token }) {
-      // Add custom data to session
+
+    async session({ session, token }: { session: any; token: any }) {
       if (token) {
         session.user.role = token.role;
-        session.user.id = token.userId;
+        session.user.id = token.id;
         session.user.isEmailVerified = token.isEmailVerified;
         session.user.status = token.status;
       }
       return session;
     },
   },
-  
+
   pages: {
     signIn: '/login',
-    signUp: '/register',
-    error: '/auth/error',
-    verifyRequest: '/auth/verify-request',
+    error: '/login',
   },
-  
+
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt' as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  
+
   jwt: {
     secret: process.env.NEXTAUTH_SECRET,
   },
 
-  events: {
-    async signIn({ user, account, profile, isNewUser }) {
-      // Log successful sign in
-      console.log(`User signed in: ${user.email} via ${account?.provider}`);
-    },
-    
-    async signOut({ session, token }) {
-      // Log sign out
-      if (session?.user?.email) {
-        console.log(`User signed out: ${session.user.email}`);
-      }
-    },
-  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 async function handleSocialLogin(user: any, account: any, profile: any) {
@@ -174,7 +158,7 @@ async function handleSocialLogin(user: any, account: any, profile: any) {
     }
     
     // Check if user exists
-    let existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email });
     
     if (existingUser) {
       // Link social account to existing user
@@ -261,4 +245,5 @@ async function linkSocialAccount(userId: string, provider: string, profile: any)
   }
 }
 
-export default NextAuth(authOptions); 
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST }; 

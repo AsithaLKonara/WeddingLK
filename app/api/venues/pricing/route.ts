@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
 
     // Calculate pricing based on guest count
     let totalPrice = basePricing.basePrice
-    let perPersonPrice = basePricing.perPerson
-    let minimumCharge = basePricing.minimumGuests
+    const perPersonPrice = basePricing.perPerson
+    const minimumCharge = basePricing.minimumGuests
 
     if (guests) {
       const guestCount = parseInt(guests)

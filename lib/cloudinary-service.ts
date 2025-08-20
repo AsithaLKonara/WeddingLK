@@ -276,16 +276,9 @@ export class CloudinaryService {
 
   // Create folder
   static async createFolder(folderName: string): Promise<{ success: boolean; error?: string }> {
-    try {
-      // Cloudinary doesn't have a direct API to create folders
-      // Folders are created automatically when files are uploaded
-      return { success: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create folder'
-      }
-    }
+    // Cloudinary doesn't have a direct API to create folders
+    // Folders are created automatically when files are uploaded
+    return { success: true }
   }
 
   // Get folder contents

@@ -156,7 +156,7 @@ export default function VendorOnboardingWizard() {
   }
 
   const validateStep = () => {
-    let err: any = {}
+    const err: any = {}
     if (currentStep === 0) {
       services.forEach((s, i) => {
         if (!s.name) err[`service_name_${i}`] = "Service name is required"

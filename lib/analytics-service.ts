@@ -129,49 +129,26 @@ export class AnalyticsService {
 
   // Get performance metrics
   static async getPerformanceMetrics(): Promise<PerformanceMetrics> {
-    try {
-      // Mock performance metrics
-      return {
-        pageLoadTime: 1200, // milliseconds
-        serverResponseTime: 150, // milliseconds
-        memoryUsage: 45.2, // percentage
-        cpuUsage: 23.8, // percentage
-        errorRate: 0.02 // percentage
-      }
-    } catch (error) {
-      console.error('Get performance metrics error:', error)
-      return {
-        pageLoadTime: 0,
-        serverResponseTime: 0,
-        memoryUsage: 0,
-        cpuUsage: 0,
-        errorRate: 0
-      }
+    // Mock performance metrics
+    return {
+      pageLoadTime: 1200, // milliseconds
+      serverResponseTime: 150, // milliseconds
+      memoryUsage: 45.2, // percentage
+      cpuUsage: 23.8, // percentage
+      errorRate: 0.02 // percentage
     }
   }
 
   // Get business metrics
   static async getBusinessMetrics(): Promise<BusinessMetrics> {
-    try {
-      // Mock business metrics
-      return {
-        totalUsers: 1250,
-        activeUsers: 342,
-        revenue: 2500000, // LKR
-        bookings: 156,
-        conversions: 89,
-        averageOrderValue: 28000 // LKR
-      }
-    } catch (error) {
-      console.error('Get business metrics error:', error)
-      return {
-        totalUsers: 0,
-        activeUsers: 0,
-        revenue: 0,
-        bookings: 0,
-        conversions: 0,
-        averageOrderValue: 0
-      }
+    // Mock business metrics
+    return {
+      totalUsers: 1250,
+      activeUsers: 342,
+      revenue: 2500000, // LKR
+      bookings: 156,
+      conversions: 89,
+      averageOrderValue: 28000 // LKR
     }
   }
 

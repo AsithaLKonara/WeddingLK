@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
 
     // Build query based on user role
-    let query: any = { isActive: true }
+    const query: any = { isActive: true }
     
     if (user.role === 'admin') {
       // Admin can see all tasks

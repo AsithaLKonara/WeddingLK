@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
 
     // Build query based on user role
-    let query: any = {}
+    const query: any = {}
     
     if (user.role === 'admin') {
       // Admin can see all bookings

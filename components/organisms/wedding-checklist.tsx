@@ -109,7 +109,7 @@ export function WeddingChecklist() {
   const openEditTask = (task: ChecklistItem) => { setEditTask(task); setTaskForm({ ...task }); setTaskFormErrors({}); setIsEditOpen(true) }
 
   const handleSaveTask = async () => {
-    let err: any = {}
+    const err: any = {}
     if (!taskForm.title) err.title = "Title is required"
     if (!taskForm.description) err.description = "Description is required"
     if (!taskForm.timeline) err.timeline = "Timeline is required"

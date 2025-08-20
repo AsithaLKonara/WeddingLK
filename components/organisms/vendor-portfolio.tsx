@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useState } from "react"
+import Image from "next/image"
 
 interface VendorPortfolioProps {
   images: string[]
@@ -30,10 +31,11 @@ export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
       <CardContent>
         <div className="relative">
           <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-            <img
+            <Image
               src={images[currentIndex]}
               alt={`${vendorName} portfolio image ${currentIndex + 1}`}
               className="w-full h-full object-cover"
+              fill
             />
           </div>
           

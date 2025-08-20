@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document as MongooseDocument, Schema } from 'mongoose';
 
-export interface IDocument extends Document {
+export interface IDocument extends MongooseDocument {
   userId: mongoose.Types.ObjectId;
   documentType: 'identity' | 'business_license' | 'certification' | 'insurance' | 'portfolio' | 'other';
   title: string;
@@ -210,5 +210,5 @@ DocumentSchema.statics.findPendingVerification = function() {
   return this.find({ status: 'pending' });
 };
 
-export const Document = mongoose.models.Document || mongoose.model<IDocument>('Document', DocumentSchema);
+const Document = mongoose.models.Document || mongoose.model<IDocument>('Document', DocumentSchema);
 export default Document; 

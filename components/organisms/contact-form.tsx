@@ -51,7 +51,7 @@ export function ContactForm() {
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Get in Touch</CardTitle>
         <CardDescription>
-          Have questions about our services? We'd love to hear from you.
+          Have questions about our services? We&apos;d love to hear from you.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -107,7 +107,7 @@ export function ContactForm() {
             <Label htmlFor="subject">Subject</Label>
             <Input
               id="subject"
-              placeholder="What's this about?"
+              placeholder="What&apos;s this about?"
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
               required

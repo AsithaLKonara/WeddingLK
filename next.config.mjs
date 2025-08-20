@@ -3,14 +3,8 @@ const nextConfig = {
   // Enable standalone output for Docker
   output: 'standalone',
   
-  // Experimental features
-  experimental: {
-    // Enable app directory
-    appDir: true,
-    
-    // Enable server components
-    serverComponentsExternalPackages: ['mongoose'],
-  },
+  // Server external packages
+  serverExternalPackages: ['mongoose'],
   
   // Image optimization
   images: {

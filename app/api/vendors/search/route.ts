@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
 
     // Build search query
-    let searchQuery: any = { isVerified: true, isActive: true }
+    const searchQuery: any = { isVerified: true, isActive: true }
 
     // Text search
     if (query) {

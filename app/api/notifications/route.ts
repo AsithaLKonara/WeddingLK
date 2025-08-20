@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const unreadOnly = searchParams.get('unreadOnly') === 'true'
 
     // Build query
-    let query: any = { user: user._id }
+    const query: any = { user: user._id }
     if (unreadOnly) {
       query.isRead = false
     }

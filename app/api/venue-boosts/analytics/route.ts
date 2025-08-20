@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build query
-    let query: any = { isActive: true }
+    const query: any = { isActive: true }
     
     if (boostId) {
       query._id = boostId

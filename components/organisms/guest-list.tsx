@@ -98,7 +98,7 @@ export function GuestList() {
   const openEditGuest = (guest: Guest) => { setEditGuest(guest); setGuestForm({ ...guest }); setGuestFormErrors({}); setIsEditOpen(true) }
 
   const handleSaveGuest = async () => {
-    let err: any = {}
+    const err: any = {}
     if (!guestForm.name) err.name = "Name is required"
     if (!guestForm.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(guestForm.email)) err.email = "Valid email required"
     if (!guestForm.phone || !/^\+?\d{10,15}$/.test(guestForm.phone.replace(/\s/g, ""))) err.phone = "Valid phone required"

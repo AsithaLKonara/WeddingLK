@@ -17,7 +17,7 @@ declare global {
 }
 
 // Connection cache
-let cached: ConnectionCache = global.mongoose || { conn: null, promise: null };
+const cached: ConnectionCache = global.mongoose || { conn: null, promise: null };
 
 if (!global.mongoose) {
   global.mongoose = cached;

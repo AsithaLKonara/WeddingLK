@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Wedding Dreams Lanka - Plan Your Perfect Wedding",
-  description: "Sri Lanka's premier wedding planning platform. Find venues, vendors, and plan your dream wedding.",
+  description: "Sri Lanka&apos;s premier wedding planning platform. Find venues, vendors, and plan your dream wedding.",
   generator: 'v0.dev'
 }
 

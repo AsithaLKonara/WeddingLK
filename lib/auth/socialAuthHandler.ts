@@ -143,7 +143,7 @@ export class SocialAuthHandler {
 
   private async createUserProfile(userId: any, role: string): Promise<void> {
     switch (role) {
-      case 'vendor':
+      case 'vendor': {
         const vendorProfile = new VendorProfile({
           userId,
           businessName: '',
@@ -161,8 +161,9 @@ export class SocialAuthHandler {
         });
         await vendorProfile.save();
         break;
+      }
 
-      case 'wedding_planner':
+      case 'wedding_planner': {
         const plannerProfile = new WeddingPlannerProfile({
           userId,
           companyName: '',
@@ -180,6 +181,7 @@ export class SocialAuthHandler {
         });
         await plannerProfile.save();
         break;
+      }
 
       default:
         // Regular user - no additional profile needed

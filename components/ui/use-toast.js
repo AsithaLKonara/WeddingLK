@@ -54,7 +54,7 @@ export const reducer = (state, action) => {
                     t.id === action.toast.id ? { ...t, ...action.toast } : t
                 ),
             };
-        case actionTypes.DISMISS_TOAST:
+        case actionTypes.DISMISS_TOAST: {
             const { toastId } = action;
             if (toastId) {
                 addToRemoveQueue(toastId);
@@ -74,6 +74,7 @@ export const reducer = (state, action) => {
                         : t
                 ),
             };
+        }
         case actionTypes.REMOVE_TOAST:
             if (action.toastId === undefined) {
                 return {

@@ -13,20 +13,22 @@ export function formatDate(date: string | Date, format: "short" | "long" | "rela
   const dateObj = typeof date === "string" ? new Date(date) : date
 
   switch (format) {
-    case "short":
+    case "short": {
       return dateObj.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
       })
-    case "long":
+    }
+    case "long": {
       return dateObj.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
         weekday: "long",
       })
-    case "relative":
+    }
+    case "relative": {
       const now = new Date()
       const diffTime = Math.abs(now.getTime() - dateObj.getTime())
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -36,6 +38,7 @@ export function formatDate(date: string | Date, format: "short" | "long" | "rela
       if (diffDays < 7) return `In ${diffDays} days`
       if (diffDays < 30) return `In ${Math.ceil(diffDays / 7)} weeks`
       return `In ${Math.ceil(diffDays / 30)} months`
+    }
     default:
       return dateObj.toLocaleDateString()
   }
