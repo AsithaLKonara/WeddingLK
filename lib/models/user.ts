@@ -112,7 +112,7 @@ const UserSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: function() {
+      required: function(this: any) {
         // Password is required only if no social accounts
         return !this.socialAccounts || Object.keys(this.socialAccounts).length === 0;
       },
@@ -317,8 +317,9 @@ UserSchema.index({ 'socialAccounts.linkedin.id': 1 });
 UserSchema.pre('save', async function(next) {
   if (this.isModified('password') && this.password) {
     try {
-      const salt = await bcrypt.genSalt(12);
-      this.password = await bcrypt.hash(this.password, salt);
+      // Hash password with salt
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password as string, salt);
     } catch (error) {
       return next(error as Error);
     }

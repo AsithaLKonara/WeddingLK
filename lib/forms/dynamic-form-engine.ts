@@ -452,7 +452,7 @@ export class FormValidator {
         return { isValid: true };
       } catch (error) {
         if (error instanceof z.ZodError) {
-          return { isValid: false, error: error.errors[0].message };
+          return { isValid: false, error: (error as any).errors?.[0]?.message || 'Validation failed' };
         }
         return { isValid: false, error: 'Validation failed' };
       }
@@ -483,7 +483,7 @@ export class FormValidator {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        error.errors.forEach(err => {
+        (error as any).errors?.forEach((err: any) => {
           if (err.path.length > 0) {
             errors[err.path[0] as string] = err.message;
           }

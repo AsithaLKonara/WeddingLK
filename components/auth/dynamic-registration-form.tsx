@@ -23,12 +23,12 @@ interface RegistrationFormProps {
 interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'tel' | 'password' | 'textarea' | 'select' | 'checkbox' | 'file' | 'date' | 'number';
+  type: 'text' | 'email' | 'password' | 'select' | 'tel' | 'date' | 'number' | 'textarea' | 'checkbox' | 'file';
   required: boolean;
-  placeholder?: string;
+  placeholder: string;
   description?: string;
   options?: { value: string; label: string }[];
-  validation?: any;
+  defaultValues?: Record<string, any>;
   dependsOn?: { field: string; value: any };
 }
 
@@ -37,17 +37,18 @@ interface FormStep {
   description: string;
   fields: FormField[];
   schema: any;
+  defaultValues?: Record<string, any>;
 }
 
 export function DynamicRegistrationForm({ role, onSubmit, onBack }: RegistrationFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File[] }>({});
   
   const formConfig = getFormConfig(role);
   const currentStepConfig = formConfig.steps[currentStep];
   
-  const form = useForm({
+  const form = useForm<Record<string, any>>({
     resolver: zodResolver(currentStepConfig.schema),
     defaultValues: currentStepConfig.defaultValues || {},
   });
@@ -98,7 +99,7 @@ export function DynamicRegistrationForm({ role, onSubmit, onBack }: Registration
     
     // Check if field should be shown based on dependencies
     if (dependsOn) {
-      const dependentValue = form.watch(dependsOn.field);
+      const dependentValue = form.watch(dependsOn.field as any);
       if (dependentValue !== dependsOn.value) {
         return null;
       }
@@ -112,7 +113,7 @@ export function DynamicRegistrationForm({ role, onSubmit, onBack }: Registration
         return (
           <Input
             type={type}
-            {...form.register(name)}
+            {...form.register(name as any)}
             placeholder={placeholder}
             className="w-full"
           />
@@ -148,11 +149,13 @@ export function DynamicRegistrationForm({ role, onSubmit, onBack }: Registration
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
-              checked={form.watch(name)}
-              onCheckedChange={(checked) => form.setValue(name, checked)}
+              id={name}
+              checked={form.watch(name as any) || false}
+              onCheckedChange={(checked) => form.setValue(name as any, checked)}
+              className="rounded"
             />
-            <label className="text-sm text-gray-600">
-              {description}
+            <label htmlFor={name} className="text-sm text-gray-700">
+              {field.label}
             </label>
           </div>
         );
@@ -286,9 +289,9 @@ export function DynamicRegistrationForm({ role, onSubmit, onBack }: Registration
                     <p className="text-xs text-gray-500">{field.description}</p>
                   )}
                   
-                  {form.formState.errors[field.name] && (
+                  {form.formState.errors[field.name as any] && (
                     <p className="text-xs text-red-500">
-                      {form.formState.errors[field.name]?.message as string}
+                      {form.formState.errors[field.name as any]?.message as string}
                     </p>
                   )}
                 </div>
@@ -344,14 +347,14 @@ function getFormConfig(role: string) {
           type: 'text' as const,
           required: true,
           placeholder: 'Enter your full name',
-        },
+        } as FormField,
         {
           name: 'email',
           label: 'Email Address',
           type: 'email' as const,
           required: true,
           placeholder: 'Enter your email address',
-        },
+        } as FormField,
         {
           name: 'password',
           label: 'Password',
@@ -359,32 +362,34 @@ function getFormConfig(role: string) {
           required: true,
           placeholder: 'Create a strong password',
           description: 'Must be at least 8 characters with uppercase, lowercase, number, and special character',
-        },
+        } as FormField,
         {
           name: 'phone',
           label: 'Phone Number',
           type: 'tel' as const,
           required: false,
           placeholder: 'Enter your phone number',
-        },
+        } as FormField,
         {
           name: 'dateOfBirth',
           label: 'Date of Birth',
           type: 'date' as const,
           required: false,
-        },
+          placeholder: 'Select your date of birth',
+        } as FormField,
         {
           name: 'gender',
           label: 'Gender',
           type: 'select' as const,
           required: false,
+          placeholder: 'Select your gender',
           options: [
             { value: 'male', label: 'Male' },
             { value: 'female', label: 'Female' },
             { value: 'other', label: 'Other' },
             { value: 'prefer_not_to_say', label: 'Prefer not to say' },
           ],
-        },
+        } as FormField,
       ],
       schema: z.object({
         name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -394,6 +399,7 @@ function getFormConfig(role: string) {
         dateOfBirth: z.string().optional(),
         gender: z.string().optional(),
       }),
+      defaultValues: {},
     },
     {
       title: 'Location & Preferences',
@@ -405,33 +411,34 @@ function getFormConfig(role: string) {
           type: 'text' as const,
           required: true,
           placeholder: 'Enter your country',
-        },
+        } as FormField,
         {
           name: 'location.state',
           label: 'State/Province',
           type: 'text' as const,
           required: true,
           placeholder: 'Enter your state or province',
-        },
+        } as FormField,
         {
           name: 'location.city',
           label: 'City',
           type: 'text' as const,
           required: true,
           placeholder: 'Enter your city',
-        },
+        } as FormField,
         {
           name: 'location.zipCode',
           label: 'ZIP/Postal Code',
           type: 'text' as const,
           required: false,
           placeholder: 'Enter your ZIP or postal code',
-        },
+        } as FormField,
         {
           name: 'preferences.language',
           label: 'Preferred Language',
           type: 'select' as const,
           required: false,
+          placeholder: 'Select your preferred language',
           options: [
             { value: 'en', label: 'English' },
             { value: 'es', label: 'Spanish' },
@@ -444,12 +451,13 @@ function getFormConfig(role: string) {
             { value: 'ja', label: 'Japanese' },
             { value: 'ko', label: 'Korean' },
           ],
-        },
+        } as FormField,
         {
           name: 'preferences.currency',
           label: 'Preferred Currency',
           type: 'select' as const,
           required: false,
+          placeholder: 'Select your preferred currency',
           options: [
             { value: 'USD', label: 'US Dollar (USD)' },
             { value: 'EUR', label: 'Euro (EUR)' },
@@ -460,7 +468,7 @@ function getFormConfig(role: string) {
             { value: 'CHF', label: 'Swiss Franc (CHF)' },
             { value: 'CNY', label: 'Chinese Yuan (CNY)' },
           ],
-        },
+        } as FormField,
       ],
       schema: z.object({
         location: z.object({
@@ -489,40 +497,47 @@ function getFormConfig(role: string) {
             type: 'text' as const,
             required: true,
             placeholder: 'Enter your business name',
-          },
+          } as FormField,
           {
             name: 'businessType',
             label: 'Business Type',
             type: 'select' as const,
             required: true,
+            placeholder: 'Select your business type',
             options: [
               { value: 'individual', label: 'Individual/Sole Proprietor' },
               { value: 'company', label: 'Company/Corporation' },
               { value: 'partnership', label: 'Partnership' },
             ],
-          },
+          } as FormField,
           {
             name: 'businessRegistrationNumber',
             label: 'Business Registration Number',
             type: 'text' as const,
             required: false,
             placeholder: 'Enter your business registration number',
-          },
+          } as FormField,
           {
             name: 'yearsInBusiness',
             label: 'Years in Business',
             type: 'number' as const,
             required: true,
             placeholder: 'Enter number of years',
-          },
+          } as FormField,
         ],
         schema: z.object({
+          name: z.string().min(2, 'Name must be at least 2 characters'),
+          email: z.string().email('Invalid email address'),
+          password: z.string().min(8, 'Password must be at least 8 characters'),
+          phone: z.string().optional(),
+          dateOfBirth: z.string().optional(),
+          gender: z.string().optional(),
           businessName: z.string().min(2, 'Business name is required'),
           businessType: z.enum(['individual', 'company', 'partnership']),
           businessRegistrationNumber: z.string().optional(),
           yearsInBusiness: z.number().min(0, 'Years must be positive'),
         }),
-      },
+      } as FormStep,
       {
         title: 'Services & Portfolio',
         description: 'What services do you offer?',
@@ -534,20 +549,28 @@ function getFormConfig(role: string) {
             required: true,
             placeholder: 'Describe the services you offer',
             description: 'List all the wedding-related services you provide',
-          },
+          } as FormField,
           {
             name: 'portfolio',
             label: 'Portfolio Images',
             type: 'file' as const,
             required: false,
+            placeholder: 'Upload images of your previous work (optional)',
             description: 'Upload images of your previous work (optional)',
-          },
+          } as FormField,
         ],
         schema: z.object({
+          name: z.string().min(2, 'Name must be at least 2 characters'),
+          email: z.string().email('Invalid email address'),
+          password: z.string().min(8, 'Password must be at least 8 characters'),
+          phone: z.string().optional(),
+          dateOfBirth: z.string().optional(),
+          gender: z.string().optional(),
           services: z.string().min(10, 'Please describe your services'),
           portfolio: z.any().optional(),
         }),
-      }
+        defaultValues: {},
+      } as FormStep,
     );
   } else if (role === 'wedding_planner') {
     baseSteps.push(
@@ -561,14 +584,14 @@ function getFormConfig(role: string) {
             type: 'text' as const,
             required: true,
             placeholder: 'e.g., Certified Wedding Planner, Event Coordinator',
-          },
+          } as FormField,
           {
             name: 'yearsOfExperience',
             label: 'Years of Experience',
             type: 'number' as const,
             required: true,
             placeholder: 'Enter number of years',
-          },
+          } as FormField,
           {
             name: 'specialization',
             label: 'Specializations',
@@ -576,14 +599,20 @@ function getFormConfig(role: string) {
             required: true,
             placeholder: 'e.g., Destination weddings, Cultural ceremonies, Budget planning',
             description: 'List your areas of expertise',
-          },
+          } as FormField,
         ],
         schema: z.object({
+          name: z.string().min(2, 'Name must be at least 2 characters'),
+          email: z.string().email('Invalid email address'),
+          password: z.string().min(8, 'Password must be at least 8 characters'),
+          phone: z.string().optional(),
+          dateOfBirth: z.string().optional(),
+          gender: z.string().optional(),
           professionalTitle: z.string().min(2, 'Professional title is required'),
           yearsOfExperience: z.number().min(0, 'Years must be positive'),
           specialization: z.string().min(10, 'Please describe your specializations'),
         }),
-      }
+      } as FormStep,
     );
   }
   
@@ -597,31 +626,41 @@ function getFormConfig(role: string) {
         label: 'Email Notifications',
         type: 'checkbox' as const,
         required: false,
+        placeholder: 'Enable email notifications',
         description: 'Receive important updates and notifications via email',
-      },
+      } as FormField,
       {
         name: 'preferences.notifications.sms',
         label: 'SMS Notifications',
         type: 'checkbox' as const,
         required: false,
+        placeholder: 'Enable SMS notifications',
         description: 'Receive urgent notifications via SMS',
-      },
+      } as FormField,
       {
         name: 'preferences.notifications.push',
         label: 'Push Notifications',
         type: 'checkbox' as const,
         required: false,
+        placeholder: 'Enable push notifications',
         description: 'Receive notifications in your browser or mobile app',
-      },
+      } as FormField,
       {
         name: 'preferences.marketing.email',
         label: 'Marketing Emails',
         type: 'checkbox' as const,
         required: false,
+        placeholder: 'Enable marketing emails',
         description: 'Receive promotional content and special offers via email',
-      },
+      } as FormField,
     ],
     schema: z.object({
+      name: z.string().min(2, 'Name must be at least 2 characters'),
+      email: z.string().email('Invalid email address'),
+      password: z.string().min(8, 'Password must be at least 8 characters'),
+      phone: z.string().optional(),
+      dateOfBirth: z.string().optional(),
+      gender: z.string().optional(),
       preferences: z.object({
         notifications: z.object({
           email: z.boolean().default(true),
@@ -635,7 +674,7 @@ function getFormConfig(role: string) {
         }),
       }),
     }),
-  });
+  } as FormStep);
   
   return {
     steps: baseSteps,

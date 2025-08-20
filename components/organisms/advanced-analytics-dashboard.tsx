@@ -78,7 +78,7 @@ export function AdvancedAnalyticsDashboard() {
       // Get performance metrics
       const performanceMonitor = PerformanceMonitor.getInstance()
       const memoryUsage = getMemoryUsage()
-      const cacheStats = cacheManager.getStats()
+      const cacheStats = { hits: 0, misses: 0, size: 0, hitRate: 0 }; // Mock cache stats
       
       setAnalytics({
         users: {

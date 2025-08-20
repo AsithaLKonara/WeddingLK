@@ -19,9 +19,9 @@ export function generateJWT(user: any): string {
   };
   
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
+    expiresIn: '24h',
     issuer: 'weddinglk',
-    audience: 'weddinglk-users',
+    audience: 'weddinglk-users'
   });
 }
 

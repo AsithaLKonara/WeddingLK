@@ -38,11 +38,11 @@ export async function POST(request: NextRequest) {
       </div>
     `
 
-    await sendEmail({
-      to: email,
-      subject: 'Your WeddingLK Verification Code',
-      html,
-    })
+    await sendEmail(
+      user.email,
+      'Two-Factor Authentication Code',
+      `Your 2FA code is: ${otp}. This code will expire in 10 minutes.`
+    );
 
     return NextResponse.json({ success: true, message: "Verification code sent to your email." })
   } catch (error) {

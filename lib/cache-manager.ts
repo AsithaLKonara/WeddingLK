@@ -1,193 +1,125 @@
-// Advanced caching system for performance optimization
-export interface CacheItem<T> {
-  data: T
-  timestamp: number
-  ttl: number
-  accessCount: number
-}
+import Redis from 'ioredis';
 
-export class CacheManager {
-  private static instance: CacheManager
-  private cache: Map<string, CacheItem<any>> = new Map()
-  private maxSize: number = 1000
-  private defaultTTL: number = 5 * 60 * 1000 // 5 minutes
+class CacheManager {
+  private redis: Redis;
+  private isConnected: boolean = false;
 
-  static getInstance(): CacheManager {
-    if (!CacheManager.instance) {
-      CacheManager.instance = new CacheManager()
-    }
-    return CacheManager.instance
+  constructor() {
+    this.redis = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
+      password: process.env.REDIS_PASSWORD,
+      maxRetriesPerRequest: 3,
+      lazyConnect: true,
+    });
+
+    this.redis.on('connect', () => {
+      console.log('✅ Redis connected successfully');
+      this.isConnected = true;
+    });
+
+    this.redis.on('error', (err) => {
+      console.error('❌ Redis connection error:', err);
+      this.isConnected = false;
+    });
+
+    this.redis.on('disconnect', () => {
+      console.log('⚠️ Redis disconnected');
+      this.isConnected = false;
+    });
   }
 
-  // Set cache item
-  set<T>(key: string, data: T, ttl?: number): void {
-    // Remove oldest items if cache is full
-    if (this.cache.size >= this.maxSize) {
-      this.evictOldest()
-    }
-
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now(),
-      ttl: ttl || this.defaultTTL,
-      accessCount: 0
-    })
-  }
-
-  // Get cache item
-  get<T>(key: string): T | null {
-    const item = this.cache.get(key)
+  async get(key: string): Promise<any> {
+    if (!this.isConnected) return null;
     
-    if (!item) {
-      return null
+    try {
+      const value = await this.redis.get(key);
+      return value ? JSON.parse(value) : null;
+    } catch (error) {
+      console.error('Cache get error:', error);
+      return null;
     }
+  }
 
-    // Check if expired
-    if (Date.now() - item.timestamp > item.ttl) {
-      this.cache.delete(key)
-      return null
-    }
-
-    // Update access count
-    item.accessCount++
+  async set(key: string, value: any, ttl: number = 300): Promise<void> {
+    if (!this.isConnected) return;
     
-    return item.data
-  }
-
-  // Get or set cache item
-  async getOrSet<T>(
-    key: string,
-    fetchFunc: () => Promise<T>,
-    ttl?: number
-  ): Promise<T> {
-    const cached = this.get<T>(key)
-    if (cached !== null) {
-      return cached
-    }
-
-    const data = await fetchFunc()
-    this.set(key, data, ttl)
-    return data
-  }
-
-  // Check if key exists and is valid
-  has(key: string): boolean {
-    const item = this.cache.get(key)
-    if (!item) {
-      return false
-    }
-
-    if (Date.now() - item.timestamp > item.ttl) {
-      this.cache.delete(key)
-      return false
-    }
-
-    return true
-  }
-
-  // Delete cache item
-  delete(key: string): boolean {
-    return this.cache.delete(key)
-  }
-
-  // Clear all cache
-  clear(): void {
-    this.cache.clear()
-  }
-
-  // Get cache statistics
-  getStats(): {
-    size: number
-    maxSize: number
-    hitRate: number
-    totalAccesses: number
-  } {
-    let totalAccesses = 0
-    for (const item of this.cache.values()) {
-      totalAccesses += item.accessCount
-    }
-
-    return {
-      size: this.cache.size,
-      maxSize: this.maxSize,
-      hitRate: totalAccesses > 0 ? totalAccesses / this.cache.size : 0,
-      totalAccesses
+    try {
+      await this.redis.setex(key, ttl, JSON.stringify(value));
+    } catch (error) {
+      console.error('Cache set error:', error);
     }
   }
 
-  // Evict oldest items (LRU)
-  private evictOldest(): void {
-    let oldestKey: string | null = null
-    let oldestTime = Date.now()
-
-    for (const [key, item] of this.cache) {
-      if (item.timestamp < oldestTime) {
-        oldestTime = item.timestamp
-        oldestKey = key
-      }
-    }
-
-    if (oldestKey) {
-      this.cache.delete(oldestKey)
+  async del(key: string): Promise<void> {
+    if (!this.isConnected) return;
+    
+    try {
+      await this.redis.del(key);
+    } catch (error) {
+      console.error('Cache delete error:', error);
     }
   }
 
-  // Clean expired items
-  cleanup(): void {
-    const now = Date.now()
-    for (const [key, item] of this.cache) {
-      if (now - item.timestamp > item.ttl) {
-        this.cache.delete(key)
-      }
+  async flush(): Promise<void> {
+    if (!this.isConnected) return;
+    
+    try {
+      await this.redis.flushall();
+      console.log('✅ Cache flushed successfully');
+    } catch (error) {
+      console.error('Cache flush error:', error);
     }
   }
 
-  // Set cache size limit
-  setMaxSize(size: number): void {
-    this.maxSize = size
-    while (this.cache.size > this.maxSize) {
-      this.evictOldest()
-    }
+  // Cache key generators
+  static generateKey(prefix: string, params: Record<string, any>): string {
+    const sortedParams = Object.keys(params)
+      .sort()
+      .map(key => `${key}:${params[key]}`)
+      .join('|');
+    return `${prefix}:${sortedParams}`;
   }
 
-  // Set default TTL
-  setDefaultTTL(ttl: number): void {
-    this.defaultTTL = ttl
+  // Health check
+  async healthCheck(): Promise<boolean> {
+    try {
+      await this.redis.ping();
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 
 // Export singleton instance
-export const cacheManager = CacheManager.getInstance()
+export const cacheManager = new CacheManager();
 
-// Utility functions for common caching patterns
-export const cacheUtils = {
-  // Cache API responses
-  async cacheApiResponse<T>(
-    key: string,
-    fetchFunc: () => Promise<T>,
-    ttl: number = 5 * 60 * 1000
-  ): Promise<T> {
-    return cacheManager.getOrSet(key, fetchFunc, ttl)
-  },
+// Cache decorator for functions
+export function Cache(ttl: number = 300, keyPrefix?: string) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    const method = descriptor.value;
 
-  // Cache with user-specific keys
-  getUserCacheKey(userId: string, key: string): string {
-    return `user:${userId}:${key}`
-  },
+    descriptor.value = async function (...args: any[]) {
+      const cacheKey = keyPrefix 
+        ? CacheManager.generateKey(keyPrefix, { args: JSON.stringify(args) })
+        : `${target.constructor.name}:${propertyName}:${JSON.stringify(args)}`;
 
-  // Cache with expiration
-  setWithExpiration<T>(key: string, data: T, expirationMinutes: number): void {
-    cacheManager.set(key, data, expirationMinutes * 60 * 1000)
-  },
-
-  // Invalidate user cache
-  invalidateUserCache(userId: string): void {
-    const keysToDelete: string[] = []
-    for (const key of cacheManager['cache'].keys()) {
-      if (key.startsWith(`user:${userId}:`)) {
-        keysToDelete.push(key)
+      // Try to get from cache
+      const cached = await cacheManager.get(cacheKey);
+      if (cached) {
+        console.log(`📦 Cache hit: ${cacheKey}`);
+        return cached;
       }
-    }
-    keysToDelete.forEach(key => cacheManager.delete(key))
-  }
-} 
+
+      // Execute method and cache result
+      const result = await method.apply(this, args);
+      await cacheManager.set(cacheKey, result, ttl);
+      console.log(`💾 Cache miss: ${cacheKey}`);
+      
+      return result;
+    };
+  };
+}
+
+export default cacheManager; 

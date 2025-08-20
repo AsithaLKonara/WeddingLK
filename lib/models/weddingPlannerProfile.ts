@@ -649,7 +649,7 @@ WeddingPlannerProfileSchema.methods.calculateMetrics = function() {
   if (this.portfolio.length > 0) {
     this.completedWeddings = this.portfolio.length;
     
-    const totalBudget = this.portfolio.reduce((sum, item) => sum + item.budget, 0);
+    const totalBudget = this.portfolio.reduce((sum: number, item: any) => sum + item.budget, 0);
     this.averageWeddingBudget = totalBudget / this.portfolio.length;
   }
   

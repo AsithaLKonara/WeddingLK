@@ -20,7 +20,7 @@ import { EnhancedRegistrationForm } from '@/components/auth/enhanced-registratio
 import { DocumentUpload } from '@/components/auth/document-upload';
 import { RegistrationProgress } from '@/components/auth/registration-progress';
 import { SocialLoginButtons } from '@/components/auth/social-login-buttons';
-import { DynamicFormFactory, DocumentVerificationService } from '@/lib/forms/dynamic-form-engine';
+import { DynamicFormFactory } from '@/lib/forms/dynamic-form-engine';
 
 interface RegistrationData {
   [key: string]: any;

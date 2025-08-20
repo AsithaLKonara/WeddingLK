@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { VendorProfile } from '@/lib/models/vendorProfile';
 import { WeddingPlannerProfile } from '@/lib/models/weddingPlannerProfile';
-import { Document } from '@/lib/models/document';
+import Document from '@/lib/models/document';
 import { hashPassword, validatePassword } from '@/lib/auth/password-utils';
 import { sendVerificationEmail } from '@/lib/email';
 import { z } from 'zod';
@@ -125,10 +125,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { 
             error: 'Validation failed', 
-            details: validationError.errors.map(err => ({
+            details: (validationError as any).errors?.map((err: any) => ({
               field: err.path.join('.'),
               message: err.message
-            }))
+            })) || []
           },
           { status: 400 }
         );
@@ -163,25 +163,27 @@ export async function POST(request: NextRequest) {
     
     // Create role-specific profile
     if (role === 'vendor') {
+      const vendorData = validatedData as z.infer<typeof vendorSchema>;
       const vendorProfile = new VendorProfile({
         userId: user._id,
-        businessName: validatedData.businessName,
-        businessType: validatedData.businessType,
-        businessRegistrationNumber: validatedData.businessRegistrationNumber,
-        taxIdentificationNumber: validatedData.taxIdentificationNumber,
-        yearsInBusiness: validatedData.yearsInBusiness,
-        services: validatedData.services,
+        businessName: vendorData.businessName,
+        businessType: vendorData.businessType,
+        businessRegistrationNumber: vendorData.businessRegistrationNumber,
+        taxIdentificationNumber: vendorData.taxIdentificationNumber,
+        yearsInBusiness: vendorData.yearsInBusiness,
+        services: vendorData.services,
         verificationStatus: 'pending',
       });
       await vendorProfile.save();
     } else if (role === 'wedding_planner') {
+      const plannerData = validatedData as z.infer<typeof weddingPlannerSchema>;
       const plannerProfile = new WeddingPlannerProfile({
         userId: user._id,
-        professionalTitle: validatedData.professionalTitle,
-        yearsOfExperience: validatedData.yearsOfExperience,
-        specialization: validatedData.specialization,
-        languages: validatedData.languages,
-        education: validatedData.education,
+        professionalTitle: plannerData.professionalTitle,
+        yearsOfExperience: plannerData.yearsOfExperience,
+        specialization: plannerData.specialization,
+        languages: plannerData.languages,
+        education: plannerData.education,
         verificationStatus: 'pending',
       });
       await plannerProfile.save();

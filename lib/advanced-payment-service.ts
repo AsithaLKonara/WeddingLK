@@ -65,7 +65,6 @@ class AdvancedPaymentService {
   constructor() {
     if (process.env.STRIPE_SECRET_KEY) {
       this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiKey: process.env.STRIPE_SECRET_KEY,
         apiVersion: '2025-06-30.basil'
       })
     }
@@ -174,8 +173,8 @@ class AdvancedPaymentService {
         last4: pm.card?.last4,
         expiryMonth: pm.card?.exp_month || undefined,
         expiryYear: pm.card?.exp_year || undefined,
-        isDefault: pm.metadata.isDefault === 'true',
-        metadata: pm.metadata
+        isDefault: pm.metadata?.isDefault === 'true',
+        metadata: pm.metadata || {}
       }))
     } catch (error) {
       console.error('Error getting payment methods:', error)
@@ -408,8 +407,8 @@ class AdvancedPaymentService {
         customerId: customerId,
         planId: planId,
         status: subscription.status as any,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
         metadata: subscription.metadata
       }
@@ -491,7 +490,7 @@ class AdvancedPaymentService {
         amount: amount,
         reason: reason,
         status: refund.status as any,
-        metadata: refund.metadata,
+        metadata: refund.metadata || {},
         createdAt: new Date(refund.created * 1000)
       }
 
@@ -696,7 +695,7 @@ class AdvancedPaymentService {
       }
 
       const paymentMethod = await this.stripe.paymentMethods.retrieve(paymentMethodId)
-      return paymentMethod.status === 'active'
+      return (paymentMethod as any).status === 'active'
     } catch (error) {
       console.error('Error validating payment method:', error)
       return false

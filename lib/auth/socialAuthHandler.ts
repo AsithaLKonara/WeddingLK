@@ -111,7 +111,7 @@ export class SocialAuthHandler {
 
     // Update social account info
     const existingAccountIndex = user.socialAccounts?.findIndex(
-      account => account.provider === socialData.provider
+      (account: any) => account.provider === socialData.provider
     );
 
     if (existingAccountIndex !== -1 && existingAccountIndex !== undefined) {
@@ -195,7 +195,7 @@ export class SocialAuthHandler {
       if (!user?.socialAccounts) return null;
 
       const socialAccount = user.socialAccounts.find(
-        account => account.provider === provider
+        (account: any) => account.provider === provider
       );
 
       if (!socialAccount?.refreshToken) return null;

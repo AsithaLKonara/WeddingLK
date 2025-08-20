@@ -267,7 +267,7 @@ class SocialMediaIntegrationService {
       post.status = 'failed'
       await this.updateSocialPostInDatabase(post.id, {
         status: 'failed',
-        metadata: { ...post.metadata, error: error.message }
+        metadata: { ...post.metadata, error: error instanceof Error ? error.message : 'Unknown error' }
       })
       
       throw new Error(`Failed to publish post to ${post.platform}`)

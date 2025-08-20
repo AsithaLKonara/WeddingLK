@@ -43,17 +43,14 @@ const ConversationSchema = new mongoose.Schema(
     bookingId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Booking",
-      index: true,
     },
     venueId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Venue",
-      index: true,
     },
     vendorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vendor",
-      index: true,
     },
     lastMessage: {
       content: { type: String },
@@ -79,12 +76,10 @@ const ConversationSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
     },
     isArchived: {
       type: Boolean,
       default: false,
-      index: true,
     },
     archivedBy: [
       {

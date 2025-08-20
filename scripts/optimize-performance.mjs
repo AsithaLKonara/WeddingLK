@@ -1,255 +1,78 @@
 #!/usr/bin/env node
 
-import { spawn } from 'child_process';
-import { performance } from 'perf_hooks';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import { createPerformanceIndexes } from '../lib/models/index.js';
+
+dotenv.config({ path: '.env.local' });
 
 console.log('🚀 WeddingLK Performance Optimization Script');
-console.log('==========================================');
+console.log('==========================================\n');
 
-class PerformanceOptimizer {
-  constructor() {
-    this.optimizations = [
-      'database-indexes',
-      'restart-containers',
-      'test-performance',
-      'generate-report'
-    ];
-  }
-  
-  /**
-   * Run optimization step
-   */
-  async runOptimization(step) {
-    console.log(`\n🔧 Running: ${step}`);
-    console.log('='.repeat(50));
+const optimizePerformance = async () => {
+  try {
+    console.log('🔌 Connecting to MongoDB...');
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ Connected to MongoDB');
     
-    const startTime = performance.now();
+    // Create performance indexes
+    console.log('\n📊 Creating performance indexes...');
+    await createPerformanceIndexes();
     
-    try {
-      switch (step) {
-        case 'database-indexes':
-          await this.addDatabaseIndexes();
-          break;
-        case 'restart-containers':
-          await this.restartContainers();
-          break;
-        case 'test-performance':
-          await this.testPerformance();
-          break;
-        case 'generate-report':
-          await this.generateReport();
-          break;
-        default:
-          console.log(`❌ Unknown optimization step: ${step}`);
-      }
-      
-      const duration = performance.now() - startTime;
-      console.log(`✅ ${step} completed in ${Math.round(duration)}ms`);
-      
-    } catch (error) {
-      console.error(`❌ Error in ${step}:`, error.message);
-    }
-  }
-  
-  /**
-   * Add database indexes
-   */
-  async addDatabaseIndexes() {
-    console.log('📊 Adding performance database indexes...');
+    // Test query performance
+    console.log('\n🧪 Testing query performance...');
     
-    return new Promise((resolve, reject) => {
-      const process = spawn('node', ['scripts/add-database-indexes.mjs'], {
-        stdio: 'inherit'
-      });
-      
-      process.on('close', (code) => {
-        if (code === 0) {
-          console.log('✅ Database indexes added successfully');
-          resolve();
-        } else {
-          reject(new Error(`Database indexing failed with code ${code}`));
-        }
-      });
-    });
-  }
-  
-  /**
-   * Restart containers with optimized settings
-   */
-  async restartContainers() {
-    console.log('🐳 Restarting containers with optimized settings...');
+    // Test User query performance
+    const userStart = Date.now();
+    const users = await mongoose.model('User').find({ role: 'client' }).limit(10).lean();
+    const userTime = Date.now() - userStart;
+    console.log(`✅ User query: ${userTime}ms (${users.length} results)`);
     
-    // Stop containers
-    console.log('🛑 Stopping containers...');
-    await this.runCommand('docker-compose', ['down']);
+    // Test Vendor query performance
+    const vendorStart = Date.now();
+    const vendors = await mongoose.model('Vendor').find({ isVerified: true }).limit(10).lean();
+    const vendorTime = Date.now() - vendorStart;
+    console.log(`✅ Vendor query: ${vendorTime}ms (${vendors.length} results)`);
     
-    // Update environment for production-like performance
-    console.log('⚙️ Updating environment for performance...');
-    process.env.NODE_ENV = 'production';
-    process.env.NEXT_TELEMETRY_DISABLED = '1';
+    // Test Venue query performance
+    const venueStart = Date.now();
+    const venues = await mongoose.model('Venue').find({ isAvailable: true }).limit(10).lean();
+    const venueTime = Date.now() - venueStart;
+    console.log(`✅ Venue query: ${venueTime}ms (${venues.length} results)`);
     
-    // Start containers
-    console.log('🚀 Starting containers...');
-    await this.runCommand('docker-compose', ['up', '-d', '--build']);
+    // Test Booking query performance
+    const bookingStart = Date.now();
+    const bookings = await mongoose.model('Booking').find({ status: 'confirmed' }).limit(10).lean();
+    const bookingTime = Date.now() - bookingStart;
+    console.log(`✅ Booking query: ${bookingTime}ms (${bookings.length} results)`);
     
-    // Wait for containers to be ready
-    console.log('⏳ Waiting for containers to be ready...');
-    await this.waitForContainers();
+    // Performance summary
+    console.log('\n📈 PERFORMANCE SUMMARY:');
+    console.log('========================');
+    console.log(`User Queries: ${userTime}ms`);
+    console.log(`Vendor Queries: ${vendorTime}ms`);
+    console.log(`Venue Queries: ${venueTime}ms`);
+    console.log(`Booking Queries: ${bookingTime}ms`);
     
-    console.log('✅ Containers restarted successfully');
-  }
-  
-  /**
-   * Wait for containers to be ready
-   */
-  async waitForContainers() {
-    return new Promise((resolve) => {
-      const checkInterval = setInterval(async () => {
-        try {
-          const result = await this.runCommand('docker-compose', ['ps', '--format', 'json']);
-          const containers = JSON.parse(result);
-          
-          if (containers.length > 0) {
-            const ready = containers.every(container => 
-              container.State === 'running' || container.State === 'Up'
-            );
-            
-            if (ready) {
-              clearInterval(checkInterval);
-              resolve();
-            }
-          }
-        } catch (error) {
-          // Continue waiting
-        }
-      }, 5000); // Check every 5 seconds
-      
-      // Timeout after 2 minutes
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        resolve();
-      }, 120000);
-    });
-  }
-  
-  /**
-   * Test performance after optimizations
-   */
-  async testPerformance() {
-    console.log('📊 Testing performance after optimizations...');
+    const avgTime = Math.round((userTime + vendorTime + venueTime + bookingTime) / 4);
+    console.log(`\nAverage Query Time: ${avgTime}ms`);
     
-    // Wait a bit for containers to fully initialize
-    await new Promise(resolve => setTimeout(resolve, 10000));
-    
-    return new Promise((resolve, reject) => {
-      const process = spawn('node', ['scripts/performance-monitor.mjs'], {
-        stdio: 'inherit'
-      });
-      
-      process.on('close', (code) => {
-        if (code === 0) {
-          console.log('✅ Performance test completed');
-          resolve();
-        } else {
-          reject(new Error(`Performance test failed with code ${code}`));
-        }
-      });
-    });
-  }
-  
-  /**
-   * Generate optimization report
-   */
-  async generateReport() {
-    console.log('📋 Generating optimization report...');
-    
-    const report = {
-      timestamp: new Date().toISOString(),
-      optimizations: this.optimizations,
-      recommendations: [
-        'Database indexes added for faster queries',
-        'Containers restarted with optimized settings',
-        'Performance tested and monitored',
-        'Caching implemented for API responses'
-      ],
-      nextSteps: [
-        'Monitor performance over time',
-        'Implement Redis for distributed caching',
-        'Add database query monitoring',
-        'Consider CDN for static assets'
-      ]
-    };
-    
-    console.log('\n📊 OPTIMIZATION REPORT');
-    console.log('======================');
-    console.log(`Timestamp: ${report.timestamp}`);
-    console.log(`Optimizations: ${report.optimizations.join(', ')}`);
-    
-    console.log('\n✅ COMPLETED:');
-    report.recommendations.forEach(rec => console.log(`  - ${rec}`));
-    
-    console.log('\n🎯 NEXT STEPS:');
-    report.nextSteps.forEach(step => console.log(`  - ${step}`));
-    
-    console.log('\n🚀 Performance optimization completed!');
-  }
-  
-  /**
-   * Run shell command
-   */
-  async runCommand(command, args = []) {
-    return new Promise((resolve, reject) => {
-      const process = spawn(command, args, {
-        stdio: 'pipe'
-      });
-      
-      let output = '';
-      let error = '';
-      
-      process.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-      
-      process.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-      
-      process.on('close', (code) => {
-        if (code === 0) {
-          resolve(output.trim());
-        } else {
-          reject(new Error(`Command failed: ${error}`));
-        }
-      });
-    });
-  }
-  
-  /**
-   * Run all optimizations
-   */
-  async runAll() {
-    console.log('🚀 Starting comprehensive performance optimization...');
-    
-    for (const step of this.optimizations) {
-      await this.runOptimization(step);
-      
-      // Small delay between steps
-      if (step !== this.optimizations[this.optimizations.length - 1]) {
-        console.log('⏳ Waiting before next step...');
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      }
+    if (avgTime < 100) {
+      console.log('🎉 Excellent performance! Queries are running fast.');
+    } else if (avgTime < 500) {
+      console.log('✅ Good performance! Queries are running reasonably fast.');
+    } else {
+      console.log('⚠️ Performance needs improvement. Consider additional optimizations.');
     }
     
-    console.log('\n🎉 All performance optimizations completed!');
+    console.log('\n💡 Performance optimization completed!');
+    
+  } catch (error) {
+    console.error('❌ Error during optimization:', error.message);
+  } finally {
+    await mongoose.disconnect();
+    console.log('🔌 Disconnected from MongoDB');
   }
-}
+};
 
-// Main execution
-const optimizer = new PerformanceOptimizer();
-
-if (process.argv.includes('--all')) {
-  optimizer.runAll();
-} else {
-  const step = process.argv[2] || 'database-indexes';
-  optimizer.runOptimization(step);
-}
+optimizePerformance();

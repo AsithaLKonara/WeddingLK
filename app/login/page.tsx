@@ -162,7 +162,7 @@ export default function LoginPage() {
                     name="email"
                     type="email"
                     value={formData.email}
-                    onChange={handleInputChange}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
                     placeholder="Enter your email"
                     className="pl-10"
                     required
@@ -182,7 +182,7 @@ export default function LoginPage() {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
-                    onChange={handleInputChange}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
                     placeholder="Enter your password"
                     className="pl-10 pr-10"
                     required
@@ -210,7 +210,11 @@ export default function LoginPage() {
                     id="rememberMe"
                     name="rememberMe"
                     checked={formData.rememberMe}
-                    onChange={handleInputChange}
+                    onCheckedChange={(checked: boolean | 'indeterminate') => {
+                      if (typeof checked === 'boolean') {
+                        setFormData(prev => ({ ...prev, rememberMe: checked }));
+                      }
+                    }}
                   />
                   <label htmlFor="rememberMe" className="text-sm text-gray-600">
                     Remember me

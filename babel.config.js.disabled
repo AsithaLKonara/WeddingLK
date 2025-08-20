@@ -1,0 +1,31 @@
+module.exports = {
+  presets: [
+    ['@babel/preset-env', { targets: { node: 'current' } }],
+    ['@babel/preset-react', { runtime: 'automatic' }],
+    '@babel/preset-typescript',
+  ],
+  plugins: [
+    ['@babel/plugin-transform-runtime', { regenerator: true }],
+  ],
+  // Only use Babel for test files, not for the main application
+  env: {
+    test: {
+      presets: [
+        ['@babel/preset-env', { targets: { node: 'current' } }],
+        ['@babel/preset-react', { runtime: 'automatic' }],
+        '@babel/preset-typescript',
+      ],
+      plugins: [
+        ['@babel/plugin-transform-runtime', { regenerator: true }],
+      ],
+    },
+    development: {
+      presets: [],
+      plugins: [],
+    },
+    production: {
+      presets: [],
+      plugins: [],
+    }
+  }
+}; 

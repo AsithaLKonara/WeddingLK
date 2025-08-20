@@ -10,7 +10,7 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader />
       <div className="flex">
-        <DashboardNavigation />
+        <DashboardNavigation userRole="user" />
         <main className="flex-1 p-6">
           {children}
         </main>
