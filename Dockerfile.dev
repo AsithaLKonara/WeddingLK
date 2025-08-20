@@ -1,39 +1,32 @@
 # Development Dockerfile for WeddingLK Next.js Application
-FROM node:20-slim
+FROM node:18-bullseye
 
-# Install system dependencies
+# Install build dependencies for native modules
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
-    git \
-    curl \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files first for better layer caching
-COPY package*.json ./
+# Copy package files
+COPY package.json package-lock.json* ./
 
-# Install dependencies with better error handling
+# Install dependencies
 RUN npm config set registry https://registry.npmjs.org/ && \
-    npm config set fetch-retries 5 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm install --legacy-peer-deps --no-audit --no-fund
+    npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Disable telemetry and set development environment
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=development
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
 # Expose port
 EXPOSE 3000
 
-# Start the development server
+# Set environment
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Start development server
 CMD ["npm", "run", "dev"] 

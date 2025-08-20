@@ -1,110 +1,86 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Docker support
+  // Enable standalone output for Docker
   output: 'standalone',
   
-  // Disable static generation to avoid React import issues
+  // Experimental features
   experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      '@radix-ui/react-icons',
-      'framer-motion',
-      'react-hook-form',
-      '@hookform/resolvers',
-      'next-themes',
-      'date-fns',
-      'recharts',
-      'sonner',
-    ],
+    // Enable app directory
+    appDir: true,
+    
+    // Enable server components
+    serverComponentsExternalPackages: ['mongoose'],
   },
   
-  // Build optimizations
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  
-  // Force all pages to be dynamic
-  trailingSlash: false,
-  
-  // Image optimizations
+  // Image optimization
   images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: 'plus.unsplash.com' },
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
-    ],
+    domains: ['localhost', 'res.cloudinary.com'],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
-  // Compression and headers
-  compress: true,
-  poweredByHeader: false,
+  // Environment variables
+  env: {
+    CUSTOM_KEY: 'my-value',
+  },
   
-  // Caching and performance
-  generateEtags: false,
-  
-  // Bundle optimization
-  webpack: (config, { dev, isServer }) => {
-    // Optimize bundle size
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            enforce: true,
-          },
-        },
-      }
+  // Webpack configuration
+  webpack: (config, { isServer }) => {
+    // Add custom webpack config here if needed
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
     }
     
-    return config
+    return config;
   },
   
-  // Headers for better caching
+  // Headers for security
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
             key: 'X-Frame-Options',
             value: 'DENY',
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
-        ],
-      },
-      {
-        source: '/static/(.*)',
-        headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
           },
         ],
       },
-    ]
+    ];
   },
-}
+  
+  // Redirects
+  async redirects() {
+    return [
+      {
+        source: '/old-page',
+        destination: '/new-page',
+        permanent: true,
+      },
+    ];
+  },
+  
+  // Rewrites
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      },
+    ];
+  },
+};
 
-export default nextConfig
+export default nextConfig;

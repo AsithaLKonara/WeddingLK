@@ -1,453 +1,315 @@
 #!/usr/bin/env node
 
-import mongoose from 'mongoose'
-import bcrypt from 'bcryptjs'
-import dotenv from 'dotenv'
+import mongoose from 'mongoose';
+import { faker } from '@faker-js/faker';
+import dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config({ path: '.env.local' })
+dotenv.config({ path: '.env.local' });
 
-// MongoDB connection string
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/weddinglk'
+console.log('🚀 Starting Comprehensive Database Seeding...');
 
-// Sample data
-const sampleUsers = [
-  {
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: 'password123',
-    role: 'user',
-    phone: '+94 71 123 4567',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-  },
-  {
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    password: 'password123',
-    role: 'user',
-    phone: '+94 71 234 5678',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
-  },
-  {
-    name: 'Admin User',
-    email: 'admin@weddinglk.com',
-    password: 'admin123',
-    role: 'admin',
-    phone: '+94 71 345 6789'
-  },
-  {
-    name: 'Vendor Owner',
-    email: 'vendor@example.com',
-    password: 'vendor123',
-    role: 'vendor',
-    phone: '+94 71 456 7890'
-  }
-]
-
-const sampleVendors = [
-  {
-    businessName: 'Perfect Moments Photography',
-    name: 'Sarah Johnson',
-    category: 'photography',
-    description: 'Professional wedding photography capturing your special moments with artistic flair and attention to detail.',
-    location: {
-      city: 'Colombo',
-      province: 'Western Province',
-      coordinates: [79.8612, 6.9271]
-    },
-    contact: {
-      phone: '+94 71 111 1111',
-      email: 'sarah@perfectmoments.com',
-      website: 'https://perfectmoments.com'
-    },
-    services: ['Wedding Photography', 'Engagement Shoots', 'Wedding Albums'],
-    pricing: {
-      basePrice: 50000,
-      currency: 'LKR',
-      packages: [
-        { name: 'Basic', price: 50000, description: '6 hours coverage, 200 edited photos' },
-        { name: 'Premium', price: 80000, description: 'Full day coverage, 400 edited photos, album' }
-      ]
-    },
-    rating: { average: 4.8, count: 25 },
-    isVerified: true,
-    isActive: true,
-    featured: true,
-    images: [
-      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop'
-    ]
-  },
-  {
-    businessName: 'Elegant Catering Services',
-    name: 'Michael Chen',
-    category: 'catering',
-    description: 'Premium wedding catering with customizable menus featuring local and international cuisine.',
-    location: {
-      city: 'Kandy',
-      province: 'Central Province',
-      coordinates: [80.6333, 7.2955]
-    },
-    contact: {
-      phone: '+94 71 222 2222',
-      email: 'michael@elegantcatering.com',
-      website: 'https://elegantcatering.com'
-    },
-    services: ['Wedding Catering', 'Menu Planning', 'Food Styling'],
-    pricing: {
-      basePrice: 2500,
-      currency: 'LKR',
-      packages: [
-        { name: 'Standard', price: 2500, description: 'Per person, 3-course meal' },
-        { name: 'Premium', price: 4000, description: 'Per person, 5-course meal, wine service' }
-      ]
-    },
-    rating: { average: 4.6, count: 18 },
-    isVerified: true,
-    isActive: true,
-    featured: true,
-    images: [
-      'https://images.unsplash.com/photo-1555244162-803834f70033?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop'
-    ]
-  },
-  {
-    businessName: 'Dream Decorations',
-    name: 'Lisa Rodriguez',
-    category: 'decoration',
-    description: 'Creative wedding decorations and floral arrangements to transform any venue into a magical setting.',
-    location: {
-      city: 'Galle',
-      province: 'Southern Province',
-      coordinates: [80.2175, 6.0535]
-    },
-    contact: {
-      phone: '+94 71 333 3333',
-      email: 'lisa@dreamdecorations.com',
-      website: 'https://dreamdecorations.com'
-    },
-    services: ['Wedding Decorations', 'Floral Arrangements', 'Venue Styling'],
-    pricing: {
-      basePrice: 75000,
-      currency: 'LKR',
-      packages: [
-        { name: 'Basic', price: 75000, description: 'Ceremony and reception decorations' },
-        { name: 'Luxury', price: 150000, description: 'Full venue transformation with premium flowers' }
-      ]
-    },
-    rating: { average: 4.9, count: 32 },
-    isVerified: true,
-    isActive: true,
-    featured: true,
-    images: [
-      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop'
-    ]
-  }
-]
-
-const sampleVenues = [
-  {
-    name: 'Grand Ballroom Hotel',
-    description: 'Luxurious hotel ballroom perfect for elegant weddings with modern amenities and professional service.',
-    location: {
-      city: 'Colombo',
-      province: 'Western Province',
-      coordinates: [79.8612, 6.9271],
-      address: '123 Marine Drive, Colombo 01'
-    },
-    capacity: { min: 100, max: 500 },
-    pricing: {
-      basePrice: 150000,
-      currency: 'LKR',
-      perPerson: 2500,
-      minimumGuests: 100
-    },
-    amenities: ['Parking', 'Catering', 'Audio/Visual', 'Bridal Suite', 'Garden Area'],
-    images: [
-      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop'
-    ],
-    rating: { average: 4.7, count: 45 },
-    isActive: true,
-    isVerified: true,
-    featured: true
-  },
-  {
-    name: 'Garden Palace Resort',
-    description: 'Beautiful garden resort with outdoor ceremony spaces and stunning natural surroundings.',
-    location: {
-      city: 'Kandy',
-      province: 'Central Province',
-      coordinates: [80.6333, 7.2955],
-      address: '456 Peradeniya Road, Kandy'
-    },
-    capacity: { min: 50, max: 200 },
-    pricing: {
-      basePrice: 100000,
-      currency: 'LKR',
-      perPerson: 2000,
-      minimumGuests: 50
-    },
-    amenities: ['Garden Ceremony', 'Outdoor Reception', 'Accommodation', 'Catering', 'Parking'],
-    images: [
-      'https://images.unsplash.com/photo-1555244162-803834f70033?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop'
-    ],
-    rating: { average: 4.5, count: 28 },
-    isActive: true,
-    isVerified: true,
-    featured: true
-  }
-]
-
-const sampleReviews = [
-  {
-    content: 'Amazing photography service! Sarah captured our special day perfectly. Highly recommended!',
-    rating: 5,
-    user: null, // Will be populated with actual user ID
-    vendor: null, // Will be populated with actual vendor ID
-    venue: null,
-    isVerified: true,
-    isActive: true
-  },
-  {
-    content: 'Excellent catering service with delicious food and professional staff.',
-    rating: 5,
-    user: null,
-    vendor: null,
-    venue: null,
-    isVerified: true,
-    isActive: true
-  },
-  {
-    content: 'Beautiful venue with stunning views and excellent service.',
-    rating: 4,
-    user: null,
-    vendor: null,
-    venue: null,
-    isVerified: true,
-    isActive: true
-  }
-]
-
-const sampleTasks = [
-  {
-    title: 'Book photographer',
-    description: 'Research and book wedding photographer',
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    status: 'pending',
-    priority: 'high',
-    category: 'vendors',
-    estimatedHours: 2
-  },
-  {
-    title: 'Choose wedding venue',
-    description: 'Visit and select wedding venue',
-    dueDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
-    status: 'pending',
-    priority: 'high',
-    category: 'venue',
-    estimatedHours: 4
-  },
-  {
-    title: 'Order wedding dress',
-    description: 'Select and order wedding dress',
-    dueDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
-    status: 'pending',
-    priority: 'medium',
-    category: 'attire',
-    estimatedHours: 3
-  }
-]
-
-// Connect to MongoDB
-async function connectDB() {
+const seedDatabase = async () => {
   try {
-    await mongoose.connect(MONGODB_URI)
-    console.log('Connected to MongoDB')
-  } catch (error) {
-    console.error('MongoDB connection error:', error)
-    process.exit(1)
-  }
-}
-
-// Seed users
-async function seedUsers() {
-  try {
-    const User = mongoose.model('User')
+    console.log('🔌 Connecting to MongoDB...');
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ Connected to MongoDB');
     
-    for (const userData of sampleUsers) {
-      const existingUser = await User.findOne({ email: userData.email })
-      if (!existingUser) {
-        const hashedPassword = await bcrypt.hash(userData.password, 12)
-        const user = new User({
-          ...userData,
-          password: hashedPassword
-        })
-        await user.save()
-        console.log(`Created user: ${userData.email}`)
-      } else {
-        console.log(`User already exists: ${userData.email}`)
-      }
-    }
+    // Create schemas for seeding
+    const userSchema = new mongoose.Schema({
+      email: String,
+      firstName: String,
+      lastName: String,
+      role: String,
+      isVerified: Boolean,
+      isActive: Boolean,
+      avatar: String,
+      location: Object,
+      preferences: Object
+    });
     
-    console.log('Users seeding completed')
-  } catch (error) {
-    console.error('Error seeding users:', error)
-  }
-}
-
-// Seed vendors
-async function seedVendors() {
-  try {
-    const Vendor = mongoose.model('Vendor')
-    const User = mongoose.model('User')
+    const vendorSchema = new mongoose.Schema({
+      userId: mongoose.Schema.Types.ObjectId,
+      businessName: String,
+      businessType: String,
+      description: String,
+      services: Array,
+      experience: Number,
+      rating: Number,
+      totalReviews: Number,
+      availability: Object,
+      portfolio: Array,
+      isVerified: Boolean,
+      isActive: Boolean
+    });
     
-    for (const vendorData of sampleVendors) {
-      const existingVendor = await Vendor.findOne({ businessName: vendorData.businessName })
-      if (!existingVendor) {
-        // Find vendor owner user
-        const owner = await User.findOne({ email: vendorData.name.toLowerCase().replace(' ', '') + '@example.com' })
-        if (owner) {
-          const vendor = new Vendor({
-            ...vendorData,
-            owner: owner._id
-          })
-          await vendor.save()
-          console.log(`Created vendor: ${vendorData.businessName}`)
+    const venueSchema = new mongoose.Schema({
+      name: String,
+      type: String,
+      description: String,
+      capacity: Number,
+      location: Object,
+      amenities: Array,
+      pricing: Object,
+      images: Array,
+      rating: Number,
+      totalReviews: Number,
+      isAvailable: Boolean,
+      isVerified: Boolean
+    });
+    
+    const bookingSchema = new mongoose.Schema({
+      clientId: mongoose.Schema.Types.ObjectId,
+      vendorId: mongoose.Schema.Types.ObjectId,
+      venueId: mongoose.Schema.Types.ObjectId,
+      eventType: String,
+      eventDate: Date,
+      guestCount: Number,
+      totalAmount: Number,
+      status: String,
+      requirements: String,
+      bookingDate: Date,
+      paymentStatus: String
+    });
+    
+    const reviewSchema = new mongoose.Schema({
+      reviewerId: mongoose.Schema.Types.ObjectId,
+      vendorId: mongoose.Schema.Types.ObjectId,
+      venueId: mongoose.Schema.Types.ObjectId,
+      rating: Number,
+      title: String,
+      comment: String,
+      category: String,
+      isVerified: Boolean,
+      createdAt: Date
+    });
+    
+    // Create models
+    const User = mongoose.model('User', userSchema);
+    const Vendor = mongoose.model('Vendor', vendorSchema);
+    const Venue = mongoose.model('Venue', venueSchema);
+    const Booking = mongoose.model('Booking', bookingSchema);
+    const Review = mongoose.model('Review', reviewSchema);
+    
+    console.log('🧹 Clearing existing data...');
+    await Promise.all([
+      User.deleteMany({}),
+      Vendor.deleteMany({}),
+      Venue.deleteMany({}),
+      Booking.deleteMany({}),
+      Review.deleteMany({})
+    ]);
+    
+    console.log('👥 Creating users...');
+    const users = [];
+    
+    // Create clients
+    for (let i = 0; i < 15; i++) {
+      const user = new User({
+        email: faker.internet.email(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        role: 'client',
+        isVerified: true,
+        isActive: true,
+        avatar: faker.image.avatar(),
+        location: {
+          city: faker.location.city(),
+          country: 'Sri Lanka'
+        },
+        preferences: {
+          weddingStyle: faker.helpers.arrayElement(['Traditional', 'Modern', 'Elegant', 'Rustic']),
+          budget: faker.helpers.arrayElement(['Budget', 'Mid-range', 'Premium']),
+          guestCount: faker.number.int({ min: 50, max: 300 })
         }
-      } else {
-        console.log(`Vendor already exists: ${vendorData.businessName}`)
-      }
+      });
+      await user.save();
+      users.push(user);
+      console.log(`✅ Created client: ${user.firstName} ${user.lastName}`);
     }
     
-    console.log('Vendors seeding completed')
-  } catch (error) {
-    console.error('Error seeding vendors:', error)
-  }
-}
-
-// Seed venues
-async function seedVenues() {
-  try {
-    const Venue = mongoose.model('Venue')
-    const User = mongoose.model('User')
-    
-    for (const venueData of sampleVenues) {
-      const existingVenue = await Venue.findOne({ name: venueData.name })
-      if (!existingVenue) {
-        // Find venue owner user
-        const owner = await User.findOne({ role: 'admin' })
-        if (owner) {
-          const venue = new Venue({
-            ...venueData,
-            owner: owner._id
-          })
-          await venue.save()
-          console.log(`Created venue: ${venueData.name}`)
+    // Create vendors
+    for (let i = 0; i < 20; i++) {
+      const user = new User({
+        email: faker.internet.email(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        role: 'vendor',
+        isVerified: true,
+        isActive: true,
+        avatar: faker.image.avatar(),
+        location: {
+          city: faker.location.city(),
+          country: 'Sri Lanka'
         }
-      } else {
-        console.log(`Venue already exists: ${venueData.name}`)
-      }
+      });
+      await user.save();
+      users.push(user);
+      console.log(`✅ Created vendor user: ${user.firstName} ${user.lastName}`);
     }
     
-    console.log('Venues seeding completed')
-  } catch (error) {
-    console.error('Error seeding venues:', error)
-  }
-}
-
-// Seed reviews
-async function seedReviews() {
-  try {
-    const Review = mongoose.model('Review')
-    const User = mongoose.model('User')
-    const Vendor = mongoose.model('Vendor')
-    const Venue = mongoose.model('Venue')
+    // Create planners
+    for (let i = 0; i < 5; i++) {
+      const user = new User({
+        email: faker.internet.email(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        role: 'planner',
+        isVerified: true,
+        isActive: true,
+        avatar: faker.image.avatar(),
+        location: {
+          city: faker.location.city(),
+          country: 'Sri Lanka'
+        }
+      });
+      await user.save();
+      users.push(user);
+      console.log(`✅ Created planner: ${user.firstName} ${user.lastName}`);
+    }
     
-    const users = await User.find({ role: 'user' })
-    const vendors = await Vendor.find()
-    const venues = await Venue.find()
+    console.log('🏢 Creating vendors...');
+    const vendors = [];
+    const vendorUsers = users.filter(u => u.role === 'vendor');
     
-    for (let i = 0; i < sampleReviews.length; i++) {
-      const reviewData = sampleReviews[i]
-      const user = users[i % users.length]
-      const vendor = vendors[i % vendors.length]
-      const venue = venues[i % venues.length]
+    for (let i = 0; i < vendorUsers.length; i++) {
+      const vendor = new Vendor({
+        userId: vendorUsers[i]._id,
+        businessName: faker.company.name(),
+        businessType: faker.helpers.arrayElement(['Photography', 'Catering', 'Decoration', 'Music', 'Transport', 'Beauty', 'Flowers']),
+        description: faker.lorem.paragraph(),
+        services: Array.from({ length: faker.number.int({ min: 3, max: 8 }) }, () => ({
+          name: faker.commerce.productName(),
+          description: faker.lorem.sentence(),
+          price: faker.number.float({ min: 1000, max: 50000, precision: 0.01 }),
+          duration: faker.number.int({ min: 1, max: 8 })
+        })),
+        experience: faker.number.int({ min: 1, max: 20 }),
+        rating: faker.number.float({ min: 3.5, max: 5.0, precision: 0.1 }),
+        totalReviews: faker.number.int({ min: 10, max: 200 }),
+        availability: {
+          monday: { start: '09:00', end: '18:00', available: true },
+          tuesday: { start: '09:00', end: '18:00', available: true },
+          wednesday: { start: '09:00', end: '18:00', available: true },
+          thursday: { start: '09:00', end: '18:00', available: true },
+          friday: { start: '09:00', end: '18:00', available: true },
+          saturday: { start: '09:00', end: '16:00', available: true },
+          sunday: { start: '10:00', end: '16:00', available: false }
+        },
+        portfolio: Array.from({ length: faker.number.int({ min: 5, max: 15 }) }, () => ({
+          title: faker.lorem.words(3),
+          description: faker.lorem.sentence(),
+          imageUrl: faker.image.url(),
+          category: faker.helpers.arrayElement(['Wedding', 'Engagement', 'Reception', 'Ceremony'])
+        })),
+        isVerified: true,
+        isActive: true
+      });
+      await vendor.save();
+      vendors.push(vendor);
+      console.log(`✅ Created vendor: ${vendor.businessName}`);
+    }
+    
+    console.log('🏛️ Creating venues...');
+    const venues = [];
+    
+    for (let i = 0; i < 25; i++) {
+      const venue = new Venue({
+        name: faker.company.name(),
+        type: faker.helpers.arrayElement(['Hotel', 'Resort', 'Garden', 'Beach', 'Historic', 'Modern Hall']),
+        description: faker.lorem.paragraph(),
+        capacity: faker.number.int({ min: 100, max: 1000 }),
+        location: {
+          address: faker.location.streetAddress(),
+          city: faker.location.city(),
+          country: 'Sri Lanka'
+        },
+        amenities: Array.from({ length: faker.number.int({ min: 5, max: 12 }) }, () => 
+          faker.helpers.arrayElement(['Parking', 'Catering', 'Decoration', 'Music System', 'Lighting', 'Air Conditioning', 'Garden', 'Pool', 'Beach Access', 'WiFi', 'Security', 'Valet Service'])
+        ),
+        pricing: {
+          weekday: faker.number.float({ min: 50000, max: 500000, precision: 0.01 }),
+          weekend: faker.number.float({ min: 75000, max: 750000, precision: 0.01 }),
+          holiday: faker.number.float({ min: 100000, max: 1000000, precision: 0.01 })
+        },
+        images: Array.from({ length: faker.number.int({ min: 3, max: 8 }) }, () => faker.image.url()),
+        rating: faker.number.float({ min: 3.5, max: 5.0, precision: 0.1 }),
+        totalReviews: faker.number.int({ min: 5, max: 100 }),
+        isAvailable: true,
+        isVerified: true
+      });
+      await venue.save();
+      venues.push(venue);
+      console.log(`✅ Created venue: ${venue.name}`);
+    }
+    
+    console.log('📅 Creating bookings...');
+    const bookings = [];
+    
+    for (let i = 0; i < 30; i++) {
+      const client = faker.helpers.arrayElement(users.filter(u => u.role === 'client'));
+      const vendor = faker.helpers.arrayElement(vendors);
+      const venue = faker.helpers.arrayElement(venues);
       
-      if (user && (vendor || venue)) {
-        const review = new Review({
-          ...reviewData,
-          user: user._id,
-          vendor: vendor?._id,
-          venue: venue?._id
-        })
-        await review.save()
-        console.log(`Created review for ${vendor ? vendor.businessName : venue?.name}`)
-      }
+      const booking = new Booking({
+        clientId: client._id,
+        vendorId: vendor._id,
+        venueId: venue._id,
+        eventType: faker.helpers.arrayElement(['Wedding', 'Engagement', 'Reception', 'Anniversary', 'Birthday']),
+        eventDate: faker.date.future({ years: 1 }),
+        guestCount: faker.number.int({ min: 50, max: 500 }),
+        totalAmount: faker.number.float({ min: 100000, max: 2000000, precision: 0.01 }),
+        status: faker.helpers.arrayElement(['pending', 'confirmed', 'completed', 'cancelled']),
+        requirements: faker.lorem.paragraph(),
+        bookingDate: faker.date.past({ years: 1 }),
+        paymentStatus: faker.helpers.arrayElement(['pending', 'partial', 'completed'])
+      });
+      await booking.save();
+      bookings.push(booking);
+      console.log(`✅ Created booking: ${booking.eventType} for ${client.firstName}`);
     }
     
-    console.log('Reviews seeding completed')
-  } catch (error) {
-    console.error('Error seeding reviews:', error)
-  }
-}
-
-// Seed tasks
-async function seedTasks() {
-  try {
-    const Task = mongoose.model('Task')
-    const User = mongoose.model('User')
+    console.log('⭐ Creating reviews...');
+    const reviews = [];
     
-    const users = await User.find({ role: 'user' })
-    
-    for (const taskData of sampleTasks) {
-      const user = users[0] // Assign to first user
-      if (user) {
-        const task = new Task({
-          ...taskData,
-          user: user._id
-        })
-        await task.save()
-        console.log(`Created task: ${taskData.title}`)
-      }
+    for (let i = 0; i < 40; i++) {
+      const reviewer = faker.helpers.arrayElement(users);
+      const vendor = faker.helpers.arrayElement(vendors);
+      const venue = faker.helpers.arrayElement(venues);
+      const booking = faker.helpers.arrayElement(bookings);
+      
+      const review = new Review({
+        reviewerId: reviewer._id,
+        vendorId: vendor._id,
+        venueId: venue._id,
+        rating: faker.number.int({ min: 1, max: 5 }),
+        title: faker.lorem.words(3),
+        comment: faker.lorem.paragraph(),
+        category: faker.helpers.arrayElement(['Service Quality', 'Value for Money', 'Professionalism', 'Communication', 'Overall Experience']),
+        isVerified: true,
+        createdAt: faker.date.past({ years: 1 })
+      });
+      await review.save();
+      reviews.push(review);
+      console.log(`✅ Created review: ${review.title}`);
     }
     
-    console.log('Tasks seeding completed')
-  } catch (error) {
-    console.error('Error seeding tasks:', error)
-  }
-}
-
-// Main seeding function
-async function seedDatabase() {
-  try {
-    await connectDB()
+    // Display summary
+    console.log('\n📊 DATABASE SEEDING SUMMARY:');
+    console.log('================================');
+    console.log(`Users: ${users.length}`);
+    console.log(`Vendors: ${vendors.length}`);
+    console.log(`Venues: ${venues.length}`);
+    console.log(`Bookings: ${bookings.length}`);
+    console.log(`Reviews: ${reviews.length}`);
     
-    console.log('Starting database seeding...')
-    
-    await seedUsers()
-    await seedVendors()
-    await seedVenues()
-    await seedReviews()
-    await seedTasks()
-    
-    console.log('Database seeding completed successfully!')
-    
-    // Close connection
-    await mongoose.connection.close()
-    console.log('MongoDB connection closed')
+    console.log('\n🎉 Comprehensive seeding completed successfully!');
     
   } catch (error) {
-    console.error('Seeding error:', error)
-    process.exit(1)
+    console.error('❌ Error during seeding:', error.message);
+  } finally {
+    await mongoose.disconnect();
+    console.log('🔌 Disconnected from MongoDB');
   }
-}
+};
 
-// Run seeding if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  seedDatabase()
-}
-
-export default seedDatabase 
+seedDatabase(); 

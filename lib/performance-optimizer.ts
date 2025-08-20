@@ -1,297 +1,233 @@
-// Performance Optimizer for WeddingLK
-// This service provides advanced performance optimization features
+import { connectDB } from './db';
+import { Vendor } from './models/vendor';
+import { Venue } from './models/venue';
+import { User } from './models/user';
+import { Booking } from './models/booking';
+import { Review } from './models/review';
 
-export interface CacheConfig {
-  maxSize: number
-  ttl: number
-  strategy: 'lru' | 'fifo' | 'lfu'
-}
-
-export interface PerformanceMetrics {
-  pageLoadTime: number
-  firstContentfulPaint: number
-  largestContentfulPaint: number
-  cumulativeLayoutShift: number
-  firstInputDelay: number
-  timeToInteractive: number
-}
-
-export interface OptimizationResult {
-  success: boolean
-  improvements: string[]
-  metrics: PerformanceMetrics
-  recommendations: string[]
+interface PerformanceResults {
+  vendorQuery: { vendors: any[]; queryTime: number } | null;
+  venueQuery: { venues: any[]; queryTime: number } | null;
+  statsQuery: { userCount: number; vendorCount: number; venueCount: number; bookingCount: number; reviewCount: number; queryTime: number } | null;
+  textSearch: { vendors: any[]; queryTime: number } | null;
+  totalTime: number;
 }
 
 export class PerformanceOptimizer {
-  private static cache = new Map<string, { data: any; timestamp: number; ttl: number }>()
-  private static maxCacheSize = 1000
-  private static defaultTTL = 5 * 60 * 1000 // 5 minutes
-
-  // LRU Cache implementation
-  static setCache(key: string, data: any, ttl: number = this.defaultTTL): void {
+  
+  /**
+   * Optimize database queries with lean() and field selection
+   */
+  static async optimizeVendorQueries() {
     try {
-      // Remove oldest items if cache is full
-      if (this.cache.size >= this.maxCacheSize) {
-        const oldestKey = this.cache.keys().next().value
-        if (oldestKey !== undefined) {
-          this.cache.delete(oldestKey)
-        }
-      }
-
-      this.cache.set(key, {
-        data,
-        timestamp: Date.now(),
-        ttl
+      await connectDB();
+      
+      // Test optimized vendor query
+      const startTime = Date.now();
+      
+      const vendors = await Vendor.find({ isActive: true, isVerified: true })
+        .select('businessName businessType description rating totalReviews experience')
+        .sort({ rating: -1, totalReviews: -1 })
+        .limit(10)
+        .lean()
+        .exec();
+      
+      const queryTime = Date.now() - startTime;
+      console.log(`⚡ Optimized vendor query: ${queryTime}ms for ${vendors.length} results`);
+      
+      return { vendors, queryTime };
+      
+    } catch (error) {
+      console.error('❌ Vendor optimization error:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Optimize venue queries with lean() and field selection
+   */
+  static async optimizeVenueQueries() {
+    try {
+      await connectDB();
+      
+      const startTime = Date.now();
+      
+      const venues = await Venue.find({ isAvailable: true, isVerified: true })
+        .select('name type description capacity rating totalReviews amenities pricing images')
+        .sort({ rating: -1, totalReviews: -1 })
+        .limit(10)
+        .lean()
+        .exec();
+      
+      const queryTime = Date.now() - startTime;
+      console.log(`⚡ Optimized venue query: ${queryTime}ms for ${venues.length} results`);
+      
+      return { venues, queryTime };
+      
+    } catch (error) {
+      console.error('❌ Venue optimization error:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Optimize stats aggregation with parallel pipelines
+   */
+  static async optimizeStatsQueries() {
+    try {
+      await connectDB();
+      
+      const startTime = Date.now();
+      
+      // Execute all aggregations in parallel
+      const [userCount, vendorCount, venueCount, bookingCount, reviewCount] = await Promise.all([
+        User.countDocuments({}).exec(),
+        Vendor.countDocuments({ isActive: true, isVerified: true }).exec(),
+        Venue.countDocuments({ isAvailable: true, isVerified: true }).exec(),
+        Booking.countDocuments({}).exec(),
+        Review.countDocuments({ isVerified: true }).exec()
+      ]);
+      
+      const queryTime = Date.now() - startTime;
+      console.log(`⚡ Optimized stats queries: ${queryTime}ms`);
+      
+      return {
+        userCount,
+        vendorCount,
+        venueCount,
+        bookingCount,
+        reviewCount,
+        queryTime
+      };
+      
+    } catch (error) {
+      console.error('❌ Stats optimization error:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Test text search performance
+   */
+  static async testTextSearch() {
+    try {
+      await connectDB();
+      
+      const startTime = Date.now();
+      
+      // Test vendor text search
+      const vendors = await Vendor.find({
+        $text: { $search: 'wedding photographer' }
       })
+      .select('businessName businessType description rating')
+      .sort({ score: { $meta: 'textScore' } })
+      .limit(5)
+      .lean()
+      .exec();
+      
+      const queryTime = Date.now() - startTime;
+      console.log(`⚡ Text search query: ${queryTime}ms for ${vendors.length} results`);
+      
+      return { vendors, queryTime };
+      
     } catch (error) {
-      console.error('Cache set error:', error)
+      console.error('❌ Text search error:', error);
+      throw error;
     }
   }
-
-  static getCache(key: string): any | null {
+  
+  /**
+   * Run comprehensive performance test
+   */
+  static async runPerformanceTest(): Promise<PerformanceResults> {
+    console.log('🚀 Running Comprehensive Performance Test...');
+    console.log('============================================');
+    
+    const results: PerformanceResults = {
+      vendorQuery: null,
+      venueQuery: null,
+      statsQuery: null,
+      textSearch: null,
+      totalTime: 0
+    };
+    
+    const startTime = Date.now();
+    
     try {
-      const item = this.cache.get(key)
-      if (!item) return null
-
-      // Check if item has expired
-      if (Date.now() - item.timestamp > item.ttl) {
-        this.cache.delete(key)
-        return null
+      // Test all optimizations
+      results.vendorQuery = await this.optimizeVendorQueries();
+      results.venueQuery = await this.optimizeVenueQueries();
+      results.statsQuery = await this.optimizeStatsQueries();
+      results.textSearch = await this.testTextSearch();
+      
+      results.totalTime = Date.now() - startTime;
+      
+      console.log('\n📊 PERFORMANCE TEST RESULTS');
+      console.log('============================');
+      if (results.vendorQuery) console.log(`Vendor Query: ${results.vendorQuery.queryTime}ms`);
+      if (results.venueQuery) console.log(`Venue Query: ${results.venueQuery.queryTime}ms`);
+      if (results.statsQuery) console.log(`Stats Query: ${results.statsQuery.queryTime}ms`);
+      if (results.textSearch) console.log(`Text Search: ${results.textSearch.queryTime}ms`);
+      console.log(`Total Time: ${results.totalTime}ms`);
+      
+      // Performance analysis
+      const queryTimes = [
+        results.vendorQuery?.queryTime || 0,
+        results.venueQuery?.queryTime || 0,
+        results.statsQuery?.queryTime || 0,
+        results.textSearch?.queryTime || 0
+      ].filter(time => time > 0);
+      
+      const avgQueryTime = queryTimes.length > 0 ? queryTimes.reduce((a, b) => a + b, 0) / queryTimes.length : 0;
+      
+      if (avgQueryTime < 1000) {
+        console.log('\n✅ EXCELLENT: All queries under 1 second!');
+      } else if (avgQueryTime < 3000) {
+        console.log('\n📈 GOOD: Queries under 3 seconds');
+      } else if (avgQueryTime < 10000) {
+        console.log('\n⚠️  NEEDS IMPROVEMENT: Some queries over 10 seconds');
+      } else {
+        console.log('\n🚨 CRITICAL: Queries too slow, needs immediate optimization');
       }
-
-      return item.data
+      
+      return results;
+      
     } catch (error) {
-      console.error('Cache get error:', error)
-      return null
+      console.error('❌ Performance test failed:', error);
+      throw error;
     }
   }
-
-  static clearCache(): void {
-    this.cache.clear()
-  }
-
-  // Image optimization
-  static optimizeImage(url: string, width: number, height: number, quality: number = 80): string {
-    try {
-      // Mock image optimization
-      return `${url}?w=${width}&h=${height}&q=${quality}&optimize=true`
-    } catch (error) {
-      console.error('Image optimization error:', error)
-      return url
+  
+  /**
+   * Generate optimization recommendations
+   */
+  static generateRecommendations(results: PerformanceResults) {
+    console.log('\n💡 OPTIMIZATION RECOMMENDATIONS');
+    console.log('================================');
+    
+    if (results.vendorQuery && results.vendorQuery.queryTime > 5000) {
+      console.log('🔧 Vendors: Add compound indexes for (isActive, isVerified, rating)');
     }
-  }
-
-  // Lazy loading implementation
-  static createLazyLoader(): IntersectionObserver {
-    return new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const element = entry.target as HTMLElement
-          if (element.dataset.src) {
-            element.setAttribute('src', element.dataset.src)
-            element.removeAttribute('data-src')
-          }
-        }
-      })
-    }, {
-      rootMargin: '50px'
-    })
-  }
-
-  // Code splitting optimization
-  static async loadComponent(componentPath: string): Promise<any> {
-    try {
-      const cached = this.getCache(`component_${componentPath}`)
-      if (cached) return cached
-
-      const component = await import(componentPath)
-      this.setCache(`component_${componentPath}`, component)
-      return component
-    } catch (error) {
-      console.error('Component loading error:', error)
-      return null
+    
+    if (results.venueQuery && results.venueQuery.queryTime > 5000) {
+      console.log('🔧 Venues: Add compound indexes for (isAvailable, isVerified, rating)');
     }
-  }
-
-  // Bundle optimization
-  static optimizeBundle(): string[] {
-    try {
-      const optimizations = [
-        'Tree shaking enabled',
-        'Code splitting implemented',
-        'Lazy loading configured',
-        'Image optimization active',
-        'Caching strategy applied'
-      ]
-
-      return optimizations
-    } catch (error) {
-      console.error('Bundle optimization error:', error)
-      return []
+    
+    if (results.statsQuery && results.statsQuery.queryTime > 5000) {
+      console.log('🔧 Stats: Implement Redis caching for aggregation results');
     }
-  }
-
-  // Performance monitoring
-  static measurePerformance(): PerformanceMetrics {
-    try {
-      // Mock performance metrics
-      return {
-        pageLoadTime: 1200,
-        firstContentfulPaint: 800,
-        largestContentfulPaint: 1500,
-        cumulativeLayoutShift: 0.05,
-        firstInputDelay: 50,
-        timeToInteractive: 2000
-      }
-    } catch (error) {
-      console.error('Performance measurement error:', error)
-      return {
-        pageLoadTime: 0,
-        firstContentfulPaint: 0,
-        largestContentfulPaint: 0,
-        cumulativeLayoutShift: 0,
-        firstInputDelay: 0,
-        timeToInteractive: 0
-      }
+    
+    if (results.textSearch && results.textSearch.queryTime > 5000) {
+      console.log('🔧 Search: Optimize text search indexes and add result caching');
     }
-  }
-
-  // Memory optimization
-  static optimizeMemory(): void {
-    try {
-      // Clear unused cache entries
-      const now = Date.now()
-      for (const [key, item] of this.cache.entries()) {
-        if (now - item.timestamp > item.ttl) {
-          this.cache.delete(key)
-        }
-      }
-
-      // Force garbage collection if available
-      if (typeof global !== 'undefined' && (global as any).gc) {
-        (global as any).gc()
-      }
-    } catch (error) {
-      console.error('Memory optimization error:', error)
-    }
-  }
-
-  // Network optimization
-  static optimizeNetwork(): string[] {
-    try {
-      const optimizations = [
-        'HTTP/2 enabled',
-        'Gzip compression active',
-        'CDN configured',
-        'Caching headers set',
-        'Resource preloading'
-      ]
-
-      return optimizations
-    } catch (error) {
-      console.error('Network optimization error:', error)
-      return []
-    }
-  }
-
-  // Database query optimization
-  static optimizeQueries(): string[] {
-    try {
-      const optimizations = [
-        'Index optimization',
-        'Query caching',
-        'Connection pooling',
-        'Query batching',
-        'Result pagination'
-      ]
-
-      return optimizations
-    } catch (error) {
-      console.error('Query optimization error:', error)
-      return []
-    }
-  }
-
-  // Generate optimization report
-  static generateOptimizationReport(): OptimizationResult {
-    try {
-      const metrics = this.measurePerformance()
-      const improvements = [
-        'Page load time reduced by 30%',
-        'First contentful paint improved by 25%',
-        'Cache hit rate increased to 85%',
-        'Bundle size reduced by 40%',
-        'Image loading optimized'
-      ]
-
-      const recommendations = [
-        'Implement service worker for offline support',
-        'Add more aggressive caching',
-        'Optimize critical rendering path',
-        'Implement progressive loading',
-        'Add performance monitoring'
-      ]
-
-      return {
-        success: true,
-        improvements,
-        metrics,
-        recommendations
-      }
-    } catch (error) {
-      console.error('Optimization report error:', error)
-      return {
-        success: false,
-        improvements: [],
-        metrics: {
-          pageLoadTime: 0,
-          firstContentfulPaint: 0,
-          largestContentfulPaint: 0,
-          cumulativeLayoutShift: 0,
-          firstInputDelay: 0,
-          timeToInteractive: 0
-        },
-        recommendations: []
-      }
-    }
-  }
-
-  // Preload critical resources
-  static preloadResources(resources: string[]): void {
-    try {
-      resources.forEach(resource => {
-        const link = document.createElement('link')
-        link.rel = 'preload'
-        link.href = resource
-        link.as = 'fetch'
-        document.head.appendChild(link)
-      })
-    } catch (error) {
-      console.error('Resource preloading error:', error)
-    }
-  }
-
-  // Optimize images for different screen sizes
-  static generateResponsiveImages(baseUrl: string): Record<string, string> {
-    try {
-      return {
-        mobile: this.optimizeImage(baseUrl, 400, 300, 70),
-        tablet: this.optimizeImage(baseUrl, 800, 600, 80),
-        desktop: this.optimizeImage(baseUrl, 1200, 900, 90),
-        retina: this.optimizeImage(baseUrl, 2400, 1800, 95)
-      }
-    } catch (error) {
-      console.error('Responsive image generation error:', error)
-      return {
-        mobile: baseUrl,
-        tablet: baseUrl,
-        desktop: baseUrl,
-        retina: baseUrl
-      }
-    }
+    
+    console.log('\n🎯 IMMEDIATE ACTIONS:');
+    console.log('1. Implement Redis for distributed caching');
+    console.log('2. Add database connection pooling');
+    console.log('3. Use production build for testing');
+    console.log('4. Implement response compression');
   }
 }
 
-// Export the performance optimizer
-export default PerformanceOptimizer 
+// Export for use in other modules
+export default PerformanceOptimizer; 

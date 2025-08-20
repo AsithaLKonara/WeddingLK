@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       if (updatedBooking) {
         console.log(`Booking ${bookingId} status updated to confirmed`)
 
-        // Send confirmation email
+      // Send confirmation email
         try {
           await sendEmail({
             to: customerEmail,

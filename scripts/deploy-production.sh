@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # Production Deployment Script for WeddingLK
-# This script automates the deployment process to production
+# This script handles building, deploying, and monitoring the production environment
 
 set -e  # Exit on any error
 
 # Configuration
-APP_NAME="weddinglk"
-PRODUCTION_URL="yourdomain.com"
-DEPLOY_USER="deploy"
-DEPLOY_PATH="/var/www/weddinglk"
-BACKUP_PATH="/var/backups/weddinglk"
-GIT_REPO="https://github.com/yourusername/weddinglk.git"
-GIT_BRANCH="main"
+PROJECT_NAME="weddinglk"
+DOCKER_COMPOSE_FILE="docker-compose.production.yml"
+ENV_FILE="env.production"
+HEALTH_CHECK_URL="http://localhost/api/health"
+NGINX_HEALTH_URL="http://localhost/nginx-health"
+GRAFANA_URL="http://localhost:3001"
+PROMETHEUS_URL="http://localhost:9090"
 
 # Colors for output
 RED='\033[0;31m'
@@ -21,287 +21,318 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Logging function
-log() {
-    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
+# Logging functions
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-    exit 1
-}
-
-success() {
+log_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
-warning() {
+log_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# Check if running as root
-if [[ $EUID -eq 0 ]]; then
-   error "This script should not be run as root"
-fi
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
 
 # Check prerequisites
 check_prerequisites() {
-    log "Checking prerequisites..."
+    log_info "Checking prerequisites..."
     
-    # Check if required commands exist
-    command -v git >/dev/null 2>&1 || error "git is required but not installed"
-    command -v node >/dev/null 2>&1 || error "node is required but not installed"
-    command -v npm >/dev/null 2>&1 || error "npm is required but not installed"
-    command -v pm2 >/dev/null 2>&1 || error "pm2 is required but not installed"
-    
-    # Check Node.js version
-    NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-    if [ "$NODE_VERSION" -lt 18 ]; then
-        error "Node.js 18 or higher is required (current: $(node -v))"
+    # Check if Docker is running
+    if ! docker info > /dev/null 2>&1; then
+        log_error "Docker is not running. Please start Docker and try again."
+        exit 1
     fi
     
-    success "Prerequisites check passed"
+    # Check if Docker Compose is available
+    if ! command -v docker-compose > /dev/null 2>&1; then
+        log_error "Docker Compose is not installed. Please install it and try again."
+        exit 1
+    fi
+    
+    # Check if environment file exists
+    if [ ! -f "$ENV_FILE" ]; then
+        log_error "Environment file $ENV_FILE not found. Please create it first."
+        exit 1
+    fi
+    
+    log_success "Prerequisites check passed"
 }
 
-# Create backup
-create_backup() {
-    log "Creating backup of current deployment..."
+# Build production images
+build_images() {
+    log_info "Building production Docker images..."
     
-    if [ -d "$DEPLOY_PATH" ]; then
-        BACKUP_NAME="backup-$(date +'%Y%m%d-%H%M%S')"
-        BACKUP_FULL_PATH="$BACKUP_PATH/$BACKUP_NAME"
+    # Build the main application image
+    docker build -f Dockerfile.production -t weddinglk/app:prod .
+    
+    # Build nginx image
+    docker build -f nginx/Dockerfile -t weddinglk/nginx:prod ./nginx
+    
+    log_success "Images built successfully"
+}
+
+# Deploy the stack
+deploy_stack() {
+    log_info "Deploying production stack..."
+    
+    # Stop existing stack if running
+    if docker-compose -f $DOCKER_COMPOSE_FILE ps | grep -q "Up"; then
+        log_info "Stopping existing stack..."
+        docker-compose -f $DOCKER_COMPOSE_FILE down
+    fi
+    
+    # Start the stack
+    docker-compose -f $DOCKER_COMPOSE_FILE up -d
+    
+    log_success "Stack deployment initiated"
+}
+
+# Wait for services to be healthy
+wait_for_health() {
+    log_info "Waiting for services to be healthy..."
+    
+    local max_attempts=30
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Health check attempt $attempt/$max_attempts..."
         
-        mkdir -p "$BACKUP_PATH"
-        cp -r "$DEPLOY_PATH" "$BACKUP_FULL_PATH"
+        # Check nginx health
+        if curl -f -s $NGINX_HEALTH_URL > /dev/null; then
+            log_success "Nginx is healthy"
+        else
+            log_warning "Nginx health check failed"
+            attempt=$((attempt + 1))
+            sleep 10
+            continue
+        fi
         
-        # Keep only last 5 backups
-        cd "$BACKUP_PATH"
-        ls -t | tail -n +6 | xargs -r rm -rf
+        # Check application health
+        if curl -f -s $HEALTH_CHECK_URL > /dev/null; then
+            log_success "Application is healthy"
+            break
+        else
+            log_warning "Application health check failed"
+        fi
         
-        success "Backup created: $BACKUP_NAME"
+        attempt=$((attempt + 1))
+        sleep 10
+    done
+    
+    if [ $attempt -gt $max_attempts ]; then
+        log_error "Health check timeout. Some services may not be ready."
+        return 1
+    fi
+    
+    log_success "All services are healthy"
+    return 0
+}
+
+# Run smoke tests
+run_smoke_tests() {
+    log_info "Running smoke tests..."
+    
+    local tests_passed=0
+    local total_tests=0
+    
+    # Test 1: Basic health check
+    total_tests=$((total_tests + 1))
+    if curl -f -s $HEALTH_CHECK_URL > /dev/null; then
+        log_success "Health check passed"
+        tests_passed=$((tests_passed + 1))
     else
-        warning "No existing deployment found, skipping backup"
+        log_error "Health check failed"
     fi
-}
-
-# Clone/update repository
-update_repository() {
-    log "Updating repository..."
     
-    if [ -d "$DEPLOY_PATH" ]; then
-        cd "$DEPLOY_PATH"
-        git fetch origin
-        git reset --hard origin/$GIT_BRANCH
-        success "Repository updated"
+    # Test 2: Nginx health
+    total_tests=$((total_tests + 1))
+    if curl -f -s $NGINX_HEALTH_URL > /dev/null; then
+        log_success "Nginx health check passed"
+        tests_passed=$((tests_passed + 1))
     else
-        log "Cloning repository..."
-        git clone -b $GIT_BRANCH $GIT_REPO "$DEPLOY_PATH"
-        success "Repository cloned"
-    fi
-}
-
-# Install dependencies
-install_dependencies() {
-    log "Installing dependencies..."
-    
-    cd "$DEPLOY_PATH"
-    
-    # Clean install
-    rm -rf node_modules package-lock.json
-    npm ci --production
-    
-    success "Dependencies installed"
-}
-
-# Build application
-build_application() {
-    log "Building application..."
-    
-    cd "$DEPLOY_PATH"
-    
-    # Set production environment
-    export NODE_ENV=production
-    
-    # Build the application
-    npm run build
-    
-    success "Application built successfully"
-}
-
-# Run tests
-run_tests() {
-    log "Running tests..."
-    
-    cd "$DEPLOY_PATH"
-    
-    # Run unit tests
-    npm run test:unit || warning "Unit tests failed, but continuing deployment"
-    
-    # Run integration tests
-    npm run test:integration || warning "Integration tests failed, but continuing deployment"
-    
-    success "Tests completed"
-}
-
-# Update environment configuration
-update_environment() {
-    log "Updating environment configuration..."
-    
-    cd "$DEPLOY_PATH"
-    
-    # Copy production environment file
-    if [ -f "deploy/production.env.example" ]; then
-        cp deploy/production.env.example .env.production
-        warning "Please update .env.production with your actual values"
+        log_error "Nginx health check failed"
     fi
     
-    # Ensure environment file exists
-    if [ ! -f ".env.production" ]; then
-        error ".env.production file not found. Please create it with your production configuration."
-    fi
+    # Test 3: Load balancer test
+    total_tests=$((total_tests + 1))
+    local responses=""
+    for i in {1..6}; do
+        response=$(curl -s $HEALTH_CHECK_URL | grep -o '"instanceId"[^,]*' || echo "no-instance-id")
+        responses="$responses $response"
+    done
     
-    success "Environment configuration updated"
-}
-
-# Setup PM2 process
-setup_pm2() {
-    log "Setting up PM2 process..."
-    
-    cd "$DEPLOY_PATH"
-    
-    # Create PM2 ecosystem file if it doesn't exist
-    if [ ! -f "ecosystem.config.js" ]; then
-        cat > ecosystem.config.js << EOF
-module.exports = {
-  apps: [{
-    name: '$APP_NAME',
-    script: 'npm',
-    args: 'start',
-    cwd: '$DEPLOY_PATH',
-    instances: 'max',
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    },
-    env_production: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    },
-    error_file: './logs/err.log',
-    out_file: './logs/out.log',
-    log_file: './logs/combined.log',
-    time: true,
-    max_memory_restart: '1G',
-    restart_delay: 4000,
-    max_restarts: 10,
-    min_uptime: '10s'
-  }]
-};
-EOF
-    fi
-    
-    # Create logs directory
-    mkdir -p logs
-    
-    success "PM2 configuration created"
-}
-
-# Deploy application
-deploy_application() {
-    log "Deploying application..."
-    
-    cd "$DEPLOY_PATH"
-    
-    # Stop existing process if running
-    pm2 stop $APP_NAME 2>/dev/null || true
-    pm2 delete $APP_NAME 2>/dev/null || true
-    
-    # Start new process
-    pm2 start ecosystem.config.js --env production
-    
-    # Save PM2 configuration
-    pm2 save
-    
-    # Setup PM2 startup script
-    pm2 startup
-    
-    success "Application deployed successfully"
-}
-
-# Health check
-health_check() {
-    log "Performing health check..."
-    
-    # Wait for application to start
-    sleep 10
-    
-    # Check if application is responding
-    if curl -f -s "http://localhost:3000/api/health" > /dev/null; then
-        success "Health check passed - application is responding"
+    if echo "$responses" | grep -q "app1\|app2\|app3"; then
+        log_success "Load balancer test passed"
+        tests_passed=$((tests_passed + 1))
     else
-        error "Health check failed - application is not responding"
+        log_warning "Load balancer test inconclusive"
+    fi
+    
+    # Test 4: API endpoints
+    total_tests=$((total_tests + 1))
+    if curl -f -s "http://localhost/api/vendors?page=1&limit=5" > /dev/null; then
+        log_success "Vendors API test passed"
+        tests_passed=$((tests_passed + 1))
+    else
+        log_error "Vendors API test failed"
+    fi
+    
+    log_info "Smoke tests completed: $tests_passed/$total_tests passed"
+    
+    if [ $tests_passed -eq $total_tests ]; then
+        log_success "All smoke tests passed!"
+        return 0
+    else
+        log_warning "Some smoke tests failed"
+        return 1
     fi
 }
 
-# Setup monitoring
-setup_monitoring() {
-    log "Setting up monitoring..."
+# Monitor deployment
+monitor_deployment() {
+    log_info "Monitoring deployment..."
     
-    # Install PM2 monitoring
-    pm2 install pm2-logrotate
-    pm2 install pm2-server-monit
+    # Show running containers
+    log_info "Running containers:"
+    docker-compose -f $DOCKER_COMPOSE_FILE ps
     
-    # Setup log rotation
-    pm2 set pm2-logrotate:max_size 10M
-    pm2 set pm2-logrotate:retain 7
-    pm2 set pm2-logrotate:compress true
+    # Show logs for key services
+    log_info "Recent logs from application:"
+    docker-compose -f $DOCKER_COMPOSE_FILE logs --tail=20 app1
     
-    success "Monitoring setup completed"
+    # Show resource usage
+    log_info "Resource usage:"
+    docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+}
+
+# Performance test
+run_performance_test() {
+    log_info "Running performance test..."
+    
+    local start_time=$(date +%s)
+    local total_requests=10
+    local successful_requests=0
+    local total_response_time=0
+    
+    for i in $(seq 1 $total_requests); do
+        local request_start=$(date +%s%3N)
+        if response=$(curl -s -w "%{http_code}" $HEALTH_CHECK_URL 2>/dev/null); then
+            local http_code="${response: -3}"
+            local response_body="${response%???}"
+            
+            if [ "$http_code" = "200" ]; then
+                successful_requests=$((successful_requests + 1))
+                local request_end=$(date +%s%3N)
+                local response_time=$((request_end - request_start))
+                total_response_time=$((total_response_time + response_time))
+                
+                log_info "Request $i: HTTP $http_code, ${response_time}ms"
+            else
+                log_warning "Request $i: HTTP $http_code"
+            fi
+        else
+            log_error "Request $i: Failed"
+        fi
+        
+        sleep 1
+    done
+    
+    local end_time=$(date +%s)
+    local total_time=$((end_time - start_time))
+    local avg_response_time=0
+    
+    if [ $successful_requests -gt 0 ]; then
+        avg_response_time=$((total_response_time / successful_requests))
+    fi
+    
+    log_info "Performance test results:"
+    log_info "  Total requests: $total_requests"
+    log_info "  Successful: $successful_requests"
+    log_info "  Success rate: $((successful_requests * 100 / total_requests))%"
+    log_info "  Average response time: ${avg_response_time}ms"
+    log_info "  Total test time: ${total_time}s"
+}
+
+# Show monitoring URLs
+show_monitoring() {
+    log_info "Monitoring URLs:"
+    log_info "  Grafana Dashboard: $GRAFANA_URL (admin/admin123)"
+    log_info "  Prometheus: $PROMETHEUS_URL"
+    log_info "  cAdvisor: http://localhost:8080"
+    log_info "  Nginx Status: http://localhost/nginx-status"
+}
+
+# Rollback function
+rollback() {
+    log_warning "Rolling back deployment..."
+    
+    # Stop current stack
+    docker-compose -f $DOCKER_COMPOSE_FILE down
+    
+    # Start previous version (if available)
+    if [ -f "docker-compose.production.backup.yml" ]; then
+        log_info "Starting previous version..."
+        docker-compose -f docker-compose.production.backup.yml up -d
+    else
+        log_error "No backup found for rollback"
+        exit 1
+    fi
 }
 
 # Main deployment function
 main() {
-    log "Starting production deployment for $APP_NAME..."
+    local action=${1:-"deploy"}
     
-    # Check prerequisites
-    check_prerequisites
-    
-    # Create backup
-    create_backup
-    
-    # Update repository
-    update_repository
-    
-    # Install dependencies
-    install_dependencies
-    
-    # Build application
-    build_application
-    
-    # Run tests
-    run_tests
-    
-    # Update environment
-    update_environment
-    
-    # Setup PM2
-    setup_pm2
-    
-    # Deploy application
-    deploy_application
-    
-    # Health check
-    health_check
-    
-    # Setup monitoring
-    setup_monitoring
-    
-    success "Deployment completed successfully!"
-    log "Your application is now running at http://localhost:3000"
-    log "Use 'pm2 status' to check application status"
-    log "Use 'pm2 logs $APP_NAME' to view logs"
+    case $action in
+        "deploy")
+            log_info "Starting production deployment..."
+            check_prerequisites
+            build_images
+            deploy_stack
+            wait_for_health
+            run_smoke_tests
+            run_performance_test
+            monitor_deployment
+            show_monitoring
+            log_success "Production deployment completed successfully!"
+            ;;
+        "rollback")
+            rollback
+            ;;
+        "health")
+            wait_for_health
+            ;;
+        "test")
+            run_smoke_tests
+            run_performance_test
+            ;;
+        "monitor")
+            monitor_deployment
+            show_monitoring
+            ;;
+        "logs")
+            docker-compose -f $DOCKER_COMPOSE_FILE logs -f
+            ;;
+        *)
+            echo "Usage: $0 {deploy|rollback|health|test|monitor|logs}"
+            echo "  deploy   - Full production deployment"
+            echo "  rollback - Rollback to previous version"
+            echo "  health   - Check service health"
+            echo "  test     - Run smoke and performance tests"
+            echo "  monitor  - Show monitoring information"
+            echo "  logs     - Follow application logs"
+            exit 1
+            ;;
+    esac
 }
+
+# Handle script interruption
+trap 'log_error "Deployment interrupted"; exit 1' INT TERM
 
 # Run main function
 main "$@" 

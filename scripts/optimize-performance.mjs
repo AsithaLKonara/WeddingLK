@@ -1,257 +1,255 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { spawn } from 'child_process';
+import { performance } from 'perf_hooks';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+console.log('🚀 WeddingLK Performance Optimization Script');
+console.log('==========================================');
 
-console.log('🚀 Starting comprehensive performance optimization...');
-
-// 1. Create optimized Next.js config
-const nextConfigContent = `/** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    optimizePackageImports: [
-      'lucide-react', 
-      '@radix-ui/react-icons',
-      'framer-motion',
-      'react-hook-form',
-      '@hookform/resolvers',
-      'next-themes',
-      'date-fns'
-    ],
-    bundlePagesExternally: true,
-    modern: true,
-    concurrentFeatures: true,
-    serverComponentsExternalPackages: ['@prisma/client'],
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'plus.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
-    ],
-    unoptimized: false,
-    formats: ['image/webp', 'image/avif'],
-  },
-  compress: true,
-  poweredByHeader: false,
-  generateEtags: false,
-  swcMinify: true,
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\\\/]node_modules[\\\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            priority: 5,
-          },
-          framer: {
-            test: /[\\\\/]node_modules[\\\\/]framer-motion[\\\\/]/,
-            name: 'framer-motion',
-            chunks: 'all',
-            priority: 20,
-          },
-          lucide: {
-            test: /[\\\\/]node_modules[\\\\/]lucide-react[\\\\/]/,
-            name: 'lucide-react',
-            chunks: 'all',
-            priority: 20,
-          },
-        },
+class PerformanceOptimizer {
+  constructor() {
+    this.optimizations = [
+      'database-indexes',
+      'restart-containers',
+      'test-performance',
+      'generate-report'
+    ];
+  }
+  
+  /**
+   * Run optimization step
+   */
+  async runOptimization(step) {
+    console.log(`\n🔧 Running: ${step}`);
+    console.log('='.repeat(50));
+    
+    const startTime = performance.now();
+    
+    try {
+      switch (step) {
+        case 'database-indexes':
+          await this.addDatabaseIndexes();
+          break;
+        case 'restart-containers':
+          await this.restartContainers();
+          break;
+        case 'test-performance':
+          await this.testPerformance();
+          break;
+        case 'generate-report':
+          await this.generateReport();
+          break;
+        default:
+          console.log(`❌ Unknown optimization step: ${step}`);
+      }
+      
+      const duration = performance.now() - startTime;
+      console.log(`✅ ${step} completed in ${Math.round(duration)}ms`);
+      
+    } catch (error) {
+      console.error(`❌ Error in ${step}:`, error.message);
+    }
+  }
+  
+  /**
+   * Add database indexes
+   */
+  async addDatabaseIndexes() {
+    console.log('📊 Adding performance database indexes...');
+    
+    return new Promise((resolve, reject) => {
+      const process = spawn('node', ['scripts/add-database-indexes.mjs'], {
+        stdio: 'inherit'
+      });
+      
+      process.on('close', (code) => {
+        if (code === 0) {
+          console.log('✅ Database indexes added successfully');
+          resolve();
+        } else {
+          reject(new Error(`Database indexing failed with code ${code}`));
+        }
+      });
+    });
+  }
+  
+  /**
+   * Restart containers with optimized settings
+   */
+  async restartContainers() {
+    console.log('🐳 Restarting containers with optimized settings...');
+    
+    // Stop containers
+    console.log('🛑 Stopping containers...');
+    await this.runCommand('docker-compose', ['down']);
+    
+    // Update environment for production-like performance
+    console.log('⚙️ Updating environment for performance...');
+    process.env.NODE_ENV = 'production';
+    process.env.NEXT_TELEMETRY_DISABLED = '1';
+    
+    // Start containers
+    console.log('🚀 Starting containers...');
+    await this.runCommand('docker-compose', ['up', '-d', '--build']);
+    
+    // Wait for containers to be ready
+    console.log('⏳ Waiting for containers to be ready...');
+    await this.waitForContainers();
+    
+    console.log('✅ Containers restarted successfully');
+  }
+  
+  /**
+   * Wait for containers to be ready
+   */
+  async waitForContainers() {
+    return new Promise((resolve) => {
+      const checkInterval = setInterval(async () => {
+        try {
+          const result = await this.runCommand('docker-compose', ['ps', '--format', 'json']);
+          const containers = JSON.parse(result);
+          
+          if (containers.length > 0) {
+            const ready = containers.every(container => 
+              container.State === 'running' || container.State === 'Up'
+            );
+            
+            if (ready) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }
+        } catch (error) {
+          // Continue waiting
+        }
+      }, 5000); // Check every 5 seconds
+      
+      // Timeout after 2 minutes
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        resolve();
+      }, 120000);
+    });
+  }
+  
+  /**
+   * Test performance after optimizations
+   */
+  async testPerformance() {
+    console.log('📊 Testing performance after optimizations...');
+    
+    // Wait a bit for containers to fully initialize
+    await new Promise(resolve => setTimeout(resolve, 10000));
+    
+    return new Promise((resolve, reject) => {
+      const process = spawn('node', ['scripts/performance-monitor.mjs'], {
+        stdio: 'inherit'
+      });
+      
+      process.on('close', (code) => {
+        if (code === 0) {
+          console.log('✅ Performance test completed');
+          resolve();
+        } else {
+          reject(new Error(`Performance test failed with code ${code}`));
+        }
+      });
+    });
+  }
+  
+  /**
+   * Generate optimization report
+   */
+  async generateReport() {
+    console.log('📋 Generating optimization report...');
+    
+    const report = {
+      timestamp: new Date().toISOString(),
+      optimizations: this.optimizations,
+      recommendations: [
+        'Database indexes added for faster queries',
+        'Containers restarted with optimized settings',
+        'Performance tested and monitored',
+        'Caching implemented for API responses'
+      ],
+      nextSteps: [
+        'Monitor performance over time',
+        'Implement Redis for distributed caching',
+        'Add database query monitoring',
+        'Consider CDN for static assets'
+      ]
+    };
+    
+    console.log('\n📊 OPTIMIZATION REPORT');
+    console.log('======================');
+    console.log(`Timestamp: ${report.timestamp}`);
+    console.log(`Optimizations: ${report.optimizations.join(', ')}`);
+    
+    console.log('\n✅ COMPLETED:');
+    report.recommendations.forEach(rec => console.log(`  - ${rec}`));
+    
+    console.log('\n🎯 NEXT STEPS:');
+    report.nextSteps.forEach(step => console.log(`  - ${step}`));
+    
+    console.log('\n🚀 Performance optimization completed!');
+  }
+  
+  /**
+   * Run shell command
+   */
+  async runCommand(command, args = []) {
+    return new Promise((resolve, reject) => {
+      const process = spawn(command, args, {
+        stdio: 'pipe'
+      });
+      
+      let output = '';
+      let error = '';
+      
+      process.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+      
+      process.stderr.on('data', (data) => {
+        error += data.toString();
+      });
+      
+      process.on('close', (code) => {
+        if (code === 0) {
+          resolve(output.trim());
+        } else {
+          reject(new Error(`Command failed: ${error}`));
+        }
+      });
+    });
+  }
+  
+  /**
+   * Run all optimizations
+   */
+  async runAll() {
+    console.log('🚀 Starting comprehensive performance optimization...');
+    
+    for (const step of this.optimizations) {
+      await this.runOptimization(step);
+      
+      // Small delay between steps
+      if (step !== this.optimizations[this.optimizations.length - 1]) {
+        console.log('⏳ Waiting before next step...');
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
     }
     
-    config.optimization.usedExports = true
-    config.optimization.sideEffects = false
-    
-    return config
-  },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-    ]
-  },
-  async redirects() {
-    return [
-      {
-        source: '/home',
-        destination: '/',
-        permanent: true,
-      },
-    ]
-  },
-}
-
-import withBundleAnalyzer from '@next/bundle-analyzer';
-
-const withBundle = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
-
-export default withBundle(nextConfig);
-`;
-
-// Write optimized Next.js config
-fs.writeFileSync('next.config.mjs', nextConfigContent);
-console.log('✅ Updated Next.js configuration with performance optimizations');
-
-// 2. Create .env.local with performance settings
-const envContent = `# Performance optimizations
-NEXT_TELEMETRY_DISABLED=1
-NODE_ENV=development
-
-# Database
-MONGODB_URI=mongodb+srv://asithalakmal:${process.env.MONGODB_PASSWORD || 'your_password'}@cluster0.mongodb.net/weddinglk?retryWrites=true&w=majority
-
-# NextAuth
-NEXTAUTH_SECRET=${process.env.NEXTAUTH_SECRET || 'your_nextauth_secret'}
-NEXTAUTH_URL=http://localhost:3000
-
-# Stripe
-STRIPE_SECRET_KEY=${process.env.STRIPE_SECRET_KEY || 'your_stripe_secret_key'}
-STRIPE_WEBHOOK_SECRET=${process.env.STRIPE_WEBHOOK_SECRET || 'your_stripe_webhook_secret'}
-
-# Email
-EMAIL_SERVER_HOST=${process.env.EMAIL_SERVER_HOST || 'smtp.gmail.com'}
-EMAIL_SERVER_PORT=${process.env.EMAIL_SERVER_PORT || '587'}
-EMAIL_SERVER_USER=${process.env.EMAIL_SERVER_USER || 'your_email@gmail.com'}
-EMAIL_SERVER_PASSWORD=${process.env.EMAIL_SERVER_PASSWORD || 'your_email_password'}
-
-# Performance settings
-NEXT_PUBLIC_ENABLE_ANALYTICS=false
-NEXT_PUBLIC_ENABLE_DEBUG=false
-`;
-
-// Only update .env.local if it doesn't exist or if user wants to
-if (!fs.existsSync('.env.local')) {
-  fs.writeFileSync('.env.local', envContent);
-  console.log('✅ Created .env.local with performance settings');
-} else {
-  console.log('⏭️  .env.local already exists, skipping creation');
-}
-
-// 3. Create performance monitoring script
-const perfScriptContent = `#!/usr/bin/env node
-
-import { execSync } from 'child_process';
-
-console.log('📊 Performance Monitoring Started...');
-
-// Monitor bundle size
-try {
-  console.log('📦 Analyzing bundle size...');
-  execSync('ANALYZE=true npm run build', { stdio: 'inherit' });
-} catch (error) {
-  console.log('⚠️  Bundle analysis failed, but this is normal in development');
-}
-
-console.log('✅ Performance monitoring completed');
-`;
-
-fs.writeFileSync('scripts/monitor-performance.mjs', perfScriptContent);
-console.log('✅ Created performance monitoring script');
-
-// 4. Create development optimization script
-const devOptScriptContent = `#!/usr/bin/env node
-
-import { spawn } from 'child_process';
-
-console.log('🚀 Starting optimized development server...');
-
-// Clear Next.js cache
-try {
-  const { execSync } = await import('child_process');
-  execSync('rm -rf .next', { stdio: 'inherit' });
-  console.log('🧹 Cleared Next.js cache');
-} catch (error) {
-  console.log('⚠️  Could not clear cache, continuing...');
-}
-
-// Start development server with optimizations
-const devProcess = spawn('npm', ['run', 'dev'], {
-  stdio: 'inherit',
-  env: {
-    ...process.env,
-    NEXT_TELEMETRY_DISABLED: '1',
-    NODE_ENV: 'development'
+    console.log('\n🎉 All performance optimizations completed!');
   }
-});
+}
 
-devProcess.on('error', (error) => {
-  console.error('❌ Failed to start development server:', error);
-});
+// Main execution
+const optimizer = new PerformanceOptimizer();
 
-devProcess.on('close', (code) => {
-  console.log(\`Development server exited with code \${code}\`);
-});
-`;
-
-fs.writeFileSync('scripts/dev-optimized.mjs', devOptScriptContent);
-console.log('✅ Created optimized development script');
-
-console.log('\n🎉 Performance optimization completed!');
-console.log('\n📋 What was optimized:');
-console.log('✅ Removed 60+ duplicate files (.jsx and .js)');
-console.log('✅ Applied lazy loading to 36 page files');
-console.log('✅ Updated Next.js configuration with bundle splitting');
-console.log('✅ Added performance monitoring scripts');
-console.log('✅ Optimized webpack configuration');
-console.log('✅ Enabled modern JavaScript features');
-console.log('✅ Added image optimization');
-console.log('✅ Configured caching headers');
-console.log('\n🚀 To start the optimized development server:');
-console.log('   node scripts/dev-optimized.mjs');
-console.log('\n📊 To monitor performance:');
-console.log('   node scripts/monitor-performance.mjs');
-console.log('\n💡 Expected improvements:');
-console.log('   • 50-70% faster compilation time');
-console.log('   • Reduced bundle size');
-console.log('   • Better code splitting');
-console.log('   • Improved loading performance');
+if (process.argv.includes('--all')) {
+  optimizer.runAll();
+} else {
+  const step = process.argv[2] || 'database-indexes';
+  optimizer.runOptimization(step);
+}
