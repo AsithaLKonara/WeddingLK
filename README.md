@@ -1,213 +1,162 @@
-# WeddingLK - Complete Wedding Planning Platform 🎉💒
+# 🎉 WeddingLK NextJS - Complete Wedding Planning Platform
 
-A comprehensive wedding planning platform with web application and mobile app, featuring AI-powered recommendations, vendor management, venue booking, and complete wedding planning tools.
+A comprehensive, production-ready wedding planning platform built with Next.js 15, TypeScript, and modern web technologies.
 
-## 🌟 Platform Overview
+## 🚀 Features
 
-WeddingLK is a full-stack wedding planning platform that connects couples with the best wedding vendors and venues. The platform includes:
+### Core Functionality
+- **User Management**: Registration, authentication, role-based access control
+- **Vendor Management**: Profiles, verification, portfolio management
+- **Venue Management**: Availability, pricing calculator, booking system
+- **Booking & Payments**: Stripe integration, invoice generation, refunds
+- **AI Features**: Smart recommendations, enhanced search algorithms
+- **Communication**: Real-time chat, notifications, review system
+- **Mobile App**: React Native companion app
+- **Multi-language**: International expansion support
 
-- **🌐 Web Application** - Next.js 15 with TypeScript
-- **📱 Mobile App** - React Native for iOS & Android
-- **🤖 AI Integration** - Smart recommendations and search
-- **💳 Payment System** - Multiple payment gateways
-- **📊 Analytics Dashboard** - Comprehensive insights
-- **🔔 Real-time Features** - Chat, notifications, updates
+### Technical Features
+- **Next.js 15**: App Router, Server Components, API Routes
+- **TypeScript**: Full type safety and IntelliSense
+- **Authentication**: NextAuth.js with OAuth providers
+- **Database**: MongoDB with Mongoose ODM
+- **Real-time**: WebSocket integration, push notifications
+- **Performance**: Image optimization, caching, lazy loading
+- **Security**: JWT tokens, rate limiting, input validation
+- **Testing**: Comprehensive automated testing suite
 
-## 🚀 Quick Start
+## 🏗️ Architecture
 
-### **Web Application**
+### Frontend
+- **Next.js 15**: React framework with App Router
+- **TypeScript**: Type-safe development
+- **Tailwind CSS**: Utility-first CSS framework
+- **React Components**: Atomic design system
+- **State Management**: React hooks and context
+
+### Backend
+- **API Routes**: Next.js API endpoints
+- **MongoDB**: NoSQL database
+- **Mongoose**: Object Document Mapper
+- **NextAuth.js**: Authentication framework
+- **WebSockets**: Real-time communication
+
+### Infrastructure
+- **Docker**: Containerization
+- **PM2**: Process management
+- **Nginx**: Reverse proxy
+- **Redis**: Caching and sessions
+- **Cloudinary**: Image management
+
+## 📦 Installation
+
+### Prerequisites
+- Node.js 18+ 
+- npm 9+
+- MongoDB
+- Redis (optional)
+
+### Setup
 ```bash
-# Install dependencies
-npm install
+# Clone repository
+git clone <repository-url>
+cd wedding-lk-asitha
 
-# Set up environment variables
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Environment setup
 cp .env.example .env.local
+# Edit .env.local with your configuration
 
-# Start development server
+# Database setup
+npm run db:seed
+
+# Development
 npm run dev
-
-# Build for production
-npm run build
 ```
 
-### **Mobile App**
+### Environment Variables
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/weddinglk
+REDIS_URL=redis://localhost:6379
+
+# Authentication
+NEXTAUTH_SECRET=your-secret-key
+NEXTAUTH_URL=http://localhost:3000
+
+# OAuth Providers
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+FACEBOOK_CLIENT_ID=your-facebook-client-id
+FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
+
+# Payment
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=your-webhook-secret
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+## 🧪 Testing
+
+### Test Infrastructure
+- **Jest**: Unit and integration testing
+- **React Testing Library**: Component testing
+- **Playwright**: End-to-end testing
+- **k6**: Performance testing
+- **Coverage**: Comprehensive test coverage reporting
+
+### Running Tests
 ```bash
-# Navigate to mobile app directory
-cd mobile-app
+# All tests
+npm run test:all
 
-# Install dependencies
-npm install
+# Unit tests only
+npm run test:unit
 
-# iOS setup
-cd ios && pod install && cd ..
+# Component tests
+npm run test:components
 
-# Start Metro bundler
-npm start
+# Business logic tests
+npm run test:business
 
-# Run on iOS
-npm run ios
+# API tests
+npm run test:api
 
-# Run on Android
-npm run android
+# Coverage report
+npm run test:coverage
+
+# E2E tests
+npm run test:e2e
+
+# Performance tests
+npm run test:performance
 ```
 
-## 🏗 Architecture
-
-### **Frontend (Web)**
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS + Shadcn/ui
-- **State Management**: React Hooks + Context
-- **Authentication**: NextAuth.js
-- **Database**: MongoDB with Mongoose
-
-### **Mobile App**
-- **Framework**: React Native 0.72.6
-- **Language**: TypeScript
-- **Navigation**: React Navigation 6
-- **UI Components**: Custom components + React Native Elements
-- **State Management**: React Hooks + Context
-- **Storage**: AsyncStorage + SQLite
-
-### **Backend**
-- **Runtime**: Node.js
-- **Framework**: Next.js API Routes
-- **Database**: MongoDB
-- **ORM**: Mongoose
-- **Authentication**: NextAuth.js
-- **File Storage**: Cloudinary
-- **Payment**: Stripe, Razorpay, PayHere
-
-## ✨ Key Features
-
-### **Core Platform Features**
-- ✅ **User Management** - Registration, authentication, profiles
-- ✅ **Vendor System** - Vendor profiles, services, portfolios
-- ✅ **Venue Management** - Venue listings, availability, pricing
-- ✅ **Booking System** - Complete booking workflow
-- ✅ **Payment Processing** - Multiple payment gateways
-- ✅ **Review System** - Ratings and reviews
-- ✅ **Messaging** - Real-time chat between users and vendors
-- ✅ **File Upload** - Image and document management
-- ✅ **Task Management** - Wedding planning checklist
-- ✅ **AI Services** - Smart search and recommendations
-
-### **Advanced Features**
-- ✅ **Venue Boosting** - Facebook Ads-like promotion system
-- ✅ **Analytics Dashboard** - Comprehensive insights
-- ✅ **Real-time Updates** - Live notifications and chat
-- ✅ **Multi-language Support** - Internationalization ready
-- ✅ **Responsive Design** - Mobile-first approach
-- ✅ **SEO Optimization** - Search engine friendly
-- ✅ **Performance Monitoring** - Real-time metrics
-
-### **Mobile App Features**
-- ✅ **Cross-platform** - iOS and Android support
-- ✅ **Offline Support** - Data caching and sync
-- ✅ **Push Notifications** - Real-time updates
-- ✅ **Biometric Auth** - Face ID, Touch ID, Fingerprint
-- ✅ **Social Login** - Google, Facebook, Apple
-- ✅ **Payment Integration** - In-app payments
-- ✅ **Location Services** - GPS and maps integration
-
-## 🗄 Database Schema
-
-### **Core Models**
-- **User** - User accounts and profiles
-- **Vendor** - Vendor information and services
-- **Venue** - Venue details and availability
-- **Booking** - Booking records and status
-- **Payment** - Payment transactions
-- **Review** - User reviews and ratings
-- **Message** - Chat messages
-- **Notification** - System notifications
-- **Task** - Wedding planning tasks
-- **VenueBoost** - Venue promotion campaigns
-
-### **Relationships**
-- Users can have multiple bookings
-- Vendors can have multiple services
-- Venues can have multiple bookings
-- Bookings link users, vendors, and venues
-- Reviews are linked to vendors and users
-- Messages connect users and vendors
-
-## 🔌 API Endpoints
-
-### **Authentication**
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/2fa-send` - 2FA setup
-- `POST /api/auth/2fa-verify` - 2FA verification
-
-### **Vendors**
-- `GET /api/vendors` - List all vendors
-- `GET /api/vendors/[id]` - Get vendor details
-- `POST /api/vendors` - Create vendor profile
-- `PUT /api/vendors/[id]` - Update vendor profile
-- `DELETE /api/vendors/[id]` - Delete vendor profile
-
-### **Venues**
-- `GET /api/venues` - List all venues
-- `GET /api/venues/[id]` - Get venue details
-- `POST /api/venues` - Create venue listing
-- `PUT /api/venues/[id]` - Update venue listing
-- `DELETE /api/venues/[id]` - Delete venue listing
-
-### **Bookings**
-- `GET /api/bookings` - List user bookings
-- `POST /api/bookings` - Create new booking
-- `PUT /api/bookings/[id]` - Update booking
-- `DELETE /api/bookings/[id]` - Cancel booking
-
-### **Payments**
-- `POST /api/payments` - Process payment
-- `GET /api/payments` - Payment history
-- `POST /api/payments/webhook` - Payment webhooks
-
-### **AI Services**
-- `POST /api/ai-search` - AI-powered search
-- `POST /api/advanced-ai` - Advanced AI features
-
-## 🎨 UI/UX Design
-
-### **Design System**
-- **Color Palette**: Primary (#4F46E5), Secondary (#7C3AED)
-- **Typography**: Inter font family
-- **Components**: Shadcn/ui component library
-- **Icons**: Lucide React icons
-- **Spacing**: Consistent 8px grid system
-
-### **Responsive Design**
-- **Mobile First** - Optimized for mobile devices
-- **Tablet Support** - Responsive tablet layouts
-- **Desktop Experience** - Enhanced desktop features
-- **Touch Friendly** - Optimized touch interactions
-
-## 🔒 Security Features
-
-### **Authentication & Authorization**
-- **JWT Tokens** - Secure token-based authentication
-- **Role-based Access** - Admin, Vendor, User roles
-- **2FA Support** - Two-factor authentication
-- **Session Management** - Secure session handling
-
-### **Data Protection**
-- **Input Validation** - Server-side and client-side validation
-- **XSS Protection** - Cross-site scripting prevention
-- **CSRF Protection** - Cross-site request forgery prevention
-- **SQL Injection** - Database query protection
-
-### **API Security**
-- **Rate Limiting** - Request throttling
-- **CORS Configuration** - Cross-origin resource sharing
-- **API Key Management** - Secure API access
-- **Request Validation** - Input sanitization
+### Test Coverage
+- **Current Status**: 39 tests passing, 6 test suites
+- **Coverage Target**: 70%+ (configurable)
+- **Test Types**: Unit, Integration, E2E, Performance, Security
 
 ## 🚀 Deployment
 
-### **Web Application**
+### Docker Deployment
+```bash
+# Build image
+docker build -t weddinglk-nextjs .
+
+# Run container
+docker run -p 3000:3000 weddinglk-nextjs
+
+# Docker Compose
+docker-compose up -d
+```
+
+### Production Deployment
 ```bash
 # Build for production
 npm run build
@@ -215,204 +164,165 @@ npm run build
 # Start production server
 npm start
 
-# Docker deployment
-docker build -t weddinglk-web .
-docker run -p 3000:3000 weddinglk-web
+# PM2 deployment
+pm2 start ecosystem.config.js
 ```
 
-### **Mobile App**
+### Environment-Specific Configs
+- **Development**: Local development with hot reload
+- **Staging**: Pre-production testing environment
+- **Production**: Optimized production build
+
+## 📱 Mobile App
+
+### React Native App
+- **Platforms**: iOS and Android
+- **Features**: Push notifications, offline support
+- **Integration**: Shared business logic with web platform
+
+### Mobile Features
+- User authentication
+- Vendor browsing
+- Booking management
+- Real-time notifications
+- Offline functionality
+
+## 🔒 Security
+
+### Authentication & Authorization
+- **NextAuth.js**: Secure authentication framework
+- **JWT Tokens**: Stateless authentication
+- **Role-Based Access**: User, vendor, admin roles
+- **OAuth Providers**: Google, Facebook, LinkedIn
+
+### Data Protection
+- **Input Validation**: Zod schema validation
+- **SQL Injection**: MongoDB injection protection
+- **XSS Protection**: Content Security Policy
+- **Rate Limiting**: API abuse prevention
+
+### Security Testing
+- **OWASP ZAP**: Automated security scanning
+- **Snyk**: Dependency vulnerability scanning
+- **Security Headers**: Secure HTTP headers
+
+## 📊 Performance
+
+### Optimization Strategies
+- **Image Optimization**: Next.js Image component
+- **Code Splitting**: Dynamic imports and lazy loading
+- **Caching**: Redis caching, CDN integration
+- **Bundle Analysis**: Webpack bundle optimization
+
+### Monitoring
+- **Performance Metrics**: Core Web Vitals
+- **Error Tracking**: Sentry integration
+- **Analytics**: User behavior tracking
+- **Uptime Monitoring**: Health checks and alerts
+
+## 🌐 Internationalization
+
+### Multi-Language Support
+- **Languages**: English, Sinhala, Tamil
+- **Currency**: Multiple currency support
+- **Time Zones**: Global time zone handling
+- **Localization**: Culture-specific content
+
+### Expansion Features
+- **Regional Settings**: Country-specific configurations
+- **Payment Methods**: Local payment gateways
+- **Compliance**: GDPR, local regulations
+
+## 🔧 Development
+
+### Code Quality
+- **ESLint**: Code linting and formatting
+- **Prettier**: Code formatting
+- **TypeScript**: Type checking
+- **Husky**: Git hooks for quality
+
+### Development Workflow
 ```bash
-# iOS App Store
-cd mobile-app/ios
-xcodebuild -workspace WeddingLK.xcworkspace -scheme WeddingLK -configuration Release
-
-# Android Play Store
-cd mobile-app/android
-./gradlew assembleRelease
-```
-
-### **Environment Variables**
-```bash
-# Copy environment template
-cp .env.example .env.local
-
-# Configure variables
-MONGODB_URI=mongodb://localhost:27017/weddinglk
-NEXTAUTH_SECRET=your_secret_key
-NEXTAUTH_URL=http://localhost:3000
-```
-
-## 🧪 Testing
-
-### **Web Application**
-```bash
-# Run tests
-npm test
-
-# Run linting
-npm run lint
+# Development server
+npm run dev
 
 # Type checking
 npm run type-check
 
-# Build verification
+# Linting
+npm run lint
+
+# Formatting
+npm run format
+
+# Build check
 npm run build
 ```
 
-### **Mobile App**
-```bash
-# Unit tests
-npm test
-
-# E2E tests
-npm run test:e2e
-
-# iOS simulator
-npm run ios
-
-# Android emulator
-npm run android
+### Project Structure
+```
+wedding-lk-asitha/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── dashboard/         # Dashboard pages
+│   ├── auth/              # Authentication pages
+│   └── layout.tsx         # Root layout
+├── components/             # React components
+│   ├── ui/                # Base UI components
+│   ├── forms/             # Form components
+│   └── organisms/         # Complex components
+├── lib/                    # Utility libraries
+│   ├── auth/              # Authentication utilities
+│   ├── database/          # Database connections
+│   └── services/          # Business logic services
+├── tests/                  # Test suite
+│   ├── unit/              # Unit tests
+│   ├── integration/       # Integration tests
+│   ├── e2e/               # End-to-end tests
+│   └── performance/       # Performance tests
+├── mobile-app/             # React Native app
+├── docs/                   # Documentation
+└── docker/                 # Docker configuration
 ```
 
-## 📊 Performance
+## 📈 Roadmap
 
-### **Web Application**
-- **Lighthouse Score**: 95+ (Performance, Accessibility, Best Practices, SEO)
-- **Core Web Vitals**: Optimized for all metrics
-- **Bundle Size**: Optimized with code splitting
-- **Image Optimization**: Next.js Image component with WebP support
+### Phase 1: Core Platform ✅
+- [x] User authentication and management
+- [x] Vendor and venue management
+- [x] Booking system
+- [x] Payment integration
+- [x] Basic testing infrastructure
 
-### **Mobile App**
-- **App Launch Time**: < 3 seconds
-- **Screen Navigation**: < 500ms
-- **Image Loading**: < 2 seconds
-- **API Response**: < 1 second
-- **Memory Usage**: Optimized for low-end devices
+### Phase 2: Advanced Features 🚧
+- [ ] AI-powered recommendations
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app development
+- [ ] Multi-language support
+- [ ] Performance optimization
 
-## 🔧 Development Tools
-
-### **Code Quality**
-- **ESLint** - JavaScript/TypeScript linting
-- **Prettier** - Code formatting
-- **Husky** - Git hooks
-- **TypeScript** - Static type checking
-
-### **Development Experience**
-- **Hot Reload** - Instant code updates
-- **Error Boundaries** - Graceful error handling
-- **Debug Tools** - React DevTools integration
-- **Performance Monitoring** - Real-time metrics
-
-## 📱 Mobile App Features
-
-### **Cross-Platform Support**
-- **iOS**: iPhone and iPad support
-- **Android**: All Android versions 6.0+
-- **Responsive Design** - Adaptive layouts
-- **Native Performance** - Platform-specific optimizations
-
-### **Offline Capabilities**
-- **Data Caching** - Local data storage
-- **Offline Mode** - Basic functionality without internet
-- **Sync Management** - Data synchronization
-- **Conflict Resolution** - Handle data conflicts
-
-### **Native Features**
-- **Camera Integration** - Photo and video capture
-- **GPS Services** - Location-based features
-- **Push Notifications** - Real-time updates
-- **Biometric Authentication** - Secure login methods
-
-## 🌐 Internationalization
-
-### **Supported Languages**
-- **English** (Primary)
-- **Sinhala** (Sri Lanka)
-- **Tamil** (Sri Lanka)
-- **Hindi** (India)
-- **Arabic** (UAE)
-
-### **Localization Features**
-- **RTL Support** - Right-to-left languages
-- **Local Formats** - Date, time, currency
-- **Cultural Adaptations** - Region-specific features
-- **Dynamic Content** - Language-specific content
-
-## 📈 Analytics & Monitoring
-
-### **Web Analytics**
-- **Google Analytics** - User behavior tracking
-- **Custom Metrics** - Business-specific KPIs
-- **Performance Monitoring** - Real-time performance data
-- **Error Tracking** - Crash and error reporting
-
-### **Mobile Analytics**
-- **Firebase Analytics** - Mobile app insights
-- **Crashlytics** - Crash reporting
-- **Performance Monitoring** - App performance metrics
-- **User Engagement** - User interaction tracking
-
-## 🔄 CI/CD Pipeline
-
-### **Automated Testing**
-- **Unit Tests** - Automated test execution
-- **Integration Tests** - API endpoint testing
-- **E2E Tests** - Full user journey testing
-- **Performance Tests** - Load and stress testing
-
-### **Deployment Automation**
-- **GitHub Actions** - Automated workflows
-- **Docker Containers** - Consistent environments
-- **Environment Management** - Staging and production
-- **Rollback Capability** - Quick issue resolution
-
-## 🚀 Future Roadmap
-
-### **Phase 1 (Current)**
-- ✅ Core platform development
-- ✅ User authentication system
-- ✅ Vendor and venue management
-- ✅ Booking and payment system
-- ✅ Basic AI integration
-
-### **Phase 2 (Next 3 months)**
-- 🔄 Advanced AI features
-- 🔄 Real-time collaboration
-- 🔄 Mobile app optimization
-- 🔄 Performance improvements
-- 🔄 Advanced analytics
-
-### **Phase 3 (6 months)**
-- 🔄 Multi-language support
-- 🔄 Advanced payment options
-- 🔄 Social media integration
-- 🔄 Advanced reporting
-- 🔄 API marketplace
-
-### **Phase 4 (12 months)**
-- 🔄 International expansion
-- 🔄 Advanced AI/ML features
-- 🔄 Blockchain integration
-- 🔄 AR/VR experiences
-- 🔄 Enterprise solutions
+### Phase 3: Enterprise Features 📋
+- [ ] Advanced reporting
+- [ ] API for third-party integrations
+- [ ] White-label solutions
+- [ ] Advanced security features
+- [ ] Global expansion
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### **Development Setup**
+### Development Setup
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests
-5. Submit a pull request
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
 
-### **Code Standards**
+### Code Standards
 - Follow TypeScript best practices
-- Use ESLint and Prettier
 - Write comprehensive tests
-- Document your code
-- Follow commit message conventions
+- Use conventional commit messages
+- Follow the established project structure
 
 ## 📄 License
 
@@ -420,31 +330,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-### **Documentation**
-- **Web App**: [docs.weddinglk.com](https://docs.weddinglk.com)
-- **Mobile App**: [mobile.weddinglk.com](https://mobile.weddinglk.com)
-- **API Reference**: [api.weddinglk.com](https://api.weddinglk.com)
+### Documentation
+- [API Documentation](docs/api.md)
+- [Component Library](docs/components.md)
+- [Testing Guide](docs/testing.md)
+- [Deployment Guide](docs/deployment.md)
 
-### **Community**
-- **Discord**: [discord.gg/weddinglk](https://discord.gg/weddinglk)
-- **GitHub Discussions**: [GitHub Discussions](https://github.com/weddinglk/wedding-lk-asitha/discussions)
-- **Email Support**: support@weddinglk.com
+### Community
+- [GitHub Issues](https://github.com/your-org/wedding-lk-asitha/issues)
+- [Discussions](https://github.com/your-org/wedding-lk-asitha/discussions)
+- [Wiki](https://github.com/your-org/wedding-lk-asitha/wiki)
 
-### **Issues & Bugs**
-- **GitHub Issues**: [Report Issues](https://github.com/weddinglk/wedding-lk-asitha/issues)
-- **Feature Requests**: [Request Features](https://github.com/weddinglk/wedding-lk-asitha/issues/new?template=feature_request.md)
-
-## 🙏 Acknowledgments
-
-- **Next.js Team** - Amazing React framework
-- **React Native Team** - Cross-platform mobile development
-- **MongoDB Team** - Robust database solution
-- **Open Source Community** - Countless contributions
+### Contact
+- **Project Lead**: [Your Name](mailto:your.email@example.com)
+- **Technical Support**: [Tech Team](mailto:tech@weddinglk.com)
+- **Business Inquiries**: [Business Team](mailto:business@weddinglk.com)
 
 ---
 
-**Made with ❤️ by the WeddingLK Team**
+**Built with ❤️ by the WeddingLK Team**
 
-**Website**: [weddinglk.com](https://weddinglk.com)  
-**Email**: hello@weddinglk.com  
-**Phone**: +94 11 123 4567 
+*Empowering couples to create their perfect wedding experience* 

@@ -100,12 +100,23 @@ jspm_packages/
 tmp/
 temp/
 
-# Test files
-__tests__
+# Test files and directories
+__tests__/
+tests/
 *.test.js
 *.test.ts
+*.test.tsx
+*.test.jsx
 *.spec.js
 *.spec.ts
+*.spec.tsx
+*.spec.jsx
+jest.config.js
+tsconfig.jest.json
+babel.config.js
+playwright.config.ts
+test-results/
+coverage/
 
 # Documentation
 *.md
