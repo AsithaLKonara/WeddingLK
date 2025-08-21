@@ -1,35 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable standalone output for Docker
-  output: 'standalone',
-  
-  // Server external packages
-  serverExternalPackages: ['mongoose'],
-  
-  // Temporarily disable TypeScript checking to get app running
+  // Temporarily disable TypeScript and ESLint checking to allow the application to compile and run
   typescript: {
     ignoreBuildErrors: true,
   },
-  
-  // Temporarily disable ESLint checking
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
+  // Enable standalone output for Docker
+  output: 'standalone',
+  // Server external packages (correct location for Next.js 15)
+  serverExternalPackages: ['mongoose'],
   // Image optimization
   images: {
     domains: ['localhost', 'res.cloudinary.com'],
-    formats: ['image/webp', 'image/avif'],
+    unoptimized: true,
   },
-  
-  // Environment variables
-  env: {
-    CUSTOM_KEY: 'my-value',
+  // Asset handling
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  // Experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['@mui/material', '@mui/icons-material'],
+    optimizeCss: true,
   },
-  
   // Webpack configuration
   webpack: (config, { isServer }) => {
-    // Add custom webpack config here if needed
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -39,52 +34,41 @@ const nextConfig = {
       };
     }
     
+    // Optimize CSS extraction - simplified and safer
+    if (!isServer && config.optimization?.splitChunks?.cacheGroups) {
+      config.optimization.splitChunks.cacheGroups.styles = {
+        name: 'styles',
+        test: /\.(css|scss)$/,
+        chunks: 'all',
+        enforce: true,
+      };
+    }
+    
     return config;
   },
-  
-  // Headers for security
+  // Headers for better asset handling
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/_next/static/:path*',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
+        ],
+      },
+      {
+        source: '/static/:path*',
+        headers: [
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
     ];
   },
-  
-  // Redirects
-  async redirects() {
-    return [
-      {
-        source: '/old-page',
-        destination: '/new-page',
-        permanent: true,
-      },
-    ];
-  },
-  
-  // Rewrites
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: '/api/:path*',
-      },
-    ];
-  },
 };
 
-export default nextConfig;
+export default nextConfig; 

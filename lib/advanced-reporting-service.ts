@@ -1,5 +1,9 @@
-import { connectDB } from './db'
-import { User, Vendor, Venue, Booking, Payment, Review, Task } from './models'
+// Advanced Reporting Service for WeddingLK
+// Provides comprehensive analytics and reporting capabilities
+
+import { connectDB } from './db';
+import { User, Vendor, Venue, Booking, Review, Task, Payment } from './models';
+import { advancedCache } from './advanced-cache-service';
 import { advancedAnalyticsService } from './advanced-analytics-service'
 
 interface ReportTemplate {
@@ -661,8 +665,8 @@ class AdvancedReportingService {
   }
 
   private async getReviewData(parameters: Record<string, any>): Promise<any[]> {
-    const reviews = await Review.find({}).populate('userId vendorId')
-    return reviews.map(review => ({
+    const reviews = await Review.find({}).populate('userId vendorId');
+    return reviews.map((review: any) => ({
       id: review._id,
       userId: review.userId,
       vendorId: review.vendorId,
@@ -670,12 +674,12 @@ class AdvancedReportingService {
       comment: review.comment,
       createdAt: review.createdAt,
       isVerified: review.isVerified
-    }))
+    }));
   }
 
   private async getTaskData(parameters: Record<string, any>): Promise<any[]> {
-    const tasks = await Task.find({}).populate('assignedTo createdBy')
-    return tasks.map(task => ({
+    const tasks = await Task.find({}).populate('assignedTo createdBy');
+    return tasks.map((task: any) => ({
       id: task._id,
       title: task.title,
       description: task.description,
@@ -685,7 +689,7 @@ class AdvancedReportingService {
       createdBy: task.createdBy,
       dueDate: task.dueDate,
       createdAt: task.createdAt
-    }))
+    }));
   }
 
   private async getAllData(parameters: Record<string, any>): Promise<any[]> {

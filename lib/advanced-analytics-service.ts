@@ -1,6 +1,5 @@
 import { connectDB } from './db'
-import { User, Vendor, Venue, Booking, Payment, Review, Task } from './models'
-import { advancedAIService } from './advanced-ai-service'
+import { User, Vendor, Venue, Booking, Payment } from './models'
 
 interface AnalyticsMetrics {
   revenue: RevenueMetrics

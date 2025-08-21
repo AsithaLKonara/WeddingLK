@@ -98,7 +98,7 @@ class DocumentVerificationService {
 
   // Review document
   async reviewDocument(
-    documentId: string,
+    documentId: string, 
     status: 'approved' | 'rejected',
     verifiedBy: string,
     rejectionReason?: string
@@ -143,8 +143,8 @@ class DocumentVerificationService {
 
   // Validate document before upload
   validateDocument(
-    documentType: string,
-    fileSize: number,
+    documentType: string, 
+    fileSize: number, 
     mimeType: string
   ): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];

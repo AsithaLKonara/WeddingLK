@@ -37,7 +37,7 @@ export interface DynamicForm {
   title: string;
   description: string;
   sections: FormSection[];
-  validationSchema: z.ZodObject<any>;
+  validationSchema: z.ZodType<any>;
   submitHandler: (data: any) => Promise<any>;
 }
 
@@ -56,12 +56,22 @@ export const baseUserSchema = z.object({
     city: z.string().optional(),
     zipCode: z.string().optional()
   }).optional()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
 });
 
-export const vendorSchema = baseUserSchema.extend({
+export const vendorSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
+  phone: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
+  location: z.object({
+    country: z.string().optional(),
+    state: z.string().optional(),
+    city: z.string().optional(),
+    zipCode: z.string().optional()
+  }).optional(),
   businessName: z.string().min(2, 'Business name must be at least 2 characters'),
   category: z.string().min(1, 'Please select a category'),
   servicesOffered: z.array(z.string()).min(1, 'Please select at least one service'),
@@ -71,17 +81,6 @@ export const vendorSchema = baseUserSchema.extend({
     currency: z.string().default('USD'),
     basePrice: z.number().min(0, 'Base price cannot be negative'),
     pricingModel: z.enum(['hourly', 'daily', 'fixed', 'custom'])
-  }),
-  location: z.object({
-    address: z.string().min(1, 'Address is required'),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    country: z.string().min(1, 'Country is required'),
-    zipCode: z.string().optional(),
-    coordinates: z.object({
-      lat: z.number().optional(),
-      lng: z.number().optional()
-    }).optional()
   }),
   contact: z.object({
     phone: z.string().min(1, 'Phone number is required'),
@@ -100,9 +99,25 @@ export const vendorSchema = baseUserSchema.extend({
     fileSize: z.number(),
     mimeType: z.string()
   })).optional()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-export const weddingPlannerSchema = baseUserSchema.extend({
+export const weddingPlannerSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
+  phone: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
+  location: z.object({
+    country: z.string().optional(),
+    state: z.string().optional(),
+    city: z.string().optional(),
+    zipCode: z.string().optional()
+  }).optional(),
   companyName: z.string().min(2, 'Company name must be at least 2 characters'),
   experienceYears: z.number().min(0, 'Experience cannot be negative'),
   specialties: z.array(z.string()).min(1, 'Please select at least one specialty'),
@@ -114,14 +129,6 @@ export const weddingPlannerSchema = baseUserSchema.extend({
     consultationFee: z.number().min(0, 'Consultation fee cannot be negative'),
     packagePricing: z.enum(['hourly', 'daily', 'fixed', 'custom'])
   }),
-  location: z.object({
-    address: z.string().min(1, 'Address is required'),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    country: z.string().min(1, 'Country is required'),
-    zipCode: z.string().optional(),
-    serviceArea: z.array(z.string()).min(1, 'Please specify service areas')
-  }),
   contact: z.object({
     phone: z.string().min(1, 'Phone number is required'),
     website: z.string().url('Invalid website URL').optional(),
@@ -139,6 +146,9 @@ export const weddingPlannerSchema = baseUserSchema.extend({
     fileSize: z.number(),
     mimeType: z.string()
   })).optional()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 // Form field definitions

@@ -61,7 +61,7 @@ const optimizePerformance = async () => {
       console.log('🎉 Excellent performance! Queries are running fast.');
     } else if (avgTime < 500) {
       console.log('✅ Good performance! Queries are running reasonably fast.');
-    } else {
+        } else {
       console.log('⚠️ Performance needs improvement. Consider additional optimizations.');
     }
     

@@ -38,8 +38,7 @@ const PaymentSchema = new mongoose.Schema(
       required: true 
     },
     transactionId: { 
-      type: String, 
-      unique: true 
+      type: String
     },
     gatewayResponse: { 
       type: mongoose.Schema.Types.Mixed 

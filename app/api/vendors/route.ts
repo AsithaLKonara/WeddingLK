@@ -1,47 +1,132 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { optimizedDataService } from '../../../lib/optimized-data-service';
+import { connectDB } from '@/lib/db';
+import { Vendor } from '@/lib/models';
+import { advancedCache } from '@/lib/advanced-cache-service';
 
+// Cache configuration for vendors
+const VENDORS_CACHE_CONFIG = {
+  ttl: 300, // 5 minutes
+  staleWhileRevalidate: 600, // 10 minutes
+};
+
+// Optimized vendors API with caching
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '20');
+  const category = searchParams.get('category');
+  const location = searchParams.get('location');
+  const rating = searchParams.get('rating');
+  const sortBy = searchParams.get('sortBy') || 'rating';
+
+  // Generate cache key based on query parameters
+  const cacheKey = `vendors:${page}:${limit}:${category || 'all'}:${location || 'all'}:${rating || 'all'}:${sortBy}`;
+
+  // Declare cachedVendors at function level for error handling
+  let cachedVendors: any = null;
+
   try {
-    const { searchParams } = new URL(request.url);
-    
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const businessType = searchParams.get('businessType') || undefined;
-    const rating = parseFloat(searchParams.get('rating') || '0');
-    const experience = parseInt(searchParams.get('experience') || '0');
-    
-    console.log('🚀 Fetching vendors with optimized service...');
-    const startTime = Date.now();
-    
-    const result = await optimizedDataService.getVendors({
-      page,
-      limit,
-      businessType,
-      rating: rating > 0 ? rating : undefined,
-      experience: experience > 0 ? experience : undefined,
-      verified: true,
-      active: true
+    // Try to get from cache first
+    cachedVendors = await advancedCache.get('vendors', cacheKey);
+    if (cachedVendors && !cachedVendors.isStale) {
+      console.log(`📦 Vendors served from cache: ${cacheKey}`);
+      return NextResponse.json({
+        success: true,
+        data: cachedVendors.data,
+        timestamp: new Date().toISOString(),
+        fromCache: true,
+      });
+    }
+
+    // Connect to database
+    await connectDB();
+
+    // Build query
+    const query: any = { isActive: true };
+    if (category) query.businessType = category;
+    if (location) query.location = { $regex: location, $options: 'i' };
+    if (rating) query.rating = { $gte: parseFloat(rating) };
+
+    // Build sort object
+    let sortObject: any = {};
+    switch (sortBy) {
+      case 'rating':
+        sortObject = { rating: -1, totalReviews: -1 };
+        break;
+      case 'experience':
+        sortObject = { experience: -1, rating: -1 };
+        break;
+      case 'reviews':
+        sortObject = { totalReviews: -1, rating: -1 };
+        break;
+      case 'name':
+        sortObject = { businessName: 1 };
+        break;
+      default:
+        sortObject = { rating: -1, totalReviews: -1 };
+    }
+
+    // Execute optimized query with lean() for better performance
+    const [vendors, total] = await Promise.all([
+      Vendor.find(query)
+        .select('businessName businessType description rating totalReviews experience isVerified isActive location')
+        .sort(sortObject)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean()
+        .exec(),
+      Vendor.countDocuments(query)
+    ]);
+
+    const result = {
+      vendors,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1,
+      },
+      filters: {
+        category,
+        location,
+        rating,
+        sortBy,
+      },
+    };
+
+    // Cache the result
+    await advancedCache.set('vendors', cacheKey, result, VENDORS_CACHE_CONFIG);
+
+    console.log(`📊 Vendors fetched and cached: ${vendors.length} results`);
+    return NextResponse.json({
+      success: true,
+      data: result,
+      timestamp: new Date().toISOString(),
+      fromCache: false,
     });
+
+  } catch (error) {
+    console.error('Error fetching vendors:', error);
     
-    const fetchTime = Date.now() - startTime;
-    console.log(`⚡ Vendors fetched in ${fetchTime}ms (${result.vendors.length} results)`);
+    // If database fails, try to serve stale cache
+    if (cachedVendors && cachedVendors.isStale) {
+      console.log(`⚠️ Serving stale cache due to database error: ${cacheKey}`);
+      return NextResponse.json({
+        success: true,
+        data: cachedVendors.data,
+        timestamp: new Date().toISOString(),
+        fromCache: true,
+        stale: true,
+      });
+    }
     
     return NextResponse.json({
-      ...result,
-      performance: {
-        fetchTime,
-        cached: result.cached,
-        timestamp: new Date().toISOString()
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error fetching vendors:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch vendors' },
-      { status: 500 }
-    );
+      success: false,
+      error: 'Failed to fetch vendors',
+      timestamp: new Date().toISOString(),
+    }, { status: 500 });
   }
 }
 
@@ -58,7 +143,7 @@ export async function POST(request: NextRequest) {
     // As per instructions, I'm only applying the GET changes.
     // The POST, PUT, DELETE, and PATCH functions are not touched by the new_code.
     // This means they will continue to use the old authOptions and potentially fail.
-    // I will keep them as is, as per instructions to only apply specified changes.
+    // I will keep them as is, as per instructions.
 
     // Placeholder for session check if getServerSession is removed
     // In a real application, you'd check for a session token here.

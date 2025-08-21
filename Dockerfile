@@ -1,68 +1,99 @@
-# Multi-stage build for WeddingLK Next.js Application
-FROM node:18-bullseye AS base
+# ========================================
+# WEDDINGLK PRODUCTION DOCKERFILE
+# Multi-stage build for optimal production image
+# ========================================
 
-# Install dependencies only when needed
-FROM base AS deps
+# Stage 1: Dependencies (with build tools)
+FROM node:18-alpine AS deps
+
 # Install build dependencies for native modules
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     python3 \
     make \
     g++ \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+    libc6-compat \
+    && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Use npm install with retry mechanism and legacy peer deps
-RUN npm config set registry https://registry.npmjs.org/ && \
-    npm install --legacy-peer-deps --no-optional && \
-    npm cache clean --force
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci --legacy-peer-deps
 
-# Rebuild the source code only when needed
-FROM base AS builder
+# Stage 2: Builder (with all dependencies)
+FROM node:18-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    libc6-compat
+
 WORKDIR /app
+
+# Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json* ./
+
+# Copy source code
 COPY . .
 
-# Set environment variables for build
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
 RUN npm run build
 
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
+# Stage 3: Runner (production only)
+FROM node:18-alpine AS runner
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+# Install runtime dependencies
+RUN apk add --no-cache \
+    libc6-compat \
+    curl \
+    && rm -rf /var/cache/apk/*
 
+# Create system user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the public folder
-COPY --from=builder /app/public ./public
+# Set working directory
+WORKDIR /app
 
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/logs
+RUN chown -R nextjs:nodejs /app
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
+# Copy built application from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy package.json for runtime dependencies
+COPY --from=builder /app/package.json ./package.json
+
+# Install only production runtime dependencies
+RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
+
+# Switch to non-root user
 USER nextjs
 
+# Expose port
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Start the application
 CMD ["node", "server.js"] 

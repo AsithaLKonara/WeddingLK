@@ -1,6 +1,10 @@
-import OpenAI from 'openai'
-import { connectDB } from './db'
-import { User, Vendor, Venue, Booking, Review } from './models'
+// Advanced AI Service for WeddingLK
+// Provides intelligent AI-powered features for wedding planning
+
+import OpenAI from 'openai';
+import { connectDB } from './db';
+import { User, Vendor, Venue, Booking, Review } from './models';
+import { advancedCache } from './advanced-cache-service';
 
 interface AIAnalysisResult {
   sentiment: 'positive' | 'negative' | 'neutral'

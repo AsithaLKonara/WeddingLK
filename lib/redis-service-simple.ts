@@ -137,6 +137,25 @@ class InMemoryCache {
     }
   }
 
+  // Add caching for health checks
+  async cacheHealthCheck(data: any, ttl: number = 30): Promise<void> {
+    try {
+      await this.set('health:check', data, ttl);
+    } catch (error) {
+      console.warn('Failed to cache health check:', error);
+    }
+  }
+
+  async getCachedHealthCheck(): Promise<any | null> {
+    try {
+      const cached = await this.get('health:check');
+      return cached ? JSON.parse(cached) : null;
+    } catch (error) {
+      console.warn('Failed to get cached health check:', error);
+      return null;
+    }
+  }
+
   // Clean up expired entries
   private cleanup(): void {
     const now = Date.now();

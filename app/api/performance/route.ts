@@ -1,114 +1,61 @@
-import { NextRequest, NextResponse } from 'next/server'
-import PerformanceMonitor from '@/lib/performance-monitor'
-import SecurityService from '@/lib/security-service'
+import { NextRequest, NextResponse } from 'next/server';
+import { advancedCache } from '@/lib/advanced-cache-service';
+import { dbPoolManager } from '@/lib/db-pool-manager';
 
-// GET /api/performance - Get performance metrics
+// Performance monitoring API
 export async function GET(request: NextRequest) {
-  return PerformanceMonitor.trackAPIPerformance('performance-metrics', async () => {
-    try {
-      // Security validation
-      const securityCheck = SecurityService.validateRequest(request)
-      if (!securityCheck.isValid) {
-        return NextResponse.json({ 
-          error: 'Security validation failed', 
-          details: securityCheck.errors 
-        }, { status: 403 })
-      }
+  try {
+    // Get cache statistics
+    const cacheStats = await advancedCache.getStats();
+    const cacheHealth = await advancedCache.healthCheck();
+    
+    // Get database pool statistics
+    const poolStats = dbPoolManager.getPoolStats();
+    const poolHealth = await dbPoolManager.healthCheck();
+    const poolPerformance = dbPoolManager.getPerformanceMetrics();
+    
+    // Get system performance metrics
+    const systemMetrics = {
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      cpuUsage: process.cpuUsage(),
+      nodeVersion: process.version,
+      platform: process.platform,
+      arch: process.arch,
+    };
 
-      const { searchParams } = new URL(request.url)
-      const type = searchParams.get('type') || 'system'
-      const timeRange = searchParams.get('timeRange') || '24h'
+    const performanceData = {
+      timestamp: new Date().toISOString(),
+      cache: {
+        stats: cacheStats,
+        health: cacheHealth,
+      },
+      database: {
+        pool: poolStats,
+        health: poolHealth,
+        performance: poolPerformance,
+      },
+      system: systemMetrics,
+      summary: {
+        overallHealth: cacheHealth && poolHealth.isHealthy ? 'healthy' : 'degraded',
+        cacheHitRate: cacheStats.hitRate,
+        poolUtilization: poolStats.connectionUtilization,
+        averageResponseTime: poolPerformance.averageResponseTime,
+      },
+    };
 
-      let performanceData: any = {}
+    return NextResponse.json({
+      success: true,
+      data: performanceData,
+      timestamp: new Date().toISOString(),
+    });
 
-      switch (type) {
-        case 'system':
-          performanceData = await PerformanceMonitor.getSystemMetrics()
-          break
-        case 'analytics':
-          performanceData = await PerformanceMonitor.getPerformanceAnalytics(timeRange as any)
-          break
-        case 'alerts':
-          performanceData = await PerformanceMonitor.getPerformanceAlerts()
-          break
-        default:
-          performanceData = await PerformanceMonitor.getSystemMetrics()
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: performanceData,
-        type,
-        timeRange,
-        timestamp: new Date()
-      })
-
-    } catch (error) {
-      console.error('Performance metrics error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Performance metrics failed',
-          message: 'Internal server error'
-        },
-        { status: 500 }
-      )
-    }
-  })
-}
-
-// POST /api/performance - Track page performance
-export async function POST(request: NextRequest) {
-  return PerformanceMonitor.trackAPIPerformance('performance-track', async () => {
-    try {
-      // Security validation
-      const securityCheck = SecurityService.validateRequest(request)
-      if (!securityCheck.isValid) {
-        return NextResponse.json({ 
-          error: 'Security validation failed', 
-          details: securityCheck.errors 
-        }, { status: 403 })
-      }
-
-      const body = await request.json()
-      const { pageName, loadTime, status = 'success' } = body
-
-      if (!pageName || !loadTime) {
-        return NextResponse.json({ 
-          error: 'Page name and load time are required' 
-        }, { status: 400 })
-      }
-
-      // Input validation
-      const validation = SecurityService.validateInput(body, {
-        preventXSS: true
-      })
-
-      if (!validation.isValid) {
-        return NextResponse.json({ 
-          error: 'Invalid input', 
-          details: validation.errors 
-        }, { status: 400 })
-      }
-
-      // Track page performance
-      PerformanceMonitor.trackPagePerformance(pageName, loadTime, status)
-
-      return NextResponse.json({
-        success: true,
-        message: 'Page performance tracked successfully'
-      })
-
-    } catch (error) {
-      console.error('Performance tracking error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Performance tracking failed',
-          message: 'Internal server error'
-        },
-        { status: 500 }
-      )
-    }
-  })
+  } catch (error) {
+    console.error('Error fetching performance metrics:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to fetch performance metrics',
+      timestamp: new Date().toISOString(),
+    }, { status: 500 });
+  }
 } 

@@ -1,11 +1,12 @@
+// AI Service for WeddingLK
+// Provides AI-powered features for wedding planning
+
+import { connectDB } from './db';
+import { User, Vendor, Venue, Booking, Payment } from './models';
+import { advancedCache } from './advanced-cache-service';
+
 import OpenAI from 'openai'
-import { connectToDatabase } from '@/lib/database'
-import { WeddingLKAIProcessor } from '@/lib/weddinglk-ai-processor'
-import User from '@/lib/models/user'
-import { Venue } from '@/lib/models/venue'
-import { Vendor } from '@/lib/models/vendor'
-import { Booking } from '@/lib/models/booking'
-import { Payment } from '@/lib/models/Payment'
+// Removed unused imports for code quality
 
 // Initialize OpenAI client conditionally
 let openai: OpenAI | null = null
@@ -50,7 +51,7 @@ class AIService {
   // Intelligent venue and vendor recommendations
   async getPersonalizedRecommendations(userId: string): Promise<AIRecommendation[]> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const user = await User.findById(userId)
       if (!user) throw new Error('User not found')
@@ -145,7 +146,7 @@ class AIService {
   // Generate personalized wedding timeline
   async generateWeddingTimeline(userId: string): Promise<WeddingPlan> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const user = await User.findById(userId)
       if (!user?.preferences?.weddingDate) throw new Error('Wedding date not found')
@@ -257,7 +258,7 @@ class AIService {
   // Smart search with semantic understanding
   async semanticSearch(query: string, filters: any = {}): Promise<{ venues: any[], vendors: any[], extractedParams: any }> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // If OpenAI is not available, return basic search
       if (!openai) {
@@ -319,7 +320,7 @@ class AIService {
   // Get basic search when AI is not available
   private async getBasicSearch(query: string, filters: any): Promise<any> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const venueQuery: any = { isActive: true }
       const vendorQuery: any = { isActive: true }
@@ -389,7 +390,7 @@ class AIService {
   // Analyze user behavior and preferences
   async analyzeUserBehavior(userId: string): Promise<any> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const user = await User.findById(userId)
       const bookings = await Booking.find({ userId })

@@ -5,46 +5,77 @@ import './models';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  console.warn('⚠️ MONGODB_URI not found, using fallback connection string');
 }
 
 interface ConnectionCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
+  connecting: boolean;
 }
 
 declare global {
   var mongoose: ConnectionCache | undefined;
 }
 
-let cached: ConnectionCache = global.mongoose || { conn: null, promise: null };
+const cached: ConnectionCache = global.mongoose || { conn: null, promise: null, connecting: false };
 
 if (!global.mongoose) {
   global.mongoose = cached;
 }
 
 export async function connectDB() {
+  // If already connected, return the connection
   if (cached.conn) {
     return cached.conn;
   }
 
+  // If already connecting, wait for the existing promise
+  if (cached.connecting && cached.promise) {
+    try {
+      cached.conn = await cached.promise;
+      return cached.conn;
+    } catch (error) {
+      cached.promise = null;
+      cached.connecting = false;
+      throw error;
+    }
+  }
+
+  // If no promise exists, create a new connection
   if (!cached.promise) {
+    // Use fallback URI for development if MONGODB_URI is not set
+    const uri = MONGODB_URI || 'mongodb://localhost:27017/weddinglk';
+    
     const opts = {
       bufferCommands: false,
-      maxPoolSize: 20, // Increased connection pool
-      serverSelectionTimeoutMS: 3000, // Faster server selection
-      socketTimeoutMS: 30000, // Reduced socket timeout
+      maxPoolSize: 20, // Increased for better performance
+      minPoolSize: 5, // Maintain minimum connections
+      serverSelectionTimeoutMS: 10000, // Increased timeout
+      socketTimeoutMS: 60000, // Increased socket timeout
       family: 4, // Use IPv4 for faster connections
       // Performance optimizations
       autoIndex: false, // Disable auto-indexing for faster startup
-      maxIdleTimeMS: 30000, // Keep connections alive longer
+      maxIdleTimeMS: 60000, // Keep connections alive longer
+      // Retry options
+      retryWrites: true,
+      retryReads: true,
+      // Connection options
+      connectTimeoutMS: 15000,
+      heartbeatFrequencyMS: 10000,
+      // Pool options
+      maxConnecting: 5, // Limit concurrent connection attempts
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts);
+    console.log(`🔌 Attempting to connect to MongoDB: ${uri.replace(/\/\/.*@/, '//***:***@')}`);
+    
+    cached.connecting = true;
+    cached.promise = mongoose.connect(uri, opts);
   }
 
   try {
     cached.conn = await cached.promise;
+    cached.connecting = false;
     
     // Enable query performance monitoring
     if (process.env.NODE_ENV === 'development') {
@@ -54,9 +85,19 @@ export async function connectDB() {
     // Set global performance options
     mongoose.set('strictQuery', false);
     
+    console.log('✅ MongoDB connected successfully');
     return cached.conn;
   } catch (e) {
     cached.promise = null;
+    cached.connecting = false;
+    console.error('❌ MongoDB connection failed:', e);
+    
+    // For development, try to continue without database
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ Continuing in development mode without database connection');
+      return null;
+    }
+    
     throw e;
   }
 }

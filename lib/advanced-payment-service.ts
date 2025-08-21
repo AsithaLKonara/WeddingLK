@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 import { connectDB } from './db'
-import { Payment, User, Booking, Vendor, Venue } from './models'
+import { Payment, User } from './models'
 
 interface PaymentMethod {
   id: string
