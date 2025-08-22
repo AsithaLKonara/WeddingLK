@@ -1,4 +1,4 @@
-import { connectToDatabase } from './database'
+import { connectDB } from './db'
 
 interface SMSData {
   to: string
@@ -110,7 +110,7 @@ class SMSService {
   // Send welcome SMS
   async sendWelcomeSMS(userId: string): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock user data for now
       const user = { phone: '+94123456789', name: 'Test User' }
@@ -132,7 +132,7 @@ class SMSService {
   // Send booking confirmation SMS
   async sendBookingConfirmationSMS(bookingId: string): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock booking data for now
       const booking = { 
@@ -163,7 +163,7 @@ class SMSService {
   // Send payment receipt SMS
   async sendPaymentReceiptSMS(paymentId: string): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock payment data for now
       const payment = { 
@@ -205,7 +205,7 @@ class SMSService {
   // Send wedding reminder SMS
   async sendWeddingReminderSMS(userId: string, daysLeft: number): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock user data for now
       const user = { phone: '+94123456789', name: 'Test User' }
@@ -227,7 +227,7 @@ class SMSService {
   // Send vendor inquiry SMS
   async sendVendorInquirySMS(vendorId: string, inquiryData: any): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock vendor data for now
       const vendor = { phone: '+94123456789', name: 'Test Vendor' }
@@ -249,7 +249,7 @@ class SMSService {
   // Send appointment reminder SMS
   async sendAppointmentReminderSMS(userId: string, appointmentData: any): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock user data for now
       const user = { phone: '+94123456789', name: 'Test User' }
@@ -271,7 +271,7 @@ class SMSService {
   // Send payment due reminder SMS
   async sendPaymentDueSMS(userId: string, paymentData: any): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock user data for now
       const user = { phone: '+94123456789', name: 'Test User' }
@@ -294,7 +294,7 @@ class SMSService {
   // Send booking update SMS
   async sendBookingUpdateSMS(bookingId: string, updateData: any): Promise<SMSResponse> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock booking data for now
       const booking = { 

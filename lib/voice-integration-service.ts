@@ -1,4 +1,4 @@
-import { connectToDatabase } from './database'
+import { connectDB } from './db'
 
 interface VoiceCommand {
   type: 'search' | 'booking' | 'navigation' | 'information' | 'action'

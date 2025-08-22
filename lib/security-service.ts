@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import { NextRequest } from 'next/server'
-import { connectToDatabase } from './database'
+import { connectDB } from './db'
 
 interface SecurityEvent {
   timestamp: Date

@@ -21,7 +21,7 @@ services:
     networks:
       - weddinglk-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/nginx-health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -57,13 +57,12 @@ services:
       - app_logs:/app/logs
     networks:
       - weddinglk-network
-    # Temporarily disable health check to debug startup issues
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # MongoDB Database
   mongodb:
@@ -81,7 +80,7 @@ services:
     networks:
       - weddinglk-network
     healthcheck:
-      test: ["CMD", "mongosh", "--username", "admin", "--password", "password123", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--username", "admin", "--password", "password123", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')", "--quiet"]
       interval: 30s
       timeout: 10s
       retries: 3

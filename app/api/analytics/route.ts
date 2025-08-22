@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/database'
+import { connectDB } from '@/lib/db'
 import AnalyticsDashboard from '@/lib/analytics-dashboard'
 import SecurityService from '@/lib/security-service'
 import PerformanceMonitor from '@/lib/performance-monitor'
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         }, { status: 403 })
       }
 
-      await connectToDatabase()
+      await connectDB()
       
       const { searchParams } = new URL(request.url)
       const type = searchParams.get('type') || 'overview'
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
         }, { status: 403 })
       }
 
-      await connectToDatabase()
+      await connectDB()
       
       const body = await request.json()
       const { event, userId, properties } = body

@@ -1,4 +1,4 @@
-import { connectToDatabase } from './database'
+import { connectDB } from './db'
 
 interface WeatherData {
   temperature: number

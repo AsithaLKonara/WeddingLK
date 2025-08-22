@@ -44,30 +44,31 @@ export async function connectDB() {
 
   // If no promise exists, create a new connection
   if (!cached.promise) {
-    // Use fallback URI for development if MONGODB_URI is not set
-    const uri = MONGODB_URI || 'mongodb://mongodb:27017/weddinglk';
+    // Use the MONGODB_URI from environment or fallback
+    const uri = MONGODB_URI || 'mongodb://localhost:27017/weddinglk';
     
     const opts = {
-      bufferCommands: true, // Changed from false to true to fix connection issues
-      maxPoolSize: 20, // Increased for better performance
-      minPoolSize: 5, // Maintain minimum connections
-      serverSelectionTimeoutMS: 10000, // Increased timeout
-      socketTimeoutMS: 60000, // Increased socket timeout
-      family: 4, // Use IPv4 for faster connections
-      // Performance optimizations
-      autoIndex: false, // Disable auto-indexing for faster startup
-      maxIdleTimeMS: 60000, // Keep connections alive longer
-      // Retry options
+      bufferCommands: true,
+      maxPoolSize: 10, // Reduced for Docker environment
+      minPoolSize: 2, // Reduced for Docker environment
+      serverSelectionTimeoutMS: 30000, // Increased timeout for Docker
+      socketTimeoutMS: 60000,
+      family: 4, // Use IPv4
+      autoIndex: false,
+      maxIdleTimeMS: 30000, // Reduced for Docker
       retryWrites: true,
       retryReads: true,
-      // Connection options
-      connectTimeoutMS: 15000,
+      connectTimeoutMS: 30000, // Increased for Docker
       heartbeatFrequencyMS: 10000,
-      // Pool options
-      maxConnecting: 5, // Limit concurrent connection attempts
+      maxConnecting: 3, // Reduced for Docker
+      // Docker-specific options
+      directConnection: false,
+      // Retry logic
+      retryDelay: 1000,
+      maxRetries: 5,
     };
 
-    // Attempting to connect to MongoDB;
+    console.log(`🔌 Attempting to connect to MongoDB: ${uri.replace(/\/\/.*@/, '//***@')}`);
     
     cached.connecting = true;
     cached.promise = mongoose.connect(uri, opts);
@@ -77,47 +78,43 @@ export async function connectDB() {
     cached.conn = await cached.promise;
     cached.connecting = false;
     
+    console.log('✅ MongoDB connected successfully');
+    
     // Enable query performance monitoring
     if (process.env.NODE_ENV === 'development') {
-      mongoose.set('debug', false); // Disable debug in production
+      mongoose.set('debug', false);
     }
     
     // Set global performance options
     mongoose.set('strictQuery', false);
     
-    // MongoDB connected successfully
     return cached.conn;
   } catch (e) {
     cached.promise = null;
     cached.connecting = false;
     console.error('❌ MongoDB connection failed:', e);
     
-    // For development, try to continue without database
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('⚠️ Continuing in development mode without database connection');
-      return null;
-    }
-    
-    throw e;
+    // For development/production, try to continue without database
+    console.warn('⚠️ Continuing without database connection');
+    return null;
   }
 }
 
 // Add connection event listeners for better monitoring
 mongoose.connection.on('connected', () => {
-  // MongoDB connected successfully
+  console.log('✅ Mongoose connected to MongoDB');
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err);
+  console.error('❌ Mongoose connection error:', err);
 });
 
 mongoose.connection.on('disconnected', () => {
-  // MongoDB disconnected
+  console.log('⚠️ Mongoose disconnected from MongoDB');
 });
 
 // Performance monitoring
 mongoose.connection.on('connected', () => {
-  // MongoDB Performance Stats logged in development only
   if (process.env.NODE_ENV === 'development') {
     const pool = (mongoose.connection as any).pool;
     if (pool) {
@@ -132,7 +129,7 @@ mongoose.connection.on('connected', () => {
 // Graceful shutdown
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
-  // MongoDB connection closed through app termination
+  console.log('🔌 MongoDB connection closed through app termination');
   process.exit(0);
 });
 

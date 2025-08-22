@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { connectToDatabase } from './database'
+import { connectDB } from './db'
 
 interface EmailTemplate {
   subject: string
@@ -192,7 +192,7 @@ class EmailService {
   // Send welcome email
   async sendWelcomeEmail(userId: string): Promise<boolean> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock user data for now
       const user = { email: 'test@example.com', name: 'Test User' }
@@ -215,7 +215,7 @@ class EmailService {
   // Send booking confirmation
   async sendBookingConfirmation(bookingId: string): Promise<boolean> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock booking data for now
       const booking = { 
@@ -248,7 +248,7 @@ class EmailService {
   // Send payment receipt
   async sendPaymentReceipt(paymentId: string): Promise<boolean> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock payment data for now
       const payment = { 
@@ -282,7 +282,7 @@ class EmailService {
   // Send wedding reminder
   async sendWeddingReminder(userId: string, daysLeft: number): Promise<boolean> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock user data for now
       const user = { email: 'test@example.com', name: 'Test User' }
@@ -306,7 +306,7 @@ class EmailService {
   // Send vendor inquiry
   async sendVendorInquiry(vendorId: string, inquiryData: any): Promise<boolean> {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       // Mock vendor data for now
       const vendor = { email: 'vendor@example.com', name: 'Test Vendor' }

@@ -1,4 +1,4 @@
-import { connectToDatabase } from './database'
+import { connectDB } from './db'
 import { performance } from 'perf_hooks'
 
 interface PerformanceMetrics {
@@ -287,7 +287,7 @@ class PerformanceMonitor {
   // Get database metrics
   private async getDatabaseMetrics() {
     try {
-      await connectToDatabase()
+      await connectDB()
       
       const start = performance.now()
       await require('mongoose').connection.db.admin().ping()
