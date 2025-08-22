@@ -14,14 +14,26 @@ const nextConfig = {
   // Image optimization
   images: {
     domains: ['localhost', 'res.cloudinary.com'],
-    unoptimized: true,
+    unoptimized: false,
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
   },
   // Asset handling
   assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   // Experimental features for better performance
   experimental: {
-    optimizePackageImports: ['@mui/material', '@mui/icons-material'],
+    optimizePackageImports: ['@mui/material', '@mui/icons-material', 'lucide-react'],
     optimizeCss: true,
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   // Webpack configuration
   webpack: (config, { isServer }) => {

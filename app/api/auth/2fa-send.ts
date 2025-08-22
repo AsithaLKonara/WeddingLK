@@ -24,19 +24,7 @@ export async function POST(request: NextRequest) {
     await user.save()
     
     // Send email with OTP
-    // const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">Two-Factor Authentication</h1>
-        <p>Hi ${user.name || 'there'},</p>
-        <p>Your verification code is:</p>
-        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-          <h2 style="color: #007bff; font-size: 32px; margin: 0; letter-spacing: 5px;">${otp}</h2>
-        </div>
-        <p>This code will expire in 5 minutes.</p>
-        <p>If you didn't request this code, please ignore this email.</p>
-        <p>Best regards,<br>The WeddingLK Team</p>
-      </div>
-    `
+    // TODO: Implement HTML email template when email service supports HTML
 
     await sendEmail(
       user.email,

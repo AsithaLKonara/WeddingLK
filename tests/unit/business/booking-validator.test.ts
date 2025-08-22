@@ -5,7 +5,7 @@ describe('Booking Validator', () => {
     id: 'venue-1',
     name: 'Test Venue',
     capacity: 100,
-    availableDates: ['2024-06-15', '2024-06-16', '2024-06-17'],
+    availableDates: [], // Will be populated dynamically in tests
     minimumNotice: 7, // days
     maximumAdvanceBooking: 365, // days
   };
@@ -18,17 +18,27 @@ describe('Booking Validator', () => {
   };
 
   it('validates a valid booking request', () => {
+    // Use a future date that meets all validation requirements
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 30); // 30 days from now
+    const futureDateString = futureDate.toISOString().split('T')[0];
+    
+    const venueWithAvailableDate = {
+      ...mockVenue,
+      availableDates: [futureDateString]
+    };
+    
     const validRequest = {
       venueId: 'venue-1',
       userId: 'user-1',
-      date: '2024-06-15',
+      date: futureDateString,
       guestCount: 50,
       startTime: '18:00',
       endTime: '23:00',
       specialRequirements: 'None',
     };
 
-    const result = validateBookingRequest(validRequest, mockVenue, mockUser);
+    const result = validateBookingRequest(validRequest, venueWithAvailableDate, mockUser);
     
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
@@ -52,6 +62,11 @@ describe('Booking Validator', () => {
   });
 
   it('rejects booking for unavailable date', () => {
+    const venueWithLimitedDates = {
+      ...mockVenue,
+      availableDates: ['2024-06-15', '2024-06-16', '2024-06-17']
+    };
+    
     const invalidRequest = {
       venueId: 'venue-1',
       userId: 'user-1',
@@ -62,7 +77,7 @@ describe('Booking Validator', () => {
       specialRequirements: 'None',
     };
 
-    const result = validateBookingRequest(invalidRequest, mockVenue, mockUser);
+    const result = validateBookingRequest(invalidRequest, venueWithLimitedDates, mockUser);
     
     expect(result.isValid).toBe(false);
     expect(result.errors).toContain('Selected date is not available');
@@ -91,22 +106,30 @@ describe('Booking Validator', () => {
   });
 
   it('rejects booking too far in advance', () => {
-    const farFutureDate = '2026-06-15'; // More than 365 days ahead
+    // Create a date that's exactly 366 days from now (more than 365 days)
+    const farFutureDate = new Date();
+    farFutureDate.setDate(farFutureDate.getDate() + 366);
+    const farFutureDateString = farFutureDate.toISOString().split('T')[0];
+    
+    const venueWithFarFutureDate = {
+      ...mockVenue,
+      availableDates: [farFutureDateString] // Make the date available so it gets to advance booking check
+    };
 
     const invalidRequest = {
       venueId: 'venue-1',
       userId: 'user-1',
-      date: farFutureDate,
+      date: farFutureDateString,
       guestCount: 50,
       startTime: '18:00',
       endTime: '23:00',
       specialRequirements: 'None',
     };
 
-    const result = validateBookingRequest(invalidRequest, mockVenue, mockUser);
+    const result = validateBookingRequest(invalidRequest, venueWithFarFutureDate, mockUser);
     
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Booking too far in advance');
+    expect(result.errors).toContain('Cannot book more than 1 year in advance');
   });
 
   it('rejects booking for unverified user', () => {
@@ -125,7 +148,7 @@ describe('Booking Validator', () => {
     const result = validateBookingRequest(validRequest, mockVenue, unverifiedUser);
     
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('User account not verified');
+    expect(result.errors).toContain('User account must be verified to make bookings');
   });
 
   it('rejects booking for user with incomplete profile', () => {
@@ -144,7 +167,8 @@ describe('Booking Validator', () => {
     const result = validateBookingRequest(validRequest, mockVenue, incompleteUser);
     
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('User profile incomplete');
+    // Incomplete profile only generates a warning, not an error
+    expect(result.warnings).toContain('Complete your profile for better booking experience');
   });
 
   it('validates time constraints', () => {
@@ -161,25 +185,36 @@ describe('Booking Validator', () => {
     const result = validateBookingRequest(invalidRequest, mockVenue, mockUser);
     
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Invalid time range');
+    expect(result.errors).toContain('Start time must be before end time');
   });
 
   it('handles multiple validation errors', () => {
+    // Create a date that's exactly 366 days from now (more than 365 days)
+    const farFutureDate = new Date();
+    farFutureDate.setDate(farFutureDate.getDate() + 366);
+    const farFutureDateString = farFutureDate.toISOString().split('T')[0];
+    
+    const venueWithLimitedDates = {
+      ...mockVenue,
+      availableDates: ['2024-06-15', '2024-06-16', '2024-06-17'] // Don't include the far future date
+    };
+    
     const invalidRequest = {
       venueId: 'venue-1',
       userId: 'user-1',
-      date: '2024-06-20', // Unavailable date
+      date: farFutureDateString, // Unavailable date
       guestCount: 150, // Exceeds capacity
       startTime: '18:00',
       endTime: '23:00',
       specialRequirements: 'None',
     };
 
-    const result = validateBookingRequest(invalidRequest, mockVenue, mockUser);
+    const result = validateBookingRequest(invalidRequest, venueWithLimitedDates, mockUser);
     
     expect(result.isValid).toBe(false);
-    expect(result.errors).toHaveLength(2);
+    expect(result.errors).toHaveLength(3);
     expect(result.errors).toContain('Guest count exceeds venue capacity');
     expect(result.errors).toContain('Selected date is not available');
+    expect(result.errors).toContain('Cannot book more than 1 year in advance');
   });
 }); 

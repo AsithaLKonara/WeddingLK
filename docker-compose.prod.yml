@@ -1,0 +1,120 @@
+# ========================================
+# WEDDINGLK PRODUCTION DOCKER COMPOSE
+# Optimized for production deployment
+# ========================================
+
+version: "3.9"
+
+services:
+  # Nginx Load Balancer & Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: weddinglk-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      - app
+    networks:
+      - weddinglk-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Next.js Application (Production)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod.debian
+      args:
+        NODE_ENV: production
+    container_name: weddinglk-app-prod
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/weddinglk?authSource=admin&retryWrites=true&w=majority
+      - REDIS_URL=redis://redis:6379
+      - NEXTAUTH_URL=https://yourdomain.com
+      - NEXTAUTH_SECRET=your-super-secret-nextauth-key-here-change-this
+      - JWT_SECRET=your-super-secret-jwt-key-here-change-this
+      - STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+      - STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret_here
+      - CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+      - CLOUDINARY_API_KEY=your_cloudinary_api_key
+      - CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - app_uploads:/app/uploads
+      - app_logs:/app/logs
+    networks:
+      - weddinglk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb-prod
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=weddinglk
+    volumes:
+      - mongodb_prod_data:/data/db
+    networks:
+      - weddinglk-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "admin", "--password", "password123", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-prod
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - weddinglk-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mongodb_prod_data:
+  redis_prod_data:
+  app_uploads:
+  app_logs:
+  nginx_logs:
+  nginx_cache:
+
+networks:
+  weddinglk-network:
+    driver: bridge 

@@ -1,0 +1,40 @@
+# ========================================
+# WEDDINGLK DEVELOPMENT DOCKERFILE
+# Optimized for development with hot reload
+# ========================================
+
+FROM node:18-alpine
+
+# Install build dependencies for native modules
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    libc6-compat \
+    krb5-dev \
+    libkrb5 \
+    gssapi \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
+
+# Install all dependencies
+RUN npm ci --legacy-peer-deps
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Start development server with hot reload
+CMD ["npm", "run", "dev"] 

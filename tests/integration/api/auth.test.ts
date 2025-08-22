@@ -39,44 +39,55 @@ describe('Auth API Integration Tests', () => {
   let server: any;
 
   beforeAll(async () => {
-    await connectTestDB();
-    
-    // Create a simple HTTP server for testing
-    server = createServer((req: any, res: any) => {
-      const url = req.url;
-      const method = req.method;
+    try {
+      await connectTestDB();
       
-      let body = '';
-      req.on('data', (chunk: any) => {
-        body += chunk.toString();
+      // Create a simple HTTP server for testing
+      server = createServer((req: any, res: any) => {
+        const url = req.url;
+        const method = req.method;
+        
+        let body = '';
+        req.on('data', (chunk: any) => {
+          body += chunk.toString();
+        });
+        
+        req.on('end', () => {
+          const mockReq = {
+            method,
+            url,
+            body: body ? JSON.parse(body) : {},
+          } as NextApiRequest;
+          
+          const mockRes = {
+            status: (code: number) => ({
+              json: (data: any) => {
+                res.writeHead(code, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(data));
+              },
+            }),
+          } as any;
+          
+          mockAuthHandler(mockReq, mockRes);
+        });
       });
       
-      req.on('end', () => {
-        const mockReq = {
-          method,
-          url,
-          body: body ? JSON.parse(body) : {},
-        } as NextApiRequest;
-        
-        const mockRes = {
-          status: (code: number) => ({
-            json: (data: any) => {
-              res.writeHead(code, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(data));
-            },
-          }),
-        } as any;
-        
-        mockAuthHandler(mockReq, mockRes);
-      });
-    });
-    
-    server.listen(0); // Use random port
-  });
+      server.listen(0); // Use random port
+    } catch (error) {
+      console.error('Failed to setup test environment:', error);
+      throw error;
+    }
+  }, 30000); // Increase timeout to 30 seconds
 
   afterAll(async () => {
-    await disconnectTestDB();
-    server.close();
+    try {
+      if (server) {
+        server.close();
+      }
+      await disconnectTestDB();
+    } catch (error) {
+      console.error('Failed to cleanup test environment:', error);
+    }
   });
 
   beforeEach(async () => {

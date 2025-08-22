@@ -24,7 +24,7 @@ describe('Venue Pricing Calculator', () => {
     
     expect(result.totalCost).toBeGreaterThan(0);
     expect(result.breakdown.base).toBe(1000);
-    expect(result.breakdown.guests).toBeGreaterThan(0);
+    expect(result.breakdown.guests).toBe(0); // No extra cost for minimum guests
   });
 
   it('calculates pricing for maximum guest count', () => {

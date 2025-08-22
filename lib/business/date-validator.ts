@@ -220,7 +220,7 @@ export function suggestWeddingDates(
   const start = new Date(startDate);
   const end = new Date(endDate);
   
-  let currentDate = new Date(start);
+  const currentDate = new Date(start);
   
   while (currentDate <= end && suggestions.length < count) {
     const dateString = currentDate.toISOString().split('T')[0];

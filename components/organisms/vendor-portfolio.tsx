@@ -14,6 +14,23 @@ interface VendorPortfolioProps {
 export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  // Handle empty images array
+  if (!images || images.length === 0) {
+    return (
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Portfolio</CardTitle>
+          <CardDescription>View our latest work and projects</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-gray-500">
+            No portfolio images available
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   const nextImage = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length)
   }
@@ -46,6 +63,7 @@ export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
                 size="sm"
                 className="absolute left-2 top-1/2 transform -translate-y-1/2"
                 onClick={prevImage}
+                aria-label="Previous image"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -54,6 +72,7 @@ export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
                 size="sm"
                 className="absolute right-2 top-1/2 transform -translate-y-1/2"
                 onClick={nextImage}
+                aria-label="Next image"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>

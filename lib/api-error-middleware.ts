@@ -198,17 +198,16 @@ export function requireRole(
 export function withDatabaseOperation<T>(
   operation: () => Promise<T>
 ): Promise<T> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const result = await operation();
-      resolve(result);
-    } catch (error: any) {
-      if (error.name === 'MongoServerError' || error.name === 'MongooseError') {
-        reject(new DatabaseError('Database operation failed', { originalError: error.message }));
-      } else {
-        reject(error);
-      }
-    }
+  return new Promise((resolve, reject) => {
+    operation()
+      .then(resolve)
+      .catch((error: any) => {
+        if (error.name === 'MongoServerError' || error.name === 'MongooseError') {
+          reject(new DatabaseError('Database operation failed', { originalError: error.message }));
+        } else {
+          reject(error);
+        }
+      });
   });
 }
 
@@ -217,13 +216,12 @@ export function withExternalService<T>(
   serviceName: string,
   operation: () => Promise<T>
 ): Promise<T> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const result = await operation();
-      resolve(result);
-    } catch (error: any) {
-      reject(new ExternalServiceError(serviceName, error.message, { originalError: error }));
-    }
+  return new Promise((resolve, reject) => {
+    operation()
+      .then(resolve)
+      .catch((error: any) => {
+        reject(new ExternalServiceError(serviceName, error.message, { originalError: error }));
+      });
   });
 }
 

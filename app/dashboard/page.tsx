@@ -1,12 +1,20 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { LayoutDashboard, Calendar, Heart, MessageSquare, CreditCard, Settings, Loader2, Users, Star, MapPin } from 'lucide-react'
+import { DashboardOverview } from './components/dashboard-overview'
+import { usePerformanceMonitor } from '@/hooks/use-performance-monitor'
+
+// Lazy load heavy components
+const BookingsTab = lazy(() => import('./components/bookings-tab'))
+const FavoritesTab = lazy(() => import('./components/favorites-tab'))
+const MessagesTab = lazy(() => import('./components/messages-tab'))
+const PaymentsTab = lazy(() => import('./components/payments-tab'))
 
 function DashboardContent() {
   const searchParams = useSearchParams()
@@ -22,17 +30,34 @@ function DashboardContent() {
   const [favorites, setFavorites] = useState([])
   const [messages, setMessages] = useState([])
   const [payments, setPayments] = useState([])
+  
+  // Performance monitoring
+  usePerformanceMonitor()
 
   useEffect(() => {
     const tab = searchParams.get('tab') || 'overview'
     setActiveTab(tab)
+    
+    // Fetch stats immediately
     fetchUserStats()
     
-    if (tab === 'bookings') fetchBookings()
-    if (tab === 'favorites') fetchFavorites()
-    if (tab === 'messages') fetchMessages()
-    if (tab === 'payments') fetchPayments()
-  }, [searchParams, activeTab])
+    // Prefetch all data in background for instant tab switching
+    const prefetchData = async () => {
+      try {
+        await Promise.all([
+          fetchBookings(),
+          fetchFavorites(),
+          fetchMessages(),
+          fetchPayments()
+        ])
+      } catch (error) {
+        console.log('Background prefetch completed')
+      }
+    }
+    
+    // Start prefetching after a short delay
+    setTimeout(prefetchData, 100)
+  }, [searchParams])
 
   const fetchUserStats = async () => {
     try {
@@ -96,12 +121,30 @@ function DashboardContent() {
     }
   }
 
+  // Show immediate content while loading
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-32 w-32 animate-spin text-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+      <div className="container mx-auto py-8 px-4 md:px-6">
+        {/* User Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-100 rounded-full">
+              <LayoutDashboard className="h-8 w-8 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">Wedding Planning Dashboard</h1>
+              <p className="text-gray-600 mt-2">Loading your data...</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Show skeleton stats while loading */}
+        <DashboardOverview stats={{ totalBookings: 0, totalFavorites: 0, totalMessages: 0, totalPayments: 0 }} />
+        
+        {/* Loading indicator */}
+        <div className="text-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto" />
+          <p className="mt-2 text-gray-600">Loading your dashboard data...</p>
         </div>
       </div>
     )
@@ -185,244 +228,67 @@ function DashboardContent() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Recent Bookings
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {bookings.length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings.slice(0, 3).map((booking: any) => (
-                      <div key={booking._id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Calendar className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">{booking.venue?.name || 'Vendor Service'}</p>
-                          <p className="text-sm text-gray-500">{new Date(booking.date).toLocaleDateString()}</p>
-                        </div>
-                        <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
-                          {booking.status}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No bookings yet</p>
-                    <p className="text-sm">Start planning your wedding by booking venues and vendors</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Find Venues</p>
-                      <p className="text-xs text-gray-500">Browse wedding venues</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Browse Venues
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Find Vendors</p>
-                      <p className="text-xs text-gray-500">Browse wedding services</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Browse Vendors
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Wedding Planning</p>
-                      <p className="text-xs text-gray-500">Use planning tools</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Start Planning
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <DashboardOverview stats={stats} />
         </TabsContent>
 
         <TabsContent value="bookings" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Calendar className="h-5 w-5 mr-2" />
-                Your Bookings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {bookings.length > 0 ? (
-                <div className="space-y-4">
-                  {bookings.map((booking: any) => (
-                    <div key={booking._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Calendar className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{booking.venue?.name || 'Vendor Service'}</p>
-                          <p className="text-sm text-gray-500">{new Date(booking.date).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">LKR {booking.totalAmount?.toLocaleString()}</p>
-                        <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
-                          {booking.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+          <Suspense fallback={
+            <Card>
+              <CardContent className="p-8">
+                <div className="flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2">Loading bookings...</span>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No bookings yet</p>
-                  <p className="text-sm">Start planning your wedding by booking venues and vendors</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          }>
+            <BookingsTab />
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="favorites" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Heart className="h-5 w-5 mr-2" />
-                Your Favorites
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {favorites.length > 0 ? (
-                <div className="space-y-4">
-                  {favorites.map((favorite: any) => (
-                    <div key={favorite._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                          <Heart className="h-5 w-5 text-red-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{favorite.name || favorite.businessName}</p>
-                          <p className="text-sm text-gray-500">{favorite.category || favorite.type}</p>
-                        </div>
-                      </div>
-                      <Button size="sm" variant="outline">
-                        View Details
-                      </Button>
-                    </div>
-                  ))}
+          <Suspense fallback={
+            <Card>
+              <CardContent className="p-8">
+                <div className="flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2">Loading favorites...</span>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Heart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No favorites yet</p>
-                  <p className="text-sm">Save venues and vendors you like for later</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          }>
+            <FavoritesTab />
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="messages" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <MessageSquare className="h-5 w-5 mr-2" />
-                Messages
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {messages.length > 0 ? (
-                <div className="space-y-4">
-                  {messages.map((message: any) => (
-                    <div key={message._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <MessageSquare className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{message.sender?.name || 'Vendor'}</p>
-                          <p className="text-sm text-gray-500 line-clamp-2">{message.content}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">{new Date(message.createdAt).toLocaleDateString()}</p>
-                        {!message.isRead && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto mt-2"></div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+          <Suspense fallback={
+            <Card>
+              <CardContent className="p-8">
+                <div className="flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2">Loading messages...</span>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No messages yet</p>
-                  <p className="text-sm">Communicate with vendors about your wedding needs</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          }>
+            <MessagesTab />
+          </Suspense>
         </TabsContent>
 
         <TabsContent value="payments" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <CreditCard className="h-5 w-5 mr-2" />
-                Payment History
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {payments.length > 0 ? (
-                <div className="space-y-4">
-                  {payments.map((payment: any) => (
-                    <div key={payment._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                          <CreditCard className="h-5 w-5 text-purple-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{payment.description || 'Wedding Service'}</p>
-                          <p className="text-sm text-gray-500">{new Date(payment.createdAt).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">LKR {payment.amount?.toLocaleString()}</p>
-                        <Badge variant={payment.status === 'completed' ? 'default' : 'secondary'}>
-                          {payment.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+          <Suspense fallback={
+            <Card>
+              <CardContent className="p-8">
+                <div className="flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2">Loading payments...</span>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No payments yet</p>
-                  <p className="text-sm">Payment history will appear here after you make bookings</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          }>
+            <PaymentsTab />
+          </Suspense>
         </TabsContent>
       </Tabs>
     </div>

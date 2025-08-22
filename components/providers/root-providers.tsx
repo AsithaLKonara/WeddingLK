@@ -5,6 +5,7 @@ import { SessionProvider } from "next-auth/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "@/components/ui/sonner"
 import RoleRouter from "./role-router"
+import { ServiceWorkerProvider } from "./service-worker-provider"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,7 @@ export default function RootProviders({
           enableSystem
           disableTransitionOnChange
         >
+          <ServiceWorkerProvider />
           <RoleRouter>
             {children}
             <Toaster />

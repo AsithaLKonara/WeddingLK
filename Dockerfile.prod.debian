@@ -1,0 +1,103 @@
+# ========================================
+# WEDDINGLK PRODUCTION DOCKERFILE (DEBIAN)
+# Multi-stage build for optimal production image with native package support
+# ========================================
+
+# Stage 1: Dependencies (with build tools)
+FROM node:18-slim AS deps
+
+# Install build dependencies for native modules
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    libkrb5-dev \
+    libssl-dev \
+    libsasl2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci --legacy-peer-deps --prefer-offline
+
+# Stage 2: Builder (with all dependencies)
+FROM node:18-slim AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    libkrb5-dev \
+    libssl-dev \
+    libsasl2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json* ./
+
+# Copy source code
+COPY . .
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the application
+RUN npm run build
+
+# Stage 3: Runner (production only)
+FROM node:18-slim AS runner
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create system user
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 nextjs
+
+# Set working directory
+WORKDIR /app
+
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/logs
+RUN chown -R nextjs:nodejs /app
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy package.json for runtime dependencies
+COPY --from=builder /app/package.json ./package.json
+
+# Install only production runtime dependencies
+RUN npm ci --only=production --legacy-peer-deps --prefer-offline && npm cache clean --force
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Start the application
+CMD ["node", "server.js"] 

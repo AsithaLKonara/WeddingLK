@@ -2,6 +2,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.tsx'],
+  setupFiles: ['<rootDir>/tests/setup-env.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
@@ -35,12 +36,19 @@ module.exports = {
       jsx: 'react-jsx',
       useESM: false,
     }],
+    '^.+\\.mjs$': 'babel-jest',
+    '^.+\\.js$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!(.*\\.mjs$))',
+    'node_modules/(?!(.*\\.mjs$|next-auth|@next-auth|@auth|mongodb|bson|mongodb-memory-server|@mongodb|mongodb-memory-server-core|@paralleldrive|cuid2|@noble))',
   ],
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+    '^next-auth/react$': '<rootDir>/tests/mocks/next-auth-react.js',
+    '^next-auth$': '<rootDir>/tests/mocks/next-auth.js',
+  },
   coverageReporters: ['text', 'lcov', 'html', 'json'],
   coverageDirectory: 'coverage',
 }; 
