@@ -24,28 +24,35 @@ export async function GET(request: NextRequest) {
       const timeRange = searchParams.get('timeRange') || '24h'
 
       // Get analytics based on type
-      let analyticsData: any = {}
+      let analyticsData: Record<string, unknown> = {}
 
       switch (type) {
         case 'overview':
-          analyticsData = await AnalyticsDashboard.getAnalyticsMetrics()
+          const overviewMetrics = await AnalyticsDashboard.getAnalyticsMetrics()
+          analyticsData = { ...overviewMetrics }
           break
         case 'charts':
-          analyticsData = await AnalyticsDashboard.getChartData(
+          const chartData = await AnalyticsDashboard.getChartData(
             timeRange === '7d' ? 7 : timeRange === '1h' ? 1 : 30
           )
+          analyticsData = { ...chartData }
           break
         case 'realtime':
           analyticsData = await AnalyticsDashboard.getRealTimeData()
           break
         case 'performance':
-          analyticsData = await PerformanceMonitor.getPerformanceAnalytics(timeRange as any)
+          // Ensure timeRange is one of the allowed values
+          const validTimeRange = (timeRange === '1h' || timeRange === '24h' || timeRange === '7d') 
+            ? timeRange as '1h' | '24h' | '7d' 
+            : '24h'
+          analyticsData = await PerformanceMonitor.getPerformanceAnalytics(validTimeRange)
           break
         case 'security':
           analyticsData = SecurityService.getSecurityStats()
           break
         default:
-          analyticsData = await AnalyticsDashboard.getAnalyticsMetrics()
+          const defaultMetrics = await AnalyticsDashboard.getAnalyticsMetrics()
+          analyticsData = { ...defaultMetrics }
       }
 
       return NextResponse.json({
@@ -107,13 +114,16 @@ export async function POST(request: NextRequest) {
       }
 
       // Track the event (in a real implementation, this would save to database)
-      console.log('📊 Analytics Event:', {
-        event,
-        userId,
-        properties,
-        timestamp: new Date(),
-        ip: SecurityService.getClientIP(request)
-      })
+      // Log analytics event in development only
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📊 Analytics Event:', {
+          event,
+          userId,
+          properties,
+          timestamp: new Date(),
+          ip: SecurityService.getClientIP(request)
+        })
+      }
 
       return NextResponse.json({
         success: true,

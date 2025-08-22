@@ -1,13 +1,13 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Store, Calendar, TrendingUp, MessageCircle, Settings, Star, DollarSign, Users, Loader2, Plus, Zap, Package, LayoutDashboard } from 'lucide-react'
 
-export default function VendorDashboard() {
+function VendorDashboardContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(true)
@@ -562,5 +562,13 @@ export default function VendorDashboard() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+export default function VendorDashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VendorDashboardContent />
+    </Suspense>
   )
 }

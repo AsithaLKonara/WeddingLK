@@ -315,7 +315,7 @@ export class ProductionPerformanceMonitor {
   // Reset metrics
   reset() {
     this.initializeMetrics();
-    console.log('🔄 Performance metrics reset');
+            // Performance metrics reset
   }
 
   // Export metrics for Prometheus

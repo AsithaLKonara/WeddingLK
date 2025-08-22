@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     await user.save()
     
     // Send email with OTP
-    const html = `
+    // const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333;">Two-Factor Authentication</h1>
         <p>Hi ${user.name || 'there'},</p>

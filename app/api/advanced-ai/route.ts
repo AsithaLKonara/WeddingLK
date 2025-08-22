@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 })
       }
 
-      let result: any
+      let result: unknown = null
 
       switch (feature) {
         case 'wedding-plan':

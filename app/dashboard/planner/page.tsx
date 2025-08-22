@@ -1,13 +1,13 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CheckSquare, Users, Calendar, Settings, TrendingUp, FileText, Clock } from 'lucide-react'
 
-export default function PlannerDashboard() {
+function PlannerDashboardContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(true)
@@ -326,5 +326,13 @@ export default function PlannerDashboard() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+export default function PlannerDashboard() {
+  return (
+    <Suspense fallback={<div>Loading planner dashboard...</div>}>
+      <PlannerDashboardContent />
+    </Suspense>
   )
 }

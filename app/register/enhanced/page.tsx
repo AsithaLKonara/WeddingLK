@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,7 @@ interface RegistrationStep {
   estimatedTime: number;
 }
 
-export default function EnhancedRegistrationPage() {
+function EnhancedRegistrationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<string>('');
@@ -462,5 +462,13 @@ export default function EnhancedRegistrationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EnhancedRegistrationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EnhancedRegistrationContent />
+    </Suspense>
   );
 } 

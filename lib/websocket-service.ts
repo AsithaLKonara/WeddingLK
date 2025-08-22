@@ -89,7 +89,7 @@ export class WebSocketService {
     })
 
     this.setupEventHandlers()
-    console.log('✅ WebSocket server initialized')
+    // WebSocket server initialized
   }
 
   // Setup event handlers
@@ -97,7 +97,7 @@ export class WebSocketService {
     if (!this.io) return
 
     this.io.on(SocketEvents.CONNECT, (socket) => {
-      console.log(`🔌 Client connected: ${socket.id}`)
+      // Client connected
 
       // Handle user authentication
       socket.on('authenticate', (data: { userId: string }) => {
@@ -153,7 +153,7 @@ export class WebSocketService {
     socket.userId = userId
     socket.join(`user_${userId}`)
 
-    console.log(`✅ User authenticated: ${userId}`)
+            // User authenticated
     socket.emit('authenticated', { success: true })
   }
 

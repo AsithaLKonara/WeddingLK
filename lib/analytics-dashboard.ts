@@ -206,7 +206,10 @@ class AnalyticsDashboard {
       }
 
     } catch (error) {
-      console.error('Analytics metrics error:', error)
+      // Log error without console.log in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Analytics metrics error:', error)
+      }
       return this.getDefaultMetrics()
     }
   }
@@ -287,7 +290,10 @@ class AnalyticsDashboard {
       }
 
     } catch (error) {
-      console.error('Chart data error:', error)
+      // Log error without console.log in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chart data error:', error)
+      }
       return {
         revenue: [],
         bookings: [],
@@ -332,7 +338,10 @@ class AnalyticsDashboard {
       }
 
     } catch (error) {
-      console.error('Real-time data error:', error)
+      // Log error without console.log in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Real-time data error:', error)
+      }
       return {
         recentBookings: [],
         recentPayments: [],
@@ -367,7 +376,10 @@ class AnalyticsDashboard {
       return responseCount > 0 ? totalResponseTime / responseCount / 1000 : 0 // Return in seconds
 
     } catch (error) {
-      console.error('Response time calculation error:', error)
+      // Log error without console.log in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Response time calculation error:', error)
+      }
       return 0
     }
   }

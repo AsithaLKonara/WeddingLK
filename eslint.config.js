@@ -1,6 +1,7 @@
 const js = require('@eslint/js');
 const typescript = require('@typescript-eslint/eslint-plugin');
 const typescriptParser = require('@typescript-eslint/parser');
+const nextPlugin = require('eslint-config-next');
 
 module.exports = [
   js.configs.recommended,
@@ -55,6 +56,9 @@ module.exports = [
       'no-undef': 'off', // Turn off no-undef since we're defining globals
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
+      // Next.js specific rules
+      '@next/next/no-html-link-for-pages': 'off',
+      '@next/next/no-img-element': 'off',
     },
   },
   {

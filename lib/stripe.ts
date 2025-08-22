@@ -1,8 +1,18 @@
-import Stripe from 'stripe'
+import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-06-30.basil',
-})
+});
+
+interface PaymentIntentRequest {
+  amount: number;
+  currency?: string;
+}
+
+interface CustomerRequest {
+  email: string;
+  name: string;
+}
 
 export const createPaymentIntent = async (amount: number, currency: string = 'lkr') => {
   try {
@@ -12,26 +22,30 @@ export const createPaymentIntent = async (amount: number, currency: string = 'lk
       automatic_payment_methods: {
         enabled: true,
       },
-    })
-    return paymentIntent
+    });
+    return paymentIntent;
   } catch (error) {
-    console.error('Error creating payment intent:', error)
-    throw error
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Stripe payment intent error:', error);
+    }
+    throw error;
   }
-}
+};
 
 export const createCustomer = async (email: string, name: string) => {
   try {
     const customer = await stripe.customers.create({
       email,
       name,
-    })
-    return customer
+    });
+    return customer;
   } catch (error) {
-    console.error('Error creating customer:', error)
-    throw error
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Stripe customer creation error:', error);
+    }
+    throw error;
   }
-}
+};
 
 export const createSubscription = async (customerId: string, priceId: string) => {
   try {

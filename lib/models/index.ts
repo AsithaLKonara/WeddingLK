@@ -45,11 +45,11 @@ export { User as default } from './user';
 // Note: These indexes are now defined in individual schema files to avoid duplicates
 export const createPerformanceIndexes = async () => {
   try {
-    console.log('✅ Performance indexes are defined in individual schema files');
+    // Performance indexes are defined in individual schema files
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.warn('⚠️ Index creation skipped:', errorMessage);
   }
 };
 
-console.log('✅ All models registered successfully') 
+  // All models registered successfully 

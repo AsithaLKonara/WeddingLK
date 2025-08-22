@@ -1,14 +1,14 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { LayoutDashboard, Calendar, Heart, MessageSquare, CreditCard, Settings, Loader2, Users, Star, MapPin } from 'lucide-react'
 
-export default function UserDashboard() {
+function DashboardContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(true)
@@ -426,5 +426,13 @@ export default function UserDashboard() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+export default function UserDashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }

@@ -1,7 +1,7 @@
 import Redis from 'ioredis';
 
 // Redis configuration
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://redis:6379';
 const REDIS_TTL = parseInt(process.env.CACHE_TTL || '300'); // 5 minutes default
 
 // Redis client with production optimizations

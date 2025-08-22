@@ -45,10 +45,10 @@ export async function connectDB() {
   // If no promise exists, create a new connection
   if (!cached.promise) {
     // Use fallback URI for development if MONGODB_URI is not set
-    const uri = MONGODB_URI || 'mongodb://localhost:27017/weddinglk';
+    const uri = MONGODB_URI || 'mongodb://mongodb:27017/weddinglk';
     
     const opts = {
-      bufferCommands: false,
+      bufferCommands: true, // Changed from false to true to fix connection issues
       maxPoolSize: 20, // Increased for better performance
       minPoolSize: 5, // Maintain minimum connections
       serverSelectionTimeoutMS: 10000, // Increased timeout
@@ -67,7 +67,7 @@ export async function connectDB() {
       maxConnecting: 5, // Limit concurrent connection attempts
     };
 
-    console.log(`🔌 Attempting to connect to MongoDB: ${uri.replace(/\/\/.*@/, '//***:***@')}`);
+    // Attempting to connect to MongoDB;
     
     cached.connecting = true;
     cached.promise = mongoose.connect(uri, opts);
@@ -85,7 +85,7 @@ export async function connectDB() {
     // Set global performance options
     mongoose.set('strictQuery', false);
     
-    console.log('✅ MongoDB connected successfully');
+    // MongoDB connected successfully
     return cached.conn;
   } catch (e) {
     cached.promise = null;
@@ -104,7 +104,7 @@ export async function connectDB() {
 
 // Add connection event listeners for better monitoring
 mongoose.connection.on('connected', () => {
-  console.log('✅ MongoDB connected successfully');
+  // MongoDB connected successfully
 });
 
 mongoose.connection.on('error', (err) => {
@@ -112,24 +112,27 @@ mongoose.connection.on('error', (err) => {
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB disconnected');
+  // MongoDB disconnected
 });
 
 // Performance monitoring
 mongoose.connection.on('connected', () => {
-  console.log('📊 MongoDB Performance Stats:');
-  const pool = (mongoose.connection as any).pool;
-  if (pool) {
-    console.log(`   Pool Size: ${pool.size()}`);
-    console.log(`   Available: ${pool.available()}`);
-    console.log(`   Pending: ${pool.pending()}`);
+  // MongoDB Performance Stats logged in development only
+  if (process.env.NODE_ENV === 'development') {
+    const pool = (mongoose.connection as any).pool;
+    if (pool) {
+      console.log(`📊 MongoDB Performance Stats:`);
+      console.log(`   Pool Size: ${pool.size()}`);
+      console.log(`   Available: ${pool.available()}`);
+      console.log(`   Pending: ${pool.pending()}`);
+    }
   }
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
-  console.log('MongoDB connection closed through app termination');
+  // MongoDB connection closed through app termination
   process.exit(0);
 });
 

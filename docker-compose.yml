@@ -69,6 +69,8 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: weddinglk-mongodb
+    ports:
+      - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password123
@@ -79,7 +81,7 @@ services:
     networks:
       - weddinglk-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--username", "admin", "--password", "password123", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -89,6 +91,8 @@ services:
   redis:
     image: redis:7.2-alpine
     container_name: weddinglk-redis
+    ports:
+      - "6379:6379"
     command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data

@@ -46,7 +46,7 @@ class InMemoryCache {
     let validEntries = 0;
     let expiredEntries = 0;
 
-    for (const [key, item] of this.cache.entries()) {
+    for (const [key, item] of Array.from(this.cache.entries())) {
       if (now - item.timestamp > item.ttl) {
         expiredEntries++;
       } else {
@@ -67,7 +67,7 @@ class InMemoryCache {
     const regex = new RegExp(pattern.replace(/\*/g, '.*'));
     let deletedCount = 0;
 
-    for (const key of this.cache.keys()) {
+    for (const key of Array.from(this.cache.keys())) {
       if (regex.test(key)) {
         this.cache.delete(key);
         deletedCount++;
@@ -149,7 +149,7 @@ class InMemoryCache {
   async getCachedHealthCheck(): Promise<any | null> {
     try {
       const cached = await this.get('health:check');
-      return cached ? JSON.parse(cached) : null;
+      return cached ? JSON.parse(cached as string) : null;
     } catch (error) {
       console.warn('Failed to get cached health check:', error);
       return null;
@@ -159,7 +159,7 @@ class InMemoryCache {
   // Clean up expired entries
   private cleanup(): void {
     const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
+    for (const [key, item] of Array.from(this.cache.entries())) {
       if (now - item.timestamp > item.ttl) {
         this.cache.delete(key);
       }
@@ -174,6 +174,11 @@ class InMemoryCache {
     if (estimatedBytes < 1024) return `${estimatedBytes} B`;
     if (estimatedBytes < 1024 * 1024) return `${(estimatedBytes / 1024).toFixed(2)} KB`;
     return `${(estimatedBytes / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  // Get all keys
+  getKeys(): string[] {
+    return Array.from(this.cache.keys());
   }
 }
 

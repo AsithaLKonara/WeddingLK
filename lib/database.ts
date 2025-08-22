@@ -8,7 +8,7 @@ const connectionOptions = {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
-  bufferCommands: false,
+  bufferCommands: true, // Changed from false to true to fix connection issues
 }
 
 // Global variable to track connection status
@@ -17,14 +17,14 @@ let isConnected = false
 // Connect to database
 export async function connectToDatabase() {
   if (isConnected) {
-    console.log('Database already connected')
+    // Database already connected
     return
   }
 
   try {
     await mongoose.connect(MONGODB_URI, connectionOptions)
     isConnected = true
-    console.log('✅ Database connected successfully')
+    // Database connected successfully
   } catch (error) {
     console.error('❌ Database connection failed:', error)
     throw error
@@ -34,14 +34,14 @@ export async function connectToDatabase() {
 // Disconnect from database
 export async function disconnectFromDatabase() {
   if (!isConnected) {
-    console.log('Database not connected')
+    // Database not connected
     return
   }
 
   try {
     await mongoose.disconnect()
     isConnected = false
-    console.log('✅ Database disconnected successfully')
+    // Database disconnected successfully
   } catch (error) {
     console.error('❌ Database disconnection failed:', error)
     throw error
@@ -81,7 +81,7 @@ export function getConnectionStatus() {
 
 // Handle connection events
 mongoose.connection.on('connected', () => {
-  console.log('✅ Mongoose connected to MongoDB')
+      // Mongoose connected to MongoDB
   isConnected = true
 })
 
@@ -91,7 +91,7 @@ mongoose.connection.on('error', (error) => {
 })
 
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ Mongoose disconnected from MongoDB')
+      // Mongoose disconnected from MongoDB
   isConnected = false
 })
 
