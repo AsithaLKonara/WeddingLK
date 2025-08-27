@@ -1,8 +1,12 @@
 import Redis from 'ioredis';
 
-// Redis configuration
-const REDIS_URL = process.env.REDIS_URL || 'redis://redis:6379';
+// Redis configuration - requires external Redis service for production
+const REDIS_URL = process.env.REDIS_URL;
 const REDIS_TTL = parseInt(process.env.CACHE_TTL || '300'); // 5 minutes default
+
+if (!REDIS_URL) {
+  throw new Error('REDIS_URL environment variable is required for Redis connection');
+}
 
 // Redis client with production optimizations
 export const redis = new Redis(REDIS_URL, {

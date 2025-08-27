@@ -44,24 +44,28 @@ export async function connectDB() {
 
   // If no promise exists, create a new connection
   if (!cached.promise) {
-    // Use the MONGODB_URI from environment or fallback
-    const uri = MONGODB_URI || 'mongodb://localhost:27017/weddinglk';
+    // Use the MONGODB_URI from environment (required for production)
+    const uri = MONGODB_URI;
+    
+    if (!uri) {
+      throw new Error('MONGODB_URI environment variable is required');
+    }
     
     const opts = {
       bufferCommands: true,
-      maxPoolSize: 10, // Reduced for Docker environment
-      minPoolSize: 2, // Reduced for Docker environment
-      serverSelectionTimeoutMS: 30000, // Increased timeout for Docker
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 30000,
       socketTimeoutMS: 60000,
       family: 4, // Use IPv4
       autoIndex: false,
-      maxIdleTimeMS: 30000, // Reduced for Docker
+      maxIdleTimeMS: 30000,
       retryWrites: true,
       retryReads: true,
-      connectTimeoutMS: 30000, // Increased for Docker
+      connectTimeoutMS: 30000,
       heartbeatFrequencyMS: 10000,
-      maxConnecting: 3, // Reduced for Docker
-      // Docker-specific options
+      maxConnecting: 3,
+      // Production optimizations
       directConnection: false,
       // Retry logic
       retryDelay: 1000,

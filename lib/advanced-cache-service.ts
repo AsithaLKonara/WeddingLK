@@ -28,7 +28,12 @@ export class AdvancedCacheService {
   };
 
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL || 'redis://redis:6379', {
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl) {
+      throw new Error('REDIS_URL environment variable is required for Redis connection');
+    }
+    
+    this.redis = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
       lazyConnect: true,
       keepAlive: 30000,
