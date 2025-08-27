@@ -2,9 +2,6 @@
 
 import React from "react"
 import { MainLayout } from "@/components/templates/main-layout"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 
 import { Check, X, Star, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -92,10 +89,10 @@ export default function ComparePackagesPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <Button variant="outline" onClick={() => router.back()} className="mb-4">
+            <button variant="outline" onClick={() => router.back()} className="mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
-            </Button>
+            </button>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Compare Wedding Packages</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">Find the perfect package for your special day</p>
           </div>
@@ -103,26 +100,26 @@ export default function ComparePackagesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Features Column */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-4">
-                <CardHeader>
-                  <CardTitle>Features</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div className="sticky top-4">
+                <divHeader>
+                  <divTitle>Features</divTitle>
+                </divHeader>
+                <divContent className="space-y-4">
                   {allFeatures.map((feature) => (
                     <div key={feature} className="text-sm font-medium text-gray-700 dark:text-gray-300 py-2">
                       {feature}
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </divContent>
+              </div>
             </div>
 
             {/* Package Columns */}
             {packages.map((pkg) => (
               <div key={pkg.id} className="lg:col-span-1">
-                <Card className="h-full">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-lg">{pkg.title}</CardTitle>
+                <div className="h-full">
+                  <divHeader className="text-center">
+                    <divTitle className="text-lg">{pkg.title}</divTitle>
                     <div className="flex items-center justify-center space-x-1 mb-2">
                       <Star className="h-4 w-4 text-yellow-400 fill-current" />
                       <span className="font-medium">{pkg.rating}</span>
@@ -132,12 +129,12 @@ export default function ComparePackagesPage() {
                         LKR {pkg.price.toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-500 line-through">LKR {pkg.originalPrice.toLocaleString()}</div>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      <span variant="secondary" className="bg-green-100 text-green-800">
                         Save {Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100)}%
-                      </Badge>
+                      </span>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+                  </divHeader>
+                  <divContent className="space-y-4">
                     {allFeatures.map((feature) => (
                       <div key={feature} className="flex items-center justify-center py-2">
                         {pkg.features[feature] ? (
@@ -147,11 +144,11 @@ export default function ComparePackagesPage() {
                         )}
                       </div>
                     ))}
-                    <Button className="w-full mt-4" onClick={() => router.push(`/packages/${pkg.id}/book`)}>
-                      Select Package
-                    </Button>
-                  </CardContent>
-                </Card>
+                    <button className="w-full mt-4" onClick={() => router.push(`/packages/${pkg.id}/book`)}>
+                      select Package
+                    </button>
+                  </divContent>
+                </div>
               </div>
             ))}
           </div>

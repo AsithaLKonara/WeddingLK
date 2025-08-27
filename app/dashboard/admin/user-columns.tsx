@@ -1,8 +1,6 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { MoreHorizontal, UserCheck, UserX, Eye } from "lucide-react"
 import {
   DropdownMenu,
@@ -58,9 +56,9 @@ export const columns: ColumnDef<User>[] = [
       }
       
       return (
-        <Badge className={roleColors[role as keyof typeof roleColors] || "bg-gray-100 text-gray-800"}>
+        <span className={roleColors[role as keyof typeof roleColors] || "bg-gray-100 text-gray-800"}>
           {role.charAt(0).toUpperCase() + role.slice(1)}
-        </Badge>
+        </span>
       )
     },
   },
@@ -72,20 +70,20 @@ export const columns: ColumnDef<User>[] = [
       return (
         <div className="flex items-center space-x-2">
           {user.isActive ? (
-            <Badge variant="default" className="bg-green-100 text-green-800">
+            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs flex items-center">
               <UserCheck className="h-3 w-3 mr-1" />
               Active
-            </Badge>
+            </span>
           ) : (
-            <Badge variant="secondary" className="bg-red-100 text-red-800">
+            <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs flex items-center">
               <UserX className="h-3 w-3 mr-1" />
               Inactive
-            </Badge>
+            </span>
           )}
           {user.isVerified && (
-            <Badge variant="outline" className="text-xs">
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
               Verified
-            </Badge>
+            </span>
           )}
         </div>
       )
@@ -127,10 +125,10 @@ export const columns: ColumnDef<User>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <button className="h-8 w-8 p-0 hover:bg-gray-100 rounded">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>

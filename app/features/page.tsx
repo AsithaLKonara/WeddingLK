@@ -1,8 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { ArrowRight, Sparkles, Smartphone, Shield, Zap, Users, Calendar, Heart } from 'lucide-react'
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search, Sparkles, Zap } from "lucide-react"
 
 export const metadata: Metadata = {
   title: 'Features - WeddingLK',
@@ -46,7 +44,7 @@ const features = [
     color: 'text-pink-600'
   },
   {
-    icon: Calendar,
+    icon: Clock,
     title: 'Smart Scheduling',
     description: 'Intelligent timeline management and reminders',
     href: '/features/scheduling',
@@ -77,13 +75,13 @@ export default function FeaturesPage() {
             Discover the comprehensive suite of tools and features that make WeddingLK the ultimate wedding planning platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700">
+            <button className="px-6 py-3 bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white rounded-lg font-medium">
               Start Planning
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button variant="outline" size="lg">
+            </button>
+            <button className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50">
               View Demo
-            </Button>
+            </button>
           </div>
         </div>
       </section>
@@ -102,25 +100,30 @@ export default function FeaturesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-                <CardHeader>
-                  <div className={`w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon className={`h-6 w-6 ${feature.color}`} />
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div className="p-6">
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{feature.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">
+                      {feature.description}
+                    </p>
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
-                  <CardDescription className="text-gray-600">
-                    {feature.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href={feature.href || '#'}>
-                    <Button variant="ghost" className="w-full group-hover:bg-gray-50">
-                      Learn More
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Easy to use interface</span>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Professional features</span>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">24/7 support</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -136,12 +139,12 @@ export default function FeaturesPage() {
             Join thousands of couples who have successfully planned their dream weddings with WeddingLK.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="bg-white text-rose-600 hover:bg-gray-100">
+            <button className="px-6 py-3 bg-white text-rose-600 hover:bg-gray-100 rounded-lg font-medium">
               Get Started Free
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-rose-600">
+            </button>
+            <button className="px-6 py-3 border border-white text-white hover:bg-white hover:text-rose-600 rounded-lg font-medium">
               Schedule Demo
-            </Button>
+            </button>
           </div>
         </div>
       </section>

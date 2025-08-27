@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { MessageSquare, Loader2, User, Clock } from 'lucide-react'
 
 export default function MessagesTab() {
@@ -29,26 +27,26 @@ export default function MessagesTab() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-8">
+      <div>
+        <divContent className="p-8">
           <div className="flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             <span className="ml-2">Loading messages...</span>
           </div>
-        </CardContent>
-      </Card>
+        </divContent>
+      </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
+    <div>
+      <divHeader>
+        <divTitle className="flex items-center">
           <MessageSquare className="h-5 w-5 mr-2" />
           Your Messages
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </divTitle>
+      </divHeader>
+      <divContent>
         {messages.length > 0 ? (
           <div className="space-y-4">
             {messages.map((message: any) => (
@@ -67,9 +65,9 @@ export default function MessagesTab() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <Badge variant={message.read ? 'secondary' : 'default'}>
+                  <span variant={message.read ? 'secondary' : 'default'}>
                     {message.read ? 'Read' : 'New'}
-                  </Badge>
+                  </span>
                 </div>
               </div>
             ))}
@@ -81,7 +79,7 @@ export default function MessagesTab() {
             <p className="text-sm">Communicate with vendors and venues through our messaging system</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </divContent>
+    </div>
   )
 } 

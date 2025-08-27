@@ -1,17 +1,14 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { MoreHorizontal, Eye, Reply, Archive } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenulabel,
+  DropdownMenuhr,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export type Message = {
   _id: string
@@ -89,9 +86,9 @@ export const columns: ColumnDef<Message>[] = [
       const isOutbound = direction === 'outbound'
       
       return (
-        <Badge variant={isOutbound ? "default" : "secondary"}>
+        <span variant={isOutbound ? "default" : "secondary"}>
           {isOutbound ? "Sent" : "Received"}
-        </Badge>
+        </span>
       )
     },
   },
@@ -104,16 +101,16 @@ export const columns: ColumnDef<Message>[] = [
       
       if (isOutbound) {
         return (
-          <Badge variant="outline" className="text-green-600">
+          <span variant="outline" className="text-green-600">
             Sent
-          </Badge>
+          </span>
         )
       }
       
       return (
-        <Badge variant={message.isRead ? "secondary" : "default"}>
+        <span variant={message.isRead ? "secondary" : "default"}>
           {message.isRead ? "Read" : "Unread"}
-        </Badge>
+        </span>
       )
     },
   },
@@ -149,13 +146,13 @@ export const columns: ColumnDef<Message>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenulabel>Actions</DropdownMenulabel>
             <DropdownMenuItem>
               <Eye className="mr-2 h-4 w-4" />
               View Full Message
@@ -164,7 +161,7 @@ export const columns: ColumnDef<Message>[] = [
               <Reply className="mr-2 h-4 w-4" />
               Reply
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuhr />
             <DropdownMenuItem>
               <Archive className="mr-2 h-4 w-4" />
               Archive

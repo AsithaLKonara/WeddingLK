@@ -61,7 +61,38 @@ npm test
 npm run build
 ```
 
-## 🐳 Docker Commands
+## 🚀 Vercel Deployment (Recommended)
+
+### **Quick Deploy to Vercel**
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy using our script
+./deploy-vercel.sh
+
+# Or deploy manually
+vercel --prod
+```
+
+### **Environment Setup for Vercel**
+```bash
+# Copy Vercel environment template
+cp env.vercel.template .env.vercel
+
+# Edit with your production values
+nano .env.vercel
+
+# Set environment variables in Vercel
+vercel env add MONGODB_URI
+vercel env add NEXTAUTH_SECRET
+# ... add all other variables
+```
+
+## 🐳 Docker Commands (Alternative)
 
 ```bash
 # Start all services

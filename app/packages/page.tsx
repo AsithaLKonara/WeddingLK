@@ -1,22 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Filter, 
   Search, 
   Star, 
   MapPin, 
   Users, 
-  Calendar,
+  div,
   Heart,
   Share2,
   MessageCircle,
@@ -63,10 +54,10 @@ export default function WeddingPackagesPage() {
   const [filteredPackages, setFilteredPackages] = useState<WeddingPackage[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [selectedCategory, setselectedCategory] = useState<string>("all")
   const [priceRange, setPriceRange] = useState([0, 1000000])
-  const [selectedLocation, setSelectedLocation] = useState<string>("all")
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
+  const [selectedLocation, setselectedLocation] = useState<string>("all")
+  const [selectedFeatures, setselectedFeatures] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<string>("popular")
   const [showFilters, setShowFilters] = useState(false)
 
@@ -240,7 +231,7 @@ export default function WeddingPackagesPage() {
     }).format(price)
   }
 
-  const getBoostBadge = (boostType?: string) => {
+  const getBoostspan = (boostType?: string) => {
     if (!boostType) return null
     
     const boostConfig = {
@@ -254,10 +245,10 @@ export default function WeddingPackagesPage() {
     
     const Icon = config.icon
     return (
-      <Badge className={`${config.className} text-white flex items-center gap-1`}>
+      <span className={`${config.className} text-white flex items-center gap-1`}>
         <Icon className="h-3 w-3" />
         {config.label}
-      </Badge>
+      </span>
     )
   }
 
@@ -289,7 +280,7 @@ export default function WeddingPackagesPage() {
           {/* Search */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
+            <input
               placeholder="Search packages..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -298,28 +289,28 @@ export default function WeddingPackagesPage() {
           </div>
 
           {/* Sort */}
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="popular">Most Popular</SelectItem>
-              <SelectItem value="rating">Highest Rated</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-              <SelectItem value="newest">Newest</SelectItem>
-            </SelectContent>
-          </Select>
+          <select value={sortBy} onValueChange={setSortBy}>
+            <selectTrigger className="w-48">
+              <selectValue placeholder="Sort by" />
+            </selectTrigger>
+            <selectContent>
+              <selectItem value="popular">Most Popular</selectItem>
+              <selectItem value="rating">Highest Rated</selectItem>
+              <selectItem value="price-low">Price: Low to High</selectItem>
+              <selectItem value="price-high">Price: High to Low</selectItem>
+              <selectItem value="newest">Newest</selectItem>
+            </selectContent>
+          </select>
 
           {/* Filter Toggle */}
-          <Button
+          <button
             variant="outline"
             onClick={() => setShowFilters(!showFilters)}
             className="flex items-center gap-2"
           >
             <Filter className="h-4 w-4" />
             Filters
-          </Button>
+          </button>
         </div>
 
         {/* Advanced Filters */}
@@ -329,35 +320,35 @@ export default function WeddingPackagesPage() {
               {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="luxury">Luxury</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select value={selectedCategory} onValueChange={setselectedCategory}>
+                  <selectTrigger>
+                    <selectValue placeholder="All Categories" />
+                  </selectTrigger>
+                  <selectContent>
+                    <selectItem value="all">All Categories</selectItem>
+                    <selectItem value="basic">Basic</selectItem>
+                    <selectItem value="premium">Premium</selectItem>
+                    <selectItem value="luxury">Luxury</selectItem>
+                    <selectItem value="custom">Custom</selectItem>
+                  </selectContent>
+                </select>
               </div>
 
               {/* Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Locations" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    <SelectItem value="Colombo">Colombo</SelectItem>
-                    <SelectItem value="Kandy">Kandy</SelectItem>
-                    <SelectItem value="Galle">Galle</SelectItem>
-                    <SelectItem value="Jaffna">Jaffna</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select value={selectedLocation} onValueChange={setselectedLocation}>
+                  <selectTrigger>
+                    <selectValue placeholder="All Locations" />
+                  </selectTrigger>
+                  <selectContent>
+                    <selectItem value="all">All Locations</selectItem>
+                    <selectItem value="Colombo">Colombo</selectItem>
+                    <selectItem value="Kandy">Kandy</selectItem>
+                    <selectItem value="Galle">Galle</selectItem>
+                    <selectItem value="Jaffna">Jaffna</selectItem>
+                  </selectContent>
+                </select>
               </div>
 
               {/* Price Range */}
@@ -365,7 +356,7 @@ export default function WeddingPackagesPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Price Range: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
                 </label>
-                <Slider
+                <input
                   value={priceRange}
                   onValueChange={setPriceRange}
                   max={1000000}
@@ -380,14 +371,14 @@ export default function WeddingPackagesPage() {
                 <div className="space-y-2">
                   {["Photography", "Catering", "Decoration", "Music", "Transportation"].map((feature) => (
                     <div key={feature} className="flex items-center space-x-2">
-                      <Checkbox
+                      <input
                         id={feature}
                         checked={selectedFeatures.includes(feature)}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            setSelectedFeatures(prev => [...prev, feature])
+                            setselectedFeatures(prev => [...prev, feature])
                           } else {
-                            setSelectedFeatures(prev => prev.filter(f => f !== feature))
+                            setselectedFeatures(prev => prev.filter(f => f !== feature))
                           }
                         }}
                       />
@@ -411,7 +402,7 @@ export default function WeddingPackagesPage() {
       {/* Packages Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPackages.map((pkg) => (
-          <Card key={pkg.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          <div key={pkg.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             {/* Package Image */}
             <div className="relative h-48 bg-gray-200">
               {pkg.images[0] ? (
@@ -427,22 +418,22 @@ export default function WeddingPackagesPage() {
                 </div>
               )}
               
-              {/* Boost Badge */}
+              {/* Boost span */}
               {pkg.boostType && (
                 <div className="absolute top-2 left-2">
-                  {getBoostBadge(pkg.boostType)}
+                  {getBoostspan(pkg.boostType)}
                 </div>
               )}
               
-              {/* Bookmark Button */}
-              <Button
+              {/* Bookmark button */}
+              <button
                 variant="ghost"
                 size="sm"
                 className="absolute top-2 right-2 bg-white/80 hover:bg-white"
                 onClick={() => handleBookmark(pkg.id)}
               >
                 <Heart className={`h-4 w-4 ${pkg.isBookmarked ? 'fill-red-500 text-red-500' : ''}`} />
-              </Button>
+              </button>
               
               {/* Price */}
               <div className="absolute bottom-2 left-2 bg-white/90 rounded-lg px-3 py-1">
@@ -456,14 +447,14 @@ export default function WeddingPackagesPage() {
             </div>
 
             {/* Package Content */}
-            <CardContent className="p-4">
+            <divContent className="p-4">
               {/* Header */}
               <div className="mb-3">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-lg text-gray-900">{pkg.name}</h3>
-                  <Badge variant={pkg.category === 'luxury' ? 'default' : 'secondary'}>
+                  <span variant={pkg.category === 'luxury' ? 'default' : 'secondary'}>
                     {pkg.category.charAt(0).toUpperCase() + pkg.category.slice(1)}
-                  </Badge>
+                  </span>
                 </div>
                 <p className="text-gray-600 text-sm line-clamp-2">{pkg.description}</p>
               </div>
@@ -475,7 +466,7 @@ export default function WeddingPackagesPage() {
                 </div>
                 <span className="text-sm font-medium">{pkg.vendor.name}</span>
                 {pkg.vendor.verified && (
-                  <Badge variant="outline" className="text-xs">Verified</Badge>
+                  <span variant="outline" className="text-xs">Verified</span>
                 )}
               </div>
 
@@ -490,7 +481,7 @@ export default function WeddingPackagesPage() {
                   <span>Up to {pkg.maxGuests}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Calendar className="h-3 w-3" />
+                  <div className="h-3 w-3" />
                   <span>{pkg.duration}</span>
                 </div>
                 <div className="flex items-center space-x-1">
@@ -504,34 +495,34 @@ export default function WeddingPackagesPage() {
                 <p className="text-sm font-medium text-gray-700 mb-2">Includes:</p>
                 <div className="flex flex-wrap gap-1">
                   {pkg.features.slice(0, 3).map((feature, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
+                    <span key={index} variant="outline" className="text-xs">
                       {feature}
-                    </Badge>
+                    </span>
                   ))}
                   {pkg.features.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
+                    <span variant="outline" className="text-xs">
                       +{pkg.features.length - 3} more
-                    </Badge>
+                    </span>
                   )}
                 </div>
               </div>
 
               {/* Actions */}
               <div className="flex items-center justify-between">
-                <Button className="flex-1 mr-2">
+                <button className="flex-1 mr-2">
                   View Details
-                </Button>
+                </button>
                 <div className="flex space-x-1">
-                  <Button variant="outline" size="sm">
+                  <button variant="outline" size="sm">
                     <Share2 className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
+                  </button>
+                  <button variant="outline" size="sm">
                     <MessageCircle className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         ))}
       </div>
 
@@ -545,15 +536,15 @@ export default function WeddingPackagesPage() {
           <p className="text-gray-500 mb-4">
             Try adjusting your search criteria or filters to find what you're looking for.
           </p>
-          <Button onClick={() => {
+          <button onClick={() => {
             setSearchQuery("")
-            setSelectedCategory("all")
+            setselectedCategory("all")
             setPriceRange([0, 1000000])
-            setSelectedLocation("all")
-            setSelectedFeatures([])
+            setselectedLocation("all")
+            setselectedFeatures([])
           }}>
             Clear Filters
-          </Button>
+          </button>
         </div>
       )}
     </div>

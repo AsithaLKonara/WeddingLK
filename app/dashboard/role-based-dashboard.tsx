@@ -3,9 +3,7 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, Users, DollarSign, CheckSquare, MessageCircle, Settings, LayoutDashboard, TrendingUp, Bell, Store, Shield, UserCheck } from "lucide-react"
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search } from "lucide-react"
 import Link from "next/link"
 
 export default function RoleBasedDashboard() {
@@ -53,19 +51,19 @@ export default function RoleBasedDashboard() {
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button asChild className="w-full">
+        <div className="w-full max-w-md">
+          <divHeader>
+            <divTitle>Authentication Required</divTitle>
+          </divHeader>
+          <divContent className="space-y-4">
+            <button asChild className="w-full">
               <Link href="/login">Login to Dashboard</Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full">
+            </button>
+            <button variant="outline" asChild className="w-full">
               <Link href="/register">Create Account</Link>
-            </Button>
-          </CardContent>
-        </Card>
+            </button>
+          </divContent>
+        </div>
       </div>
     )
   }
@@ -121,12 +119,12 @@ export default function RoleBasedDashboard() {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon">
+          <button variant="outline" size="icon">
             <Bell className="h-5 w-5" />
-          </Button>
-          <Button variant="outline" size="icon">
+          </button>
+          <button variant="outline" size="icon">
             <Settings className="h-5 w-5" />
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -134,81 +132,81 @@ export default function RoleBasedDashboard() {
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Primary Action Button */}
-          <Button asChild className="h-24 flex flex-col justify-center items-center bg-blue-600 hover:bg-blue-700">
+          {/* Primary Action button */}
+          <button asChild className="h-24 flex flex-col justify-center items-center bg-blue-600 hover:bg-blue-700">
             <Link href={roleDashboard.primaryAction}>
               <RoleIcon className="h-6 w-6 mb-2" />
               {roleDashboard.primaryActionText}
             </Link>
-          </Button>
+          </button>
 
           {/* Role-specific actions */}
           {userRole === 'user' && (
             <>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/planning?tab=checklist">
                   <CheckSquare className="h-6 w-6 mb-2" />
                   Wedding Checklist
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              </button>
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/dashboard/messages">
                   <MessageCircle className="h-6 w-6 mb-2" />
                   Messages
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              </button>
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/planning?tab=budget-tracker">
                   <DollarSign className="h-6 w-6 mb-2" />
                   Budget Tracker
                 </Link>
-              </Button>
+              </button>
             </>
           )}
 
           {userRole === 'vendor' && (
             <>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/dashboard/vendor?tab=bookings">
-                  <Calendar className="h-6 w-6 mb-2" />
+                  <div className="h-6 w-6 mb-2" />
                   Manage Bookings
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              </button>
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/dashboard/vendor?tab=services">
                   <Store className="h-6 w-6 mb-2" />
                   My Services
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              </button>
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/dashboard/vendor?tab=analytics">
                   <TrendingUp className="h-6 w-6 mb-2" />
                   Analytics
                 </Link>
-              </Button>
+              </button>
             </>
           )}
 
           {userRole === 'admin' && (
             <>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/dashboard/admin?tab=users">
                   <Users className="h-6 w-6 mb-2" />
                   User Management
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              </button>
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/dashboard/admin?tab=vendors">
                   <Store className="h-6 w-6 mb-2" />
                   Vendor Management
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
+              </button>
+              <button asChild variant="outline" className="h-24 flex flex-col justify-center items-center">
                 <Link href="/dashboard/admin?tab=analytics">
                   <TrendingUp className="h-6 w-6 mb-2" />
                   Platform Analytics
                 </Link>
-              </Button>
+              </button>
             </>
           )}
         </div>
@@ -218,195 +216,195 @@ export default function RoleBasedDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {userRole === 'user' && (
           <>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Upcoming Events</divTitle>
+                <div className="h-4 w-4 text-muted-foreground" />
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">2</div>
                 <p className="text-xs text-muted-foreground">Next event in 3 days</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
-                  <Link href="/planning?tab=calendar">View Calendar</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                <button asChild variant="link" className="p-0 h-auto mt-2">
+                  <Link href="/planning?tab=calendar">View div</Link>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Guest List</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Guest List</divTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">150</div>
                 <p className="text-xs text-muted-foreground">RSVPs received</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/planning?tab=guest-list">Manage Guests</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Budget Spent</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Budget Spent</divTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">LKR 450,000</div>
                 <p className="text-xs text-muted-foreground">75% of budget used</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/planning?tab=budget-tracker">View Budget</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tasks Completed</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Tasks Completed</divTitle>
                 <CheckSquare className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">18/25</div>
                 <p className="text-xs text-muted-foreground">72% complete</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/planning?tab=checklist">View Tasks</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
           </>
         )}
 
         {userRole === 'vendor' && (
           <>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Total Bookings</divTitle>
+                <div className="h-4 w-4 text-muted-foreground" />
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">32</div>
                 <p className="text-xs text-muted-foreground">+15% from last month</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/vendor?tab=bookings">View Bookings</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Total Revenue</divTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">LKR 1,250,000</div>
                 <p className="text-xs text-muted-foreground">Avg: LKR 39,000</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/vendor?tab=analytics">View Analytics</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Rating</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Avg Rating</divTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">4.7</div>
                 <p className="text-xs text-muted-foreground">18 reviews</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/vendor?tab=reviews">View Reviews</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Services</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Active Services</divTitle>
                 <Store className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">8</div>
                 <p className="text-xs text-muted-foreground">All available</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/vendor?tab=services">Manage Services</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
           </>
         )}
 
         {userRole === 'admin' && (
           <>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Total Users</divTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">1,247</div>
                 <p className="text-xs text-muted-foreground">+12.5% from last month</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/admin?tab=users">Manage Users</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Vendors</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Total Vendors</divTitle>
                 <Store className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">89</div>
                 <p className="text-xs text-muted-foreground">23 pending approval</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/admin?tab=vendors">Manage Vendors</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Total Bookings</divTitle>
+                <div className="h-4 w-4 text-muted-foreground" />
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">342</div>
                 <p className="text-xs text-muted-foreground">This month</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/admin?tab=bookings">View Bookings</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Platform Revenue</CardTitle>
+            <div>
+              <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <divTitle className="text-sm font-medium">Platform Revenue</divTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
+              </divHeader>
+              <divContent>
                 <div className="text-2xl font-bold">LKR 1,250,000</div>
                 <p className="text-xs text-muted-foreground">This month</p>
-                <Button asChild variant="link" className="p-0 h-auto mt-2">
+                <button asChild variant="link" className="p-0 h-auto mt-2">
                   <Link href="/dashboard/admin?tab=analytics">View Analytics</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
           </>
         )}
       </div>
 
       {/* Role-based Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
+        <div>
+          <divHeader>
+            <divTitle className="flex items-center">
               <TrendingUp className="h-5 w-5 mr-2" />
               Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </divTitle>
+          </divHeader>
+          <divContent>
             <div className="space-y-4">
               {userRole === 'user' && (
                 <>
@@ -486,14 +484,14 @@ export default function RoleBasedDashboard() {
                 </>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Navigation</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div>
+          <divHeader>
+            <divTitle>Quick Navigation</divTitle>
+          </divHeader>
+          <divContent>
             <div className="space-y-4">
               {userRole === 'user' && (
                 <>
@@ -502,27 +500,27 @@ export default function RoleBasedDashboard() {
                       <p className="text-sm font-medium">Wedding Planning</p>
                       <p className="text-xs text-gray-500">Manage your wedding details</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/planning">Go to Planning</Link>
-                    </Button>
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Vendor Search</p>
                       <p className="text-xs text-gray-500">Find wedding services</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/vendors">Browse Vendors</Link>
-                    </Button>
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Venue Search</p>
                       <p className="text-xs text-gray-500">Find wedding venues</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/venues">Browse Venues</Link>
-                    </Button>
+                    </button>
                   </div>
                 </>
               )}
@@ -534,27 +532,27 @@ export default function RoleBasedDashboard() {
                       <p className="text-sm font-medium">Service Management</p>
                       <p className="text-xs text-gray-500">Manage your services</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/dashboard/vendor?tab=services">Manage Services</Link>
-                    </Button>
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Booking Calendar</p>
+                      <p className="text-sm font-medium">Booking div</p>
                       <p className="text-xs text-gray-500">View your schedule</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
-                      <Link href="/dashboard/vendor?tab=calendar">View Calendar</Link>
-                    </Button>
+                    <button size="sm" variant="outline" asChild>
+                      <Link href="/dashboard/vendor?tab=calendar">View div</Link>
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Business Profile</p>
                       <p className="text-xs text-gray-500">Update your profile</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/dashboard/vendor/onboarding">Update Profile</Link>
-                    </Button>
+                    </button>
                   </div>
                 </>
               )}
@@ -566,33 +564,33 @@ export default function RoleBasedDashboard() {
                       <p className="text-sm font-medium">User Management</p>
                       <p className="text-xs text-gray-500">Manage platform users</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/dashboard/admin?tab=users">Manage Users</Link>
-                    </Button>
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Vendor Approval</p>
                       <p className="text-xs text-gray-500">Review applications</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/dashboard/admin?tab=vendors">Review Vendors</Link>
-                    </Button>
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Platform Analytics</p>
                       <p className="text-xs text-gray-500">View system stats</p>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
+                    <button size="sm" variant="outline" asChild>
                       <Link href="/dashboard/admin?tab=analytics">View Analytics</Link>
-                    </Button>
+                    </button>
                   </div>
                 </>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
       </div>
     </div>
   )

@@ -1,10 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
 
 import {
@@ -27,28 +23,28 @@ import {
   ArrowRight,
 } from "lucide-react"
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Badge will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// span will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Tabs will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// TabsContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// TabsList will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divList will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// TabsTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function RoadmapPage() {
-  const [selectedPhase, setSelectedPhase] = useState("immediate")
+  const [selectedPhase, setselectedPhase] = useState("immediate")
 
   const roadmapPhases = {
     immediate: {
@@ -72,7 +68,7 @@ export default function RoadmapPage() {
           items: [
             "Interactive 3D Venue Tours - Virtual reality venue exploration",
             "Real-time Chat System - Instant messaging with vendors",
-            "Advanced Calendar Integration - Google/Outlook calendar sync",
+            "Advanced div Integration - Google/Outlook calendar sync",
             "Mobile App (React Native) - Native iOS/Android experience",
           ],
         },
@@ -290,14 +286,14 @@ export default function RoadmapPage() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-12"
         >
-          <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
+          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+            <divHeader>
+              <divTitle className="flex items-center text-2xl">
                 <Zap className="h-6 w-6 text-yellow-500 mr-3" />
                 Quick Wins (Implement This Week)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </divTitle>
+            </divHeader>
+            <divContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {quickWins.map((win, index) => {
                   const IconComponent = win.icon
@@ -308,8 +304,8 @@ export default function RoadmapPage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                     >
-                      <Card className="h-full border-l-4 border-l-purple-500">
-                        <CardContent className="p-4">
+                      <div className="h-full border-l-4 border-l-purple-500">
+                        <divContent className="p-4">
                           <div className="flex items-start gap-3">
                             <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                               <IconComponent className="h-5 w-5 text-purple-600" />
@@ -318,20 +314,20 @@ export default function RoadmapPage() {
                               <h3 className="font-semibold text-lg mb-2">{win.title}</h3>
                               <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{win.description}</p>
                               <div className="flex items-center gap-2 text-xs">
-                                <Badge variant="outline">Impact: {win.impact}</Badge>
-                                <Badge variant="outline">Effort: {win.effort}</Badge>
-                                <Badge className="bg-green-100 text-green-800">{win.timeline}</Badge>
+                                <span variant="outline">Impact: {win.impact}</span>
+                                <span variant="outline">Effort: {win.effort}</span>
+                                <span className="bg-green-100 text-green-800">{win.timeline}</span>
                               </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </divContent>
+                      </div>
                     </motion.div>
                   )
                 })}
               </div>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         </motion.div>
 
         {/* Roadmap Phases */}
@@ -341,29 +337,29 @@ export default function RoadmapPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-12"
         >
-          <Tabs value={selectedPhase} onValueChange={setSelectedPhase} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="immediate" className="text-sm">
+          <div value={selectedPhase} onValueChange={setselectedPhase} className="w-full">
+            <divList className="grid w-full grid-cols-3 mb-8">
+              <divTrigger value="immediate" className="text-sm">
                 Phase 1: Immediate
-              </TabsTrigger>
-              <TabsTrigger value="growth" className="text-sm">
+              </divTrigger>
+              <divTrigger value="growth" className="text-sm">
                 Phase 2: Growth
-              </TabsTrigger>
-              <TabsTrigger value="advanced" className="text-sm">
+              </divTrigger>
+              <divTrigger value="advanced" className="text-sm">
                 Phase 3: Advanced
-              </TabsTrigger>
-            </TabsList>
+              </divTrigger>
+            </divList>
 
             {Object.entries(roadmapPhases).map(([phase, data]) => (
-              <TabsContent key={phase} value={phase}>
-                <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-                  <CardHeader>
+              <divContent key={phase} value={phase}>
+                <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+                  <divHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-2xl mb-2">{data.title}</CardTitle>
+                        <divTitle className="text-2xl mb-2">{data.title}</divTitle>
                         <p className="text-gray-600 dark:text-gray-400">{data.description}</p>
                       </div>
-                      <Badge
+                      <span
                         className={
                           data.priority === "high"
                             ? "bg-red-100 text-red-800"
@@ -373,10 +369,10 @@ export default function RoadmapPage() {
                         }
                       >
                         {data.priority} priority
-                      </Badge>
+                      </span>
                     </div>
-                  </CardHeader>
-                  <CardContent>
+                  </divHeader>
+                  <divContent>
                     <div className="space-y-8">
                       {data.features.map((category, categoryIndex) => {
                         const IconComponent = category.icon
@@ -407,11 +403,11 @@ export default function RoadmapPage() {
                         )
                       })}
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  </divContent>
+                </div>
+              </divContent>
             ))}
-          </Tabs>
+          </div>
         </motion.div>
 
         {/* Market Opportunities */}
@@ -421,14 +417,14 @@ export default function RoadmapPage() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mb-12"
         >
-          <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
+          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+            <divHeader>
+              <divTitle className="flex items-center text-2xl">
                 <Trophy className="h-6 w-6 text-gold-500 mr-3" />
                 Revenue Expansion Opportunities
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </divTitle>
+            </divHeader>
+            <divContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {marketOpportunities.map((opportunity, index) => (
                   <motion.div
@@ -437,8 +433,8 @@ export default function RoadmapPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <Card className="h-full border-l-4 border-l-green-500">
-                      <CardContent className="p-4">
+                    <div className="h-full border-l-4 border-l-green-500">
+                      <divContent className="p-4">
                         <h3 className="font-semibold text-lg mb-2">{opportunity.title}</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{opportunity.description}</p>
                         <div className="space-y-2">
@@ -451,13 +447,13 @@ export default function RoadmapPage() {
                             <span className="font-medium text-green-600">{opportunity.market}</span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </divContent>
+                    </div>
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         </motion.div>
 
         {/* Technical Improvements */}
@@ -466,14 +462,14 @@ export default function RoadmapPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
         >
-          <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
+          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+            <divHeader>
+              <divTitle className="flex items-center text-2xl">
                 <Rocket className="h-6 w-6 text-blue-500 mr-3" />
                 Technical Infrastructure Upgrades
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </divTitle>
+            </divHeader>
+            <divContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {technicalImprovements.map((category, index) => (
                   <motion.div
@@ -482,11 +478,11 @@ export default function RoadmapPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <Card className="h-full">
-                      <CardHeader>
-                        <CardTitle className="text-lg">{category.category}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
+                    <div className="h-full">
+                      <divHeader>
+                        <divTitle className="text-lg">{category.category}</divTitle>
+                      </divHeader>
+                      <divContent>
                         <div className="space-y-2">
                           {category.items.map((item, itemIndex) => (
                             <div key={itemIndex} className="flex items-start gap-2">
@@ -495,13 +491,13 @@ export default function RoadmapPage() {
                             </div>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </divContent>
+                    </div>
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         </motion.div>
 
         {/* Implementation CTA */}
@@ -511,28 +507,28 @@ export default function RoadmapPage() {
           transition={{ duration: 0.6, delay: 1.0 }}
           className="mt-12 text-center"
         >
-          <Card className="border-0 shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-            <CardContent className="p-8">
+          <div className="border-0 shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <divContent className="p-8">
               <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Platform?</h2>
               <p className="text-lg mb-6 opacity-90">
                 Start with Phase 1 quick wins and build the most advanced wedding platform in South Asia
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary" className="text-purple-600">
+                <button size="lg" variant="secondary" className="text-purple-600">
                   <Rocket className="mr-2 h-5 w-5" />
                   Start Implementation
-                </Button>
-                <Button
+                </button>
+                <button
                   size="lg"
                   variant="outline"
                   className="border-white text-white hover:bg-white hover:text-purple-600"
                 >
-                  <Calendar className="mr-2 h-5 w-5" />
+                  <div className="mr-2 h-5 w-5" />
                   Schedule Planning Session
-                </Button>
+                </button>
               </div>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         </motion.div>
       </div>
     </div>

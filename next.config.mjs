@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Production optimizations
-  output: 'standalone',
+  // output: 'standalone', // Disabled for Vercel deployment
   
   // Enable ESLint and TypeScript checking
   eslint: {
@@ -30,6 +30,7 @@ const nextConfig = {
   // CSS optimization
   experimental: {
     optimizeCss: false, // Disabled due to critters compatibility issues
+    // Disable PostCSS optimization for Vercel
     optimizePackageImports: [
       '@radix-ui/react-dialog',
       '@radix-ui/react-dropdown-menu',
@@ -39,6 +40,7 @@ const nextConfig = {
       'lucide-react',
       'framer-motion'
     ],
+    // Vercel optimizations
     turbo: {
       rules: {
         '*.svg': {

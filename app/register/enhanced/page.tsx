@@ -2,24 +2,21 @@
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   CheckCircle, 
-  AlertCircle, 
+  Circle, 
   Loader2,
   ArrowLeft,
   ArrowRight,
   Save,
-  Eye
+  Eye,
+  XCircle
 } from 'lucide-react';
 import { RoleSelection } from '@/components/auth/role-selection';
 import { EnhancedRegistrationForm } from '@/components/auth/enhanced-registration-form';
 import { DocumentUpload } from '@/components/auth/document-upload';
-import { RegistrationProgress } from '@/components/auth/registration-progress';
-import { SocialLoginButtons } from '@/components/auth/social-login-buttons';
+import { RegistrationProgress } from '../../../components/auth/registration-progress';
+import { SocialLoginButtons } from '../../../components/auth/social-login-buttons';
 import { DynamicFormFactory } from '@/lib/forms/dynamic-form-engine';
 
 interface RegistrationData {
@@ -38,7 +35,7 @@ interface RegistrationStep {
 function EnhancedRegistrationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [selectedRole, setselectedRole] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<RegistrationData>({});
   const [loading, setLoading] = useState(false);
@@ -49,7 +46,7 @@ function EnhancedRegistrationContent() {
   useEffect(() => {
     const roleParam = searchParams.get('role');
     if (roleParam && ['user', 'vendor', 'wedding_planner'].includes(roleParam)) {
-      setSelectedRole(roleParam);
+      setselectedRole(roleParam);
     }
   }, [searchParams]);
 
@@ -58,7 +55,7 @@ function EnhancedRegistrationContent() {
     {
       id: 'role_selection',
       title: 'Choose Your Role',
-      description: 'Select how you want to use WeddingLK',
+      description: 'select how you want to use WeddingLK',
       status: 'pending',
       required: true,
       estimatedTime: 1
@@ -111,8 +108,8 @@ function EnhancedRegistrationContent() {
     // Note: In a real implementation, you'd update the steps state here
   }, [currentStep, selectedRole, registrationSteps]);
 
-  const handleRoleSelection = (role: string) => {
-    setSelectedRole(role);
+  const handleRoleselection = (role: string) => {
+    setselectedRole(role);
     setFormData(prev => ({ ...prev, role }));
     setCurrentStep(1); // Move to next step
   };
@@ -233,17 +230,17 @@ function EnhancedRegistrationContent() {
     switch (currentStep) {
       case 0:
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Choose Your Role</CardTitle>
-              <CardDescription>
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Choose Your Role</h2>
+              <p className="text-gray-600 dark:text-gray-400">
                 Select how you want to use WeddingLK. This will determine the features available to you.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RoleSelection onRoleSelect={handleRoleSelection} />
-            </CardContent>
-          </Card>
+              </p>
+            </div>
+            <div className="space-y-6">
+              <RoleSelection onRoleSelect={handleRoleselection} />
+            </div>
+          </div>
         );
 
       case 1:
@@ -257,33 +254,33 @@ function EnhancedRegistrationContent() {
 
       case 2:
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
-              <CardDescription>
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Additional Information</h2>
+              <p className="text-gray-600 dark:text-gray-400">
                 Provide additional details specific to your role as a {selectedRole.replace('_', ' ')}.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </p>
+            </div>
+            <div className="space-y-6">
               <EnhancedRegistrationForm
                 role={selectedRole}
                 onSuccess={handleFormDataUpdate}
                 onError={setError}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         );
 
       case 3:
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Document Verification</CardTitle>
-              <CardDescription>
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Document Verification</h2>
+              <p className="text-gray-600 dark:text-gray-400">
                 Upload required documents to verify your identity and qualifications.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </p>
+            </div>
+            <div className="space-y-6">
               <div className="space-y-6">
                 {selectedRole === 'vendor' && (
                   <DocumentUpload
@@ -319,21 +316,20 @@ function EnhancedRegistrationContent() {
                   />
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         );
 
       case 4:
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Review & Submit</CardTitle>
-              <CardDescription>
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Review & Submit</h2>
+              <p className="text-gray-600 dark:text-gray-400">
                 Review your information before completing registration.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+              </p>
+            </div>
+            <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(formData).map(([key, value]) => {
                     if (typeof value === 'object' && value !== null) return null;
@@ -351,15 +347,15 @@ function EnhancedRegistrationContent() {
                 </div>
 
                 <div className="flex gap-3 pt-4">
-                  <Button
-                    variant="outline"
+                  <button
                     onClick={() => setCurrentStep(currentStep - 1)}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
-                  </Button>
+                  </button>
                   
-                  <Button
+                  <button
                     onClick={handleSubmit}
                     disabled={loading || !isCurrentStepComplete()}
                     className="flex-1"
@@ -370,11 +366,10 @@ function EnhancedRegistrationContent() {
                       <CheckCircle className="w-4 h-4 mr-2" />
                     )}
                     Complete Registration
-                  </Button>
+                  </button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+          </div>
         );
 
       default:
@@ -397,17 +392,17 @@ function EnhancedRegistrationContent() {
 
         {/* Error/Success Messages */}
         {error && (
-          <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertCircle className="w-4 h-4 text-red-600" />
-            <AlertDescription className="text-red-800">{error}</AlertDescription>
-          </Alert>
+          <div className="mb-6 border-red-200 bg-red-50 p-4 rounded-lg flex items-start space-x-3">
+            <XCircle className="w-4 h-4 text-red-600 mt-0.5" />
+            <p className="text-red-800">{error}</p>
+          </div>
         )}
 
         {success && (
-          <Alert className="mb-6 border-green-200 bg-green-50">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <AlertDescription className="text-green-800">{success}</AlertDescription>
-          </Alert>
+          <div className="mb-6 border-green-200 bg-green-50 p-4 rounded-lg flex items-start space-x-3">
+            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+            <p className="text-green-800">{success}</p>
+          </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -428,36 +423,36 @@ function EnhancedRegistrationContent() {
             />
 
             {/* Social Login */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Quick Sign Up</CardTitle>
-                <CardDescription>
+            <div>
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-900">Quick Sign Up</h3>
+                <p className="text-xs text-gray-600">
                   Already have an account? Sign in with social media
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                </p>
+              </div>
+              <div className="space-y-3">
                 <SocialLoginButtons
                   onSuccess={() => router.push('/dashboard')}
                   onError={setError}
                   showDescription={false}
                 />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Help & Support */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardHeader>
-                <CardTitle className="text-sm text-blue-800">Need Help?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-blue-700 mb-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="mb-3">
+                <h3 className="text-sm font-medium text-blue-800">Need Help?</h3>
+              </div>
+              <div className="space-y-3">
+                <p className="text-xs text-blue-700">
                   Our support team is here to help you complete your registration.
                 </p>
-                <Button variant="outline" size="sm" className="w-full">
+                <button className="w-full bg-white border border-blue-300 text-blue-700 px-3 py-2 rounded-md text-sm hover:bg-blue-50">
                   Contact Support
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

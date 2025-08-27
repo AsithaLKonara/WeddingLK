@@ -1,9 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { CreditCard, Loader2, Calendar, DollarSign } from 'lucide-react'
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search } from "lucide-react"
 
 export default function PaymentsTab() {
   const [payments, setPayments] = useState([])
@@ -29,26 +27,26 @@ export default function PaymentsTab() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-8">
+      <div>
+        <divContent className="p-8">
           <div className="flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             <span className="ml-2">Loading payments...</span>
           </div>
-        </CardContent>
-      </Card>
+        </divContent>
+      </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
+    <div>
+      <divHeader>
+        <divTitle className="flex items-center">
           <CreditCard className="h-5 w-5 mr-2" />
           Your Payments
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </divTitle>
+      </divHeader>
+      <divContent>
         {payments.length > 0 ? (
           <div className="space-y-4">
             {payments.map((payment: any) => (
@@ -61,16 +59,16 @@ export default function PaymentsTab() {
                     <p className="font-medium">{payment.description || 'Payment'}</p>
                     <p className="text-sm text-gray-500">{payment.vendor?.name || 'Vendor'}</p>
                     <div className="flex items-center space-x-2 text-xs text-gray-400 mt-1">
-                      <Calendar className="h-3 w-3" />
+                      <div className="h-3 w-3" />
                       <span>{new Date(payment.date).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-lg">LKR {payment.amount?.toLocaleString()}</p>
-                  <Badge variant={payment.status === 'completed' ? 'default' : 'secondary'}>
+                  <span variant={payment.status === 'completed' ? 'default' : 'secondary'}>
                     {payment.status}
-                  </Badge>
+                  </span>
                 </div>
               </div>
             ))}
@@ -82,7 +80,7 @@ export default function PaymentsTab() {
             <p className="text-sm">Track your wedding expenses and payment history here</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </divContent>
+    </div>
   )
 } 

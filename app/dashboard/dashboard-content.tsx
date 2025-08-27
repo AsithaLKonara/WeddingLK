@@ -1,11 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Calendar, CheckCircle, TrendingUp, Users, DollarSign, Star } from "lucide-react"
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search } from "lucide-react"
 import Link from "next/link"
 
 interface DashboardStats {
@@ -115,81 +111,81 @@ export default function DashboardContent() {
 
   return (
     <div className="space-y-6">
-      {/* Overview Cards */}
+      {/* Overview divs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+        <div>
+          <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <divTitle className="text-sm font-medium">Total Bookings</divTitle>
+            <div className="h-4 w-4 text-muted-foreground" />
+          </divHeader>
+          <divContent>
             <div className="text-2xl font-bold">{stats.overview.totalBookings}</div>
             <p className="text-xs text-muted-foreground">
               {stats.bookings.confirmed} confirmed
             </p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+        <div>
+          <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <divTitle className="text-sm font-medium">Total Tasks</divTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </divHeader>
+          <divContent>
             <div className="text-2xl font-bold">{stats.overview.totalTasks}</div>
             <p className="text-xs text-muted-foreground">
               {stats.tasks.completed} completed
             </p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Vendors</CardTitle>
+        <div>
+          <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <divTitle className="text-sm font-medium">Total Vendors</divTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </divHeader>
+          <divContent>
             <div className="text-2xl font-bold">{stats.overview.totalVendors}</div>
             <p className="text-xs text-muted-foreground">
               Working with you
             </p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Budget Used</CardTitle>
+        <div>
+          <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <divTitle className="text-sm font-medium">Budget Used</divTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </divHeader>
+          <divContent>
             <div className="text-2xl font-bold">
               LKR {stats.budget.spent.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
               of LKR {stats.budget.total.toLocaleString()}
             </p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
       </div>
 
-      {/* Progress Cards */}
+      {/* div divs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Task Progress</CardTitle>
-            <CardDescription>
+        <div>
+          <divHeader>
+            <divTitle>Task div</divTitle>
+            <divDescription>
               Track your wedding planning tasks
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </divDescription>
+          </divHeader>
+          <divContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Overall Progress</span>
+                <span className="text-sm font-medium">Overall div</span>
                 <span className="text-sm text-gray-500">
                   {Math.round((stats.tasks.completed / Math.max(stats.tasks.total, 1)) * 100)}%
                 </span>
               </div>
-              <Progress value={(stats.tasks.completed / Math.max(stats.tasks.total, 1)) * 100} />
+              <div value={(stats.tasks.completed / Math.max(stats.tasks.total, 1)) * 100} />
               
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
@@ -209,20 +205,20 @@ export default function DashboardContent() {
             
             <div className="mt-4">
               <Link href="/dashboard/planner">
-                <Button variant="outline" className="w-full">View All Tasks</Button>
+                <button variant="outline" className="w-full">View All Tasks</button>
               </Link>
             </div>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Booking Status</CardTitle>
-            <CardDescription>
+        <div>
+          <divHeader>
+            <divTitle>Booking Status</divTitle>
+            <divDescription>
               Overview of your venue and vendor bookings
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </divDescription>
+          </divHeader>
+          <divContent>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
@@ -253,22 +249,22 @@ export default function DashboardContent() {
             
             <div className="mt-4">
               <Link href="/dashboard/bookings">
-                <Button variant="outline" className="w-full">View All Bookings</Button>
+                <button variant="outline" className="w-full">View All Bookings</button>
               </Link>
             </div>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
       </div>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
+      <div>
+        <divHeader>
+          <divTitle>Recent Activity</divTitle>
+          <divDescription>
             Your latest bookings and task updates
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </divDescription>
+        </divHeader>
+        <divContent>
           <div className="space-y-4">
             {recentActivity.length > 0 ? (
               recentActivity.map((activity) => (
@@ -277,7 +273,7 @@ export default function DashboardContent() {
                     <div className={`p-2 rounded-full ${
                       activity.type === 'booking' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
                     }`}>
-                      {activity.type === 'booking' ? <Calendar className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                      {activity.type === 'booking' ? <div className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
                     </div>
                     <div>
                       <p className="font-medium">{activity.title}</p>
@@ -287,31 +283,31 @@ export default function DashboardContent() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant={
+                    <span variant={
                       activity.status === 'confirmed' || activity.status === 'completed' ? 'default' :
                       activity.status === 'pending' ? 'secondary' : 'destructive'
                     }>
                       {activity.status}
-                    </Badge>
+                    </span>
                     {activity.amount && (
                       <span className="text-sm font-medium text-green-600">
                         LKR {activity.amount.toLocaleString()}
                       </span>
                     )}
                     {activity.priority && (
-                      <Badge variant={
+                      <span variant={
                         activity.priority === 'urgent' ? 'destructive' :
                         activity.priority === 'high' ? 'default' : 'secondary'
                       }>
                         {activity.priority}
-                      </Badge>
+                      </span>
                     )}
                   </div>
                 </div>
               ))
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <div className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>No recent activity</p>
                 <p className="text-sm">Start planning your wedding to see activity here</p>
               </div>
@@ -321,53 +317,53 @@ export default function DashboardContent() {
           {recentActivity.length > 0 && (
             <div className="mt-4 text-center">
               <Link href="/dashboard/bookings">
-                <Button variant="outline">View All Activity</Button>
+                <button variant="outline">View All Activity</button>
               </Link>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </divContent>
+      </div>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
+      <div>
+        <divHeader>
+          <divTitle>Quick Actions</divTitle>
+          <divDescription>
             Common tasks and shortcuts
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </divDescription>
+        </divHeader>
+        <divContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link href="/vendors">
-              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+              <button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
                 <Users className="h-6 w-6" />
                 <span className="text-sm">Find Vendors</span>
-              </Button>
+              </button>
             </Link>
             
             <Link href="/venues">
-              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
-                <Calendar className="h-6 w-6" />
+              <button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+                <div className="h-6 w-6" />
                 <span className="text-sm">Book Venue</span>
-              </Button>
+              </button>
             </Link>
             
             <Link href="/dashboard/planner">
-              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+              <button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
                 <CheckCircle className="h-6 w-6" />
                 <span className="text-sm">View Tasks</span>
-              </Button>
+              </button>
             </Link>
             
             <Link href="/dashboard/bookings">
-              <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+              <button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
                 <TrendingUp className="h-6 w-6" />
                 <span className="text-sm">Bookings</span>
-              </Button>
+              </button>
             </Link>
           </div>
-        </CardContent>
-      </Card>
+        </divContent>
+      </div>
     </div>
   )
 } 

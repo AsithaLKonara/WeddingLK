@@ -1,17 +1,14 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { MoreHorizontal, Edit, Eye, ToggleLeft, ToggleRight } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenulabel,
+  DropdownMenuhr,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export type Service = {
   _id: string
@@ -49,9 +46,9 @@ export const columns: ColumnDef<Service>[] = [
     cell: ({ row }) => {
       const category = row.getValue("category") as string
       return (
-        <Badge variant="outline">
+        <span variant="outline">
           {category.charAt(0).toUpperCase() + category.slice(1)}
-        </Badge>
+        </span>
       )
     },
   },
@@ -101,9 +98,9 @@ export const columns: ColumnDef<Service>[] = [
     cell: ({ row }) => {
       const service = row.original
       return (
-        <Badge variant={service.isActive ? "default" : "secondary"}>
+        <span variant={service.isActive ? "default" : "secondary"}>
           {service.isActive ? "Active" : "Inactive"}
-        </Badge>
+        </span>
       )
     },
   },
@@ -127,13 +124,13 @@ export const columns: ColumnDef<Service>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenulabel>Actions</DropdownMenulabel>
             <DropdownMenuItem>
               <Eye className="mr-2 h-4 w-4" />
               View Details
@@ -142,7 +139,7 @@ export const columns: ColumnDef<Service>[] = [
               <Edit className="mr-2 h-4 w-4" />
               Edit Service
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuhr />
             {service.isActive ? (
               <DropdownMenuItem 
                 onClick={() => window.dispatchEvent(new CustomEvent('serviceAction', { detail: { serviceId: service._id, action: 'deactivate' } }))}

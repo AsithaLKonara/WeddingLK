@@ -6,7 +6,7 @@ import { MainLayout } from "@/components/templates/main-layout"
 
 import { motion } from "framer-motion"
 
-const FavoritesTabs = dynamic(() => import("@/components/organisms/favorites-tabs"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+const Favoritesdiv = dynamic(() => import("@/components/organisms/favorites-tabs"), { loading: () => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function FavoritesPage() {
   return (
@@ -27,7 +27,7 @@ export default function FavoritesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <FavoritesTabs />
+            <Favoritesdiv />
           </motion.div>
         </div>
       </div>

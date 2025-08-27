@@ -3,12 +3,6 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
 import { Search, MessageSquare, Send, Paperclip, Image as ImageIcon, Smile, MoreVertical } from "lucide-react"
 import Link from "next/link"
 
@@ -54,7 +48,7 @@ export default function MessagesContent() {
       status: "away"
     }
   ])
-  const [selectedConversation, setSelectedConversation] = useState(conversations[0])
+  const [selectedConversation, setselectedConversation] = useState(conversations[0])
   const [messages, setMessages] = useState([
     { id: "m1", sender: "other", content: "Hi! How can I help you with your wedding photography?", time: "10:28 AM", status: "read" },
     { id: "m2", sender: "me", content: "I'd like to inquire about your wedding photography packages.", time: "10:30 AM", status: "read" },
@@ -138,19 +132,19 @@ export default function MessagesContent() {
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button asChild className="w-full">
+        <div className="w-full max-w-md">
+          <divHeader>
+            <divTitle>Authentication Required</divTitle>
+          </divHeader>
+          <divContent className="space-y-4">
+            <button asChild className="w-full">
               <Link href="/login">Login to Messages</Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full">
+            </button>
+            <button variant="outline" asChild className="w-full">
               <Link href="/register">Create Account</Link>
-            </Button>
-          </CardContent>
-        </Card>
+            </button>
+          </divContent>
+        </div>
       </div>
     )
   }
@@ -163,23 +157,23 @@ export default function MessagesContent() {
           <h2 className="text-xl font-semibold mb-4">Messages</h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search conversations..." className="pl-10" />
+            <input placeholder="Search conversations..." className="pl-10" />
           </div>
         </div>
-        <ScrollArea className="flex-1">
+        <div className="flex-1">
           {conversations.map((conv) => (
             <div
               key={conv.id}
               className={`flex items-center p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
                 selectedConversation.id === conv.id ? "bg-blue-50 dark:bg-blue-900/20 border-r-2 border-blue-500" : ""
               }`}
-              onClick={() => setSelectedConversation(conv)}
+              onClick={() => setselectedConversation(conv)}
             >
               <div className="relative">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={conv.avatar} alt={conv.name} />
-                  <AvatarFallback>{conv.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <div className="h-12 w-12">
+                  <divImage src={conv.avatar} alt={conv.name} />
+                  <divFallback>{conv.name.charAt(0)}</divFallback>
+                </div>
                 <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
                   conv.status === 'online' ? 'bg-green-500' : 
                   conv.status === 'away' ? 'bg-yellow-500' : 'bg-gray-400'
@@ -192,14 +186,14 @@ export default function MessagesContent() {
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{conv.lastMessage}</p>
                 {conv.unread > 0 && (
-                  <Badge variant="destructive" className="mt-1 text-xs">
+                  <span variant="destructive" className="mt-1 text-xs">
                     {conv.unread}
-                  </Badge>
+                  </span>
                 )}
               </div>
             </div>
           ))}
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Right Pane: Chat Interface */}
@@ -207,10 +201,10 @@ export default function MessagesContent() {
         {/* Chat Header */}
         <div className="p-4 border-b dark:border-gray-700 flex items-center justify-between">
           <div className="flex items-center">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={selectedConversation.avatar} alt={selectedConversation.name} />
-              <AvatarFallback>{selectedConversation.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <div className="h-10 w-10">
+              <divImage src={selectedConversation.avatar} alt={selectedConversation.name} />
+              <divFallback>{selectedConversation.name.charAt(0)}</divFallback>
+            </div>
             <div className="ml-3">
               <h3 className="text-lg font-semibold">{selectedConversation.name}</h3>
               <p className="text-sm text-gray-500">
@@ -219,13 +213,13 @@ export default function MessagesContent() {
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="icon">
+          <button variant="ghost" size="icon">
             <MoreVertical className="h-5 w-5" />
-          </Button>
+          </button>
         </div>
 
         {/* Messages Area */}
-        <ScrollArea className="flex-1 p-4">
+        <div className="flex-1 p-4">
           <div className="space-y-4">
             {messages.map((msg) => (
               <div
@@ -268,30 +262,30 @@ export default function MessagesContent() {
             )}
             <div ref={messagesEndRef} />
           </div>
-        </ScrollArea>
+        </div>
 
-        {/* Message Input */}
+        {/* Message input */}
         <div className="p-4 border-t dark:border-gray-700">
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon">
+            <button variant="ghost" size="icon">
               <Paperclip className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
+            </button>
+            <button variant="ghost" size="icon">
               <ImageIcon className="h-5 w-5" />
-            </Button>
-            <Input
+            </button>
+            <input
               placeholder="Type your message..."
               className="flex-1"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
             />
-            <Button variant="ghost" size="icon">
+            <button variant="ghost" size="icon">
               <Smile className="h-5 w-5" />
-            </Button>
-            <Button onClick={handleSendMessage} disabled={!newMessage.trim()}>
+            </button>
+            <button onClick={handleSendMessage} disabled={!newMessage.trim()}>
               <Send className="h-5 w-5" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>

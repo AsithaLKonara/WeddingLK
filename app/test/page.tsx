@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { TestimonialCard } from '@/components/molecules/testimonial-card'
+import { Testimonialdiv } from '@/components/molecules/testimonial-card'
 
 interface TestResult {
   name: string

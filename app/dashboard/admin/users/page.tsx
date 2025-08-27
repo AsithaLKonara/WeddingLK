@@ -1,26 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
 import { 
   Search, 
   Filter, 
@@ -58,410 +38,217 @@ export default function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
-    // Fetch users data
-    const fetchUsers = async () => {
-      try {
-        // Mock data - replace with actual API call
-        const mockUsers: UserData[] = [
-          {
-            id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            role: 'user',
-            status: 'active',
-            isVerified: true,
-            createdAt: '2024-01-15',
-            lastLogin: '2024-01-20',
-          },
-          {
-            id: '2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            role: 'vendor',
-            status: 'active',
-            isVerified: true,
-            createdAt: '2024-01-10',
-            lastLogin: '2024-01-19',
-          },
-          {
-            id: '3',
-            name: 'Mike Johnson',
-            email: 'mike@example.com',
-            role: 'wedding_planner',
-            status: 'pending',
-            isVerified: false,
-            createdAt: '2024-01-18',
-            lastLogin: '2024-01-18',
-          },
-          {
-            id: '4',
-            name: 'Sarah Wilson',
-            email: 'sarah@example.com',
-            role: 'admin',
-            status: 'active',
-            isVerified: true,
-            createdAt: '2024-01-05',
-            lastLogin: '2024-01-20',
-          },
-          {
-            id: '5',
-            name: 'David Brown',
-            email: 'david@example.com',
-            role: 'vendor',
-            status: 'suspended',
-            isVerified: false,
-            createdAt: '2024-01-12',
-            lastLogin: '2024-01-15',
-          },
-        ];
-        
-        setUsers(mockUsers);
-        setFilteredUsers(mockUsers);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
+    // Mock data - replace with actual API call
+    const mockUsers: UserData[] = [
+      {
+        id: '1',
+        name: 'John Doe',
+        email: 'john@example.com',
+        role: 'user',
+        status: 'active',
+        isVerified: true,
+        createdAt: '2024-01-15',
+        lastLogin: '2024-01-20',
+      },
+      {
+        id: '2',
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        role: 'vendor',
+        status: 'active',
+        isVerified: true,
+        createdAt: '2024-01-10',
+        lastLogin: '2024-01-19',
+      },
+      {
+        id: '3',
+        name: 'Mike Johnson',
+        email: 'mike@example.com',
+        role: 'wedding_planner',
+        status: 'pending',
+        isVerified: false,
+        createdAt: '2024-01-18',
+        lastLogin: '2024-01-18',
+      },
+      {
+        id: '4',
+        name: 'Sarah Wilson',
+        email: 'sarah@example.com',
+        role: 'admin',
+        status: 'active',
+        isVerified: true,
+        createdAt: '2024-01-05',
+        lastLogin: '2024-01-20',
+      },
+    ];
+    
+    setUsers(mockUsers);
+    setFilteredUsers(mockUsers);
+    setLoading(false);
   }, []);
-
-  useEffect(() => {
-    // Filter users based on search and filters
-    let filtered = users;
-
-    if (searchTerm) {
-      filtered = filtered.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter(user => user.role === roleFilter);
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(user => user.status === statusFilter);
-    }
-
-    setFilteredUsers(filtered);
-  }, [users, searchTerm, roleFilter, statusFilter]);
-
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return <Crown className="w-4 h-4 text-yellow-600" />;
-      case 'maintainer':
-        return <Shield className="w-4 h-4 text-blue-600" />;
-      case 'vendor':
-        return <Building2 className="w-4 h-4 text-green-600" />;
-      case 'wedding_planner':
-        return <Calendar className="w-4 h-4 text-purple-600" />;
-      default:
-        return <User className="w-4 h-4 text-gray-600" />;
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'maintainer':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'vendor':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'wedding_planner':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'suspended':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    try {
-      // API call to update user role
-      console.log(`Updating user ${userId} role to ${newRole}`);
-      
-      // Update local state
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user.id === userId ? { ...user, role: newRole as UserData['role'] } : user
-        )
-      );
-    } catch (error) {
-      console.error('Error updating user role:', error);
-    }
-  };
-
-  const handleStatusChange = async (userId: string, newStatus: string) => {
-    try {
-      // API call to update user status
-      console.log(`Updating user ${userId} status to ${newStatus}`);
-      
-      // Update local state
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user.id === userId ? { ...user, status: newStatus as UserData['status'] } : user
-        )
-      );
-    } catch (error) {
-      console.error('Error updating user status:', error);
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      try {
-        // API call to delete user
-        console.log(`Deleting user ${userId}`);
-        
-        // Update local state
-        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      }
-    }
-  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-2">
-            Manage all platform users, roles, and permissions
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            User Management
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Manage all users, vendors, and wedding planners
           </p>
         </div>
-        <Button>
-          <User className="w-4 h-4 mr-2" />
-          Add New User
-        </Button>
-      </div>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters & Search</CardTitle>
-          <CardDescription>Find and filter users by various criteria</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+        {/* Filters and Search */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                />
+              </div>
             </div>
-            
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="all">All Roles</option>
-              <option value="user">User</option>
-              <option value="vendor">Vendor</option>
-              <option value="wedding_planner">Wedding Planner</option>
-              <option value="admin">Admin</option>
-              <option value="maintainer">Maintainer</option>
-            </select>
-            
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="suspended">Suspended</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            
-            <Button variant="outline" className="w-full">
-              <Filter className="w-4 h-4 mr-2" />
-              Advanced Filters
-            </Button>
+            <div className="flex gap-2">
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              >
+                <option value="all">All Roles</option>
+                <option value="user">Users</option>
+                <option value="vendor">Vendors</option>
+                <option value="wedding_planner">Wedding Planners</option>
+                <option value="admin">Admins</option>
+              </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="pending">Pending</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Users Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Users ({filteredUsers.length})</CardTitle>
-          <CardDescription>
-            Manage user accounts, roles, and permissions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        {/* Users table */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Verification</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    User
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Verified
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium text-sm">
-                            {user.name.charAt(0).toUpperCase()}
-                          </span>
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                            <User className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {user.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {user.email}
+                          </div>
                         </div>
                       </div>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getRoleIcon(user.role)}
-                        <Badge variant="outline" className={getRoleColor(user.role)}>
-                          {user.role.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <Badge variant="outline" className={getStatusColor(user.status)}>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
+                        user.role === 'vendor' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                        user.role === 'wedding_planner' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                        'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                      }`}>
+                        {user.role.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                        user.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                        user.status === 'suspended' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                        'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                      }`}>
                         {user.status}
-                      </Badge>
-                    </TableCell>
-                    
-                    <TableCell>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {user.isVerified ? (
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <CheckCircle className="h-5 w-5 text-green-500" />
                       ) : (
-                        <Clock className="w-5 h-5 text-yellow-600" />
+                        <Clock className="h-5 w-5 text-yellow-500" />
                       )}
-                    </TableCell>
-                    
-                    <TableCell>
-                      <div className="text-sm text-gray-500">
-                        {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {user.createdAt}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <div className="text-sm text-gray-500">
-                        {new Date(user.lastLogin).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                    
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => console.log(`View user ${user.id}`)}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => console.log(`Edit user ${user.id}`)}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit User
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuSeparator />
-                          
-                          <DropdownMenuLabel>Change Role</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'user')}>
-                            <User className="w-4 h-4 mr-2" />
-                            Make User
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'vendor')}>
-                            <Building2 className="w-4 h-4 mr-2" />
-                            Make Vendor
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'wedding_planner')}>
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Make Wedding Planner
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'maintainer')}>
-                            <Shield className="w-4 h-4 mr-2" />
-                            Make Maintainer
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'admin')}>
-                            <Crown className="w-4 h-4 mr-2" />
-                            Make Admin
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuSeparator />
-                          
-                          <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleStatusChange(user.id, 'active')}>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Activate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(user.id, 'suspended')}>
-                            <Ban className="w-4 h-4 mr-2" />
-                            Suspend
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuSeparator />
-                          
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteUser(user.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 } 

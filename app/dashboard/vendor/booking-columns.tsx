@@ -1,17 +1,14 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { MoreHorizontal, CheckCircle, XCircle, Clock, Eye } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenulabel,
+  DropdownMenuhr,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export type Booking = {
   _id: string
@@ -114,10 +111,10 @@ export const columns: ColumnDef<Booking>[] = [
       const Icon = config.icon
       
       return (
-        <Badge variant={config.variant as any}>
+        <span variant={config.variant as any}>
           <Icon className="h-3 w-3 mr-1" />
           {config.label}
-        </Badge>
+        </span>
       )
     },
   },
@@ -141,18 +138,18 @@ export const columns: ColumnDef<Booking>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenulabel>Actions</DropdownMenulabel>
             <DropdownMenuItem>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuhr />
             {booking.status === 'pending' && (
               <>
                 <DropdownMenuItem 

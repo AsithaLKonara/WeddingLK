@@ -2,12 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
-import { MapPin, Users, Star, Calendar, Phone, Mail, Globe, Clock, DollarSign } from "lucide-react"
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search } from "lucide-react"
 import { VenueHero } from "@/components/organisms/venue-hero"
 import { VenueDetails } from "@/components/organisms/venue-details"
 import { VenueGallery } from "@/components/organisms/venue-gallery"
@@ -125,51 +121,51 @@ export default function VenueDetailPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-8">
-            {/* Hero Skeleton */}
+            {/* Hero div */}
             <div className="relative h-96 bg-gray-200 rounded-lg">
-              <Skeleton className="h-full w-full" />
+              <div className="h-full w-full" />
             </div>
 
-            {/* Content Skeleton */}
+            {/* Content div */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-8 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </CardContent>
-                </Card>
+                <div>
+                  <divHeader>
+                    <div className="h-8 w-3/4" />
+                    <div className="h-4 w-1/2" />
+                  </divHeader>
+                  <divContent>
+                    <div className="h-4 w-full mb-2" />
+                    <div className="h-4 w-full mb-2" />
+                    <div className="h-4 w-2/3" />
+                  </divContent>
+                </div>
 
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-1/3" />
-                  </CardHeader>
-                  <CardContent>
+                <div>
+                  <divHeader>
+                    <div className="h-6 w-1/3" />
+                  </divHeader>
+                  <divContent>
                     <div className="grid grid-cols-2 gap-4">
                       {Array.from({ length: 6 }).map((_, index) => (
-                        <Skeleton key={index} className="h-4 w-full" />
+                        <div key={index} className="h-4 w-full" />
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </divContent>
+                </div>
               </div>
 
               <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-1/2" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-12 w-full mb-4" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </CardContent>
-                </Card>
+                <div>
+                  <divHeader>
+                    <div className="h-6 w-1/2" />
+                  </divHeader>
+                  <divContent>
+                    <div className="h-12 w-full mb-4" />
+                    <div className="h-4 w-full mb-2" />
+                    <div className="h-4 w-2/3" />
+                  </divContent>
+                </div>
               </div>
             </div>
           </div>
@@ -184,9 +180,9 @@ export default function VenueDetailPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Venue Not Found</h1>
           <p className="text-gray-600 mb-6">{error || 'The venue you are looking for does not exist.'}</p>
-          <Button onClick={() => window.history.back()} variant="outline">
+          <button onClick={() => window.history.back()} variant="outline">
             Go Back
-          </Button>
+          </button>
         </div>
       </div>
     )
@@ -225,18 +221,18 @@ export default function VenueDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Booking Card */}
+            {/* Booking div */}
             <VenueBooking venue={venue} />
 
             {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
+            <div>
+              <divHeader>
+                <divTitle className="flex items-center">
                   <Phone className="h-5 w-5 mr-2" />
                   Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </divTitle>
+              </divHeader>
+              <divContent className="space-y-4">
                 <div>
                   <p className="font-semibold">{venue.owner.firstName} {venue.owner.lastName}</p>
                   <p className="text-sm text-gray-600">Venue Owner</p>
@@ -253,19 +249,19 @@ export default function VenueDetailPage() {
                   </div>
                 </div>
 
-                <Button className="w-full" variant="outline">
+                <button className="w-full" variant="outline">
                   <Mail className="h-4 w-4 mr-2" />
                   Send Message
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
 
             {/* Quick Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div>
+              <divHeader>
+                <divTitle>Quick Info</divTitle>
+              </divHeader>
+              <divContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Capacity</span>
                   <span className="font-semibold">{venue.capacity.min}-{venue.capacity.max} guests</span>
@@ -290,27 +286,27 @@ export default function VenueDetailPage() {
                 {venue.featured && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Status</span>
-                    <Badge className="bg-yellow-500 text-white">Featured</Badge>
+                    <span className="bg-yellow-500 text-white">Featured</span>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Amenities */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Amenities</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Amenities</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="flex flex-wrap gap-2">
                   {venue.amenities.map((amenity, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
+                    <span key={index} variant="secondary" className="text-xs">
                       {amenity}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
           </div>
         </div>
       </div>

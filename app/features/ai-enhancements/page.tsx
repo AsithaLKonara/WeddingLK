@@ -2,36 +2,12 @@
 
 import React from "react"
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
 
 import { Brain, Camera, MessageCircle, Sparkles, Wand2, Eye, Palette, Users, Star } from "lucide-react"
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Badge will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// Tabs will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TabsContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TabsList will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// TabsTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
 export default function AIEnhancementsPage() {
-  const [selectedDemo, setSelectedDemo] = useState("style-matcher")
+  const [selectedDemo, setselectedDemo] = useState("style-matcher")
 
   const aiFeatures = [
     {
@@ -182,44 +158,50 @@ export default function AIEnhancementsPage() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-12"
         >
-          <Tabs value={selectedDemo} onValueChange={setSelectedDemo} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
+          <div className="w-full">
+            <div className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
               {aiFeatures.map((feature) => (
-                <TabsTrigger key={feature.id} value={feature.id} className="text-xs">
+                <button 
+                  key={feature.id} 
+                  onClick={() => setselectedDemo(feature.id)}
+                  className={`text-xs px-3 py-2 rounded-lg transition-colors ${
+                    selectedDemo === feature.id 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
+                >
                   {feature.title.split(" ")[0]}
-                </TabsTrigger>
+                </button>
               ))}
-            </TabsList>
+            </div>
 
             {aiFeatures.map((feature) => {
               const IconComponent = feature.icon
               return (
-                <TabsContent key={feature.id} value={feature.id}>
-                  <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-                    <CardHeader>
+                <div key={feature.id} className={selectedDemo === feature.id ? 'block' : 'hidden'}>
+                  <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+                    <div className="p-6">
                       <div className="flex items-center gap-3">
                         <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg">
                           <IconComponent className="h-6 w-6 text-white" />
                         </div>
                         <div>
-                          <CardTitle className="text-2xl">{feature.title}</CardTitle>
+                          <h2 className="text-2xl font-bold">{feature.title}</h2>
                           <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
                         </div>
                       </div>
-                    </CardHeader>
-                    <CardContent>
+                    </div>
+                    <div className="p-6">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Input Demo */}
                         <div>
                           <h3 className="font-semibold text-lg mb-4 flex items-center">
                             <Wand2 className="h-5 w-5 mr-2 text-blue-500" />
-                            User Input
+                            User input
                           </h3>
-                          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
-                            <CardContent className="p-4">
-                              <p className="text-gray-700 dark:text-gray-300 italic">"{feature.demo.input}"</p>
-                            </CardContent>
-                          </Card>
+                          <div className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 p-4">
+                            <p className="text-gray-700 dark:text-gray-300 italic">"{feature.demo.input}"</p>
+                          </div>
                         </div>
 
                         {/* AI Output */}
@@ -228,92 +210,90 @@ export default function AIEnhancementsPage() {
                             <Sparkles className="h-5 w-5 mr-2 text-purple-500" />
                             AI Analysis
                           </h3>
-                          <Card className="bg-purple-50 dark:bg-purple-900/20 border-purple-200">
-                            <CardContent className="p-4">
-                              {feature.id === "style-matcher" && (
-                                <div className="space-y-3">
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-medium">Recommended Style:</span>
-                                    <Badge className="bg-purple-100 text-purple-800">{feature.demo.output.style}</Badge>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-medium">Confidence:</span>
-                                    <span className="text-green-600 font-bold">{feature.demo.output.confidence}%</span>
-                                  </div>
-                                  <div>
-                                    <span className="font-medium block mb-2">Suggestions:</span>
-                                    <ul className="space-y-1">
-                                      {feature.demo.output.suggestions?.map((suggestion, index) => (
-                                        <li
-                                          key={index}
-                                          className="text-sm text-gray-600 dark:text-gray-400 flex items-center"
-                                        >
-                                          <Star className="h-3 w-3 mr-2 text-yellow-500" />
-                                          {suggestion}
-                                        </li>
-                                      )) || []}
-                                    </ul>
-                                  </div>
+                          <div className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 p-4">
+                            {feature.id === "style-matcher" && (
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium">Recommended Style:</span>
+                                  <span className="bg-purple-100 text-purple-800">{feature.demo.output.style}</span>
                                 </div>
-                              )}
-
-                              {feature.id === "budget-optimizer" && (
-                                <div className="space-y-3">
-                                  {feature.demo.output.allocations?.map((allocation, index) => (
-                                    <div key={index} className="flex items-center justify-between">
-                                      <span className="font-medium">{allocation.category}:</span>
-                                      <div className="text-right">
-                                        <div className="font-bold">LKR {allocation.amount.toLocaleString()}</div>
-                                        <div className="text-sm text-gray-500">{allocation.percentage}%</div>
-                                      </div>
-                                    </div>
-                                  )) || []}
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium">Confidence:</span>
+                                  <span className="text-green-600 font-bold">{feature.demo.output.confidence}%</span>
                                 </div>
-                              )}
-
-                              {feature.id === "vendor-matcher" && (
-                                <div className="space-y-3">
-                                  {feature.demo.output.matches?.map((match, index) => (
-                                    <div key={index} className="flex items-center justify-between">
-                                      <div>
-                                        <div className="font-medium">{match.name}</div>
-                                        <div className="text-sm text-gray-500">{match.specialty}</div>
-                                      </div>
-                                      <Badge className="bg-green-100 text-green-800">{match.score}% match</Badge>
-                                    </div>
-                                  )) || []}
+                                <div>
+                                  <span className="font-medium block mb-2">Suggestions:</span>
+                                  <ul className="space-y-1">
+                                    {feature.demo.output.suggestions?.map((suggestion, index) => (
+                                      <li
+                                        key={index}
+                                        className="text-sm text-gray-600 dark:text-gray-400 flex items-center"
+                                      >
+                                        <Star className="h-3 w-3 mr-2 text-yellow-500" />
+                                        {suggestion}
+                                      </li>
+                                    )) || []}
+                                  </ul>
                                 </div>
-                              )}
+                              </div>
+                            )}
 
-                              {feature.id === "photo-generator" && (
-                                <div className="space-y-3">
-                                  <img
-                                    src={feature.demo.output.moodboard || "/placeholder.svg"}
-                                    alt="Generated mood board"
-                                    className="w-full rounded-lg"
-                                  />
-                                  <div>
-                                    <span className="font-medium block mb-2">Generated Elements:</span>
-                                    <div className="flex flex-wrap gap-2">
-                                      {feature.demo.output.elements?.map((element, index) => (
-                                        <Badge key={index} variant="outline">
-                                          {element}
-                                        </Badge>
-                                      )) || []}
+                            {feature.id === "budget-optimizer" && (
+                              <div className="space-y-3">
+                                {feature.demo.output.allocations?.map((allocation, index) => (
+                                  <div key={index} className="flex items-center justify-between">
+                                    <span className="font-medium">{allocation.category}:</span>
+                                    <div className="text-right">
+                                      <div className="font-bold">LKR {allocation.amount.toLocaleString()}</div>
+                                      <div className="text-sm text-gray-500">{allocation.percentage}%</div>
                                     </div>
                                   </div>
+                                )) || []}
+                              </div>
+                            )}
+
+                            {feature.id === "vendor-matcher" && (
+                              <div className="space-y-3">
+                                {feature.demo.output.matches?.map((match, index) => (
+                                  <div key={index} className="flex items-center justify-between">
+                                    <div>
+                                      <div className="font-medium">{match.name}</div>
+                                      <div className="text-sm text-gray-500">{match.specialty}</div>
+                                    </div>
+                                    <span className="bg-green-100 text-green-800">{match.score}% match</span>
+                                  </div>
+                                )) || []}
+                              </div>
+                            )}
+
+                            {feature.id === "photo-generator" && (
+                              <div className="space-y-3">
+                                <img
+                                  src={feature.demo.output.moodboard || "/placeholder.svg"}
+                                  alt="Generated mood board"
+                                  className="w-full rounded-lg"
+                                />
+                                <div>
+                                  <span className="font-medium block mb-2">Generated Elements:</span>
+                                  <div className="flex flex-wrap gap-2">
+                                    {feature.demo.output.elements?.map((element, index) => (
+                                      <span key={index} className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                                        {element}
+                                      </span>
+                                    )) || []}
+                                  </div>
                                 </div>
-                              )}
-                            </CardContent>
-                          </Card>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                    </div>
+                  </div>
+                </div>
               )
             })}
-          </Tabs>
+          </div>
         </motion.div>
 
         {/* Advanced AI Capabilities */}
@@ -322,14 +302,12 @@ export default function AIEnhancementsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
+          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+            <div className="p-6">
+              <h2 className="flex items-center text-2xl font-bold mb-4">
                 <Eye className="h-6 w-6 text-green-500 mr-3" />
                 Advanced AI Capabilities
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {advancedFeatures.map((feature, index) => (
                   <motion.div
@@ -338,8 +316,8 @@ export default function AIEnhancementsPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <Card className="h-full border-l-4 border-l-green-500">
-                      <CardContent className="p-6">
+                    <div className="h-full border-l-4 border-l-green-500">
+                      <div className="p-6">
                         <h3 className="font-semibold text-lg mb-3">{feature.title}</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{feature.description}</p>
                         <div className="space-y-2">
@@ -350,13 +328,13 @@ export default function AIEnhancementsPage() {
                             </div>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
 
         {/* Implementation CTA */}
@@ -366,28 +344,26 @@ export default function AIEnhancementsPage() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mt-12 text-center"
         >
-          <Card className="border-0 shadow-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-            <CardContent className="p-8">
+          <div className="border-0 shadow-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+            <div className="p-8">
               <h2 className="text-3xl font-bold mb-4">Ready to Add AI Intelligence?</h2>
               <p className="text-lg mb-6 opacity-90">
                 Transform your platform with AI that understands weddings like a human expert
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary" className="text-blue-600">
+                <button className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100">
                   <Brain className="mr-2 h-5 w-5" />
                   Start AI Integration
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-blue-600"
+                </button>
+                <button
+                  className="px-6 py-3 border border-white text-white rounded-lg font-medium hover:bg-white hover:text-blue-600"
                 >
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Discuss AI Strategy
-                </Button>
+                </button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>

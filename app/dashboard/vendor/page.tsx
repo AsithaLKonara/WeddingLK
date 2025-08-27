@@ -1,12 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
-  Calendar, 
+  div, 
   CreditCard, 
   Users, 
   Star, 
@@ -17,7 +13,7 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle
+  divCircle
 } from "lucide-react"
 import { DashboardLayout } from "@/components/templates/dashboard-layout"
 
@@ -170,99 +166,99 @@ export default function VendorDashboard() {
       <div className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Total Bookings</divTitle>
+              <div className="h-4 w-4 text-muted-foreground" />
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.totalBookings}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.upcomingBookings} upcoming
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Total Revenue</divTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.completedBookings} completed bookings
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Rating</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Rating</divTitle>
               <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.averageRating}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.totalReviews} reviews
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Response Rate</divTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.responseRate}%</div>
               <p className="text-xs text-muted-foreground">
                 {stats.pendingBookings} pending
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="clients">Clients</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        {/* Main Content div */}
+        <div defaultValue="overview" className="space-y-6">
+          <divList>
+            <divTrigger value="overview">Overview</divTrigger>
+            <divTrigger value="bookings">Bookings</divTrigger>
+            <divTrigger value="clients">Clients</divTrigger>
+            <divTrigger value="analytics">Analytics</divTrigger>
+            <divTrigger value="settings">Settings</divTrigger>
+          </divList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <divContent value="overview" className="space-y-6">
             {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Quick Actions</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button className="w-full" variant="outline">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    View Calendar
-                  </Button>
-                  <Button className="w-full" variant="outline">
+                  <button className="w-full" variant="outline">
+                    <div className="h-4 w-4 mr-2" />
+                    View div
+                  </button>
+                  <button className="w-full" variant="outline">
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Messages
-                  </Button>
-                  <Button className="w-full" variant="outline">
+                  </button>
+                  <button className="w-full" variant="outline">
                     <Settings className="h-4 w-4 mr-2" />
                     Profile Settings
-                  </Button>
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Recent Bookings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Bookings</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Recent Bookings</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {bookings.slice(0, 3).map((booking) => (
                     <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -277,21 +273,21 @@ export default function VendorDashboard() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <span className="font-medium">{formatCurrency(booking.amount)}</span>
-                        <Badge variant="outline">{getStatusText(booking.status)}</Badge>
+                        <span variant="outline">{getStatusText(booking.status)}</span>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="bookings" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>All Bookings</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="bookings" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>All Bookings</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {bookings.map((booking) => (
                     <div key={booking.id} className="border rounded-lg p-4">
@@ -302,7 +298,7 @@ export default function VendorDashboard() {
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="font-medium">{formatCurrency(booking.amount)}</span>
-                          <Badge variant="outline">{getStatusText(booking.status)}</Badge>
+                          <span variant="outline">{getStatusText(booking.status)}</span>
                         </div>
                       </div>
                       
@@ -328,42 +324,42 @@ export default function VendorDashboard() {
                       <div className="flex items-center space-x-2">
                         {booking.status === 'pending' && (
                           <>
-                            <Button size="sm" onClick={() => handleBookingAction(booking.id, 'confirm')}>
+                            <button size="sm" onClick={() => handleBookingAction(booking.id, 'confirm')}>
                               <CheckCircle className="h-4 w-4 mr-1" />
                               Confirm
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleBookingAction(booking.id, 'cancel')}>
+                            </button>
+                            <button size="sm" variant="outline" onClick={() => handleBookingAction(booking.id, 'cancel')}>
                               <XCircle className="h-4 w-4 mr-1" />
                               Decline
-                            </Button>
+                            </button>
                           </>
                         )}
                         
                         {booking.status === 'confirmed' && (
-                          <Button size="sm" onClick={() => handleBookingAction(booking.id, 'complete')}>
+                          <button size="sm" onClick={() => handleBookingAction(booking.id, 'complete')}>
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Mark Complete
-                          </Button>
+                          </button>
                         )}
                         
-                        <Button size="sm" variant="outline">
+                        <button size="sm" variant="outline">
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Message Client
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="clients" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Client Management</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="clients" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Client Management</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -372,10 +368,10 @@ export default function VendorDashboard() {
                         Manage your client relationships and communication
                       </p>
                     </div>
-                    <Button>
+                    <button>
                       <Users className="h-4 w-4 mr-2" />
                       View All Clients
-                    </Button>
+                    </button>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -393,16 +389,16 @@ export default function VendorDashboard() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="analytics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Business Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="analytics" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Business Analytics</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -411,10 +407,10 @@ export default function VendorDashboard() {
                         Track your business performance and growth
                       </p>
                     </div>
-                    <Button variant="outline">
+                    <button variant="outline">
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Export Report
-                    </Button>
+                    </button>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -428,16 +424,16 @@ export default function VendorDashboard() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="settings" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Settings</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="settings" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Profile Settings</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -446,10 +442,10 @@ export default function VendorDashboard() {
                         Manage your profile and business information
                       </p>
                     </div>
-                    <Button>
+                    <button>
                       <Settings className="h-4 w-4 mr-2" />
                       Edit Profile
-                    </Button>
+                    </button>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -463,10 +459,10 @@ export default function VendorDashboard() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </divContent>
+            </div>
+          </divContent>
+        </div>
       </div>
     </DashboardLayout>
   )

@@ -8,8 +8,8 @@ import { PhotoGrid } from "@/components/organisms/photo-grid"
 import { motion } from "framer-motion"
 
 export default function GalleryPage() {
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedVenue, setSelectedVenue] = useState("all")
+  const [selectedCategory, setselectedCategory] = useState("all")
+  const [selectedVenue, setselectedVenue] = useState("all")
 
   return (
     <MainLayout>
@@ -40,8 +40,8 @@ export default function GalleryPage() {
             <GalleryFilters
               selectedCategory={selectedCategory}
               selectedVenue={selectedVenue}
-              onCategoryChange={setSelectedCategory}
-              onVenueChange={setSelectedVenue}
+              onCategoryChange={setselectedCategory}
+              onVenueChange={setselectedVenue}
             />
           </motion.div>
 

@@ -1,11 +1,6 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Star, MapPin, Phone, Mail, Search, Filter } from "lucide-react"
 import Link from "next/link"
 
@@ -46,8 +41,8 @@ export default function VendorsPage() {
   const [categories, setCategories] = useState<VendorCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedLocation, setSelectedLocation] = useState("")
+  const [selectedCategory, setselectedCategory] = useState("all")
+  const [selectedLocation, setselectedLocation] = useState("")
 
   const fetchVendors = useCallback(async () => {
     try {
@@ -101,8 +96,8 @@ export default function VendorsPage() {
 
   const handleReset = () => {
     setSearchQuery("")
-    setSelectedCategory("all")
-    setSelectedLocation("")
+    setselectedCategory("all")
+    setselectedLocation("")
   }
 
   return (
@@ -119,66 +114,65 @@ export default function VendorsPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Search and Filters */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+        <div className="mb-8">
+          <div className="mb-4">
+            <h3 className="flex items-center space-x-2 text-lg font-semibold text-gray-900 mb-2">
               <Search className="h-5 w-5" />
               <span>Search & Filter Vendors</span>
-            </CardTitle>
-            <CardDescription>
+            </h3>
+            <p className="text-gray-600 mb-4">
               Find vendors by category, location, or search terms
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+          <div>
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Input
+                  <input
                     placeholder="Search vendors, services, or locations..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label} ({category.count})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Locations</SelectItem>
-                    <SelectItem value="Colombo">Colombo</SelectItem>
-                    <SelectItem value="Kandy">Kandy</SelectItem>
-                    <SelectItem value="Galle">Galle</SelectItem>
-                    <SelectItem value="Jaffna">Jaffna</SelectItem>
-                    <SelectItem value="Anuradhapura">Anuradhapura</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select 
+                  value={selectedCategory} 
+                  onChange={(e) => setselectedCategory(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label} ({category.count})
+                    </option>
+                  ))}
+                </select>
+                <select 
+                  value={selectedLocation} 
+                  onChange={(e) => setselectedLocation(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Locations</option>
+                  <option value="Colombo">Colombo</option>
+                  <option value="Kandy">Kandy</option>
+                  <option value="Galle">Galle</option>
+                  <option value="Jaffna">Jaffna</option>
+                  <option value="Anuradhapura">Anuradhapura</option>
+                </select>
               </div>
               
               <div className="flex justify-between items-center">
-                <Button type="submit" className="flex items-center space-x-2">
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2">
                   <Search className="h-4 w-4" />
                   <span>Search</span>
-                </Button>
-                <Button type="button" variant="outline" onClick={handleReset}>
+                </button>
+                <button type="button" className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50" onClick={handleReset}>
                   Reset Filters
-                </Button>
+                </button>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Results */}
         <div className="mb-8">
@@ -203,31 +197,31 @@ export default function VendorsPage() {
               <p className="text-gray-600 mb-4">
                 Try adjusting your search criteria or browse all categories
               </p>
-              <Button onClick={handleReset}>Reset Filters</Button>
+              <button onClick={handleReset}>Reset Filters</button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {vendors.map((vendor) => (
-                <Card key={vendor._id} className="hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader className="pb-4">
+                <div key={vendor._id} className="hover:shadow-lg transition-shadow duration-300">
+                  <div className="pb-4">
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
                           {vendor.businessName}
-                        </CardTitle>
-                        <CardDescription className="text-sm text-gray-600">
+                        </h3>
+                        <p className="text-sm text-gray-600">
                           {vendor.name} • {vendor.category}
-                        </CardDescription>
+                        </p>
                       </div>
                       {vendor.isVerified && (
-                        <Badge variant="default" className="text-xs">
+                        <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
                           Verified
-                        </Badge>
+                        </span>
                       )}
                     </div>
-                  </CardHeader>
+                  </div>
 
-                  <CardContent className="space-y-4">
+                  <div className="space-y-4">
                     <p className="text-gray-700 text-sm line-clamp-3">
                       {vendor.description}
                     </p>
@@ -260,50 +254,51 @@ export default function VendorsPage() {
 
                     <div className="pt-4">
                       <Link href={`/vendors/${vendor._id}`}>
-                        <Button className="w-full" variant="default">
+                        <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                           View Profile
-                        </Button>
+                        </button>
                       </Link>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           )}
         </div>
 
         {/* Popular Categories */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Popular Categories</CardTitle>
-            <CardDescription>
+        <div>
+          <div className="mb-4">
+            <h3 className="flex items-center space-x-2 text-lg font-semibold text-gray-900 mb-2">
+              <Filter className="h-5 w-5" />
+              <span>Popular Categories</span>
+            </h3>
+            <p className="text-gray-600 mb-4">
               Browse vendors by popular wedding service categories
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {[
-                { name: 'Photography', count: '45+' },
-                { name: 'Catering', count: '38+' },
-                { name: 'Decoration', count: '32+' },
-                { name: 'Music', count: '28+' },
-                { name: 'Transport', count: '25+' },
-                { name: 'Beauty', count: '22+' }
-              ].map((category) => (
-                <Link key={category.name} href={`/vendors?category=${category.name.toLowerCase()}`}>
-                  <div className="text-center p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <div className="text-lg font-semibold text-gray-900">
-                      {category.name}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {category.count} vendors
-                    </div>
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[
+              { name: 'Photography', count: '45+' },
+              { name: 'Catering', count: '38+' },
+              { name: 'Decoration', count: '32+' },
+              { name: 'Music', count: '28+' },
+              { name: 'Transport', count: '25+' },
+              { name: 'Beauty', count: '22+' }
+            ].map((category) => (
+              <Link key={category.name} href={`/vendors?category=${category.name.toLowerCase()}`}>
+                <div className="text-center p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                  <div className="text-lg font-semibold text-gray-900">
+                    {category.name}
                   </div>
-                </Link>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                  <div className="text-sm text-gray-500">
+                    {category.count} vendors
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

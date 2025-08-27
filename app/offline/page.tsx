@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wifi, WifiOff, RefreshCw, Home } from 'lucide-react';
 
 export default function OfflinePage() {
@@ -16,20 +14,21 @@ export default function OfflinePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md text-center">
-        <CardHeader>
+      <div className="w-full max-w-md text-center">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">
+            You're Offline
+          </h1>
+        </div>
+        
+        <div className="space-y-6">
           <div className="mx-auto mb-4">
             <div className="relative">
               <WifiOff className="h-16 w-16 text-red-500 mx-auto" />
               <Wifi className="h-8 w-8 text-gray-400 absolute -top-2 -right-2" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-800">
-            You're Offline
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
+          
           <p className="text-gray-600 leading-relaxed">
             It looks like you've lost your internet connection. Don't worry! 
             Some features of WeddingLK are available offline.
@@ -46,29 +45,28 @@ export default function OfflinePage() {
           </div>
           
           <div className="space-y-3">
-            <Button 
+            <button 
               onClick={handleRetry}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+              className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg flex items-center justify-center"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
-            </Button>
+            </button>
             
-            <Button 
-              variant="outline" 
+            <button 
               onClick={handleGoHome}
-              className="w-full"
+              className="w-full bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center"
             >
               <Home className="h-4 w-4 mr-2" />
               Go to Homepage
-            </Button>
+            </button>
           </div>
           
           <p className="text-xs text-gray-500">
             Check your internet connection and try again
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 } 

@@ -2,11 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense, lazy } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { LayoutDashboard, Calendar, Heart, MessageSquare, CreditCard, Settings, Loader2, Users, Star, MapPin } from 'lucide-react'
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search, LayoutDashboard } from "lucide-react"
 import { DashboardOverview } from './components/dashboard-overview'
 import { usePerformanceMonitor } from '@/hooks/use-performance-monitor'
 
@@ -164,133 +160,170 @@ function DashboardContent() {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon">
+          <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50">
             <Settings className="h-5 w-5" />
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+        <div>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Total Bookings</h3>
+            <div className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
             <div className="text-2xl font-bold">{stats.totalBookings}</div>
             <p className="text-xs text-muted-foreground">Venues & vendors</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Favorites</CardTitle>
+        <div>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Favorites</h3>
             <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="space-y-2">
             <div className="text-2xl font-bold">{stats.totalFavorites}</div>
             <p className="text-xs text-muted-foreground">Saved items</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Messages</CardTitle>
+        <div>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Messages</h3>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="space-y-2">
             <div className="text-2xl font-bold">{stats.totalMessages}</div>
             <p className="text-xs text-muted-foreground">Unread messages</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Payments</CardTitle>
+        <div>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <h3 className="text-sm font-medium">Payments</h3>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="space-y-2">
             <div className="text-2xl font-bold">{stats.totalPayments}</div>
             <p className="text-xs text-muted-foreground">Total transactions</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* User Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
-          <TabsTrigger value="favorites">Favorites</TabsTrigger>
-          <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-        </TabsList>
+      <div className="space-y-6">
+        <div className="grid w-full grid-cols-5 border-b border-gray-200">
+          <button 
+            onClick={() => setActiveTab('overview')}
+            className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'overview' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Overview
+          </button>
+          <button 
+            onClick={() => setActiveTab('bookings')}
+            className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'bookings' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Bookings
+          </button>
+          <button 
+            onClick={() => setActiveTab('favorites')}
+            className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'favorites' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Favorites
+          </button>
+          <button 
+            onClick={() => setActiveTab('messages')}
+            className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'messages' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Messages
+          </button>
+          <button 
+            onClick={() => setActiveTab('payments')}
+            className={`py-2 px-4 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'payments' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Payments
+          </button>
+        </div>
 
-        <TabsContent value="overview" className="space-y-6">
-          <DashboardOverview stats={stats} />
-        </TabsContent>
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <DashboardOverview stats={stats} />
+          </div>
+        )}
 
-        <TabsContent value="bookings" className="space-y-6">
-          <Suspense fallback={
-            <Card>
-              <CardContent className="p-8">
+        {activeTab === 'bookings' && (
+          <div className="space-y-6">
+            <Suspense fallback={
+              <div className="p-8">
                 <div className="flex items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                   <span className="ml-2">Loading bookings...</span>
                 </div>
-              </CardContent>
-            </Card>
-          }>
-            <BookingsTab />
-          </Suspense>
-        </TabsContent>
+              </div>
+            }>
+              <BookingsTab />
+            </Suspense>
+          </div>
+        )}
 
-        <TabsContent value="favorites" className="space-y-6">
-          <Suspense fallback={
-            <Card>
-              <CardContent className="p-8">
+        {activeTab === 'favorites' && (
+          <div className="space-y-6">
+            <Suspense fallback={
+              <div className="p-8">
                 <div className="flex items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                   <span className="ml-2">Loading favorites...</span>
                 </div>
-              </CardContent>
-            </Card>
-          }>
-            <FavoritesTab />
-          </Suspense>
-        </TabsContent>
+              </div>
+            }>
+              <FavoritesTab />
+            </Suspense>
+          </div>
+        )}
 
-        <TabsContent value="messages" className="space-y-6">
-          <Suspense fallback={
-            <Card>
-              <CardContent className="p-8">
+        {activeTab === 'messages' && (
+          <div className="space-y-6">
+            <Suspense fallback={
+              <div className="p-8">
                 <div className="flex items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                   <span className="ml-2">Loading messages...</span>
                 </div>
-              </CardContent>
-            </Card>
-          }>
-            <MessagesTab />
-          </Suspense>
-        </TabsContent>
+              </div>
+            }>
+              <MessagesTab />
+            </Suspense>
+          </div>
+        )}
 
-        <TabsContent value="payments" className="space-y-6">
-          <Suspense fallback={
-            <Card>
-              <CardContent className="p-8">
+        {activeTab === 'payments' && (
+          <div className="space-y-6">
+            <Suspense fallback={
+              <div className="p-8">
                 <div className="flex items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                   <span className="ml-2">Loading payments...</span>
                 </div>
-              </CardContent>
-            </Card>
-          }>
-            <PaymentsTab />
-          </Suspense>
-        </TabsContent>
-      </Tabs>
+              </div>
+            }>
+              <PaymentsTab />
+            </Suspense>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

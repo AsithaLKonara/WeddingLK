@@ -2,10 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { MapPin, Star, Phone, Mail, Globe, Clock, DollarSign, Award, Users } from "lucide-react"
 import { VendorProfile } from "@/components/organisms/vendor-profile"
@@ -148,51 +144,51 @@ export default function VendorDetailPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-8">
-            {/* Hero Skeleton */}
+            {/* Hero div */}
             <div className="relative h-96 bg-gray-200 rounded-lg">
-              <Skeleton className="h-full w-full" />
+              <div className="h-full w-full" />
             </div>
 
-            {/* Content Skeleton */}
+            {/* Content div */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-8 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </CardContent>
-                </Card>
+                <div>
+                  <divHeader>
+                    <div className="h-8 w-3/4" />
+                    <div className="h-4 w-1/2" />
+                  </divHeader>
+                  <divContent>
+                    <div className="h-4 w-full mb-2" />
+                    <div className="h-4 w-full mb-2" />
+                    <div className="h-4 w-2/3" />
+                  </divContent>
+                </div>
 
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-1/3" />
-                  </CardHeader>
-                  <CardContent>
+                <div>
+                  <divHeader>
+                    <div className="h-6 w-1/3" />
+                  </divHeader>
+                  <divContent>
                     <div className="grid grid-cols-2 gap-4">
                       {Array.from({ length: 6 }).map((_, index) => (
-                        <Skeleton key={index} className="h-4 w-full" />
+                        <div key={index} className="h-4 w-full" />
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </divContent>
+                </div>
               </div>
 
               <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-1/2" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-12 w-full mb-4" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </CardContent>
-                </Card>
+                <div>
+                  <divHeader>
+                    <div className="h-6 w-1/2" />
+                  </divHeader>
+                  <divContent>
+                    <div className="h-12 w-full mb-4" />
+                    <div className="h-4 w-full mb-2" />
+                    <div className="h-4 w-2/3" />
+                  </divContent>
+                </div>
               </div>
             </div>
           </div>
@@ -207,9 +203,9 @@ export default function VendorDetailPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Vendor Not Found</h1>
           <p className="text-gray-600 mb-6">{error || 'The vendor you are looking for does not exist.'}</p>
-          <Button onClick={() => window.history.back()} variant="outline">
+          <button onClick={() => window.history.back()} variant="outline">
             Go Back
-          </Button>
+          </button>
         </div>
       </div>
     )
@@ -223,9 +219,9 @@ export default function VendorDetailPage() {
         <div className="relative h-full flex items-center">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl">
-              <Badge className={`mb-4 ${getCategoryColor(vendor.category)}`}>
+              <span className={`mb-4 ${getCategoryColor(vendor.category)}`}>
                 {vendor.category}
-              </Badge>
+              </span>
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 {vendor.businessName}
               </h1>
@@ -262,11 +258,11 @@ export default function VendorDetailPage() {
             <VendorPortfolio images={vendor.portfolio} vendorName={vendor.businessName} />
 
             {/* Services */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Services & Pricing</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Services & Pricing</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {vendor.services.map((service, index) => (
                     <div key={index} className="border rounded-lg p-4">
@@ -280,8 +276,8 @@ export default function VendorDetailPage() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Reviews */}
             <VendorReviews 
@@ -294,20 +290,20 @@ export default function VendorDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Contact Card */}
+            {/* Contact div */}
             <VendorContact vendor={vendor} />
 
             {/* Quick Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div>
+              <divHeader>
+                <divTitle>Quick Info</divTitle>
+              </divHeader>
+              <divContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Category</span>
-                  <Badge className={getCategoryColor(vendor.category)}>
+                  <span className={getCategoryColor(vendor.category)}>
                     {vendor.category}
-                  </Badge>
+                  </span>
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -333,23 +329,23 @@ export default function VendorDetailPage() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Availability</span>
-                  <Badge variant={vendor.availability.isAvailable ? "default" : "secondary"}>
+                  <span variant={vendor.availability.isAvailable ? "default" : "secondary"}>
                     {vendor.availability.isAvailable ? "Available" : "Busy"}
-                  </Badge>
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Awards */}
             {vendor.awards.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
+              <div>
+                <divHeader>
+                  <divTitle className="flex items-center">
                     <Award className="h-5 w-5 mr-2" />
                     Awards & Recognition
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                  </divTitle>
+                </divHeader>
+                <divContent>
                   <div className="space-y-2">
                     {vendor.awards.map((award, index) => (
                       <div key={index} className="flex items-center text-sm">
@@ -358,19 +354,19 @@ export default function VendorDetailPage() {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </divContent>
+              </div>
             )}
 
             {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
+            <div>
+              <divHeader>
+                <divTitle className="flex items-center">
                   <Phone className="h-5 w-5 mr-2" />
                   Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </divTitle>
+              </divHeader>
+              <divContent className="space-y-4">
                 <div>
                   <p className="font-semibold">{vendor.owner.firstName} {vendor.owner.lastName}</p>
                   <p className="text-sm text-gray-600">Business Owner</p>
@@ -393,12 +389,12 @@ export default function VendorDetailPage() {
                   )}
                 </div>
 
-                <Button className="w-full" variant="outline">
+                <button className="w-full" variant="outline">
                   <Mail className="h-4 w-4 mr-2" />
                   Send Message
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </divContent>
+            </div>
           </div>
         </div>
       </div>

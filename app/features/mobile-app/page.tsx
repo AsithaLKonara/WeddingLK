@@ -2,20 +2,18 @@
 
 import React from "react"
 import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 
-import { Smartphone, Download, Camera, Calendar, Users, Heart, Star, Zap, Shield } from "lucide-react"
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search, Zap } from "lucide-react"
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function MobileAppPage() {
   const appFeatures = [
@@ -141,13 +139,13 @@ export default function MobileAppPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <Card className="text-center border-0 shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-                  <CardContent className="p-4">
+                <div className="text-center border-0 shadow-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+                  <div className="p-4">
                     <div className="text-3xl font-bold text-green-600 mb-1">{stat.value}</div>
                     <div className="font-medium text-gray-900 dark:text-white mb-1">{stat.label}</div>
                     <div className="text-xs text-gray-600 dark:text-gray-400">{stat.description}</div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -160,14 +158,12 @@ export default function MobileAppPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-12"
         >
-          <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
+          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+            <div className="p-6">
+              <h2 className="flex items-center text-2xl font-bold mb-4">
                 <Download className="h-6 w-6 text-blue-500 mr-3" />
                 Mobile App Features
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {appFeatures.map((category, index) => {
                   const IconComponent = category.icon
@@ -178,8 +174,8 @@ export default function MobileAppPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                     >
-                      <Card className="h-full border-l-4 border-l-green-500">
-                        <CardContent className="p-6">
+                      <div className="h-full border-l-4 border-l-green-500">
+                        <div className="p-6">
                           <div className="flex items-center mb-4">
                             <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg mr-3">
                               <IconComponent className="h-5 w-5 text-green-600" />
@@ -194,14 +190,14 @@ export default function MobileAppPage() {
                               </div>
                             ))}
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     </motion.div>
                   )
                 })}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
 
         {/* Technical Specifications */}
@@ -211,14 +207,12 @@ export default function MobileAppPage() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mb-12"
         >
-          <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
+          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+            <div className="p-6">
+              <h2 className="flex items-center text-2xl font-bold mb-4">
                 <Shield className="h-6 w-6 text-purple-500 mr-3" />
                 Technical Architecture
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {technicalSpecs.map((spec, index) => (
                   <motion.div
@@ -227,8 +221,8 @@ export default function MobileAppPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <Card className="h-full">
-                      <CardContent className="p-6">
+                    <div className="h-full">
+                      <div className="p-6">
                         <h3 className="font-semibold text-lg mb-3">{spec.title}</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{spec.description}</p>
                         <div className="space-y-2">
@@ -239,13 +233,13 @@ export default function MobileAppPage() {
                             </div>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
 
         {/* App Preview */}
@@ -255,14 +249,12 @@ export default function MobileAppPage() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="mb-12"
         >
-          <Card className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
+          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
+            <div className="p-6">
+              <h2 className="flex items-center text-2xl font-bold mb-4">
                 <Camera className="h-6 w-6 text-pink-500 mr-3" />
                 App Screenshots Preview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
                   <div className="bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 rounded-2xl p-8 mb-4">
@@ -288,8 +280,8 @@ export default function MobileAppPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Share moments and collaborate with family</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
 
         {/* Development CTA */}
@@ -299,26 +291,24 @@ export default function MobileAppPage() {
           transition={{ duration: 0.6, delay: 1.0 }}
           className="text-center"
         >
-          <Card className="border-0 shadow-xl bg-gradient-to-r from-green-500 to-blue-500 text-white">
-            <CardContent className="p-8">
+          <div className="border-0 shadow-xl bg-gradient-to-r from-green-500 to-blue-500 text-white">
+            <div className="p-8">
               <h2 className="text-3xl font-bold mb-4">Ready to Go Mobile?</h2>
               <p className="text-lg mb-6 opacity-90">Reach 78% more users with a native mobile app experience</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary" className="text-green-600">
+                <button className="px-6 py-3 bg-white text-green-600 rounded-lg font-medium hover:bg-gray-100">
                   <Smartphone className="mr-2 h-5 w-5" />
                   Start App Development
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-green-600"
+                </button>
+                <button
+                  className="px-6 py-3 border border-white text-white rounded-lg font-medium hover:bg-white hover:text-green-600"
                 >
                   <Download className="mr-2 h-5 w-5" />
                   View Development Plan
-                </Button>
+                </button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>

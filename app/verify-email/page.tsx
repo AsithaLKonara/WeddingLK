@@ -1,8 +1,6 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Suspense, useState, useEffect } from "react"
@@ -61,17 +59,15 @@ function VerifyEmailContent() {
   if (verificationStatus === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4">
-              <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-            </div>
-            <CardTitle>Verifying Your Email</CardTitle>
-            <CardDescription>
-              Please wait while we verify your email address...
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto mb-4">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Verifying Your Email</h1>
+          <p className="text-gray-600">
+            Please wait while we verify your email address...
+          </p>
+        </div>
       </div>
     )
   }
@@ -79,58 +75,46 @@ function VerifyEmailContent() {
   if (verificationStatus === 'success') {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4">
-              <CheckCircle className="h-12 w-12 text-green-600" />
-            </div>
-            <CardTitle>Email Verified Successfully!</CardTitle>
-            <CardDescription>
-              Your email address has been verified. You can now access all features of WeddingLK.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button asChild className="w-full">
-              <Link href="/dashboard">
-                Go to Dashboard
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full">
-              <Link href="/">
-                Back to Home
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto mb-4">
+            <CheckCircle className="h-12 w-12 text-green-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Email Verified Successfully!</h1>
+          <p className="text-gray-600 mb-6">
+            Your email address has been verified. You can now access all features of WeddingLK.
+          </p>
+          <div className="space-y-4">
+            <Link href="/dashboard" className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium">
+              Go to Dashboard
+            </Link>
+            <Link href="/" className="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50">
+              Back to Home
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4">
-            <XCircle className="h-12 w-12 text-red-600" />
-          </div>
-          <CardTitle>Verification Failed</CardTitle>
-          <CardDescription>
-            {errorMessage || 'Unable to verify your email address. Please try again.'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button asChild className="w-full">
-            <Link href="/login">
-              Try Again
-            </Link>
-          </Button>
-          <Button variant="outline" asChild className="w-full">
-            <Link href="/contact">
-              Contact Support
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="w-full max-w-md text-center">
+        <div className="mx-auto mb-4">
+          <XCircle className="h-12 w-12 text-red-600" />
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Verification Failed</h1>
+        <p className="text-gray-600 mb-6">
+          {errorMessage || 'Unable to verify your email address. Please try again.'}
+        </p>
+        <div className="space-y-4">
+          <Link href="/login" className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium">
+            Try Again
+          </Link>
+          <Link href="/contact" className="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50">
+            Contact Support
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,39 +1,33 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Slider } from "@/components/ui/slider"
 import { MainLayout } from "@/components/templates/main-layout"
 
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Input will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// input will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Label will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// label will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Checkbox will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// input will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Slider will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// input will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function CustomPackagePage() {
   const router = useRouter()
   const [budget, setBudget] = useState([500000])
-  const [selectedServices, setSelectedServices] = useState<string[]>([])
+  const [selectedServices, setselectedServices] = useState<string[]>([])
 
   const services = [
     { id: "venue", name: "Venue Rental", price: 200000, required: true },
@@ -47,7 +41,7 @@ export default function CustomPackagePage() {
   ]
 
   const handleServiceToggle = (serviceId: string) => {
-    setSelectedServices((prev) =>
+    setselectedServices((prev) =>
       prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId],
     )
   }
@@ -61,10 +55,10 @@ export default function CustomPackagePage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <Button variant="outline" onClick={() => router.back()} className="mb-4">
+            <button variant="outline" onClick={() => router.back()} className="mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
-            </Button>
+            </button>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create Custom Package</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">Build your perfect wedding package</p>
           </div>
@@ -73,14 +67,14 @@ export default function CustomPackagePage() {
             {/* Package Builder */}
             <div className="lg:col-span-2 space-y-6">
               {/* Budget Range */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Budget Range</CardTitle>
-                </CardHeader>
-                <CardContent>
+              <div>
+                <divHeader>
+                  <divTitle>Budget Range</divTitle>
+                </divHeader>
+                <divContent>
                   <div className="space-y-4">
-                    <Label>Budget: LKR {budget[0].toLocaleString()}</Label>
-                    <Slider
+                    <label>Budget: LKR {budget[0].toLocaleString()}</label>
+                    <input
                       value={budget}
                       onValueChange={setBudget}
                       max={2000000}
@@ -93,42 +87,42 @@ export default function CustomPackagePage() {
                       <span>LKR 2,000,000</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </divContent>
+              </div>
 
               {/* Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Wedding Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div>
+                <divHeader>
+                  <divTitle>Wedding Details</divTitle>
+                </divHeader>
+                <divContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="date">Wedding Date</Label>
-                      <Input type="date" id="date" />
+                      <label htmlFor="date">Wedding Date</label>
+                      <input type="date" id="date" />
                     </div>
                     <div>
-                      <Label htmlFor="guests">Number of Guests</Label>
-                      <Input type="number" id="guests" placeholder="150" />
+                      <label htmlFor="guests">Number of Guests</label>
+                      <input type="number" id="guests" placeholder="150" />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="location">Preferred Location</Label>
-                    <Input id="location" placeholder="Colombo, Western Province" />
+                    <label htmlFor="location">Preferred Location</label>
+                    <input id="location" placeholder="Colombo, Western Province" />
                   </div>
-                </CardContent>
-              </Card>
+                </divContent>
+              </div>
 
-              {/* Services Selection */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Select Services</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              {/* Services selection */}
+              <div>
+                <divHeader>
+                  <divTitle>select Services</divTitle>
+                </divHeader>
+                <divContent className="space-y-4">
                   {services.map((service) => (
                     <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <Checkbox
+                        <input
                           checked={service.required || selectedServices.includes(service.id)}
                           onCheckedChange={() => !service.required && handleServiceToggle(service.id)}
                           disabled={service.required}
@@ -143,17 +137,17 @@ export default function CustomPackagePage() {
                       </div>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </divContent>
+              </div>
             </div>
 
             {/* Package Summary */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-4">
-                <CardHeader>
-                  <CardTitle>Package Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div className="sticky top-4">
+                <divHeader>
+                  <divTitle>Package Summary</divTitle>
+                </divHeader>
+                <divContent className="space-y-4">
                   <div className="space-y-2">
                     {services
                       .filter((service) => service.required || selectedServices.includes(service.id))
@@ -178,13 +172,13 @@ export default function CustomPackagePage() {
                   </div>
 
                   <div className="space-y-2 pt-4">
-                    <Button className="w-full">Save Package</Button>
-                    <Button variant="outline" className="w-full">
+                    <button className="w-full">Save Package</button>
+                    <button variant="outline" className="w-full">
                       Get Quote
-                    </Button>
+                    </button>
                   </div>
-                </CardContent>
-              </Card>
+                </divContent>
+              </div>
             </div>
           </div>
         </div>

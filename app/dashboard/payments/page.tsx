@@ -2,23 +2,20 @@
 
 import React from "react"
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
-import { CreditCard, Download, Eye, Calendar, DollarSign } from "lucide-react"
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search } from "lucide-react"
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Badge will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// span will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function PaymentsPage() {
   const [payments] = useState([
@@ -28,7 +25,7 @@ export default function PaymentsPage() {
       venueName: "Galle Face Hotel",
       amount: 457500,
       status: "completed",
-      method: "Credit Card",
+      method: "Credit div",
       date: "2024-01-16",
       transactionId: "txn_abc123",
     },
@@ -48,7 +45,7 @@ export default function PaymentsPage() {
       venueName: "Jetwing Lighthouse",
       amount: 387500,
       status: "refunded",
-      method: "Credit Card",
+      method: "Credit div",
       date: "2024-01-26",
       transactionId: "txn_ghi789",
     },
@@ -82,52 +79,52 @@ export default function PaymentsPage() {
 
       {/* Payment Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
+        <div>
+          <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <divTitle className="text-sm font-medium">Total Paid</divTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </divHeader>
+          <divContent>
             <div className="text-2xl font-bold text-green-600">LKR {totalPaid.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">Completed payments</p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+        <div>
+          <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <divTitle className="text-sm font-medium">Pending</divTitle>
+            <div className="h-4 w-4 text-muted-foreground" />
+          </divHeader>
+          <divContent>
             <div className="text-2xl font-bold text-yellow-600">LKR {totalPending.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">Awaiting processing</p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+        <div>
+          <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <divTitle className="text-sm font-medium">Total Transactions</divTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          </divHeader>
+          <divContent>
             <div className="text-2xl font-bold">{payments.length}</div>
             <p className="text-xs text-muted-foreground">All time transactions</p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
       </div>
 
       {/* Payment List */}
       <div className="space-y-4">
         {payments.map((payment) => (
-          <Card key={payment.id}>
-            <CardContent className="p-6">
+          <div key={payment.id}>
+            <divContent className="p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-4 mb-2">
                     <h3 className="text-lg font-semibold">{payment.venueName}</h3>
-                    <Badge className={getStatusColor(payment.status)}>
+                    <span className={getStatusColor(payment.status)}>
                       {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-                    </Badge>
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
@@ -150,34 +147,34 @@ export default function PaymentsPage() {
                   </div>
 
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <button variant="outline" size="sm">
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
-                    </Button>
+                    </button>
                     {payment.status === "completed" && (
-                      <Button variant="outline" size="sm">
+                      <button variant="outline" size="sm">
                         <Download className="h-4 w-4 mr-2" />
                         Receipt
-                      </Button>
+                      </button>
                     )}
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         ))}
       </div>
 
       {payments.length === 0 && (
-        <Card className="text-center py-12">
-          <CardContent>
+        <div className="text-center py-12">
+          <divContent>
             <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-400" />
             <h3 className="text-lg font-medium mb-2">No payments yet</h3>
             <p className="text-gray-600 dark:text-gray-400">
               Your payment history will appear here once you make bookings
             </p>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
       )}
     </div>
   )

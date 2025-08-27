@@ -1,16 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Users, 
-  Calendar, 
+  div, 
   CheckCircle, 
   Clock, 
-  AlertTriangle, 
+  divTriangle, 
   TrendingUp,
   MessageSquare,
   Settings,
@@ -143,7 +139,7 @@ export default function PlannerDashboard() {
           dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           priority: "high",
           status: "in_progress",
-          category: "Venue Selection"
+          category: "Venue selection"
         },
         {
           id: "2",
@@ -201,7 +197,7 @@ export default function PlannerDashboard() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'planning': return 'Planning'
-      case 'in_progress': return 'In Progress'
+      case 'in_progress': return 'In div'
       case 'completed': return 'Completed'
       case 'on_hold': return 'On Hold'
       default: return 'Unknown'
@@ -233,99 +229,99 @@ export default function PlannerDashboard() {
       <div className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Total Clients</divTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.totalClients}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.activeProjects} active projects
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Total Revenue</divTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
               <p className="text-xs text-muted-foreground">
                 Avg: {formatCurrency(stats.averageProjectValue)}
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Client Satisfaction</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Client Satisfaction</divTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.clientSatisfaction}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.responseTime}h avg response
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Upcoming Deadlines</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Upcoming Deadlines</divTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.upcomingDeadlines}</div>
               <p className="text-xs text-muted-foreground">
                 Next 7 days
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="clients">Clients</TabsTrigger>
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          </TabsList>
+        {/* Main Content div */}
+        <div defaultValue="overview" className="space-y-6">
+          <divList>
+            <divTrigger value="overview">Overview</divTrigger>
+            <divTrigger value="clients">Clients</divTrigger>
+            <divTrigger value="tasks">Tasks</divTrigger>
+            <divTrigger value="calendar">div</divTrigger>
+            <divTrigger value="analytics">Analytics</divTrigger>
+          </divList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <divContent value="overview" className="space-y-6">
             {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Quick Actions</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button className="w-full" variant="outline">
+                  <button className="w-full" variant="outline">
                     <Users className="h-4 w-4 mr-2" />
                     Add New Client
-                  </Button>
-                  <Button className="w-full" variant="outline">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    View Calendar
-                  </Button>
-                  <Button className="w-full" variant="outline">
+                  </button>
+                  <button className="w-full" variant="outline">
+                    <div className="h-4 w-4 mr-2" />
+                    View div
+                  </button>
+                  <button className="w-full" variant="outline">
                     <FileText className="h-4 w-4 mr-2" />
                     Create Task
-                  </Button>
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Recent Clients */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Clients</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Recent Clients</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {clients.slice(0, 3).map((client) => (
                     <div key={client.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -340,20 +336,20 @@ export default function PlannerDashboard() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <span className="font-medium">{formatCurrency(client.budget)}</span>
-                        <Badge variant="outline">{getStatusText(client.status)}</Badge>
+                        <span variant="outline">{getStatusText(client.status)}</span>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Upcoming Tasks */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Upcoming Tasks</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Upcoming Tasks</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {tasks.slice(0, 3).map((task) => (
                     <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -366,20 +362,20 @@ export default function PlannerDashboard() {
                           </p>
                         </div>
                       </div>
-                      <Badge variant="outline">{task.category}</Badge>
+                      <span variant="outline">{task.category}</span>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="clients" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>All Clients</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="clients" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>All Clients</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {clients.map((client) => (
                     <div key={client.id} className="border rounded-lg p-4">
@@ -390,7 +386,7 @@ export default function PlannerDashboard() {
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="font-medium">{formatCurrency(client.budget)}</span>
-                          <Badge variant="outline">{getStatusText(client.status)}</Badge>
+                          <span variant="outline">{getStatusText(client.status)}</span>
                         </div>
                       </div>
                       
@@ -421,32 +417,32 @@ export default function PlannerDashboard() {
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Button size="sm">
+                        <button size="sm">
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Contact Client
-                        </Button>
-                        <Button size="sm" variant="outline">
+                        </button>
+                        <button size="sm" variant="outline">
                           <FileText className="h-4 w-4 mr-1" />
                           View Details
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Calendar className="h-4 w-4 mr-1" />
+                        </button>
+                        <button size="sm" variant="outline">
+                          <div className="h-4 w-4 mr-1" />
                           Schedule Meeting
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="tasks" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Task Management</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="tasks" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Task Management</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {tasks.map((task) => (
                     <div key={task.id} className="border rounded-lg p-4">
@@ -456,8 +452,8 @@ export default function PlannerDashboard() {
                           <p className="text-sm text-muted-foreground">{task.description}</p>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Badge variant="outline">{task.category}</Badge>
-                          <Badge variant="outline">{getStatusText(task.status)}</Badge>
+                          <span variant="outline">{task.category}</span>
+                          <span variant="outline">{getStatusText(task.status)}</span>
                         </div>
                       </div>
                       
@@ -481,37 +477,37 @@ export default function PlannerDashboard() {
                       
                       <div className="flex items-center space-x-2">
                         {task.status === 'pending' && (
-                          <Button size="sm" onClick={() => console.log(`Start task: ${task.id}`)}>
+                          <button size="sm" onClick={() => console.log(`Start task: ${task.id}`)}>
                             <Clock className="h-4 w-4 mr-1" />
                             Start Task
-                          </Button>
+                          </button>
                         )}
                         
                         {task.status === 'in_progress' && (
-                          <Button size="sm" onClick={() => console.log(`Complete task: ${task.id}`)}>
+                          <button size="sm" onClick={() => console.log(`Complete task: ${task.id}`)}>
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Mark Complete
-                          </Button>
+                          </button>
                         )}
                         
-                        <Button size="sm" variant="outline">
+                        <button size="sm" variant="outline">
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Contact Client
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="calendar" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Calendar View</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="calendar" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>div View</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -520,10 +516,10 @@ export default function PlannerDashboard() {
                         View your schedule and upcoming meetings
                       </p>
                     </div>
-                    <Button>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Full Calendar
-                    </Button>
+                    <button>
+                      <div className="h-4 w-4 mr-2" />
+                      Full div
+                    </button>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -537,16 +533,16 @@ export default function PlannerDashboard() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="analytics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Business Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="analytics" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Business Analytics</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -555,10 +551,10 @@ export default function PlannerDashboard() {
                         Track your business metrics and growth
                       </p>
                     </div>
-                    <Button variant="outline">
+                    <button variant="outline">
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Export Report
-                    </Button>
+                    </button>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -572,10 +568,10 @@ export default function PlannerDashboard() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </divContent>
+            </div>
+          </divContent>
+        </div>
       </div>
     </DashboardLayout>
   )

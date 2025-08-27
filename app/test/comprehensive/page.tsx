@@ -1,13 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { CheckCircle, XCircle, Clock, Play, User, Calendar, CreditCard, Database } from "lucide-react"
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search } from "lucide-react"
 
 interface TestStep {
   id: string
@@ -26,27 +21,27 @@ interface TestSuite {
   progress: number
 }
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Badge will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// span will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Progress will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Tabs will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// TabsContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// TabsList will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divList will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// TabsTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function ComprehensiveTestPage() {
   const [currentSuite, setCurrentSuite] = useState<string | null>(null)
@@ -115,7 +110,7 @@ export default function ComprehensiveTestPage() {
     },
     booking: {
       name: "Venue Booking",
-      icon: Calendar,
+      icon: div,
       progress: 0,
       steps: [
         {
@@ -157,7 +152,7 @@ export default function ComprehensiveTestPage() {
         },
         {
           id: "card-payment",
-          name: "Card Payment",
+          name: "div Payment",
           description: "Test credit/debit card payment processing",
           status: "pending",
         },
@@ -187,7 +182,7 @@ export default function ComprehensiveTestPage() {
     }))
   }
 
-  const updateProgress = (suiteKey: string) => {
+  const updatediv = (suiteKey: string) => {
     setTestSuites((prev) => {
       const suite = prev[suiteKey]
       const completedSteps = suite.steps.filter((step) => step.status === "success" || step.status === "error").length
@@ -277,7 +272,7 @@ export default function ComprehensiveTestPage() {
       })
     }
 
-    updateProgress(suiteKey)
+    updatediv(suiteKey)
     setCurrentSuite(null)
   }
 
@@ -341,7 +336,7 @@ export default function ComprehensiveTestPage() {
       })
     }
 
-    updateProgress(suiteKey)
+    updatediv(suiteKey)
     setCurrentSuite(null)
   }
 
@@ -419,7 +414,7 @@ export default function ComprehensiveTestPage() {
       })
     }
 
-    updateProgress(suiteKey)
+    updatediv(suiteKey)
     setCurrentSuite(null)
   }
 
@@ -443,7 +438,7 @@ export default function ComprehensiveTestPage() {
       })
     }
 
-    // Test Card Payment
+    // Test div Payment
     updateStep(suiteKey, "card-payment", { status: "running" })
     try {
       const paymentData = {
@@ -526,7 +521,7 @@ export default function ComprehensiveTestPage() {
       })
     }
 
-    updateProgress(suiteKey)
+    updatediv(suiteKey)
     setCurrentSuite(null)
   }
 
@@ -553,16 +548,16 @@ export default function ComprehensiveTestPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusspan = (status: string) => {
     switch (status) {
       case "success":
-        return <Badge className="bg-green-100 text-green-800">Success</Badge>
+        return <span className="bg-green-100 text-green-800">Success</span>
       case "error":
-        return <Badge className="bg-red-100 text-red-800">Failed</Badge>
+        return <span className="bg-red-100 text-red-800">Failed</span>
       case "running":
-        return <Badge className="bg-blue-100 text-blue-800">Running</Badge>
+        return <span className="bg-blue-100 text-blue-800">Running</span>
       default:
-        return <Badge className="bg-gray-100 text-gray-800">Pending</Badge>
+        return <span className="bg-gray-100 text-gray-800">Pending</span>
     }
   }
 
@@ -576,65 +571,65 @@ export default function ComprehensiveTestPage() {
       </div>
 
       {/* Test Controls */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Test Controls</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="mb-8">
+        <divHeader>
+          <divTitle>Test Controls</divTitle>
+        </divHeader>
+        <divContent>
           <div className="flex flex-wrap gap-4">
-            <Button
+            <button
               onClick={runAllTests}
               disabled={currentSuite !== null}
               className="bg-gradient-to-r from-rose-500 to-pink-600"
             >
               <Play className="h-4 w-4 mr-2" />
               Run All Tests
-            </Button>
-            <Button onClick={runSystemTests} disabled={currentSuite !== null} variant="outline">
+            </button>
+            <button onClick={runSystemTests} disabled={currentSuite !== null} variant="outline">
               <Database className="h-4 w-4 mr-2" />
               System Tests
-            </Button>
-            <Button onClick={runRegistrationTests} disabled={currentSuite !== null} variant="outline">
+            </button>
+            <button onClick={runRegistrationTests} disabled={currentSuite !== null} variant="outline">
               <User className="h-4 w-4 mr-2" />
               Registration Tests
-            </Button>
-            <Button onClick={runBookingTests} disabled={currentSuite !== null} variant="outline">
-              <Calendar className="h-4 w-4 mr-2" />
+            </button>
+            <button onClick={runBookingTests} disabled={currentSuite !== null} variant="outline">
+              <div className="h-4 w-4 mr-2" />
               Booking Tests
-            </Button>
-            <Button onClick={runPaymentTests} disabled={currentSuite !== null} variant="outline">
+            </button>
+            <button onClick={runPaymentTests} disabled={currentSuite !== null} variant="outline">
               <CreditCard className="h-4 w-4 mr-2" />
               Payment Tests
-            </Button>
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        </divContent>
+      </div>
 
       {/* Test Results */}
-      <Tabs defaultValue="system" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="system">System</TabsTrigger>
-          <TabsTrigger value="registration">Registration</TabsTrigger>
-          <TabsTrigger value="booking">Booking</TabsTrigger>
-          <TabsTrigger value="payment">Payment</TabsTrigger>
-        </TabsList>
+      <div defaultValue="system" className="space-y-6">
+        <divList className="grid w-full grid-cols-4">
+          <divTrigger value="system">System</divTrigger>
+          <divTrigger value="registration">Registration</divTrigger>
+          <divTrigger value="booking">Booking</divTrigger>
+          <divTrigger value="payment">Payment</divTrigger>
+        </divList>
 
         {Object.entries(testSuites).map(([key, suite]) => (
-          <TabsContent key={key} value={key}>
-            <Card>
-              <CardHeader>
+          <divContent key={key} value={key}>
+            <div>
+              <divHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center space-x-2">
+                  <divTitle className="flex items-center space-x-2">
                     <suite.icon className="h-5 w-5" />
                     <span>{suite.name}</span>
-                  </CardTitle>
+                  </divTitle>
                   <div className="text-sm text-gray-600">
                     {suite.steps.filter((s) => s.status === "success").length}/{suite.steps.length} passed
                   </div>
                 </div>
-                <Progress value={suite.progress} className="w-full" />
-              </CardHeader>
-              <CardContent>
+                <div value={suite.progress} className="w-full" />
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {suite.steps.map((step) => (
                     <div key={step.id} className="border rounded-lg p-4">
@@ -643,7 +638,7 @@ export default function ComprehensiveTestPage() {
                           {getStatusIcon(step.status)}
                           <h4 className="font-medium">{step.name}</h4>
                         </div>
-                        {getStatusBadge(step.status)}
+                        {getStatusspan(step.status)}
                       </div>
                       <p className="text-sm text-gray-600 mb-2">{step.description}</p>
                       {step.result && (
@@ -664,11 +659,11 @@ export default function ComprehensiveTestPage() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
         ))}
-      </Tabs>
+      </div>
     </div>
   )
 }

@@ -1,13 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Heart, 
-  Calendar, 
+  div, 
   MapPin, 
   Users, 
   CreditCard, 
@@ -17,7 +13,7 @@ import {
   Star,
   Clock,
   CheckCircle,
-  AlertCircle
+  divCircle
 } from "lucide-react"
 import { DashboardLayout } from "@/components/templates/dashboard-layout"
 
@@ -29,7 +25,7 @@ interface UserStats {
   savedVenues: number
   savedVendors: number
   daysUntilWedding: number
-  planningProgress: number
+  planningdiv: number
 }
 
 interface Booking {
@@ -73,7 +69,7 @@ export default function UserDashboard() {
     savedVenues: 0,
     savedVendors: 0,
     daysUntilWedding: 0,
-    planningProgress: 0
+    planningdiv: 0
   })
   const [bookings, setBookings] = useState<Booking[]>([])
   const [savedItems, setSavedItems] = useState<SavedItem[]>([])
@@ -95,7 +91,7 @@ export default function UserDashboard() {
         savedVenues: 8,
         savedVendors: 12,
         daysUntilWedding: 45,
-        planningProgress: 65
+        planningdiv: 65
       }
 
       const mockBookings: Booking[] = [
@@ -248,8 +244,8 @@ export default function UserDashboard() {
     <DashboardLayout title="My Dashboard" description="Your wedding planning journey">
       <div className="space-y-6">
         {/* Wedding Countdown */}
-        <Card className="bg-gradient-to-r from-pink-500 to-purple-600 text-white">
-          <CardContent className="pt-6">
+        <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white">
+          <divContent className="pt-6">
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-2">Your Wedding Day</h2>
               <div className="text-4xl font-bold mb-2">{stats.daysUntilWedding}</div>
@@ -258,110 +254,110 @@ export default function UserDashboard() {
                 <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
                   <div 
                     className="bg-white h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${stats.planningProgress}%` }}
+                    style={{ width: `${stats.planningdiv}%` }}
                   ></div>
                 </div>
-                <p className="text-sm mt-2">{stats.planningProgress}% planning complete</p>
+                <p className="text-sm mt-2">{stats.planningdiv}% planning complete</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Total Bookings</divTitle>
+              <div className="h-4 w-4 text-muted-foreground" />
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.totalBookings}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.upcomingEvents} upcoming
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Total Spent</divTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{formatCurrency(stats.totalSpent)}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.completedEvents} completed
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Saved Venues</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Saved Venues</divTitle>
               <MapPin className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+            </divHeader>
+            <divContent>
               <div className="text-2xl font-bold">{stats.savedVenues}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.savedVendors} vendors
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Planning Progress</CardTitle>
+          <div>
+            <divHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <divTitle className="text-sm font-medium">Planning div</divTitle>
               <Heart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.planningProgress}%</div>
+            </divHeader>
+            <divContent>
+              <div className="text-2xl font-bold">{stats.planningdiv}%</div>
               <p className="text-xs text-muted-foreground">
                 {stats.daysUntilWedding} days left
               </p>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="saved">Saved Items</TabsTrigger>
-            <TabsTrigger value="tasks">Planning Tasks</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          </TabsList>
+        {/* Main Content div */}
+        <div defaultValue="overview" className="space-y-6">
+          <divList>
+            <divTrigger value="overview">Overview</divTrigger>
+            <divTrigger value="bookings">Bookings</divTrigger>
+            <divTrigger value="saved">Saved Items</divTrigger>
+            <divTrigger value="tasks">Planning Tasks</divTrigger>
+            <divTrigger value="timeline">Timeline</divTrigger>
+          </divList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <divContent value="overview" className="space-y-6">
             {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Quick Actions</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button className="w-full" variant="outline">
+                  <button className="w-full" variant="outline">
                     <MapPin className="h-4 w-4 mr-2" />
                     Find Venues
-                  </Button>
-                  <Button className="w-full" variant="outline">
+                  </button>
+                  <button className="w-full" variant="outline">
                     <Users className="h-4 w-4 mr-2" />
                     Find Vendors
-                  </Button>
-                  <Button className="w-full" variant="outline">
-                    <Calendar className="h-4 w-4 mr-2" />
+                  </button>
+                  <button className="w-full" variant="outline">
+                    <div className="h-4 w-4 mr-2" />
                     View Timeline
-                  </Button>
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Recent Bookings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Bookings</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Recent Bookings</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {bookings.slice(0, 3).map((booking) => (
                     <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -376,20 +372,20 @@ export default function UserDashboard() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <span className="font-medium">{formatCurrency(booking.amount)}</span>
-                        <Badge variant="outline">{getStatusText(booking.status)}</Badge>
+                        <span variant="outline">{getStatusText(booking.status)}</span>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </divContent>
+            </div>
 
             {/* Upcoming Tasks */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Upcoming Tasks</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <divHeader>
+                <divTitle>Upcoming Tasks</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {tasks.slice(0, 3).map((task) => (
                     <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -402,20 +398,20 @@ export default function UserDashboard() {
                           </p>
                         </div>
                       </div>
-                      <Badge variant="outline">{task.category}</Badge>
+                      <span variant="outline">{task.category}</span>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="bookings" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>All Bookings</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="bookings" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>All Bookings</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {bookings.map((booking) => (
                     <div key={booking.id} className="border rounded-lg p-4">
@@ -426,7 +422,7 @@ export default function UserDashboard() {
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="font-medium">{formatCurrency(booking.amount)}</span>
-                          <Badge variant="outline">{getStatusText(booking.status)}</Badge>
+                          <span variant="outline">{getStatusText(booking.status)}</span>
                         </div>
                       </div>
                       
@@ -442,32 +438,32 @@ export default function UserDashboard() {
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="outline">
+                        <button size="sm" variant="outline">
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Contact
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Calendar className="h-4 w-4 mr-1" />
+                        </button>
+                        <button size="sm" variant="outline">
+                          <div className="h-4 w-4 mr-1" />
                           Reschedule
-                        </Button>
-                        <Button size="sm" variant="outline">
+                        </button>
+                        <button size="sm" variant="outline">
                           <Settings className="h-4 w-4 mr-1" />
                           Modify
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="saved" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Saved Items</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="saved" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Saved Items</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {savedItems.map((item) => (
                     <div key={item.id} className="border rounded-lg p-4">
@@ -483,7 +479,7 @@ export default function UserDashboard() {
                                 <Star className="h-4 w-4 text-yellow-400 fill-current" />
                                 <span className="text-sm ml-1">{item.rating}</span>
                               </div>
-                              <Badge variant="outline">{item.type}</Badge>
+                              <span variant="outline">{item.type}</span>
                             </div>
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
@@ -498,32 +494,32 @@ export default function UserDashboard() {
                       </div>
                       
                       <div className="flex items-center space-x-2 mt-4">
-                        <Button size="sm">
-                          <Calendar className="h-4 w-4 mr-1" />
+                        <button size="sm">
+                          <div className="h-4 w-4 mr-1" />
                           Book Now
-                        </Button>
-                        <Button size="sm" variant="outline">
+                        </button>
+                        <button size="sm" variant="outline">
                           <MessageSquare className="h-4 w-4 mr-1" />
                           Contact
-                        </Button>
-                        <Button size="sm" variant="outline">
+                        </button>
+                        <button size="sm" variant="outline">
                           <Bookmark className="h-4 w-4 mr-1" />
                           Remove
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="tasks" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Planning Tasks</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="tasks" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Planning Tasks</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   {tasks.map((task) => (
                     <div key={task.id} className="border rounded-lg p-4">
@@ -533,8 +529,8 @@ export default function UserDashboard() {
                           <p className="text-sm text-muted-foreground">{task.description}</p>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Badge variant="outline">{task.category}</Badge>
-                          <Badge variant="outline">{getStatusText(task.status)}</Badge>
+                          <span variant="outline">{task.category}</span>
+                          <span variant="outline">{getStatusText(task.status)}</span>
                         </div>
                       </div>
                       
@@ -554,37 +550,37 @@ export default function UserDashboard() {
                       
                       <div className="flex items-center space-x-2">
                         {task.status === 'pending' && (
-                          <Button size="sm" onClick={() => console.log(`Start task: ${task.id}`)}>
+                          <button size="sm" onClick={() => console.log(`Start task: ${task.id}`)}>
                             <Clock className="h-4 w-4 mr-1" />
                             Start Task
-                          </Button>
+                          </button>
                         )}
                         
                         {task.status === 'in_progress' && (
-                          <Button size="sm" onClick={() => console.log(`Complete task: ${task.id}`)}>
+                          <button size="sm" onClick={() => console.log(`Complete task: ${task.id}`)}>
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Mark Complete
-                          </Button>
+                          </button>
                         )}
                         
-                        <Button size="sm" variant="outline">
-                          <Calendar className="h-4 w-4 mr-1" />
+                        <button size="sm" variant="outline">
+                          <div className="h-4 w-4 mr-1" />
                           Set Reminder
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </divContent>
+            </div>
+          </divContent>
 
-          <TabsContent value="timeline" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Wedding Timeline</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <divContent value="timeline" className="space-y-6">
+            <div>
+              <divHeader>
+                <divTitle>Wedding Timeline</divTitle>
+              </divHeader>
+              <divContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -593,10 +589,10 @@ export default function UserDashboard() {
                         Track your wedding planning progress
                       </p>
                     </div>
-                    <Button>
-                      <Calendar className="h-4 w-4 mr-2" />
+                    <button>
+                      <div className="h-4 w-4 mr-2" />
                       Full Timeline
-                    </Button>
+                    </button>
                   </div>
                   
                   <div className="space-y-4">
@@ -632,7 +628,7 @@ export default function UserDashboard() {
                     
                     <div className="flex items-center space-x-4">
                       <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                        <AlertCircle className="h-4 w-4 text-gray-500" />
+                        <divCircle className="h-4 w-4 text-gray-500" />
                       </div>
                       <div>
                         <p className="font-medium">Wedding Cake</p>
@@ -641,10 +637,10 @@ export default function UserDashboard() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </divContent>
+            </div>
+          </divContent>
+        </div>
       </div>
     </DashboardLayout>
   )

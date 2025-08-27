@@ -1,20 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
-import { Calendar, Users, Phone, Download, Eye } from "lucide-react"
+import { Calendar, Users, Phone, Eye, Download, Loader2, Heart, MessageSquare, CreditCard, DollarSign, CheckCircle, TrendingUp, Bell, Settings, CheckSquare, MessageCircle, Store, Smartphone, Shield, Star, Camera, ArrowRight, Mail, Lock, EyeOff, XCircle, Clock, Play, Database, User, Search } from "lucide-react"
 import Link from "next/link"
 
-// Card will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// CardContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
-// Badge will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+// span will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
 
 export default function BookingsPage() {
   const [bookings] = useState([
@@ -84,8 +81,8 @@ export default function BookingsPage() {
 
       <div className="space-y-6">
         {bookings.map((booking) => (
-          <Card key={booking.id} className="overflow-hidden">
-            <CardContent className="p-0">
+          <div key={booking.id} className="overflow-hidden">
+            <divContent className="p-0">
               <div className="flex flex-col md:flex-row">
                 {/* Venue Image */}
                 <div className="md:w-48 h-48 md:h-auto">
@@ -101,9 +98,9 @@ export default function BookingsPage() {
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-semibold mb-2">{booking.venueName}</h3>
-                      <Badge className={getStatusColor(booking.status)}>
+                      <span className={getStatusColor(booking.status)}>
                         {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                      </Badge>
+                      </span>
                     </div>
                     <div className="text-right mt-4 md:mt-0">
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -117,7 +114,7 @@ export default function BookingsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-gray-400" />
+                      <div className="h-4 w-4 text-gray-400" />
                       <span className="text-sm">{new Date(booking.date).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -132,46 +129,46 @@ export default function BookingsPage() {
 
                   <div className="flex flex-wrap gap-2">
                     <Link href={`/venues/${booking.venueId}`}>
-                      <Button variant="outline" size="sm">
+                      <button variant="outline" size="sm">
                         <Eye className="h-4 w-4 mr-2" />
                         View Venue
-                      </Button>
+                      </button>
                     </Link>
-                    <Button variant="outline" size="sm">
+                    <button variant="outline" size="sm">
                       <Download className="h-4 w-4 mr-2" />
                       Download Receipt
-                    </Button>
+                    </button>
                     {booking.status === "pending" && (
-                      <Button variant="outline" size="sm">
+                      <button variant="outline" size="sm">
                         Cancel Booking
-                      </Button>
+                      </button>
                     )}
                     {booking.status === "confirmed" && (
-                      <Button size="sm" className="bg-gradient-to-r from-rose-500 to-pink-600">
+                      <button size="sm" className="bg-gradient-to-r from-rose-500 to-pink-600">
                         Contact Venue
-                      </Button>
+                      </button>
                     )}
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </divContent>
+          </div>
         ))}
       </div>
 
       {bookings.length === 0 && (
-        <Card className="text-center py-12">
-          <CardContent>
-            <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+        <div className="text-center py-12">
+          <divContent>
+            <div className="h-12 w-12 mx-auto mb-4 text-gray-400" />
             <h3 className="text-lg font-medium mb-2">No bookings yet</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Start planning your dream wedding by booking a venue
             </p>
             <Link href="/venues">
-              <Button className="bg-gradient-to-r from-rose-500 to-pink-600">Browse Venues</Button>
+              <button className="bg-gradient-to-r from-rose-500 to-pink-600">Browse Venues</button>
             </Link>
-          </CardContent>
-        </Card>
+          </divContent>
+        </div>
       )}
     </div>
   )
