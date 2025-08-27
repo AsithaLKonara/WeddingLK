@@ -145,11 +145,11 @@ export class AISearchEnhancement {
     const suggestions: string[] = []
     
     // Add from search history
-    for (const [query, count] of this.searchHistory) {
+    Array.from(this.searchHistory.entries()).forEach(([query, count]) => {
       if (query.includes(partialQuery.toLowerCase()) && count > 1) {
         suggestions.push(query)
       }
-    }
+    })
 
     // Add common wedding-related suggestions
     const commonTerms = [
@@ -183,9 +183,9 @@ export class AISearchEnhancement {
   // Get search analytics
   getSearchAnalytics(): Record<string, number> {
     const analytics: Record<string, number> = {}
-    for (const [query, count] of this.searchHistory) {
+    Array.from(this.searchHistory.entries()).forEach(([query, count]) => {
       analytics[query] = count
-    }
+    })
     return analytics
   }
 }

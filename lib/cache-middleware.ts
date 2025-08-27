@@ -82,14 +82,14 @@ export function getCacheStats() {
   let expiredEntries = 0;
   let totalSize = 0;
   
-  for (const [key, value] of apiCache.entries()) {
+  Array.from(apiCache.entries()).forEach(([key, value]) => {
     totalSize += JSON.stringify(value.data).length;
     if ((now - value.timestamp) < value.ttl) {
       validEntries++;
     } else {
       expiredEntries++;
     }
-  }
+  });
   
   return {
     totalEntries: apiCache.size,
@@ -106,12 +106,12 @@ export function getCacheStats() {
 export function invalidateCacheByPattern(pattern: string) {
   let clearedCount = 0;
   
-  for (const key of apiCache.keys()) {
+  Array.from(apiCache.keys()).forEach(key => {
     if (key.includes(pattern)) {
       apiCache.delete(key);
       clearedCount++;
     }
-  }
+  });
   
   if (clearedCount > 0) {
     console.log(`🧹 Cleared ${clearedCount} cache entries matching pattern: ${pattern}`);

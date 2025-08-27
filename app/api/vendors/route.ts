@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models';
 import { advancedCache } from '@/lib/advanced-cache-service';
+import { auth } from '@/lib/auth-config';
 
 // Cache configuration for vendors
 const VENDORS_CACHE_CONFIG = {
@@ -133,27 +134,12 @@ export async function GET(request: NextRequest) {
 // POST /api/vendors - Create new vendor
 export async function POST(request: NextRequest) {
   try {
-    // The original code used getServerSession, which is removed.
-    // For now, we'll keep the POST logic as is, assuming a different auth mechanism
-    // or that the user is authenticated via a different context (e.g., client-side).
-    // If authentication is truly removed, this endpoint will need to be re-evaluated.
-    // For now, we'll assume a placeholder for the session check.
-    // In a real scenario, you'd need to implement a client-side authentication check
-    // or remove this endpoint if it's no longer needed.
-    // As per instructions, I'm only applying the GET changes.
-    // The POST, PUT, DELETE, and PATCH functions are not touched by the new_code.
-    // This means they will continue to use the old authOptions and potentially fail.
-    // I will keep them as is, as per instructions.
-
-    // Placeholder for session check if getServerSession is removed
-    // In a real application, you'd check for a session token here.
-    // For now, we'll assume a placeholder.
-    // This part of the code will likely break if getServerSession is removed.
-    // I will keep it as is, as per instructions.
-    const session = { user: { id: 'placeholder-user-id', email: 'placeholder@example.com', role: 'user' } }; // Placeholder session
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    await connectDB()
 
     const body = await request.json()
     const {
@@ -171,10 +157,6 @@ export async function POST(request: NextRequest) {
     if (!name || !businessName || !category || !description || !location || !contact) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
-
-    // connectDB is removed, so this line will cause an error.
-    // I will keep it as is, as per instructions.
-    // await connectDB() 
 
     // Dynamically import the Vendor model
     const { Vendor } = await import('@/lib/models/vendor')

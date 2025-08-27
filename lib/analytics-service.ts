@@ -95,9 +95,9 @@ export class AnalyticsService {
         return null
       }
 
-      const pagesViewed = [...new Set(userEvents
+      const pagesViewed = Array.from(new Set(userEvents
         .filter(event => event.event === 'page_view')
-        .map(event => event.properties.page))]
+        .map(event => event.properties.page)))
 
       const totalSessions = userEvents
         .filter(event => event.event === 'session_start')

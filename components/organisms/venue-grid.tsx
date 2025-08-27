@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { MapPin, Users, Star, Calendar, Heart, Eye } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface Venue {
   _id: string
@@ -34,6 +35,7 @@ interface Venue {
   }
   featured: boolean
   isActive: boolean
+  isFavorite?: boolean
 }
 
 interface VenueGridProps {
@@ -60,13 +62,11 @@ export function VenueGrid({ limit = 6, featured = false, location, className = "
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
+  const router = useRouter()
 
-  useEffect(() => {
-    loadVenues()
-    loadFavorites()
-  }, [limit, featured, location])
 
-  const loadVenues = async () => {
+
+  const loadVenues = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -95,23 +95,22 @@ export function VenueGrid({ limit = 6, featured = false, location, className = "
         toast({
           title: "Error",
           description: data.error || 'Failed to load venues',
-          variant: "destructive",
+          type: "error",
         })
       }
     } catch (error) {
       console.error('Error loading venues:', error)
-      setError('Failed to load venues')
       toast({
         title: "Error",
-        description: 'Failed to load venues',
-        variant: "destructive",
+        description: 'Failed to load venues. Please try again.',
+        type: "error",
       })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [limit, featured, location, toast])
 
-  const loadFavorites = async () => {
+  const loadFavorites = useCallback(async () => {
     try {
       const response = await fetch('/api/favorites')
       const data = await response.json()
@@ -123,7 +122,12 @@ export function VenueGrid({ limit = 6, featured = false, location, className = "
     } catch (error) {
       console.error('Error loading favorites:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadVenues()
+    loadFavorites()
+  }, [loadVenues, loadFavorites])
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-LK', {
@@ -157,19 +161,21 @@ export function VenueGrid({ limit = 6, featured = false, location, className = "
           toast({
             title: "Removed from favorites",
             description: "Venue removed from your favorites list",
+            type: "success",
           })
         } else {
           setFavorites([...favorites, venueId])
           toast({
             title: "Added to favorites",
             description: "Venue added to your favorites list",
+            type: "success",
           })
         }
       } else {
         toast({
           title: "Error",
           description: data.error || 'Failed to update favorites',
-          variant: "destructive",
+          type: "error",
         })
       }
     } catch (error) {
@@ -177,7 +183,53 @@ export function VenueGrid({ limit = 6, featured = false, location, className = "
       toast({
         title: "Error",
         description: 'Failed to update favorites',
-        variant: "destructive",
+        type: "error",
+      })
+    }
+  }
+
+  const handleFavoriteToggle = async (venueId: string) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      setVenues(prev => prev.map(venue => 
+        venue._id === venueId 
+          ? { ...venue, isFavorite: !venue.isFavorite }
+          : venue
+      ))
+      
+      toast({
+        title: "Favorite updated",
+        type: "success",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update favorite. Please try again.",
+        type: "error",
+      })
+    }
+  }
+
+  const handleContactVenue = async (venueId: string) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      toast({
+        title: "Contact initiated",
+        description: "Opening contact form...",
+        type: "success",
+      })
+      
+      // Navigate to contact form
+      router.push(`/venues/${venueId}/contact`)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to contact venue. Please try again.",
+        type: "error",
       })
     }
   }

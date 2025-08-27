@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { MapPin, Star, Calendar, Heart, Eye, Phone, Mail } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface Vendor {
   _id: string
@@ -60,13 +61,9 @@ export function VendorGrid({ limit = 6, category, location, className = "" }: Ve
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
+  const router = useRouter()
 
-  useEffect(() => {
-    loadVendors()
-    loadFavorites()
-  }, [limit, category, location])
-
-  const loadVendors = async () => {
+  const loadVendors = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -95,23 +92,22 @@ export function VendorGrid({ limit = 6, category, location, className = "" }: Ve
         toast({
           title: "Error",
           description: data.error || 'Failed to load vendors',
-          variant: "destructive",
+          type: "error",
         })
       }
     } catch (error) {
       console.error('Error loading vendors:', error)
-      setError('Failed to load vendors')
       toast({
         title: "Error",
-        description: 'Failed to load vendors',
-        variant: "destructive",
+        description: 'Failed to load vendors. Please try again.',
+        type: "error",
       })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [limit, category, location, toast])
 
-  const loadFavorites = async () => {
+  const loadFavorites = useCallback(async () => {
     try {
       const response = await fetch('/api/favorites')
       const data = await response.json()
@@ -123,7 +119,12 @@ export function VendorGrid({ limit = 6, category, location, className = "" }: Ve
     } catch (error) {
       console.error('Error loading favorites:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadVendors()
+    loadFavorites()
+  }, [loadVendors, loadFavorites])
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-LK', {
@@ -183,7 +184,7 @@ export function VendorGrid({ limit = 6, category, location, className = "" }: Ve
         toast({
           title: "Error",
           description: data.error || 'Failed to update favorites',
-          variant: "destructive",
+          type: "error",
         })
       }
     } catch (error) {
@@ -191,7 +192,7 @@ export function VendorGrid({ limit = 6, category, location, className = "" }: Ve
       toast({
         title: "Error",
         description: 'Failed to update favorites',
-        variant: "destructive",
+        type: "error",
       })
     }
   }
@@ -223,7 +224,7 @@ export function VendorGrid({ limit = 6, category, location, className = "" }: Ve
         toast({
           title: "Error",
           description: data.error || 'Failed to send message',
-          variant: "destructive",
+          type: "error",
         })
       }
     } catch (error) {
@@ -231,7 +232,7 @@ export function VendorGrid({ limit = 6, category, location, className = "" }: Ve
       toast({
         title: "Error",
         description: 'Failed to send message',
-        variant: "destructive",
+        type: "error",
       })
     }
   }

@@ -167,20 +167,7 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
   } = useSocket()
 
   // Load conversations
-  useEffect(() => {
-    if (session?.user?.email) {
-      loadConversations()
-    }
-  }, [session])
 
-  // Load messages for selected conversation
-  useEffect(() => {
-    if (selectedConversation) {
-      loadMessages(selectedConversation._id)
-      setMessageOffset(0)
-      setHasMoreMessages(true)
-    }
-  }, [selectedConversation])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -196,7 +183,7 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
     }
   }, [selectedConversation, isConnected])
 
-  async function loadConversations() {
+  const loadConversations = useCallback(async () => {
     try {
       const response = await fetch('/api/conversations')
       const data = await response.json()
@@ -218,12 +205,12 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
       toast({
         title: "Error",
         description: "Failed to load conversations",
-        variant: "destructive",
+        type: "error",
       })
     }
-  }
+  }, [conversationId, selectedConversation, onConversationSelect, toast])
 
-  async function loadMessages(convId: string, offset = 0) {
+  const loadMessages = useCallback(async (convId: string, offset = 0) => {
     try {
       setIsLoading(true)
       const response = await fetch(`/api/messages?conversationId=${convId}&limit=50&offset=${offset}`)
@@ -243,12 +230,12 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
       toast({
         title: "Error",
         description: "Failed to load messages",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [toast])
 
   function handleNewMessage(message: any) {
     if (selectedConversation && message.conversationId === selectedConversation._id) {
@@ -316,7 +303,7 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
       toast({
         title: "Error",
         description: "Failed to send message",
-        variant: "destructive",
+        type: "error",
       })
     }
   }
@@ -347,7 +334,7 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
       toast({
         title: "Error",
         description: "Failed to edit message",
-        variant: "destructive",
+        type: "error",
       })
     }
   }
@@ -368,7 +355,7 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
       toast({
         title: "Error",
         description: "Failed to delete message",
-        variant: "destructive",
+        type: "error",
       })
     }
   }
@@ -418,6 +405,22 @@ export function ChatInterface({ conversationId, onConversationSelect, className 
   const filteredConversations = conversations.filter(conv =>
     getConversationTitle(conv).toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  // Load conversations
+  useEffect(() => {
+    if (session?.user?.email) {
+      loadConversations()
+    }
+  }, [session, loadConversations])
+
+  // Load messages for selected conversation
+  useEffect(() => {
+    if (selectedConversation) {
+      loadMessages(selectedConversation._id)
+      setMessageOffset(0)
+      setHasMoreMessages(true)
+    }
+  }, [selectedConversation, loadMessages])
 
   return (
     <div className={`flex h-full ${className}`}>

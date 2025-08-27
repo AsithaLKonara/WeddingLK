@@ -118,12 +118,13 @@ export function UpcomingTasks() {
       toast({
         title: "Task Completed",
         description: `&ldquo;${taskTitle}&rdquo; has been marked as completed.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to complete task. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -135,13 +136,13 @@ export function UpcomingTasks() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
 
-    setIsLoading(true)
     try {
+      setIsLoading(true)
       const newTask: Task = {
         id: Date.now().toString(),
         title: taskForm.title,
@@ -159,12 +160,13 @@ export function UpcomingTasks() {
       toast({
         title: "Task Added",
         description: `${taskForm.title} has been added to your tasks.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to add task. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -176,7 +178,7 @@ export function UpcomingTasks() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -201,12 +203,13 @@ export function UpcomingTasks() {
       toast({
         title: "Task Updated",
         description: `${taskForm.title} has been updated.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update task. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -220,12 +223,13 @@ export function UpcomingTasks() {
       toast({
         title: "Task Deleted",
         description: `${taskTitle} has been removed from your tasks.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete task. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -440,7 +444,17 @@ export function UpcomingTasks() {
                 </div>
                 <div className="flex gap-2">
                   <Button
-                    onClick={handleAddTask}
+                    onClick={() => {
+                      if (!taskForm.title || !taskForm.dueDate || !taskForm.category) {
+                        toast({
+                          title: "Validation Error",
+                          description: "Please fill in all required fields.",
+                          type: "error",
+                        })
+                        return
+                      }
+                      handleAddTask()
+                    }}
                     disabled={isLoading}
                     className="flex-1"
                   >

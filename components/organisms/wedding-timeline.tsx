@@ -169,7 +169,7 @@ export function WeddingTimeline() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -201,13 +201,13 @@ export function WeddingTimeline() {
       
       toast({
         title: "Event Added",
-        description: `${eventForm.title} has been added to your timeline.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to add event. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -219,7 +219,7 @@ export function WeddingTimeline() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -253,13 +253,13 @@ export function WeddingTimeline() {
       
       toast({
         title: "Event Updated",
-        description: `${eventForm.title} has been updated.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update event. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -272,13 +272,13 @@ export function WeddingTimeline() {
       setTimelineEvents(prev => prev.filter(event => event.id !== eventId))
       toast({
         title: "Event Deleted",
-        description: `${eventTitle} has been removed from your timeline.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete event. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -318,7 +318,7 @@ export function WeddingTimeline() {
     return total
   }, 0)
 
-  const uniqueLocations = [...new Set(timelineEvents.map(event => event.location))]
+  const uniqueLocations = Array.from(new Set(timelineEvents.map(event => event.location)))
 
   return (
     <div className="space-y-6" role="region" aria-label="Wedding Timeline">

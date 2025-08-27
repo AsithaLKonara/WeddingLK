@@ -3,13 +3,11 @@ import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { VendorProfile } from '@/lib/models/vendorProfile';
 import { WeddingPlannerProfile } from '@/lib/models/weddingPlannerProfile';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
+import { auth } from '@/lib/auth-config';
 // GET - Fetch users with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -98,7 +96,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new admin/maintainer user
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -187,7 +185,7 @@ export async function POST(request: NextRequest) {
 // PUT - Update user role and status
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -267,7 +265,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete user (soft delete)
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(

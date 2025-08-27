@@ -102,8 +102,8 @@ export class CacheWarmingService {
     const now = new Date();
     const strategiesToRun: WarmingStrategy[] = [];
 
-    for (const strategy of this.strategies.values()) {
-      if (!strategy.isActive) continue;
+    Array.from(this.strategies.values()).forEach(strategy => {
+      if (!strategy.isActive) return;
 
       const timeSinceLastRun = now.getTime() - strategy.lastRun.getTime();
       const frequencyMs = strategy.frequency * 60 * 1000;
@@ -111,7 +111,7 @@ export class CacheWarmingService {
       if (timeSinceLastRun >= frequencyMs) {
         strategiesToRun.push(strategy);
       }
-    }
+    });
 
     if (strategiesToRun.length > 0) {
       await this.runWarmingStrategies(strategiesToRun);

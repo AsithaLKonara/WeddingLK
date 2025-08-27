@@ -1,318 +1,236 @@
-# 🚀 WeddingLK Production Deployment Guide
+# WeddingLK Production Deployment Guide
 
-This guide covers the complete production deployment of your WeddingLK application with load balancing, caching, monitoring, and CI/CD.
+## Overview
+This guide covers the production deployment of WeddingLK using Docker, Nginx, MongoDB, Redis, and monitoring tools.
 
-## 📋 **Prerequisites**
+## Prerequisites
+- Docker and Docker Compose installed
+- At least 2GB RAM available
+- Ports 80, 443, 3000, 27017, 6379, 9090, 3001 available
 
-- Docker & Docker Compose installed
-- At least 4GB RAM available
-- 20GB disk space
-- Git repository access
-- Domain name (for production)
+## Quick Start
 
-## 🏗️ **Architecture Overview**
-
-```
-Internet → Nginx (Load Balancer) → App1:3000, App2:3000, App3:3000 → MongoDB + Redis
-                                    ↓
-                            Monitoring Stack (Prometheus + Grafana + cAdvisor)
-```
-
-## 🚀 **Quick Start**
-
-### 1. **Clone and Setup**
+### 1. Build and Deploy
 ```bash
-git clone <your-repo>
-cd wedding-lk-asitha
-cp env.production.example env.production
-# Edit env.production with your production values
+# Make script executable (first time only)
+chmod +x scripts/build-production.sh
+
+# Run production deployment
+./scripts/build-production.sh
 ```
 
-### 2. **Deploy Production Stack**
+### 2. Manual Deployment
 ```bash
-# Make deployment script executable
-chmod +x scripts/deploy-production.sh
+# Build production image
+docker build -f Dockerfile.production -t weddinglk:production .
 
-# Full production deployment
-./scripts/deploy-production.sh deploy
-
-# Or step by step:
-./scripts/deploy-production.sh health      # Check health
-./scripts/deploy-production.sh test        # Run tests
-./scripts/deploy-production.sh monitor     # Show monitoring
-./scripts/deploy-production.sh logs        # Follow logs
-```
-
-### 3. **Access Your Application**
-- **Main App**: http://localhost
-- **Grafana**: http://localhost:3001 (admin/admin123)
-- **Prometheus**: http://localhost:9090
-- **cAdvisor**: http://localhost:8080
-
-## 🔧 **Configuration**
-
-### **Environment Variables** (`env.production`)
-```bash
-# App Configuration
-NODE_ENV=production
-PORT=3000
-TRUST_PROXY=1
-
-# Database
-MONGODB_URI=mongodb://admin:password123@mongo:27017/weddinglk?authSource=admin
-MAX_POOL_SIZE=50
-MIN_POOL_SIZE=10
-
-# Redis
-REDIS_URL=redis://redis:6379
-
-# Security
-RATE_LIMIT_WINDOW_MS=60000
-RATE_LIMIT_MAX=120
-```
-
-### **Docker Compose Services**
-- **app1, app2, app3**: Next.js application replicas with PM2 clustering
-- **nginx**: Reverse proxy with load balancing and rate limiting
-- **redis**: Distributed caching
-- **mongo**: Database (use MongoDB Atlas in production)
-- **prometheus**: Metrics collection
-- **grafana**: Monitoring dashboards
-- **cadvisor**: Container metrics
-
-## 📊 **Performance Monitoring**
-
-### **Grafana Dashboards**
-1. **Application Metrics**
-   - Request rates and response times
-   - Error rates and status codes
-   - Cache hit rates
-
-2. **Infrastructure Metrics**
-   - CPU and memory usage
-   - Network I/O
-   - Disk usage
-
-3. **Database Metrics**
-   - Query performance
-   - Connection pool status
-   - Slow query analysis
-
-### **Key Metrics to Monitor**
-- **Response Time**: P95 < 1000ms, P99 < 2000ms
-- **Error Rate**: < 1%
-- **Cache Hit Rate**: > 80%
-- **CPU Usage**: < 80%
-- **Memory Usage**: < 85%
-
-## 🧪 **Load Testing**
-
-### **Run Load Tests**
-```bash
-# Install Artillery
-npm install -g artillery
-
-# Run load test
-artillery run tests/load/load-test.yml
-
-# Run with specific environment
-artillery run tests/load/load-test.yml --environment production
-```
-
-### **Load Test Scenarios**
-- **Warm-up**: 5 req/s for 1 minute
-- **Ramp-up**: 10 req/s for 2 minutes
-- **Sustained**: 25 req/s for 5 minutes
-- **Peak**: 50 req/s for 2 minutes
-- **Cool-down**: 10 req/s for 1 minute
-
-## 🔄 **CI/CD Pipeline**
-
-### **GitHub Actions** (`.github/workflows/deploy.yml`)
-```yaml
-name: Deploy to Production
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /srv/weddinglk
-            git pull origin main
-            ./scripts/deploy-production.sh deploy
-```
-
-### **Manual Deployment Commands**
-```bash
-# Build and deploy
-docker-compose -f docker-compose.production.yml build --no-cache
+# Start services
 docker-compose -f docker-compose.production.yml up -d
 
-# Scale services
-docker-compose -f docker-compose.production.yml up -d --scale app1=2 --scale app2=2 --scale app3=2
-
-# Rolling restart (zero downtime)
-docker-compose -f docker-compose.production.yml up -d --no-deps app1
-docker-compose -f docker-compose.production.yml up -d --no-deps app2
-docker-compose -f docker-compose.production.yml up -d --no-deps app3
+# Check status
+docker-compose -f docker-compose.production.yml ps
 ```
 
-## 🚨 **Troubleshooting**
+## Services
 
-### **Common Issues**
+### Application (Next.js)
+- **Port**: 3000
+- **Health Check**: `/api/health`
+- **Resource Limits**: 1GB RAM, 0.5 CPU
 
-#### **1. Services Not Starting**
+### Nginx (Reverse Proxy)
+- **Ports**: 80 (HTTP), 443 (HTTPS)
+- **SSL**: Self-signed certificates
+- **Features**: Rate limiting, compression, caching
+
+### MongoDB
+- **Port**: 27017
+- **Database**: weddinglk_prod
+- **Credentials**: admin/password123
+
+### Redis
+- **Port**: 6379
+- **Purpose**: Caching and sessions
+
+### Prometheus
+- **Port**: 9090
+- **Purpose**: Metrics collection
+
+### Grafana
+- **Port**: 3001
+- **Credentials**: admin/admin123
+- **Purpose**: Monitoring dashboards
+
+## Configuration
+
+### Environment Variables
+Copy `env.production` to `.env.local` and update values:
 ```bash
-# Check logs
-docker-compose -f docker-compose.production.yml logs app1
+cp env.production .env.local
+# Edit .env.local with your actual values
+```
+
+### SSL Certificates
+Self-signed certificates are generated automatically. For production:
+1. Replace `nginx/ssl/cert.pem` and `nginx/ssl/key.pem`
+2. Update `nginx/conf.d/default.conf` if needed
+
+### Database
+- MongoDB data persists in `mongodb_data` volume
+- Redis data persists in `redis_data` volume
+
+## Monitoring
+
+### Health Checks
+- Application: `http://localhost:3000/api/health`
+- Nginx: `http://localhost/health`
+
+### Metrics
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3001`
+
+### Logs
+```bash
+# View all logs
+docker-compose -f docker-compose.production.yml logs
+
+# View specific service logs
+docker-compose -f docker-compose.production.yml logs app
 docker-compose -f docker-compose.production.yml logs nginx
-
-# Check health
-./scripts/deploy-production.sh health
 ```
 
-#### **2. Performance Issues**
+## Performance Optimization
+
+### Docker Build
+- Multi-stage build for smaller images
+- Layer caching for faster builds
+- Production-only dependencies
+
+### Application
+- Next.js standalone output
+- Image optimization enabled
+- CSS and package optimization
+- Gzip compression
+
+### Nginx
+- HTTP/2 support
+- Static file caching
+- Rate limiting
+- Security headers
+
+## Troubleshooting
+
+### Common Issues
+
+#### Port Conflicts
 ```bash
-# Check resource usage
-docker stats
+# Check what's using port 3000
+lsof -i :3000
 
-# Monitor metrics
-./scripts/deploy-production.sh monitor
-
-# Run performance test
-./scripts/deploy-production.sh test
+# Kill process if needed
+kill -9 <PID>
 ```
 
-#### **3. Database Connection Issues**
+#### Container Health Issues
 ```bash
-# Check MongoDB status
-docker-compose -f docker-compose.production.yml exec mongo mongosh --eval "db.adminCommand('ping')"
+# Check container status
+docker-compose -f docker-compose.production.yml ps
 
-# Check connection pool
-docker-compose -f docker-compose.production.yml exec app1 node -e "console.log(require('mongoose').connection.pool.status())"
+# View logs
+docker-compose -f docker-compose.production.yml logs app
+
+# Restart service
+docker-compose -f docker-compose.production.yml restart app
 ```
 
-### **Log Analysis**
+#### SSL Issues
 ```bash
-# Follow all logs
-docker-compose -f docker-compose.production.yml logs -f
+# Regenerate SSL certificates
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout nginx/ssl/key.pem \
+  -out nginx/ssl/cert.pem \
+  -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
 
-# Follow specific service
-docker-compose -f docker-compose.production.yml logs -f app1
-
-# Search logs
-docker-compose -f docker-compose.production.yml logs | grep "ERROR"
+# Restart Nginx
+docker-compose -f docker-compose.production.yml restart nginx
 ```
 
-## 🔒 **Security Hardening**
+### Performance Issues
+1. Check resource usage: `docker stats`
+2. Monitor logs for errors
+3. Verify database connections
+4. Check Redis cache hit rates
 
-### **Production Security Checklist**
-- [ ] HTTPS/TLS enabled
-- [ ] Rate limiting configured
-- [ ] Security headers set
-- [ ] Non-root containers
-- [ ] Secrets management
-- [ ] Regular security updates
-- [ ] Access logging enabled
-- [ ] Backup strategy implemented
+## Security
 
-### **SSL/TLS Setup**
+### Headers
+- X-Frame-Options: DENY
+- X-Content-Type-Options: nosniff
+- X-XSS-Protection: enabled
+- Referrer-Policy: strict-origin-when-cross-origin
+
+### Rate Limiting
+- API: 10 requests/second
+- Login: 5 requests/minute
+
+### SSL/TLS
+- TLS 1.2 and 1.3 only
+- Strong cipher suites
+- HSTS headers
+
+## Backup and Recovery
+
+### Database Backup
 ```bash
-# Using Let's Encrypt
-docker run -it --rm \
-  -v /etc/letsencrypt:/etc/letsencrypt \
-  -v /var/lib/letsencrypt:/var/lib/letsencrypt \
-  certbot/certbot certonly \
-  --standalone \
-  -d yourdomain.com
+# MongoDB backup
+docker exec weddinglk_mongodb mongodump --out /backup
+
+# Redis backup
+docker exec weddinglk_redis redis-cli BGSAVE
 ```
 
-## 📈 **Scaling**
-
-### **Vertical Scaling**
+### Volume Backup
 ```bash
-# Increase container resources
-docker-compose -f docker-compose.production.yml up -d \
-  --scale app1=1 --scale app2=1 --scale app3=1 \
-  --scale nginx=1
+# Backup volumes
+docker run --rm -v weddinglk_mongodb_data:/data -v $(pwd):/backup alpine tar czf /backup/mongodb_backup.tar.gz -C /data .
 ```
 
-### **Horizontal Scaling**
+## Scaling
+
+### Horizontal Scaling
 ```bash
-# Add more app replicas
-docker-compose -f docker-compose.production.yml up -d \
-  --scale app1=3 --scale app2=3 --scale app3=3
+# Scale application instances
+docker-compose -f docker-compose.production.yml up -d --scale app=3
 ```
 
-### **Database Scaling**
-- Use MongoDB Atlas with auto-scaling
-- Implement read replicas
-- Add connection pooling
+### Load Balancer
+Add HAProxy or Traefik in front of multiple app instances.
 
-## 🗄️ **Backup & Recovery**
+## Updates
 
-### **Database Backup**
+### Application Updates
 ```bash
-# Create backup
-docker-compose -f docker-compose.production.yml exec mongo \
-  mongodump --out /backup/$(date +%Y%m%d_%H%M%S)
+# Pull latest code
+git pull origin main
 
-# Restore backup
-docker-compose -f docker-compose.production.yml exec mongo \
-  mongorestore /backup/backup_folder/
+# Rebuild and restart
+docker-compose -f docker-compose.production.yml down
+docker build -f Dockerfile.production -t weddinglk:production .
+docker-compose -f docker-compose.production.yml up -d
 ```
 
-### **Application Backup**
+### Database Migrations
+Run migrations before updating the application:
 ```bash
-# Backup configuration
-cp docker-compose.production.yml docker-compose.production.backup.yml
-cp env.production env.production.backup
-
-# Restore
-cp docker-compose.production.backup.yml docker-compose.production.yml
-cp env.production.backup env.production
+# Example migration script
+docker exec weddinglk_app npm run migrate
 ```
 
-## 📚 **Additional Resources**
+## Support
 
-### **Documentation**
-- [Docker Compose Reference](https://docs.docker.com/compose/)
-- [Nginx Configuration](https://nginx.org/en/docs/)
-- [Prometheus Monitoring](https://prometheus.io/docs/)
-- [Grafana Dashboards](https://grafana.com/docs/)
-
-### **Support**
-- Check application logs for errors
-- Monitor Grafana dashboards
-- Use load testing to identify bottlenecks
-- Review performance metrics regularly
-
-## 🎯 **Performance Targets**
-
-| Metric | Target | Current | Status |
-|--------|--------|---------|---------|
-| **API Response Time** | < 1000ms | ~13,800ms | ⚠️ Needs Work |
-| **Cache Hit Rate** | > 80% | TBD | 📊 Monitoring |
-| **Error Rate** | < 1% | TBD | 📊 Monitoring |
-| **Uptime** | > 99.9% | TBD | 📊 Monitoring |
-
-## 🚀 **Next Steps**
-
-1. **Immediate**: Deploy and test the production stack
-2. **Short-term**: Optimize remaining slow endpoints
-3. **Medium-term**: Implement Redis clustering
-4. **Long-term**: Move to Kubernetes for advanced orchestration
-
----
-
-**Your WeddingLK application is now ready for production deployment with enterprise-grade features!** 🎉 
+For issues or questions:
+1. Check logs first
+2. Verify configuration
+3. Test individual services
+4. Check resource usage
+5. Review security settings

@@ -191,7 +191,7 @@ export class CacheInvalidationService {
 
   // Get rule for entity
   private getRuleForEntity(entity: string): InvalidationRule | undefined {
-    for (const [name, rule] of this.invalidationRules) {
+    for (const [name, rule] of Array.from(this.invalidationRules.entries())) {
       if (entity.startsWith(name) || name.startsWith(entity)) {
         return rule;
       }

@@ -61,9 +61,18 @@ export function VendorContact({ vendor }: VendorContactProps) {
       toast({
         title: "Please login",
         description: "You need to be logged in to contact vendors.",
-        variant: "destructive"
+        type: "error"
       })
       router.push('/login')
+      return
+    }
+
+    if (!formData.message.trim()) {
+      toast({
+        title: "Message required",
+        description: "Please enter a message to send.",
+        type: "error"
+      })
       return
     }
 
@@ -113,7 +122,7 @@ export function VendorContact({ vendor }: VendorContactProps) {
       toast({ 
         title: "Message sent successfully!", 
         description: "The vendor will get back to you soon. You can view your conversation in the Messages section.",
-        variant: "default"
+        type: "success"
       })
       
       setFormData({ name: "", email: "", phone: "", message: "", eventDate: "", guestCount: "", budget: "" })
@@ -126,7 +135,7 @@ export function VendorContact({ vendor }: VendorContactProps) {
       toast({ 
         title: "Failed to send message", 
         description: "Please try again later.",
-        variant: "destructive"
+        type: "error"
       })
     } finally {
       setIsLoading(false)

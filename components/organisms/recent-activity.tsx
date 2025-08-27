@@ -127,7 +127,7 @@ export function RecentActivity() {
       toast({
         title: "Error",
         description: "Failed to refresh activities. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -154,7 +154,7 @@ export function RecentActivity() {
       toast({
         title: "Error",
         description: "Failed to remove activity. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)

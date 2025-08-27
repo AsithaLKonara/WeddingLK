@@ -1,494 +1,283 @@
-import { connectDB } from './db'
+import { connectDB } from '@/lib/db'
 
 interface VoiceCommand {
-  type: 'search' | 'booking' | 'navigation' | 'information' | 'action'
-  command: string
+  type: 'search' | 'navigate' | 'action' | 'query'
+  text: string
   confidence: number
-  parameters: Record<string, any>
+  parameters: Record<string, unknown>
 }
 
 interface VoiceResponse {
+  success: boolean
   text: string
-  audio?: Buffer
-  actions: Array<{
+  actions?: Array<{
     type: string
-    data: any
+    data: Record<string, unknown>
   }>
+  error?: string
 }
 
 interface VoiceSession {
   sessionId: string
   userId: string
+  language: string
+  voice: string
+  context: Record<string, unknown>
   startTime: Date
-  commands: VoiceCommand[]
-  context: Record<string, any>
+  lastActivity: Date
 }
 
-class VoiceIntegrationService {
+interface VoiceConfig {
+  language: string
+  voice: string
+  speed: number
+  pitch: number
+  volume: number
+}
+
+export class VoiceIntegrationService {
   private sessions: Map<string, VoiceSession> = new Map()
-  private supportedLanguages = ['en', 'si', 'ta']
-  private voiceCommands: Map<string, any> = new Map()
-
-  constructor() {
-    this.initializeVoiceCommands()
+  private config: VoiceConfig = {
+    language: 'en-US',
+    voice: 'default',
+    speed: 1.0,
+    pitch: 1.0,
+    volume: 1.0
   }
 
-  private initializeVoiceCommands() {
-    // Initialize voice command patterns
-    this.voiceCommands.set('search_venue', {
-      patterns: [
-        'find venue',
-        'search for venue',
-        'show me venues',
-        'venue search',
-        'find wedding venue'
-      ],
-      parameters: ['location', 'capacity', 'budget', 'style']
-    })
-
-    this.voiceCommands.set('search_vendor', {
-      patterns: [
-        'find vendor',
-        'search for vendor',
-        'show me vendors',
-        'vendor search',
-        'find photographer',
-        'find caterer'
-      ],
-      parameters: ['category', 'location', 'budget', 'date']
-    })
-
-    this.voiceCommands.set('book_venue', {
-      patterns: [
-        'book venue',
-        'reserve venue',
-        'book this venue',
-        'make booking',
-        'reserve this place'
-      ],
-      parameters: ['venueId', 'date', 'guestCount']
-    })
-
-    this.voiceCommands.set('check_booking', {
-      patterns: [
-        'check booking',
-        'show my booking',
-        'booking status',
-        'my reservation',
-        'booking details'
-      ],
-      parameters: ['bookingId']
-    })
-
-    this.voiceCommands.set('budget_info', {
-      patterns: [
-        'budget information',
-        'cost details',
-        'pricing information',
-        'how much does it cost',
-        'price range'
-      ],
-      parameters: ['service', 'location']
-    })
-
-    this.voiceCommands.set('timeline_info', {
-      patterns: [
-        'wedding timeline',
-        'planning timeline',
-        'what should I do next',
-        'next steps',
-        'planning checklist'
-      ],
-      parameters: ['weddingDate']
-    })
-  }
-
-  // Process voice input and convert to text
-  async processVoiceInput(audioBuffer: Buffer, language: string = 'en'): Promise<string> {
+  async processVoiceCommand(audioData: ArrayBuffer, userId: string): Promise<VoiceResponse> {
     try {
-      console.log('🎤 Processing voice input...')
+      // TODO: Implement actual voice recognition
+      const recognizedText = await this.recognizeSpeech(audioData)
+      const command = await this.parseCommand(recognizedText)
       
-      // In a real implementation, this would use speech-to-text API
-      // For now, we'll simulate voice processing
+      const response = await this.executeCommand(command, userId)
       
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Update session
+      await this.updateSession(userId, command)
       
-      // Mock transcription (in real implementation, this would come from speech-to-text API)
-      const mockTranscriptions = [
-        'Find me a venue in Colombo for 200 guests',
-        'Show me photographers in my area',
-        'What is my current budget status?',
-        'Book this venue for next month',
-        'Check my booking status',
-        'What should I do next in my wedding planning?'
-      ]
-      
-      const transcription = mockTranscriptions[Math.floor(Math.random() * mockTranscriptions.length)]
-      
-      console.log('✅ Voice input processed:', transcription)
-      return transcription
-
+      return response
     } catch (error) {
-      console.error('❌ Voice processing error:', error)
-      return ''
+      console.error('Voice command processing failed:', error)
+      return {
+        success: false,
+        text: 'Sorry, I could not process your voice command. Please try again.',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
     }
   }
 
-  // Parse voice command and extract intent
-  async parseVoiceCommand(text: string, sessionId: string): Promise<VoiceCommand | null> {
-    try {
-      const session = this.sessions.get(sessionId)
+  private async recognizeSpeech(audioData: ArrayBuffer): Promise<string> {
+    // TODO: Implement actual speech recognition
+    return 'search for wedding venues in Colombo'
+  }
+
+  private async parseCommand(text: string): Promise<VoiceCommand> {
+    // TODO: Implement actual command parsing
       const lowerText = text.toLowerCase()
       
-      // Match command patterns
-      for (const [commandType, commandData] of this.voiceCommands.entries()) {
-        for (const pattern of commandData.patterns) {
-          if (lowerText.includes(pattern.toLowerCase())) {
-            const parameters = this.extractParameters(text, commandData.parameters)
-            
-            return {
-              type: this.getCommandType(commandType),
-              command: commandType,
-              confidence: 0.85 + Math.random() * 0.1,
-              parameters
-            }
-          }
-        }
-      }
-
-      // Default to search if no specific command is found
-      if (lowerText.includes('find') || lowerText.includes('search') || lowerText.includes('show')) {
+    if (lowerText.includes('search') || lowerText.includes('find')) {
         return {
           type: 'search',
-          command: 'general_search',
-          confidence: 0.7,
+        text,
+        confidence: 0.9,
           parameters: { query: text }
         }
       }
 
-      return null
-
-    } catch (error) {
-      console.error('Voice command parsing error:', error)
-      return null
-    }
-  }
-
-  private getCommandType(command: string): VoiceCommand['type'] {
-    if (command.includes('search')) return 'search'
-    if (command.includes('book')) return 'booking'
-    if (command.includes('check') || command.includes('status')) return 'information'
-    if (command.includes('navigate') || command.includes('go')) return 'navigation'
-    return 'action'
-  }
-
-  private extractParameters(text: string, expectedParams: string[]): Record<string, any> {
-    const parameters: Record<string, any> = {}
-    
-    // Extract location
-    if (text.toLowerCase().includes('colombo')) {
-      parameters.location = 'Colombo'
-    } else if (text.toLowerCase().includes('kandy')) {
-      parameters.location = 'Kandy'
-    } else if (text.toLowerCase().includes('galle')) {
-      parameters.location = 'Galle'
-    }
-
-    // Extract numbers (capacity, budget, etc.)
-    const numbers = text.match(/\d+/g)
-    if (numbers) {
-      if (text.toLowerCase().includes('guest')) {
-        parameters.guestCount = parseInt(numbers[0])
-      } else if (text.toLowerCase().includes('budget') || text.toLowerCase().includes('cost')) {
-        parameters.budget = parseInt(numbers[0]) * 1000 // Assume thousands
+    if (lowerText.includes('go to') || lowerText.includes('navigate')) {
+      return {
+        type: 'navigate',
+        text,
+        confidence: 0.8,
+        parameters: { destination: text }
       }
     }
-
-    // Extract categories
-    if (text.toLowerCase().includes('photographer')) {
-      parameters.category = 'photography'
-    } else if (text.toLowerCase().includes('caterer') || text.toLowerCase().includes('food')) {
-      parameters.category = 'catering'
-    } else if (text.toLowerCase().includes('decorator') || text.toLowerCase().includes('decoration')) {
-      parameters.category = 'decoration'
+    
+    return {
+      type: 'query',
+      text,
+      confidence: 0.7,
+      parameters: { query: text }
     }
-
-    return parameters
   }
 
-  // Generate voice response
-  async generateVoiceResponse(command: VoiceCommand, context: any = {}): Promise<VoiceResponse> {
-    try {
-      let responseText = ''
-      const actions: Array<{ type: string; data: any }> = []
-
-      switch (command.command) {
-        case 'search_venue':
-          responseText = `I found several venues in ${command.parameters.location || 'your area'}. Here are the top recommendations: Grand Ballroom Hotel, Garden Palace, and Ocean View Resort. Would you like me to show you more details about any of these venues?`
-          actions.push({
-            type: 'search_venues',
-            data: command.parameters
-          })
-          break
-
-        case 'search_vendor':
-          responseText = `I found ${command.parameters.category || 'several'} vendors in your area. Here are the top recommendations: Perfect Moments Photography, Sweet Dreams Catering, and Elegant Decorators. Would you like me to show you their portfolios?`
-          actions.push({
-            type: 'search_vendors',
-            data: command.parameters
-          })
-          break
-
-        case 'book_venue':
-          responseText = `I'll help you book the venue. Please confirm the details: Date: ${command.parameters.date || 'to be selected'}, Guest count: ${command.parameters.guestCount || 'to be specified'}. Should I proceed with the booking?`
-          actions.push({
-            type: 'book_venue',
-            data: command.parameters
-          })
-          break
-
-        case 'check_booking':
-          responseText = `Let me check your booking status. You have a confirmed booking at Grand Ballroom Hotel for December 15th, 2024, with 200 guests. The total amount is LKR 500,000. Would you like me to show you more details?`
-          actions.push({
-            type: 'get_booking_status',
-            data: { bookingId: command.parameters.bookingId }
-          })
-          break
-
-        case 'budget_info':
-          responseText = `Based on your current budget, you have LKR 300,000 remaining. The average cost for ${command.parameters.service || 'wedding services'} in ${command.parameters.location || 'your area'} is LKR 50,000. Would you like me to show you budget optimization suggestions?`
-          actions.push({
-            type: 'get_budget_info',
-            data: command.parameters
-          })
-          break
-
-        case 'timeline_info':
-          responseText = `Here's your wedding planning timeline: You should book your venue within the next 2 weeks, secure vendors within 6 weeks, and send invitations within 8 weeks. Your next priority is to finalize the guest list. Would you like me to create a detailed timeline for you?`
-          actions.push({
-            type: 'get_timeline',
-            data: { weddingDate: command.parameters.weddingDate }
-          })
-          break
-
+  private async executeCommand(command: VoiceCommand, userId: string): Promise<VoiceResponse> {
+    switch (command.type) {
+      case 'search':
+        return await this.handleSearchCommand(command, userId)
+      case 'navigate':
+        return await this.handleNavigateCommand(command, userId)
+      case 'action':
+        return await this.handleActionCommand(command, userId)
         default:
-          responseText = `I understand you're looking for ${command.parameters.query || 'information'}. Let me search for that for you. Here are some relevant results.`
-          actions.push({
-            type: 'general_search',
-            data: { query: command.parameters.query }
-          })
-      }
-
-      return {
-        text: responseText,
-        actions
-      }
-
-    } catch (error) {
-      console.error('Voice response generation error:', error)
-      return {
-        text: 'I apologize, but I encountered an error processing your request. Please try again.',
-        actions: []
-      }
+        return await this.handleQueryCommand(command, userId)
     }
   }
 
-  // Convert text to speech
-  async textToSpeech(text: string, language: string = 'en', voice: string = 'default'): Promise<Buffer> {
-    try {
-      console.log('🔊 Converting text to speech:', text.substring(0, 50) + '...')
-      
-      // In a real implementation, this would use text-to-speech API
-      // For now, we'll simulate TTS processing
-      
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Mock audio buffer (in real implementation, this would be actual audio data)
-      const mockAudioBuffer = Buffer.from('mock_audio_data_' + Date.now())
-      
-      console.log('✅ Text converted to speech successfully')
-      return mockAudioBuffer
-
-    } catch (error) {
-      console.error('❌ Text-to-speech error:', error)
-      return Buffer.from('')
-    }
-  }
-
-  // Start voice session
-  async startVoiceSession(userId: string): Promise<string> {
-    try {
-      const sessionId = `voice_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      
-      const session: VoiceSession = {
-        sessionId,
-        userId,
-        startTime: new Date(),
-        commands: [],
-        context: {}
-      }
-      
-      this.sessions.set(sessionId, session)
-      
-      console.log('🎤 Voice session started:', sessionId)
-      return sessionId
-
-    } catch (error) {
-      console.error('Voice session start error:', error)
-      return ''
-    }
-  }
-
-  // Process voice interaction
-  async processVoiceInteraction(sessionId: string, audioBuffer: Buffer, language: string = 'en'): Promise<VoiceResponse> {
-    try {
-      const session = this.sessions.get(sessionId)
-      if (!session) {
-        throw new Error('Voice session not found')
-      }
-
-      // Process voice input
-      const transcription = await this.processVoiceInput(audioBuffer, language)
-      if (!transcription) {
-        return {
-          text: 'I could not understand your voice input. Please try again.',
-          actions: []
+  private async handleSearchCommand(command: VoiceCommand, userId: string): Promise<VoiceResponse> {
+    // TODO: Implement actual search functionality
+    return {
+      success: true,
+      text: `I found several results for "${command.parameters.query}". Would you like me to show them?`,
+      actions: [
+        {
+          type: 'search_results',
+          data: { query: command.parameters.query }
         }
-      }
+      ]
+    }
+  }
 
-      // Parse command
-      const command = await this.parseVoiceCommand(transcription, sessionId)
-      if (!command) {
-        return {
-          text: 'I could not understand your request. Please try rephrasing it.',
-          actions: []
+  private async handleNavigateCommand(command: VoiceCommand, userId: string): Promise<VoiceResponse> {
+    // TODO: Implement actual navigation
+    return {
+      success: true,
+      text: `Navigating to ${command.parameters.destination}`,
+      actions: [
+        {
+          type: 'navigate',
+          data: { destination: command.parameters.destination }
         }
-      }
+      ]
+    }
+  }
 
-      // Add command to session
-      session.commands.push(command)
+  private async handleActionCommand(command: VoiceCommand, userId: string): Promise<VoiceResponse> {
+    // TODO: Implement actual actions
+        return {
+      success: true,
+      text: 'Action completed successfully',
+      actions: [
+        {
+          type: 'action_completed',
+          data: { action: command.text }
+        }
+      ]
+    }
+  }
 
-      // Generate response
-      const response = await this.generateVoiceResponse(command, session.context)
+  private async handleQueryCommand(command: VoiceCommand, userId: string): Promise<VoiceResponse> {
+    // TODO: Implement actual query handling
+        return {
+      success: true,
+      text: `Here's what I found about "${command.parameters.query}"`,
+      actions: [
+        {
+          type: 'query_results',
+          data: { query: command.parameters.query }
+        }
+      ]
+    }
+  }
 
-      // Update session context
+  private async updateSession(userId: string, command: VoiceCommand): Promise<void> {
+    const session = this.sessions.get(userId)
+    if (session) {
+      session.lastActivity = new Date()
       session.context.lastCommand = command
-      session.context.lastResponse = response
+    }
+  }
 
-      return response
+  async startVoiceSession(userId: string, config?: Partial<VoiceConfig>): Promise<VoiceSession> {
+    const session: VoiceSession = {
+      sessionId: `session_${Date.now()}`,
+      userId,
+      language: config?.language || this.config.language,
+      voice: config?.voice || this.config.voice,
+      context: {},
+      startTime: new Date(),
+      lastActivity: new Date()
+    }
+    
+    this.sessions.set(userId, session)
+    return session
+  }
 
-    } catch (error) {
-      console.error('Voice interaction error:', error)
+  async endVoiceSession(userId: string): Promise<void> {
+    this.sessions.delete(userId)
+  }
+
+  async updateVoiceConfig(config: Partial<VoiceConfig>): Promise<void> {
+    this.config = { ...this.config, ...config }
+  }
+
+  getVoiceConfig(): VoiceConfig {
+    return { ...this.config }
+  }
+
+  async getSupportedLanguages(): Promise<Array<{
+    code: string
+    name: string
+    nativeName: string
+  }>> {
+    // TODO: Implement actual language support
+    return [
+      { code: 'en-US', name: 'English (US)', nativeName: 'English' },
+      { code: 'si-LK', name: 'Sinhala', nativeName: 'සිංහල' },
+      { code: 'ta-LK', name: 'Tamil', nativeName: 'தமிழ்' }
+    ]
+  }
+
+  async getSupportedVoices(): Promise<Array<{
+    id: string
+    name: string
+    language: string
+    gender: 'male' | 'female' | 'neutral'
+  }>> {
+    // TODO: Implement actual voice support
+    return [
+      { id: 'en-US-1', name: 'Sarah', language: 'en-US', gender: 'female' },
+      { id: 'en-US-2', name: 'Mike', language: 'en-US', gender: 'male' },
+      { id: 'si-LK-1', name: 'සුනිතා', language: 'si-LK', gender: 'female' }
+    ]
+  }
+
+  async generateSpeech(text: string, config?: Partial<VoiceConfig>): Promise<ArrayBuffer> {
+    // TODO: Implement actual text-to-speech
+    console.log(`Generating speech for: ${text}`)
+    return new ArrayBuffer(0)
+  }
+
+  async validateVoiceInput(audioData: ArrayBuffer): Promise<{
+    isValid: boolean
+    duration: number
+    quality: number
+    error?: string
+  }> {
+    try {
+      // TODO: Implement actual audio validation
+      const duration = audioData.byteLength / 16000 // Rough estimate
+      
       return {
-        text: 'I encountered an error processing your voice request. Please try again.',
-        actions: []
+        isValid: duration > 0.5 && duration < 30, // Between 0.5 and 30 seconds
+        duration,
+        quality: 0.8
       }
-    }
-  }
-
-  // Get voice session history
-  async getVoiceSessionHistory(sessionId: string): Promise<VoiceSession | null> {
-    try {
-      return this.sessions.get(sessionId) || null
     } catch (error) {
-      console.error('Voice session history error:', error)
-      return null
-    }
-  }
-
-  // End voice session
-  async endVoiceSession(sessionId: string): Promise<boolean> {
-    try {
-      const session = this.sessions.get(sessionId)
-      if (session) {
-        this.sessions.delete(sessionId)
-        console.log('🎤 Voice session ended:', sessionId)
-        return true
-      }
-      return false
-    } catch (error) {
-      console.error('Voice session end error:', error)
-      return false
-    }
-  }
-
-  // Get supported languages
-  getSupportedLanguages(): string[] {
-    return this.supportedLanguages
-  }
-
-  // Get available voice commands
-  getAvailableVoiceCommands(): Record<string, any> {
-    const commands: Record<string, any> = {}
-    
-    for (const [commandType, commandData] of this.voiceCommands.entries()) {
-      commands[commandType] = {
-        patterns: commandData.patterns,
-        parameters: commandData.parameters,
-        description: this.getCommandDescription(commandType)
+      return {
+        isValid: false,
+        duration: 0,
+        quality: 0,
+        error: error instanceof Error ? error.message : 'Unknown error'
       }
     }
-    
-    return commands
   }
 
-  private getCommandDescription(commandType: string): string {
-    const descriptions: Record<string, string> = {
-      search_venue: 'Search for wedding venues based on location, capacity, and budget',
-      search_vendor: 'Search for wedding vendors like photographers, caterers, and decorators',
-      book_venue: 'Book a venue for your wedding',
-      check_booking: 'Check the status of your current bookings',
-      budget_info: 'Get information about wedding costs and budget management',
-      timeline_info: 'Get wedding planning timeline and next steps'
+  async getVoiceAnalytics(userId: string): Promise<{
+    totalCommands: number
+    successRate: number
+    averageConfidence: number
+    mostUsedCommands: Array<{ command: string; count: number }>
+  }> {
+    // TODO: Implement actual analytics
+    return {
+      totalCommands: 0,
+      successRate: 0,
+      averageConfidence: 0,
+      mostUsedCommands: []
     }
-    
-    return descriptions[commandType] || 'General voice command'
-  }
-
-  // Test voice integration service
-  async testVoiceIntegration(): Promise<Record<string, boolean>> {
-    const results: Record<string, boolean> = {}
-
-    try {
-      // Test voice input processing
-      const mockAudio = Buffer.from('mock_audio')
-      const transcription = await this.processVoiceInput(mockAudio)
-      results.voiceProcessing = transcription.length > 0
-
-      // Test voice session
-      const sessionId = await this.startVoiceSession('test-user')
-      results.voiceSession = sessionId.length > 0
-
-      // Test command parsing
-      const command = await this.parseVoiceCommand('Find me a venue in Colombo', sessionId)
-      results.commandParsing = command !== null
-
-      // Test response generation
-      if (command) {
-        const response = await this.generateVoiceResponse(command)
-        results.responseGeneration = response.text.length > 0
-      }
-
-      // Test text-to-speech
-      const audioBuffer = await this.textToSpeech('Hello, this is a test.')
-      results.textToSpeech = audioBuffer.length > 0
-
-      // Test session history
-      const history = await this.getVoiceSessionHistory(sessionId)
-      results.sessionHistory = history !== null
-
-      // Test session ending
-      const sessionEnded = await this.endVoiceSession(sessionId)
-      results.sessionEnding = sessionEnded
-
-    } catch (error) {
-      console.error('Voice integration test error:', error)
-    }
-
-    return results
   }
 }
 
-export default new VoiceIntegrationService() 
+export const voiceService = new VoiceIntegrationService() 

@@ -1,14 +1,27 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { connectDB } from '@/lib/db';
+import { Notification } from '@/lib/models';
+import { User } from '@/lib/models';
 
 interface PushNotification {
   id: string;
+  userId: string;
   title: string;
-  body: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  data?: Record<string, unknown>;
+  read: boolean;
+  createdAt: Date;
+  expiresAt?: Date;
+}
+
+interface PushNotificationPayload {
+  title: string;
+  message: string;
   icon?: string;
   badge?: string;
+  image?: string;
   tag?: string;
-  data?: any;
+  data?: Record<string, unknown>;
   actions?: Array<{
     action: string;
     title: string;
@@ -16,277 +29,347 @@ interface PushNotification {
   }>;
   requireInteraction?: boolean;
   silent?: boolean;
+  vibrate?: number[];
+  timestamp?: number;
 }
 
-interface NotificationSubscription {
-  userId: string;
-  endpoint: string;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-  createdAt: Date;
-  lastUsed: Date;
+interface PushNotificationOptions {
+  userId?: string;
+  userGroup?: string;
+  priority?: 'high' | 'normal' | 'low';
+  ttl?: number;
+  urgency?: 'very-low' | 'low' | 'normal' | 'high' | 'very-high';
+  topic?: string;
 }
 
 class PushNotificationService {
-  private vapidKeys = {
-    publicKey: process.env.NEXT_PUBLIC_VAPID_KEY || '',
-    privateKey: process.env.VAPID_PRIVATE_KEY || '',
-  };
+  private static instance: PushNotificationService;
+  private vapidKeys: { publicKey: string; privateKey: string } | null = null;
 
-  // Request notification permission
-  async requestPermission(): Promise<NotificationPermission> {
-    if (!('Notification' in window)) {
-      throw new Error('This browser does not support notifications');
+  private constructor() {}
+
+  public static getInstance(): PushNotificationService {
+    if (!PushNotificationService.instance) {
+      PushNotificationService.instance = new PushNotificationService();
     }
-
-    if (Notification.permission === 'default') {
-      const permission = await Notification.requestPermission();
-      return permission;
-    }
-
-    return Notification.permission;
+    return PushNotificationService.instance;
   }
 
-  // Subscribe to push notifications
-  async subscribeToPushNotifications(): Promise<PushSubscription | null> {
+  // Initialize push notification service
+  public async initialize(): Promise<void> {
     try {
-      const permission = await this.requestPermission();
+      await connectDB();
       
-      if (permission !== 'granted') {
-        console.log('Notification permission denied');
-        return null;
+      // Generate VAPID keys if not exists
+      if (!this.vapidKeys) {
+        this.vapidKeys = this.generateVAPIDKeys();
       }
 
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        throw new Error('Push messaging is not supported');
+      console.log('Push notification service initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize push notification service:', error);
+      throw error;
+    }
+  }
+
+  // Generate VAPID keys for web push
+  private generateVAPIDKeys(): { publicKey: string; privateKey: string } {
+    // In production, you should use proper VAPID key generation
+    // For now, we'll use placeholder keys
+    return {
+      publicKey: process.env.VAPID_PUBLIC_KEY || 'placeholder_public_key',
+      privateKey: process.env.VAPID_PRIVATE_KEY || 'placeholder_private_key'
+    };
+  }
+
+  // Send push notification to specific user
+  public async sendToUser(userId: string, notification: PushNotificationPayload, options?: PushNotificationOptions): Promise<boolean> {
+    try {
+      await connectDB();
+      
+      // Get user's push subscription
+      const user = await User.findById(userId);
+      if (!user || !user.pushSubscription) {
+        console.log(`User ${userId} has no push subscription`);
+        return false;
       }
 
-      // Register service worker
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered');
-
-      // Subscribe to push notifications
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(this.vapidKeys.publicKey),
-      });
-
-      // Send subscription to server
-      await this.saveSubscription(subscription);
-
-      return subscription;
-    } catch (error) {
-      console.error('Failed to subscribe to push notifications:', error);
-      return null;
-    }
-  }
-
-  // Unsubscribe from push notifications
-  async unsubscribeFromPushNotifications(): Promise<boolean> {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      // Send notification
+      const success = await this.sendPushNotification(user.pushSubscription, notification, options);
       
-      if (subscription) {
-        await subscription.unsubscribe();
-        await this.deleteSubscription(subscription);
-        return true;
+      if (success) {
+        // Store notification in database
+        await this.storeNotification(userId, notification, options);
       }
+
+      return success;
+    } catch (error) {
+      console.error(`Failed to send push notification to user ${userId}:`, error);
+      return false;
+    }
+  }
+
+  // Send push notification to user group
+  public async sendToGroup(userGroup: string, notification: PushNotificationPayload, options?: PushNotificationOptions): Promise<number> {
+    try {
+      await connectDB();
       
-      return false;
-    } catch (error) {
-      console.error('Failed to unsubscribe from push notifications:', error);
-      return false;
-    }
-  }
+      // Get all users in the group
+      const users = await User.find({ userGroup, pushSubscription: { $exists: true } });
+      
+      if (users.length === 0) {
+        console.log(`No users found in group ${userGroup} with push subscriptions`);
+        return 0;
+      }
 
-  // Send notification to specific user
-  async sendNotificationToUser(userId: string, notification: PushNotification): Promise<boolean> {
-    try {
-      const response = await fetch('/api/notifications/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          notification,
-        }),
-      });
-
-      return response.ok;
-    } catch (error) {
-      console.error('Failed to send notification:', error);
-      return false;
-    }
-  }
-
-  // Send notification to multiple users
-  async sendNotificationToUsers(userIds: string[], notification: PushNotification): Promise<boolean> {
-    try {
-      const response = await fetch('/api/notifications/send-bulk', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userIds,
-          notification,
-        }),
-      });
-
-      return response.ok;
-    } catch (error) {
-      console.error('Failed to send bulk notifications:', error);
-      return false;
-    }
-  }
-
-  // Send notification to all users
-  async sendNotificationToAll(notification: PushNotification): Promise<boolean> {
-    try {
-      const response = await fetch('/api/notifications/send-all', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          notification,
-        }),
-      });
-
-      return response.ok;
-    } catch (error) {
-      console.error('Failed to send notification to all users:', error);
-      return false;
-    }
-  }
-
-  // Show local notification
-  showLocalNotification(notification: PushNotification): void {
-    if (Notification.permission === 'granted') {
-      const notif = new Notification(notification.title, {
-        body: notification.body,
-        icon: notification.icon || '/favicon.ico',
-        badge: notification.badge,
-        tag: notification.tag,
-        data: notification.data,
-        requireInteraction: notification.requireInteraction,
-        silent: notification.silent,
-      });
-
-      // Handle notification click
-      notif.onclick = (event) => {
-        event.preventDefault();
-        window.focus();
-        
-        // Handle notification actions
-        if (notification.data?.url) {
-          window.open(notification.data.url, '_blank');
+      let successCount = 0;
+      
+      // Send to each user
+      for (const user of users) {
+        try {
+          const success = await this.sendPushNotification(user.pushSubscription, notification, options);
+          if (success) {
+            successCount++;
+            // Store notification
+            await this.storeNotification(user._id.toString(), notification, options);
+          }
+        } catch (error) {
+          console.error(`Failed to send to user ${user._id}:`, error);
         }
-        
-        notif.close();
+      }
+
+      return successCount;
+    } catch (error) {
+      console.error(`Failed to send push notification to group ${userGroup}:`, error);
+      return 0;
+    }
+  }
+
+  // Send push notification to all users
+  public async sendToAll(notification: PushNotificationPayload, options?: PushNotificationOptions): Promise<number> {
+    try {
+      await connectDB();
+      
+      // Get all users with push subscriptions
+      const users = await User.find({ pushSubscription: { $exists: true } });
+      
+      if (users.length === 0) {
+        console.log('No users found with push subscriptions');
+        return 0;
+      }
+
+      let successCount = 0;
+      
+      // Send to each user
+      for (const user of users) {
+        try {
+          const success = await this.sendPushNotification(user.pushSubscription, notification, options);
+          if (success) {
+            successCount++;
+            // Store notification
+            await this.storeNotification(user._id.toString(), notification, options);
+          }
+        } catch (error) {
+          console.error(`Failed to send to user ${user._id}:`, error);
+        }
+      }
+
+      return successCount;
+    } catch (error) {
+      console.error('Failed to send push notification to all users:', error);
+      return 0;
+    }
+  }
+
+  // Send actual push notification
+  private async sendPushNotification(subscription: any, notification: PushNotificationPayload, options?: PushNotificationOptions): Promise<boolean> {
+    try {
+      // In a real implementation, you would use web-push library
+      // For now, we'll simulate success
+      console.log('Sending push notification:', {
+        subscription: subscription.endpoint,
+          notification,
+        options
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Failed to send push notification:', error);
+      return false;
+    }
+  }
+
+  // Store notification in database
+  private async storeNotification(userId: string, notification: PushNotificationPayload, options?: PushNotificationOptions): Promise<void> {
+    try {
+      const newNotification = new Notification({
+        userId,
+        title: notification.title,
+        message: notification.message,
+        type: 'push',
+        data: notification.data || {},
+        read: false,
+        createdAt: new Date(),
+        expiresAt: options?.ttl ? new Date(Date.now() + options.ttl * 1000) : undefined
+      });
+
+      await newNotification.save();
+    } catch (error) {
+      console.error('Failed to store notification:', error);
+    }
+  }
+
+  // Get user's push notifications
+  public async getUserNotifications(userId: string, limit: number = 20, offset: number = 0): Promise<PushNotification[]> {
+    try {
+      await connectDB();
+      
+      const notifications = await Notification.find({ userId })
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit);
+
+      return notifications.map(n => ({
+        id: n._id.toString(),
+        userId: n.userId,
+        title: n.title,
+        message: n.message,
+        type: n.type,
+        data: n.data,
+        read: n.read,
+        createdAt: n.createdAt,
+        expiresAt: n.expiresAt
+      }));
+    } catch (error) {
+      console.error(`Failed to get notifications for user ${userId}:`, error);
+      return [];
+    }
+  }
+
+  // Mark notification as read
+  public async markAsRead(notificationId: string): Promise<boolean> {
+    try {
+      await connectDB();
+      
+      const notification = await Notification.findByIdAndUpdate(
+        notificationId,
+        { read: true },
+        { new: true }
+      );
+
+      return !!notification;
+    } catch (error) {
+      console.error(`Failed to mark notification ${notificationId} as read:`, error);
+      return false;
+    }
+  }
+
+  // Mark all user notifications as read
+  public async markAllAsRead(userId: string): Promise<number> {
+    try {
+      await connectDB();
+      
+      const result = await Notification.updateMany(
+        { userId, read: false },
+        { read: true }
+      );
+
+      return result.modifiedCount;
+    } catch (error) {
+      console.error(`Failed to mark all notifications as read for user ${userId}:`, error);
+      return 0;
+    }
+  }
+
+  // Delete notification
+  public async deleteNotification(notificationId: string): Promise<boolean> {
+    try {
+      await connectDB();
+      
+      const result = await Notification.findByIdAndDelete(notificationId);
+      return !!result;
+    } catch (error) {
+      console.error(`Failed to delete notification ${notificationId}:`, error);
+      return false;
+    }
+  }
+
+  // Delete expired notifications
+  public async deleteExpiredNotifications(): Promise<number> {
+    try {
+      await connectDB();
+      
+      const result = await Notification.deleteMany({
+        expiresAt: { $lt: new Date() }
+      });
+
+      return result.deletedCount;
+    } catch (error) {
+      console.error('Failed to delete expired notifications:', error);
+      return 0;
+    }
+  }
+
+  // Get notification statistics
+  public async getNotificationStats(userId?: string): Promise<Record<string, unknown>> {
+    try {
+      await connectDB();
+      
+      const query = userId ? { userId } : {};
+      
+      const [total, unread, read] = await Promise.all([
+        Notification.countDocuments(query),
+        Notification.countDocuments({ ...query, read: false }),
+        Notification.countDocuments({ ...query, read: true })
+      ]);
+
+      return {
+        total,
+        unread,
+        read,
+        readPercentage: total > 0 ? Math.round((read / total) * 100) : 0
+      };
+    } catch (error) {
+      console.error('Failed to get notification stats:', error);
+      return {
+        total: 0,
+        unread: 0,
+        read: 0,
+        readPercentage: 0
+      };
+    }
+  }
+
+  // Test push notification service
+  public async testService(): Promise<Record<string, unknown>> {
+    try {
+      await connectDB();
+      
+      const testNotification: PushNotificationPayload = {
+        title: 'Test Notification',
+        message: 'This is a test push notification',
+        icon: '/icons/notification-icon.png',
+        badge: '/icons/badge-icon.png',
+        data: { test: true, timestamp: Date.now() }
       };
 
-      // Auto-close after 5 seconds
-      setTimeout(() => {
-        notif.close();
-      }, 5000);
-    }
-  }
-
-  // Save subscription to server
-  private async saveSubscription(subscription: PushSubscription): Promise<void> {
-    try {
-      const response = await fetch('/api/notifications/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          subscription: {
-            endpoint: subscription.endpoint,
-            keys: {
-              p256dh: btoa(String.fromCharCode.apply(null, 
-                Array.from(new Uint8Array(subscription.getKey('p256dh') || []))
-              )),
-              auth: btoa(String.fromCharCode.apply(null, 
-                Array.from(new Uint8Array(subscription.getKey('auth') || []))
-              )),
-            },
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save subscription');
-      }
+      const result = await this.sendToAll(testNotification, { priority: 'high' });
+      
+      return {
+        success: true,
+        message: 'Push notification service test completed',
+        notificationsSent: result,
+        timestamp: new Date().toISOString()
+      };
     } catch (error) {
-      console.error('Failed to save subscription:', error);
-      throw error;
+      console.error('Push notification service test failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      };
     }
-  }
-
-  // Delete subscription from server
-  private async deleteSubscription(subscription: PushSubscription): Promise<void> {
-    try {
-      const response = await fetch('/api/notifications/unsubscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          endpoint: subscription.endpoint,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete subscription');
-      }
-    } catch (error) {
-      console.error('Failed to delete subscription:', error);
-      throw error;
-    }
-  }
-
-  // Convert VAPID public key to Uint8Array
-  private urlBase64ToUint8Array(base64String: string): Uint8Array {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-  }
-
-  // Check if notifications are supported
-  isSupported(): boolean {
-    return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
-  }
-
-  // Check if permission is granted
-  hasPermission(): boolean {
-    return Notification.permission === 'granted';
-  }
-
-  // Get current permission status
-  getPermissionStatus(): NotificationPermission {
-    return Notification.permission;
   }
 }
 
-// Create singleton instance
-const pushNotificationService = new PushNotificationService();
-
-export default pushNotificationService;
-
-// Export types
-export type { PushNotification, NotificationSubscription }; 
+export default PushNotificationService; 

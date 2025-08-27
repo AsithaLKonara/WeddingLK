@@ -97,12 +97,13 @@ export function CommissionTracker() {
       toast({
         title: "Data Refreshed",
         description: "Commission data has been updated successfully.",
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to refresh data. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -117,12 +118,13 @@ export function CommissionTracker() {
       toast({
         title: "Export Successful",
         description: "Commission report has been exported to your downloads.",
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Export Failed",
         description: "Failed to export report. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -134,6 +136,7 @@ export function CommissionTracker() {
     toast({
       title: "Period Changed",
       description: `Switched to ${period === "month" ? "monthly" : "yearly"} view.`,
+      type: "default",
     })
   }
 

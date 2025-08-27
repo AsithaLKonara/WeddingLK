@@ -43,7 +43,7 @@ export function PaymentForm({ booking, onPaymentSuccess }: PaymentFormProps) {
     if (!formData.billingAddress) err.billingAddress = "Billing address is required"
     setErrors(err)
     if (Object.keys(err).length > 0) {
-      toast({ title: "Please fix the errors above.", variant: "destructive" })
+      toast({ title: "Please fix the errors above.", type: "error" })
       return
     }
     setIsLoading(true)
@@ -51,12 +51,12 @@ export function PaymentForm({ booking, onPaymentSuccess }: PaymentFormProps) {
       // Simulate payment processing
       await new Promise((resolve) => setTimeout(resolve, 2000))
       const paymentId = `pay_${Date.now()}`
-      toast({ title: "Payment successful", description: "Your payment has been processed successfully." })
+      toast({ title: "Payment successful!", type: "success" })
       onPaymentSuccess(paymentId)
       setFormData({ cardNumber: "", expiryDate: "", cvv: "", cardholderName: "", billingAddress: "" })
       setErrors({})
     } catch (error) {
-      toast({ title: "Payment failed. Please try again.", variant: "destructive" })
+      toast({ title: "Payment failed. Please try again.", type: "error" })
     } finally {
       setIsLoading(false)
     }

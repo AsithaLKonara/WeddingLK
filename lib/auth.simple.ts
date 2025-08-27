@@ -1,4 +1,4 @@
-import type { NextAuthOptions } from "next-auth"
+import type { NextAuthConfig } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 // Extend the built-in session types
@@ -23,14 +23,7 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    role?: string
-    twoFactorPending?: boolean
-  }
-}
-
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -43,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         if (credentials?.email && credentials?.password) {
           return {
             id: "1",
-            email: credentials.email,
+            email: credentials.email as string,
             name: "Demo User",
             role: "user",
           }
@@ -53,22 +46,22 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
   },
   pages: {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user && "role" in user) {
-        token.role = (user as any).role
+        token.role = user.role
       }
       if (user && "twoFactorPending" in user) {
-        token.twoFactorPending = (user as any).twoFactorPending
+        token.twoFactorPending = user.twoFactorPending
       }
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (token && session.user) {
         session.user.id = token.sub!
         if (token.role) session.user.role = token.role as string

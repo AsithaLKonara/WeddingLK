@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,7 +35,7 @@ export function SimilarVenues({ currentVenueId, currentVenueLocation, currentVen
   const [similarVenues, setSimilarVenues] = useState<SimilarVenue[]>([])
 
   // Mock similar venues data
-  const mockSimilarVenues: SimilarVenue[] = [
+  const mockSimilarVenues = useMemo<SimilarVenue[]>(() => [
     {
       id: "2",
       name: "Garden Paradise Resort",
@@ -96,17 +96,17 @@ export function SimilarVenues({ currentVenueId, currentVenueLocation, currentVen
       distance: 185,
       similarity: 69
     },
-  ]
+  ], [])
 
-  const loadSimilarVenues = async () => {
+  const loadSimilarVenues = useCallback(async () => {
     try {
       // Simulate API call to fetch similar venues
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       // Filter out the current venue and sort by similarity
       const filteredVenues = mockSimilarVenues
-        .filter(venue => venue.id !== currentVenueId)
-        .sort((a, b) => (b.similarity || 0) - (a.similarity || 0))
+        .filter((venue: SimilarVenue) => venue.id !== currentVenueId)
+        .sort((a: SimilarVenue, b: SimilarVenue) => (b.similarity || 0) - (a.similarity || 0))
         .slice(0, 6)
       
       setSimilarVenues(filteredVenues)
@@ -121,17 +121,17 @@ export function SimilarVenues({ currentVenueId, currentVenueLocation, currentVen
       toast({
         title: "Error",
         description: "Failed to load similar venues. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [currentVenueId, isLoading, toast, mockSimilarVenues])
 
   useEffect(() => {
     loadSimilarVenues()
-  }, [currentVenueId])
+  }, [loadSimilarVenues])
 
   const handleRefresh = () => {
     setIsRefreshing(true)

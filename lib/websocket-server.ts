@@ -196,7 +196,7 @@ class WebSocketServer {
   }
 
   private findSocketByUserId(userId: string): string | null {
-    for (const [socketId, userData] of this.connectedUsers.entries()) {
+    for (const [socketId, userData] of Array.from(this.connectedUsers.entries())) {
       if (userData.userId === userId) {
         return socketId
       }

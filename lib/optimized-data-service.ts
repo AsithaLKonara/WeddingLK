@@ -360,13 +360,13 @@ export class OptimizedDataService {
     let validEntries = 0;
     let expiredEntries = 0;
     
-    for (const [key, value] of dataCache.entries()) {
+    Array.from(dataCache.entries()).forEach(([key, value]) => {
       if ((now - value.timestamp) < DATA_CACHE_TTL) {
         validEntries++;
       } else {
         expiredEntries++;
       }
-    }
+    });
     
     return {
       totalEntries: dataCache.size,

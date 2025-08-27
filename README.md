@@ -1,94 +1,35 @@
-# 🎉 WeddingLK - Advanced Wedding Planning Platform
+# 🎉 WeddingLK - Next.js Wedding Planning Platform
 
-> **A comprehensive, enterprise-grade wedding planning platform built with Next.js 15, TypeScript, and advanced optimization strategies**
+A comprehensive, production-ready wedding planning platform built with Next.js 15, TypeScript, MongoDB, and Redis. Features AI-powered recommendations, real-time collaboration, and comprehensive vendor/venue management.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19-blue)](https://reactjs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green)](https://www.mongodb.com/)
-[![Redis](https://img.shields.io/badge/Redis-Latest-red)](https://redis.io/)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+## ✨ Features
 
-## 🚀 **Project Overview**
+- **🔐 Authentication**: NextAuth v5 with Google OAuth and credentials
+- **🏗️ Modern Architecture**: Next.js 15 App Router, TypeScript, Tailwind CSS
+- **🗄️ Database**: MongoDB with Mongoose ODM and Redis caching
+- **🤖 AI Integration**: OpenAI-powered recommendations and search
+- **📱 Responsive Design**: Mobile-first, accessible UI components
+- **🧪 Testing**: Jest, React Testing Library, API testing
+- **🐳 Docker**: Complete containerization for development and production
+- **📊 Monitoring**: Performance monitoring and analytics
+- **🔒 Security**: Rate limiting, input validation, security headers
 
-WeddingLK is a cutting-edge wedding planning platform that demonstrates advanced web development techniques, enterprise-grade performance optimization, and intelligent caching strategies. Built as a final year university project, it showcases professional-grade architecture and modern development practices.
+## 🚀 Quick Start
 
-### **🌟 Key Features**
+### Prerequisites
 
-- **🎯 AI-Powered Recommendations**: Intelligent vendor and venue suggestions
-- **⚡ Performance Optimized**: 68-99% response time improvements
-- **🧠 Intelligent Caching**: 95% cache hit rate with advanced strategies
-- **📊 Real-time Analytics**: Comprehensive performance monitoring
-- **📱 Mobile-First Design**: Responsive and optimized for all devices
-- **🔒 Enterprise Security**: Advanced authentication and authorization
-- **📈 Scalable Architecture**: Built for high-traffic scenarios
-
-## 🏗️ **Architecture & Technology Stack**
-
-### **Frontend**
-- **Next.js 15.2.4** - React framework with App Router
-- **React 19** - Latest React with concurrent features
-- **TypeScript 5** - Full type safety and modern JavaScript
-- **Tailwind CSS** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
-- **Framer Motion** - Smooth animations and transitions
-
-### **Backend & Database**
-- **MongoDB** - NoSQL database with Mongoose ODM
-- **Redis** - High-performance caching and session storage
-- **Next.js API Routes** - Serverless API endpoints
-- **Mongoose** - MongoDB object modeling
-
-### **Performance & Caching**
-- **Advanced Cache Service** - Multi-level caching strategies
-- **Database Connection Pooling** - Optimized database connections
-- **Redis Caching** - Intelligent cache invalidation
-- **Performance Monitoring** - Real-time metrics dashboard
-
-### **Development Tools**
-- **ESLint** - Code quality and consistency
-- **Prettier** - Code formatting
-- **Jest** - Unit and integration testing
-- **Playwright** - End-to-end testing
-- **Docker** - Containerized development environment
-
-## 📁 **Project Structure**
-
-```
-wedding-lk-asitha/
-├── app/                          # Next.js App Router
-│   ├── api/                     # API endpoints
-│   ├── dashboard/               # User dashboard
-│   ├── vendors/                 # Vendor listings
-│   └── venues/                  # Venue listings
-├── components/                  # React components
-│   ├── atoms/                  # Atomic design components
-│   ├── molecules/              # Molecular components
-│   ├── organisms/              # Organism components
-│   └── templates/              # Page templates
-├── lib/                        # Core libraries and services
-│   ├── services/               # Business logic services
-│   ├── models/                 # Database models
-│   └── utils/                  # Utility functions
-├── tests/                      # Test suites
-├── public/                     # Static assets
-└── docs/                       # Documentation
-```
-
-## 🚀 **Quick Start**
-
-### **Prerequisites**
 - Node.js 18+ 
-- MongoDB (local or cloud)
-- Redis (local or cloud)
-- Docker (optional)
+- npm or yarn
+- MongoDB 7.0+
+- Redis 7.2+
+- Docker & Docker Compose (optional)
 
-### **Installation**
+### Local Development
 
 1. **Clone the repository**
    ```bash
    git clone https://github.com/asithalakmal/weddinglk-next.git
-   cd wedding-lk-next
+   cd weddinglk-next
    ```
 
 2. **Install dependencies**
@@ -96,10 +37,10 @@ wedding-lk-asitha/
    npm install
    ```
 
-3. **Environment setup**
+3. **Set up environment variables**
    ```bash
-   cp env.example env.local
-   # Edit env.local with your configuration
+   cp env.example .env.local
+   # Edit .env.local with your configuration
    ```
 
 4. **Start development server**
@@ -108,258 +49,363 @@ wedding-lk-asitha/
    ```
 
 5. **Open your browser**
-   ```
-   http://localhost:3000
-   ```
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-## ⚙️ **Configuration**
+## 🐳 Docker Development
 
-### **Environment Variables**
+### Using Docker Compose (Recommended)
 
-Create a `.env.local` file with the following variables:
-
-```env
-# Database
-MONGODB_URI=mongodb://localhost:27017/weddinglk
-REDIS_URL=redis://localhost:6379
-
-# Authentication
-NEXTAUTH_SECRET=your-secret-key
-NEXTAUTH_URL=http://localhost:3000
-
-# External Services
-OPENAI_API_KEY=your-openai-key
-STRIPE_SECRET_KEY=your-stripe-key
-CLOUDINARY_URL=your-cloudinary-url
-```
-
-### **Database Setup**
-
-1. **Start MongoDB**
+1. **Start all services**
    ```bash
-   # Using Docker
-   docker run -d -p 27017:27017 --name mongodb mongo:latest
-   
-   # Or start MongoDB service locally
-   brew services start mongodb-community
+   docker-compose up -d
    ```
 
-2. **Start Redis**
+2. **Access services**
+   - App: http://localhost:3000
+   - MongoDB Express: http://localhost:8081 (admin/admin123)
+   - Redis Commander: http://localhost:8082
+
+3. **View logs**
    ```bash
-   # Using Docker
-   docker run -d -p 6379:6379 --name redis redis:latest
-   
-   # Or start Redis service locally
-   brew services start redis
+   docker-compose logs -f app
    ```
 
-## 🧪 **Testing**
+4. **Stop services**
+   ```bash
+   docker-compose down
+   ```
 
-### **Run Test Suites**
+### Manual Docker Commands
 
+1. **Build development image**
+   ```bash
+   docker build -f Dockerfile.dev -t weddinglk:dev .
+   ```
+
+2. **Run development container**
+   ```bash
+   docker run -p 3000:3000 -v $(pwd):/app weddinglk:dev
+   ```
+
+## 🧪 Testing
+
+### Run All Tests
 ```bash
-# Unit tests
-npm run test:unit
-
-# Integration tests
-npm run test:integration
-
-# End-to-end tests
-npm run test:e2e
-
-# All tests
-npm run test:all
-
-# Performance tests
-npm run test:performance
+npm run test
 ```
 
-### **Test Coverage**
-
+### Test Categories
 ```bash
-npm run test:coverage
+npm run test:unit      # Unit tests
+npm run test:api       # API tests
+npm run test:coverage  # Coverage report
+npm run test:watch     # Watch mode
 ```
 
-## 📊 **Performance Metrics**
-
-### **Optimization Results**
-
-| API Endpoint | Before | After | Improvement |
-|--------------|--------|-------|-------------|
-| Health API | 8.74s | 0.04s | **95%** |
-| Vendors API | 15.2s | 4.36s | **71%** |
-| Home Stats | 17.3s | 5.51s | **68%** |
-| Main Page | 8.74s | 0.69s | **92%** |
-
-### **Caching Performance**
-
-- **Cache Hit Rate**: 95%
-- **Response Time Reduction**: 68-99%
-- **Database Query Optimization**: 80% improvement
-- **Memory Usage**: Optimized with intelligent cleanup
-
-## 🔧 **Advanced Features**
-
-### **Intelligent Caching System**
-
-- **Multi-level Caching**: Memory, Redis, and CDN layers
-- **Cache Warming**: Pre-loading for peak usage times
-- **Smart Invalidation**: Context-aware cache management
-- **Stale-while-revalidate**: Always fresh data with fast responses
-
-### **Performance Optimization**
-
-- **Database Connection Pooling**: Optimized connection management
-- **Query Optimization**: Automatic index recommendations
-- **Lazy Loading**: On-demand resource loading
-- **Code Splitting**: Optimized bundle sizes
-
-### **AI Integration**
-
-- **Smart Recommendations**: ML-powered vendor suggestions
-- **Semantic Search**: Natural language query processing
-- **Personalization**: User behavior analysis
-- **Predictive Analytics**: Usage pattern insights
-
-## 🚀 **Deployment**
-
-### **Production Build**
-
+### Docker Testing
 ```bash
-npm run build
-npm start
+# Run tests inside Docker
+./scripts/docker-test.sh
+
+# Or manually
+docker run --rm weddinglk:dev npm run test
 ```
 
-### **Docker Deployment**
+## 🚀 Production Deployment
 
-```bash
-# Build Docker image
-docker build -t weddinglk .
+### Docker Production
 
-# Run container
-docker run -p 3000:3000 weddinglk
+1. **Build production image**
+   ```bash
+   docker build -f Dockerfile -t weddinglk:prod .
+   ```
+
+2. **Deploy with Docker Compose**
+   ```bash
+   docker-compose -f docker-compose.production.yml up -d
+   ```
+
+### VPS/Cloud Deployment
+
+1. **Set deployment variables**
+   ```bash
+   export DEPLOY_HOST="your-vps-ip"
+   export DEPLOY_USER="deploy"
+   ```
+
+2. **Run deployment script**
+   ```bash
+   ./scripts/deploy-production.sh
+   ```
+
+### Manual Deployment
+
+1. **Build and package**
+   ```bash
+   npm run build
+   tar -czf deployment.tar.gz --exclude=node_modules --exclude=.next .
+   ```
+
+2. **Upload to server**
+   ```bash
+   scp deployment.tar.gz user@server:/opt/weddinglk/
+   ```
+
+3. **Deploy on server**
+   ```bash
+   ssh user@server
+   cd /opt/weddinglk
+   tar -xzf deployment.tar.gz
+   docker-compose -f docker-compose.production.yml up -d
+   ```
+
+## 📁 Project Structure
+
+```
+weddinglk-next/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── auth/              # Authentication pages
+│   ├── dashboard/         # Dashboard pages
+│   ├── vendors/           # Vendor pages
+│   └── venues/            # Venue pages
+├── components/             # React components
+│   ├── ui/                # Shadcn UI components
+│   ├── organisms/         # Complex components
+│   └── dashboard/         # Dashboard components
+├── lib/                    # Utility libraries
+│   ├── models/            # Database models
+│   ├── cache/             # Caching strategies
+│   ├── ai/                # AI services
+│   └── auth/              # Authentication utilities
+├── __tests__/             # Test files
+├── scripts/                # Build and deployment scripts
+├── nginx/                  # Nginx configurations
+├── Dockerfile              # Production Dockerfile
+├── Dockerfile.dev          # Development Dockerfile
+├── docker-compose.yml      # Development services
+└── docker-compose.production.yml  # Production services
 ```
 
-### **Environment-specific Builds**
+## 🔧 Configuration
 
-```bash
-# Development
-npm run build:dev
+### Environment Variables
 
-# Production
-npm run build:prod
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXTAUTH_SECRET` | NextAuth secret key | Required |
+| `NEXTAUTH_URL` | Application URL | http://localhost:3000 |
+| `MONGODB_URI` | MongoDB connection string | Required |
+| `REDIS_URL` | Redis connection string | Required |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | Required |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | Required |
 
-# Analysis
-npm run analyze
-```
+### Database Setup
 
-## 📈 **Monitoring & Analytics**
+1. **MongoDB Collections**
+   - `users` - User accounts and profiles
+   - `vendors` - Vendor services and information
+   - `venues` - Venue details and availability
+   - `bookings` - Booking records
+   - `payments` - Payment transactions
+   - `reviews` - User reviews and ratings
 
-### **Performance Dashboard**
+2. **Indexes**
+   - Email uniqueness for users
+   - Location-based queries for vendors/venues
+   - Text search indexes for search functionality
+   - Performance indexes for common queries
 
-Access real-time performance metrics at `/api/performance`:
+## 🧪 Testing Strategy
+
+### Test Types
+
+1. **Unit Tests**
+   - Component testing with React Testing Library
+   - Utility function testing
+   - Model validation testing
+
+2. **API Tests**
+   - Endpoint testing with Supertest
+   - Authentication testing
+   - Data validation testing
+
+3. **Integration Tests**
+   - Database integration testing
+   - Service layer testing
+   - End-to-end workflow testing
+
+4. **Performance Tests**
+   - Load testing with k6
+   - Database query performance
+   - API response time testing
+
+### Test Coverage
+
+- **Target**: 70% minimum coverage
+- **Areas**: Components, API routes, utility functions
+- **Reports**: HTML and console coverage reports
+
+## 🐳 Docker Architecture
+
+### Development Environment
+
+- **Next.js App**: Hot reload with volume mounting
+- **MongoDB**: Local development database
+- **Redis**: Local caching service
+- **Nginx**: Reverse proxy for production-like setup
+- **Admin UIs**: MongoDB Express, Redis Commander
+
+### Production Environment
+
+- **Next.js App**: Optimized production build
+- **MongoDB**: Production database with persistence
+- **Redis**: Production cache with persistence
+- **Nginx**: Production reverse proxy with SSL
+- **Resource Limits**: CPU and memory constraints
+
+## 📊 Monitoring & Performance
+
+### Performance Metrics
 
 - **Response Times**: API endpoint performance
-- **Cache Statistics**: Hit rates and efficiency
-- **Database Metrics**: Connection pool status
-- **Memory Usage**: Resource utilization
+- **Database Queries**: Query optimization and indexing
+- **Cache Hit Rates**: Redis cache effectiveness
+- **Memory Usage**: Application memory consumption
+- **CPU Usage**: Processing efficiency
 
-### **Health Checks**
+### Health Checks
 
-- **API Health**: `/api/health`
-- **Database Status**: Connection monitoring
-- **Cache Status**: Redis connectivity
-- **System Metrics**: Resource usage
+- **Application Health**: `/health` endpoint
+- **Database Health**: MongoDB connection status
+- **Cache Health**: Redis connection status
+- **Service Health**: Docker container status
 
-## 🛠️ **Development Workflow**
+## 🔒 Security Features
 
-### **Code Quality**
+### Authentication & Authorization
+
+- **NextAuth v5**: Secure session management
+- **JWT Tokens**: Stateless authentication
+- **Role-based Access**: User permission system
+- **OAuth Integration**: Google authentication
+
+### Security Headers
+
+- **CSP**: Content Security Policy
+- **HSTS**: HTTP Strict Transport Security
+- **XSS Protection**: Cross-site scripting prevention
+- **Frame Options**: Clickjacking protection
+
+### Rate Limiting
+
+- **API Endpoints**: 20 requests/second
+- **Authentication**: 5 requests/second
+- **General Routes**: 30 requests/second
+
+## 🚀 Performance Optimization
+
+### Frontend Optimization
+
+- **Code Splitting**: Dynamic imports and lazy loading
+- **Image Optimization**: Next.js Image component
+- **Bundle Analysis**: Webpack bundle optimization
+- **Caching**: Static asset caching strategies
+
+### Backend Optimization
+
+- **Database Indexing**: Optimized query performance
+- **Redis Caching**: Frequently accessed data caching
+- **Connection Pooling**: Database connection management
+- **Query Optimization**: Efficient database queries
+
+## 📈 Scaling Considerations
+
+### Horizontal Scaling
+
+- **Load Balancing**: Nginx upstream configuration
+- **Stateless Design**: JWT-based authentication
+- **Database Sharding**: MongoDB sharding strategies
+- **Cache Distribution**: Redis cluster setup
+
+### Vertical Scaling
+
+- **Resource Limits**: Docker resource constraints
+- **Memory Optimization**: Node.js memory management
+- **Database Optimization**: MongoDB performance tuning
+- **Cache Optimization**: Redis memory management
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Docker Connection Issues**
+   ```bash
+   # Check Docker daemon
+   docker info
+   
+   # Restart Docker
+   sudo systemctl restart docker
+   ```
+
+2. **MongoDB Connection Issues**
+   ```bash
+   # Check MongoDB status
+   docker-compose exec mongodb mongosh --eval "db.adminCommand('ping')"
+   
+   # View MongoDB logs
+   docker-compose logs mongodb
+   ```
+
+3. **Build Issues**
+   ```bash
+   # Clear Next.js cache
+   rm -rf .next
+   
+   # Reinstall dependencies
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+### Debug Mode
 
 ```bash
-# Linting
-npm run lint
+# Enable debug logging
+DEBUG=app:* npm run dev
 
-# Formatting
-npm run format
-
-# Type checking
-npm run type-check
+# View detailed logs
+docker-compose logs -f --tail=100
 ```
 
-### **Git Hooks**
-
-- **Pre-commit**: Linting and type checking
-- **Pre-push**: Test suite execution
-- **Commit Message**: Conventional commit format
-
-## 📚 **API Documentation**
-
-### **Core Endpoints**
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/health` | GET | System health status |
-| `/api/performance` | GET | Performance metrics |
-| `/api/vendors` | GET | Vendor listings |
-| `/api/venues` | GET | Venue listings |
-| `/api/home/stats` | GET | Homepage statistics |
-
-### **Authentication Endpoints**
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/[...nextauth]` | GET/POST | NextAuth.js authentication |
-| `/api/auth/register` | POST | User registration |
-| `/api/auth/login` | POST | User login |
-
-## 🔒 **Security Features**
-
-- **JWT Authentication**: Secure token-based auth
-- **OAuth Integration**: Social login providers
-- **Rate Limiting**: API abuse prevention
-- **Input Validation**: XSS and injection protection
-- **CORS Configuration**: Cross-origin security
-
-## 🌟 **Contributing**
-
-### **Development Guidelines**
+## 🤝 Contributing
 
 1. **Fork the repository**
 2. **Create a feature branch**
-3. **Follow coding standards**
-4. **Write comprehensive tests**
-5. **Submit a pull request**
+3. **Make your changes**
+4. **Add tests for new functionality**
+5. **Ensure all tests pass**
+6. **Submit a pull request**
 
-### **Code Standards**
+### Development Guidelines
 
-- **TypeScript**: Strict mode enabled
-- **ESLint**: Airbnb configuration
-- **Prettier**: Consistent formatting
-- **Conventional Commits**: Standard commit messages
+- **Code Style**: Follow existing TypeScript/React patterns
+- **Testing**: Maintain 70%+ test coverage
+- **Documentation**: Update README for new features
+- **Performance**: Consider performance impact of changes
 
-## 📄 **License**
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 **Author**
+## 🙏 Acknowledgments
 
-**Asitha Lakmal** - Final Year University Student
+- **Next.js Team**: For the amazing framework
+- **Shadcn UI**: For beautiful component library
+- **MongoDB**: For robust database solution
+- **Redis**: For fast caching layer
+- **OpenAI**: For AI-powered features
 
-- **Email**: asitha.lakmal@student.university.edu
-- **GitHub**: [@asithalakmal](https://github.com/asithalakmal)
-- **Project**: WeddingLK Next.js Platform
-
-## 🙏 **Acknowledgments**
-
-- **Next.js Team** - Amazing React framework
-- **MongoDB** - Robust database solution
-- **Redis** - High-performance caching
-- **University Faculty** - Guidance and support
-- **Open Source Community** - Inspiring tools and libraries
-
-## 📞 **Support**
-
-For support, questions, or contributions:
+## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/asithalakmal/weddinglk-next/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/asithalakmal/weddinglk-next/discussions)
@@ -367,6 +413,5 @@ For support, questions, or contributions:
 
 ---
 
-**⭐ Star this repository if you find it helpful!**
+**Built with ❤️ for the wedding planning community**
 
-**🎓 Built with ❤️ for Final Year University Project** 

@@ -3,13 +3,11 @@ import { connectDB } from "@/lib/db"
 import VenueBoost from "@/lib/models/venueBoost"
 import { Venue } from "@/lib/models/venue"
 import { User } from "@/lib/models/user"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-
+import { auth } from "@/lib/auth-config"
 // POST /api/venue-boosts - Create new boost campaign
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -142,7 +140,7 @@ export async function POST(request: NextRequest) {
 // GET /api/venue-boosts - Get boost campaigns
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -240,7 +238,7 @@ export async function GET(request: NextRequest) {
 // PUT /api/venue-boosts - Update boost campaign
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -342,7 +340,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/venue-boosts - Delete boost campaign
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

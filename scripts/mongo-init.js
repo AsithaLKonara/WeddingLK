@@ -1,114 +1,202 @@
-// MongoDB initialization script for WeddingLK
+// MongoDB initialization script
 // This script runs when the MongoDB container starts for the first time
 
-db = db.getSiblingDB('weddinglk');
+print('Starting MongoDB initialization...');
 
-// Create collections
-db.createCollection('users');
-db.createCollection('vendors');
-db.createCollection('venues');
-db.createCollection('bookings');
-db.createCollection('reviews');
-db.createCollection('services');
+// Switch to admin database
+db = db.getSiblingDB('admin');
+
+// Create application database
+db = db.getSiblingDB('weddinglk_dev');
+
+// Create collections with validation
+db.createCollection('users', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['email', 'name', 'role'],
+      properties: {
+        email: {
+          bsonType: 'string',
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+        },
+        name: {
+          bsonType: 'string',
+          minLength: 2,
+          maxLength: 100
+        },
+        role: {
+          enum: ['user', 'vendor', 'wedding_planner', 'admin', 'maintainer']
+        }
+      }
+    }
+  }
+});
+
+db.createCollection('vendors', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['name', 'category', 'location'],
+      properties: {
+        name: {
+          bsonType: 'string',
+          minLength: 2,
+          maxLength: 100
+        },
+        category: {
+          bsonType: 'string'
+        },
+        location: {
+          bsonType: 'object',
+          required: ['city'],
+          properties: {
+            city: { bsonType: 'string' }
+          }
+        }
+      }
+    }
+  }
+});
+
+db.createCollection('venues', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['name', 'location', 'capacity'],
+      properties: {
+        name: {
+          bsonType: 'string',
+          minLength: 2,
+          maxLength: 100
+        },
+        capacity: {
+          bsonType: 'int',
+          minimum: 1
+        }
+      }
+    }
+  }
+});
+
+db.createCollection('bookings', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['userId', 'serviceId', 'serviceType', 'date'],
+      properties: {
+        userId: {
+          bsonType: 'objectId'
+        },
+        serviceId: {
+          bsonType: 'objectId'
+        },
+        serviceType: {
+          enum: ['vendor', 'venue']
+        },
+        date: {
+          bsonType: 'date'
+        }
+      }
+    }
+  }
+});
+
+db.createCollection('payments', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['bookingId', 'amount', 'currency', 'status'],
+      properties: {
+        amount: {
+          bsonType: 'number',
+          minimum: 0
+        },
+        currency: {
+          bsonType: 'string',
+          minLength: 3,
+          maxLength: 3
+        },
+        status: {
+          enum: ['pending', 'completed', 'failed', 'refunded']
+        }
+      }
+    }
+  }
+});
+
+db.createCollection('reviews', {
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['userId', 'serviceId', 'serviceType', 'rating', 'comment'],
+      properties: {
+        rating: {
+          bsonType: 'int',
+          minimum: 1,
+          maximum: 5
+        },
+        comment: {
+          bsonType: 'string',
+          maxLength: 1000
+        }
+      }
+    }
+  }
+});
 
 // Create indexes for better performance
-db.users.createIndex({ "email": 1 }, { unique: true });
-db.users.createIndex({ "role": 1 });
-db.vendors.createIndex({ "email": 1 }, { unique: true });
-db.vendors.createIndex({ "category": 1 });
-db.venues.createIndex({ "location": "2dsphere" });
-db.venues.createIndex({ "name": 1 });
-db.bookings.createIndex({ "userId": 1 });
-db.bookings.createIndex({ "vendorId": 1 });
-db.bookings.createIndex({ "date": 1 });
-db.reviews.createIndex({ "vendorId": 1 });
-db.reviews.createIndex({ "rating": 1 });
+print('Creating indexes...');
 
-// Insert sample data
-db.users.insertMany([
-  {
-    _id: ObjectId(),
-    name: "Demo User",
-    email: "demo@weddinglk.com",
-    role: "user",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: ObjectId(),
-    name: "Admin User",
-    email: "admin@weddinglk.com",
-    role: "admin",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-]);
+// Users collection indexes
+db.users.createIndex({ 'email': 1 }, { unique: true });
+db.users.createIndex({ 'role': 1 });
+db.users.createIndex({ 'status': 1 });
+db.users.createIndex({ 'createdAt': 1 });
 
-db.vendors.insertMany([
-  {
-    _id: ObjectId(),
-    name: "Elegant Photography",
-    email: "contact@elegantphotography.com",
-    category: "photography",
-    description: "Professional wedding photography services",
-    location: "Colombo",
-    rating: 4.8,
-    status: "active",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: ObjectId(),
-    name: "Royal Catering",
-    email: "info@royalcatering.com",
-    category: "catering",
-    description: "Premium wedding catering services",
-    location: "Kandy",
-    rating: 4.6,
-    status: "active",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-]);
+// Vendors collection indexes
+db.vendors.createIndex({ 'category': 1 });
+db.vendors.createIndex({ 'location.city': 1 });
+db.vendors.createIndex({ 'rating': -1 });
+db.vendors.createIndex({ 'price.min': 1, 'price.max': 1 });
 
-db.venues.insertMany([
-  {
-    _id: ObjectId(),
-    name: "Grand Hotel Colombo",
-    description: "Luxury wedding venue in the heart of Colombo",
-    location: {
-      type: "Point",
-      coordinates: [79.8612, 6.9271]
-    },
-    address: "123 Main Street, Colombo",
-    capacity: 500,
-    price: 500000,
-    images: ["https://example.com/venue1.jpg"],
-    amenities: ["Parking", "Catering", "Decoration"],
-    status: "active",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: ObjectId(),
-    name: "Garden Palace Kandy",
-    description: "Beautiful garden wedding venue in Kandy",
-    location: {
-      type: "Point",
-      coordinates: [80.6337, 7.2906]
-    },
-    address: "456 Hill Road, Kandy",
-    capacity: 300,
-    price: 350000,
-    images: ["https://example.com/venue2.jpg"],
-    amenities: ["Garden", "Catering", "Photography"],
-    status: "active",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-]);
+// Venues collection indexes
+db.venues.createIndex({ 'location.city': 1 });
+db.venues.createIndex({ 'capacity': 1 });
+db.venues.createIndex({ 'rating': -1 });
+db.venues.createIndex({ 'price.min': 1, 'price.max': 1 });
 
-print("MongoDB initialization completed successfully!");
-print("Database: weddinglk");
-print("Collections created: users, vendors, venues, bookings, reviews, services");
-print("Sample data inserted for testing"); 
+// Bookings collection indexes
+db.bookings.createIndex({ 'userId': 1 });
+db.bookings.createIndex({ 'serviceId': 1 });
+db.bookings.createIndex({ 'date': 1 });
+db.bookings.createIndex({ 'status': 1 });
+
+// Payments collection indexes
+db.payments.createIndex({ 'bookingId': 1 });
+db.payments.createIndex({ 'status': 1 });
+db.payments.createIndex({ 'createdAt': 1 });
+
+// Reviews collection indexes
+db.reviews.createIndex({ 'serviceId': 1 });
+db.reviews.createIndex({ 'rating': 1 });
+db.reviews.createIndex({ 'createdAt': 1 });
+
+// Create text indexes for search
+db.vendors.createIndex({
+  'name': 'text',
+  'description': 'text',
+  'category': 'text',
+  'location.city': 'text'
+});
+
+db.venues.createIndex({
+  'name': 'text',
+  'description': 'text',
+  'location.city': 'text',
+  'amenities': 'text'
+});
+
+print('MongoDB initialization completed successfully!');
+print('Collections created: users, vendors, venues, bookings, payments, reviews');
+print('Indexes created for optimal performance');

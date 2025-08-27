@@ -126,7 +126,7 @@ const RealTimeChat: React.FC<RealTimeChatProps> = ({
     return () => {
       if (timeout) clearTimeout(timeout);
     };
-  }, [newMessage, sendTypingIndicator, receiverId]);
+  }, [newMessage, sendTypingIndicator, receiverId, isTypingTimeout]);
 
   const handleTyping = (value: string) => {
     setNewMessage(value);

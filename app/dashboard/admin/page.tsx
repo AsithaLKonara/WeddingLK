@@ -1,10 +1,12 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   Users, 
   Building2, 
@@ -15,110 +17,242 @@ import {
   CheckCircle,
   Clock,
   Eye,
-  Star
-} from 'lucide-react';
+  Edit,
+  Trash2,
+  Plus,
+  Search,
+  Filter,
+  Download,
+  RefreshCw
+} from "lucide-react"
 
 interface DashboardStats {
-  totalUsers: number;
-  totalVendors: number;
-  totalWeddingPlanners: number;
-  totalBookings: number;
-  totalRevenue: number;
-  pendingVerifications: number;
-  activeUsers: number;
-  conversionRate: number;
+  totalUsers: number
+  totalVendors: number
+  totalVenues: number
+  totalBookings: number
+  totalRevenue: number
+  pendingApprovals: number
+  activeUsers: number
+  conversionRate: number
 }
 
-export default function AdminDashboard() {
+interface User {
+  id: string
+  name: string
+  email: string
+  role: string
+  status: 'active' | 'inactive' | 'pending'
+  joinDate: Date
+  lastActive: Date
+  verified: boolean
+}
+
+interface Vendor {
+  id: string
+  name: string
+  category: string
+  status: 'approved' | 'pending' | 'rejected'
+  rating: number
+  reviewCount: number
+  joinDate: Date
+  verified: boolean
+}
+
+export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalVendors: 0,
-    totalWeddingPlanners: 0,
+    totalVenues: 0,
     totalBookings: 0,
     totalRevenue: 0,
-    pendingVerifications: 0,
+    pendingApprovals: 0,
     activeUsers: 0,
-    conversionRate: 0,
-  });
-  const [loading, setLoading] = useState(true);
+    conversionRate: 0
+  })
+  const [users, setUsers] = useState<User[]>([])
+  const [vendors, setVendors] = useState<Vendor[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedStatus, setSelectedStatus] = useState<string>("all")
 
+  // Mock data for demonstration
   useEffect(() => {
-    // Fetch dashboard stats
-    const fetchStats = async () => {
-      try {
-        // This would be replaced with actual API calls
-        setStats({
-          totalUsers: 1247,
-          totalVendors: 89,
-          totalWeddingPlanners: 23,
-          totalBookings: 456,
-          totalRevenue: 125000,
-          pendingVerifications: 12,
-          activeUsers: 892,
-          conversionRate: 68.5,
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
+    const mockStats: DashboardStats = {
+      totalUsers: 1247,
+      totalVendors: 89,
+      totalVenues: 156,
+      totalBookings: 2341,
+      totalRevenue: 45678900,
+      pendingApprovals: 23,
+      activeUsers: 892,
+      conversionRate: 12.5
+    }
+    
+    const mockUsers: User[] = [
+      {
+        id: "1",
+        name: "Sarah Johnson",
+        email: "sarah@example.com",
+        role: "user",
+        status: "active",
+        joinDate: new Date("2024-01-15"),
+        lastActive: new Date(),
+        verified: true
+      },
+      {
+        id: "2",
+        name: "Mike Chen",
+        email: "mike@example.com",
+        role: "user",
+        status: "active",
+        joinDate: new Date("2024-02-01"),
+        lastActive: new Date(Date.now() - 1000 * 60 * 60 * 24),
+        verified: false
+      },
+      {
+        id: "3",
+        name: "Priya Patel",
+        email: "priya@example.com",
+        role: "user",
+        status: "pending",
+        joinDate: new Date("2024-03-10"),
+        lastActive: new Date(),
+        verified: false
       }
-    };
-
-    fetchStats();
-  }, []);
+    ]
+    
+    const mockVendors: Vendor[] = [
+      {
+        id: "1",
+        name: "Elegant Events",
+        category: "Wedding Planning",
+        status: "approved",
+        rating: 4.8,
+        reviewCount: 127,
+        joinDate: new Date("2023-06-15"),
+        verified: true
+      },
+      {
+        id: "2",
+        name: "Garden Dreams",
+        category: "Venue",
+        status: "pending",
+        rating: 4.5,
+        reviewCount: 89,
+        joinDate: new Date("2024-01-20"),
+        verified: false
+      },
+      {
+        id: "3",
+        name: "Luxury Weddings SL",
+        category: "Full Service",
+        status: "approved",
+        rating: 4.9,
+        reviewCount: 203,
+        joinDate: new Date("2023-03-10"),
+        verified: true
+      }
+    ]
+    
+    setStats(mockStats)
+    setUsers(mockUsers)
+    setVendors(mockVendors)
+    setLoading(false)
+  }, [])
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('si-LK', {
       style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+      currency: 'LKR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(date)
+  }
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      active: { label: "Active", className: "bg-green-100 text-green-800" },
+      inactive: { label: "Inactive", className: "bg-gray-100 text-gray-800" },
+      pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
+      approved: { label: "Approved", className: "bg-green-100 text-green-800" },
+      rejected: { label: "Rejected", className: "bg-red-100 text-red-800" }
+    }
+    
+    const config = statusConfig[status as keyof typeof statusConfig]
+    if (!config) return null
+    
+    return (
+      <Badge className={config.className}>
+        {config.label}
+      </Badge>
+    )
+  }
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = selectedStatus === "all" || user.status === selectedStatus
+    return matchesSearch && matchesStatus
+  })
+
+  const filteredVendors = vendors.filter(vendor => {
+    const matchesSearch = vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         vendor.category.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = selectedStatus === "all" || vendor.status === selectedStatus
+    return matchesSearch && matchesStatus
+  })
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading admin dashboard...</p>
+        </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Platform overview and management console
-          </p>
+          <p className="text-gray-600">Manage your platform and monitor performance</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex space-x-2">
           <Button variant="outline">
-            <Eye className="w-4 h-4 mr-2" />
-            View Reports
+            <Download className="h-4 w-4 mr-2" />
+            Export Data
           </Button>
           <Button>
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Export Data
+            <Plus className="h-4 w-4 mr-2" />
+            Add New
           </Button>
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(stats.totalUsers)}</div>
+            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              +12% from last month
+              +{stats.activeUsers} active this month
             </p>
           </CardContent>
         </Card>
@@ -129,9 +263,22 @@ export default function AdminDashboard() {
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(stats.totalVendors)}</div>
+            <div className="text-2xl font-bold">{stats.totalVendors}</div>
             <p className="text-xs text-muted-foreground">
-              +5% from last month
+              {stats.pendingApprovals} pending approval
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalBookings.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              +12% from last month
             </p>
           </CardContent>
         </Card>
@@ -144,172 +291,210 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
             <p className="text-xs text-muted-foreground">
-              +23% from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.conversionRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              +2.1% from last month
+              {stats.conversionRate}% conversion rate
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Detailed Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* User Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>User Distribution</CardTitle>
-            <CardDescription>Breakdown of platform users by type</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium">Regular Users</span>
-              </div>
-              <Badge variant="secondary">{formatNumber(stats.totalUsers)}</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium">Vendors</span>
-              </div>
-              <Badge variant="secondary">{formatNumber(stats.totalVendors)}</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium">Wedding Planners</span>
-              </div>
-              <Badge variant="secondary">{formatNumber(stats.totalWeddingPlanners)}</Badge>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="users" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="users">Users Management</TabsTrigger>
+          <TabsTrigger value="vendors">Vendors Management</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+        </TabsList>
 
-        {/* Platform Health */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Platform Health</CardTitle>
-            <CardDescription>System status and performance metrics</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Active Users</span>
-                <span className="font-medium">{formatNumber(stats.activeUsers)}</span>
+        {/* Users Management Tab */}
+        <TabsContent value="users" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Users Management</CardTitle>
+              <div className="flex items-center space-x-2 mt-4">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search users..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Progress value={(stats.activeUsers / stats.totalUsers) * 100} />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Conversion Rate</span>
-                <span className="font-medium">{stats.conversionRate}%</span>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredUsers.map((user) => (
+                  <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium">{user.name.charAt(0)}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{user.name}</h3>
+                        <p className="text-sm text-gray-600">{user.email}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          {getStatusBadge(user.status)}
+                          {user.verified && (
+                            <Badge variant="outline" className="text-xs">Verified</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <Progress value={stats.conversionRate} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-600" />
-              Pending Verifications
-            </CardTitle>
-            <CardDescription>
-              {stats.pendingVerifications} items require attention
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">
-              Review All
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>
-              Monitor platform activity
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">
-              View Activity
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-green-600" />
-              Performance
-            </CardTitle>
-            <CardDescription>
-              System performance metrics
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">
-              View Metrics
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Platform Activity</CardTitle>
-          <CardDescription>Latest updates and changes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">New vendor registration approved</p>
-                <p className="text-xs text-gray-500">2 hours ago</p>
+        {/* Vendors Management Tab */}
+        <TabsContent value="vendors" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Vendors Management</CardTitle>
+              <div className="flex items-center space-x-2 mt-4">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search vendors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Users className="h-5 w-5 text-blue-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">25 new users joined today</p>
-                <p className="text-xs text-gray-500">4 hours ago</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredVendors.map((vendor) => (
+                  <div key={vendor.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium">{vendor.name.charAt(0)}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{vendor.name}</h3>
+                        <p className="text-sm text-gray-600">{vendor.category}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          {getStatusBadge(vendor.status)}
+                          <span className="text-sm text-gray-600">
+                            ⭐ {vendor.rating} ({vendor.reviewCount} reviews)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <DollarSign className="h-5 w-5 text-green-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">New booking completed</p>
-                <p className="text-xs text-gray-500">6 hours ago</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Platform Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium">User Growth</h3>
+                  <div className="h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <p className="text-gray-500">Chart placeholder</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="font-medium">Revenue Trends</h3>
+                  <div className="h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <p className="text-gray-500">Chart placeholder</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Settings Tab */}
+        <TabsContent value="settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Platform Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">Email Notifications</h3>
+                    <p className="text-sm text-gray-600">Send email notifications to users</p>
+                  </div>
+                  <Button variant="outline">Configure</Button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">Security Settings</h3>
+                    <p className="text-sm text-gray-600">Manage platform security</p>
+                  </div>
+                  <Button variant="outline">Configure</Button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">API Keys</h3>
+                    <p className="text-sm text-gray-600">Manage third-party integrations</p>
+                  </div>
+                  <Button variant="outline">Configure</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
-  );
+  )
 }

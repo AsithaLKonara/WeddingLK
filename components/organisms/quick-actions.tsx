@@ -100,7 +100,7 @@ export function QuickActions() {
       toast({
         title: "Navigation Error",
         description: "Failed to navigate. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(null)

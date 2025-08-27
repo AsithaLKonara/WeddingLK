@@ -14,30 +14,23 @@ export function AccountSettings() {
   const [isLoading, setIsLoading] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    
+  const handleChangePassword = async () => {
     try {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({ title: "Password changed successfully!", variant: "default" })
+      toast({ title: "Password changed successfully!", type: "success" })
     } catch (error) {
-      toast({ title: "Failed to change password", variant: "destructive" })
-    } finally {
-      setIsLoading(false)
+      toast({ title: "Failed to change password", type: "error" })
     }
   }
 
   const handleDeleteAccount = async () => {
-    setIsLoading(true)
     try {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({ title: "Account deleted", variant: "default" })
+      toast({ title: "Account deleted", type: "success" })
     } catch (error) {
-      toast({ title: "Failed to delete account", variant: "destructive" })
-    } finally {
-      setIsLoading(false)
-      setShowDeleteConfirm(false)
+      toast({ title: "Failed to delete account", type: "error" })
     }
   }
 
@@ -52,7 +45,7 @@ export function AccountSettings() {
           <CardDescription>Update your account password for better security.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
+          <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
               <Input id="currentPassword" type="password" required />

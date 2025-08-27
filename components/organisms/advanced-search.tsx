@@ -159,7 +159,7 @@ export function AdvancedSearch() {
       toast({
         title: "Search Error",
         description: "Failed to perform search. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)

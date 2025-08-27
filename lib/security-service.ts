@@ -407,11 +407,11 @@ class SecurityService {
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
     
     // Clean up old rate limits
-    for (const [key, rateLimit] of this.rateLimits.entries()) {
+    Array.from(this.rateLimits.entries()).forEach(([key, rateLimit]) => {
       if (rateLimit.resetTime < now) {
         this.rateLimits.delete(key)
       }
-    }
+    });
     
     // Clean up old security events
     this.securityEvents = this.securityEvents.filter(e => e.timestamp > oneHourAgo)

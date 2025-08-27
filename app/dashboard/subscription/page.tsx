@@ -75,7 +75,7 @@ export default function SubscriptionPage() {
               <div className="text-xs text-gray-400 mt-1">Renews on {mockPlan.renewsAt}</div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" aria-label="Change Plan" onClick={() => toast({ title: "Change Plan coming soon!", variant: "default" })}>Change Plan</Button>
+              <Button variant="outline" aria-label="Change Plan" onClick={() => toast({ title: "Change Plan coming soon!", type: "default" })}>Change Plan</Button>
               <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="destructive" aria-label="Cancel Subscription">Cancel</Button>
@@ -89,7 +89,7 @@ export default function SubscriptionPage() {
                     <DialogClose asChild>
                       <Button variant="outline">No, Keep Subscription</Button>
                     </DialogClose>
-                    <Button variant="destructive" onClick={() => { setCancelDialogOpen(false); toast({ title: "Subscription cancelled.", variant: "destructive" }) }}>Yes, Cancel</Button>
+                    <Button variant="destructive" onClick={() => { setCancelDialogOpen(false); toast({ title: "Subscription cancelled.", type: "error" }) }}>Yes, Cancel</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

@@ -264,13 +264,13 @@ export class OptimizedStatsService {
     let validEntries = 0;
     let expiredEntries = 0;
     
-    for (const [key, value] of statsCache.entries()) {
+    Array.from(statsCache.entries()).forEach(([key, value]) => {
       if ((now - value.timestamp) < STATS_CACHE_TTL) {
         validEntries++;
       } else {
         expiredEntries++;
       }
-    }
+    });
     
     return {
       totalEntries: statsCache.size,

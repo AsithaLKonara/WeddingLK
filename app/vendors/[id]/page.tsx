@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -86,11 +86,7 @@ export default function VendorDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
-  useEffect(() => {
-    loadVendor()
-  }, [vendorId])
-
-  const loadVendor = async () => {
+  const loadVendor = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -105,7 +101,7 @@ export default function VendorDetailPage() {
         toast({
           title: "Error",
           description: data.error || 'Failed to load vendor',
-          variant: "destructive",
+          type: "error",
         })
       }
     } catch (error) {
@@ -114,12 +110,16 @@ export default function VendorDetailPage() {
       toast({
         title: "Error",
         description: 'Failed to load vendor',
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [vendorId, toast])
+
+  useEffect(() => {
+    loadVendor()
+  }, [loadVendor])
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-LK', {

@@ -149,7 +149,7 @@ export function BudgetTracker() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -159,7 +159,7 @@ export function BudgetTracker() {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid budget amount.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -182,12 +182,13 @@ export function BudgetTracker() {
       toast({
         title: "Category Added",
         description: `${categoryForm.name} has been added to your budget.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to add category. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -199,7 +200,7 @@ export function BudgetTracker() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -209,7 +210,7 @@ export function BudgetTracker() {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid budget amount.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -227,12 +228,13 @@ export function BudgetTracker() {
       toast({
         title: "Category Updated",
         description: `${categoryForm.name} has been updated.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update category. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -246,12 +248,13 @@ export function BudgetTracker() {
       toast({
         title: "Category Deleted",
         description: `${categoryName} has been removed from your budget.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete category. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -263,7 +266,7 @@ export function BudgetTracker() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -273,7 +276,7 @@ export function BudgetTracker() {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid amount.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -304,12 +307,13 @@ export function BudgetTracker() {
       toast({
         title: "Item Added",
         description: `${itemForm.name} has been added to the budget.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to add item. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -321,7 +325,7 @@ export function BudgetTracker() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -331,7 +335,7 @@ export function BudgetTracker() {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid amount.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -358,12 +362,13 @@ export function BudgetTracker() {
       toast({
         title: "Item Updated",
         description: `${itemForm.name} has been updated.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update item. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -387,12 +392,13 @@ export function BudgetTracker() {
       toast({
         title: "Item Deleted",
         description: `${itemName} has been removed from the budget.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete item. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -416,12 +422,13 @@ export function BudgetTracker() {
       toast({
         title: currentPaid ? "Marked as Unpaid" : "Marked as Paid",
         description: `${itemName} has been ${currentPaid ? "marked as unpaid" : "marked as paid"}.`,
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update payment status. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)

@@ -98,27 +98,21 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
       
-      setPosts(prev => prev.map(post => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-            isLiked: !post.isLiked
-          }
-        }
-        return post
-      }))
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, likes: post.isLiked ? post.likes - 1 : post.likes + 1, isLiked: !post.isLiked }
+          : post
+      ))
       
-      const post = posts.find(p => p.id === postId)
       toast({
-        title: post?.isLiked ? "Post Unliked" : "Post Liked",
-        description: post?.isLiked ? "Removed from your likes" : "Added to your likes",
+        title: "Like updated!",
+        type: "success",
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update like. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(null)
@@ -126,63 +120,58 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
   }
 
   const handleComment = async (postId: string) => {
-    setIsLoading(postId)
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      setIsLoading(postId)
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, comments: post.comments + 1 }
+          : post
+      ))
       
       toast({
-        title: "Opening Comments",
-        description: "Taking you to the post comments",
+        title: "Comment added!",
+        type: "success",
       })
-      
-      router.push(`/posts/${postId}`)
     } catch (error) {
       toast({
-        title: "Navigation Error",
-        description: "Failed to open comments. Please try again.",
-        variant: "destructive",
+        title: "Error",
+        description: "Failed to add comment. Please try again.",
+        type: "error",
       })
     } finally {
       setIsLoading(null)
     }
   }
 
-  const handleShare = async (postId: string) => {
-    setIsLoading(postId)
+  const handleShare = async (post: Post) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
       if (navigator.share) {
         await navigator.share({
-          title: "Beautiful Wedding Venue",
-          text: "Check out this amazing wedding venue!",
-          url: `${window.location.origin}/posts/${postId}`,
+          title: "Wedding Venue Post",
+          text: post.content,
+          url: `/venues/${venueId}/posts/${post.id}`
         })
-        
-        setPosts(prev => prev.map(post => 
-          post.id === postId ? { ...post, shares: post.shares + 1 } : post
-        ))
-        
         toast({
-          title: "Post Shared",
-          description: "Successfully shared the post",
+          title: "Post shared!",
+          type: "success",
         })
       } else {
-        // Fallback for browsers that don't support Web Share API
-        await navigator.clipboard.writeText(`${window.location.origin}/posts/${postId}`)
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(`${post.content}: /venues/${venueId}/posts/${post.id}`)
         toast({
-          title: "Link Copied",
-          description: "Post link copied to clipboard",
+          title: "Post link copied to clipboard!",
+          type: "success",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to share post. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
-    } finally {
-      setIsLoading(null)
     }
   }
 
@@ -210,7 +199,7 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
       toast({
         title: "Error",
         description: "Failed to update bookmark. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(null)
@@ -341,7 +330,7 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
                     variant="ghost" 
                     size="sm" 
                     className="p-0 h-auto text-gray-600"
-                    onClick={() => handleShare(post.id)}
+                    onClick={() => handleShare(post)}
                     disabled={isLoading !== null}
                     aria-label="Share post"
                   >

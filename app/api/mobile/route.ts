@@ -40,25 +40,31 @@ export async function POST(request: NextRequest) {
       let result: any
 
       switch (action) {
-        case 'user-data':
+        case 'user-data': {
           result = await MobileAppService.getMobileUserData(data.userId)
           break
-        case 'venues':
+        }
+        case 'venues': {
           result = await MobileAppService.getMobileVenues(data.filters)
           break
-        case 'vendors':
+        }
+        case 'vendors': {
           result = await MobileAppService.getMobileVendors(data.filters)
           break
-        case 'bookings':
+        }
+        case 'bookings': {
           result = await MobileAppService.getMobileBookings(data.userId)
           break
-        case 'push-notification':
+        }
+        case 'push-notification': {
           result = await MobileAppService.sendMobilePushNotification(data.userId, data.notification)
           break
-        default:
+        }
+        default: {
           return NextResponse.json({ 
             error: 'Unsupported action type' 
           }, { status: 400 })
+        }
       }
 
       if (result !== null) {
@@ -118,37 +124,42 @@ export async function GET(request: NextRequest) {
       }
 
       switch (type) {
-        case 'config':
+        case 'config': {
           const config = MobileAppService.getMobileAppConfig()
           return NextResponse.json({
             success: true,
             data: config
           })
-        case 'manifest':
+        }
+        case 'manifest': {
           const manifest = MobileAppService.generateMobileAppManifest()
           return NextResponse.json({
             success: true,
             data: manifest
           })
-        case 'react-native-config':
+        }
+        case 'react-native-config': {
           const rnConfig = MobileAppService.generateReactNativeConfig()
           return NextResponse.json({
             success: true,
             data: rnConfig
           })
-        case 'api-docs':
+        }
+        case 'api-docs': {
           const apiDocs = MobileAppService.generateMobileAPIDocs()
           return NextResponse.json({
             success: true,
             data: apiDocs
           })
-        default:
+        }
+        default: {
           return NextResponse.json({
             success: true,
             message: 'Mobile app service is available',
             types: ['config', 'manifest', 'react-native-config', 'api-docs'],
             actions: ['user-data', 'venues', 'vendors', 'bookings', 'push-notification']
           })
+        }
       }
 
     } catch (error) {

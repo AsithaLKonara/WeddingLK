@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -93,11 +93,7 @@ export function AnalyticsDashboard({ userRole = 'admin', timeRange = '30d' }: An
   const [selectedTimeRange, setSelectedTimeRange] = useState(timeRange)
   const [selectedMetric, setSelectedMetric] = useState('overview')
 
-  useEffect(() => {
-    fetchAnalyticsData()
-  }, [selectedTimeRange, userRole])
-
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/analytics?timeRange=${selectedTimeRange}&role=${userRole}`)
@@ -108,7 +104,11 @@ export function AnalyticsDashboard({ userRole = 'admin', timeRange = '30d' }: An
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedTimeRange, userRole])
+
+  useEffect(() => {
+    fetchAnalyticsData()
+  }, [fetchAnalyticsData])
 
   if (loading) {
     return (

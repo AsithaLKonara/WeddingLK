@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -43,7 +43,7 @@ export default function VenuesPage() {
   const [maxCapacity, setMaxCapacity] = useState("")
   const [minRating, setMinRating] = useState("")
 
-  const fetchVenues = async () => {
+  const fetchVenues = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -67,11 +67,11 @@ export default function VenuesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedLocation, minCapacity, maxCapacity, minRating, searchQuery])
 
   useEffect(() => {
     fetchVenues()
-  }, [searchQuery, selectedLocation, minCapacity, maxCapacity, minRating])
+  }, [fetchVenues])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

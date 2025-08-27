@@ -1,574 +1,473 @@
 "use client"
 
-import { useSearchParams } from 'next/navigation'
-import { useState, useEffect, Suspense } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Store, Calendar, TrendingUp, MessageCircle, Settings, Star, DollarSign, Users, Loader2, Plus, Zap, Package, LayoutDashboard } from 'lucide-react'
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { 
+  Calendar, 
+  CreditCard, 
+  Users, 
+  Star, 
+  TrendingUp, 
+  MessageSquare,
+  Settings,
+  BarChart3,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle
+} from "lucide-react"
+import { DashboardLayout } from "@/components/templates/dashboard-layout"
 
-function VendorDashboardContent() {
-  const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState('overview')
-  const [isLoading, setIsLoading] = useState(true)
-  const [stats, setStats] = useState({
+interface VendorStats {
+  totalBookings: number
+  completedBookings: number
+  pendingBookings: number
+  totalRevenue: number
+  averageRating: number
+  totalReviews: number
+  upcomingBookings: number
+  responseRate: number
+}
+
+interface Booking {
+  id: string
+  clientName: string
+  eventDate: Date
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+  amount: number
+  service: string
+  clientPhone: string
+  clientEmail: string
+  notes: string
+}
+
+export default function VendorDashboard() {
+  const [stats, setStats] = useState<VendorStats>({
     totalBookings: 0,
+    completedBookings: 0,
+    pendingBookings: 0,
     totalRevenue: 0,
     averageRating: 0,
-    activeServices: 0
+    totalReviews: 0,
+    upcomingBookings: 0,
+    responseRate: 0
   })
-  const [analytics, setAnalytics] = useState<any>({})
-  const [services, setServices] = useState<any[]>([])
-  const [bookings, setBookings] = useState<any[]>([])
-  const [messages, setMessages] = useState<any[]>([])
-  const [analyticsLoading, setAnalyticsLoading] = useState(false)
-  const [servicesLoading, setServicesLoading] = useState(false)
-  const [bookingsLoading, setBookingsLoading] = useState(false)
-  const [messagesLoading, setMessagesLoading] = useState(false)
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const tab = searchParams.get('tab') || 'overview'
-    setActiveTab(tab)
-    fetchVendorStats()
-    
-    if (tab === 'services') fetchServices()
-    if (tab === 'bookings') fetchBookings()
-    if (tab === 'analytics') fetchAnalytics()
-    if (tab === 'messages') fetchMessages()
+    fetchVendorData()
+  }, [])
 
-    // Add event listeners for table actions
-    const handleServiceActionEvent = (event: CustomEvent) => {
-      const { serviceId, action } = event.detail
-      handleServiceAction(serviceId, action)
-    }
-
-    const handleBookingActionEvent = (event: CustomEvent) => {
-      const { bookingId, action } = event.detail
-      handleBookingAction(bookingId, action)
-    }
-
-    window.addEventListener('serviceAction', handleServiceActionEvent as EventListener)
-    window.addEventListener('bookingAction', handleBookingActionEvent as EventListener)
-
-    return () => {
-      window.removeEventListener('serviceAction', handleServiceActionEvent as EventListener)
-      window.removeEventListener('bookingAction', handleBookingActionEvent as EventListener)
-    }
-  }, [searchParams, activeTab])
-
-  const fetchVendorStats = async () => {
+  const fetchVendorData = async () => {
     try {
-      const response = await fetch('/api/dashboard/vendor/stats')
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data.stats)
+      // TODO: Replace with real API calls
+      const mockStats: VendorStats = {
+        totalBookings: 47,
+        completedBookings: 32,
+        pendingBookings: 8,
+        totalRevenue: 2345000,
+        averageRating: 4.7,
+        totalReviews: 28,
+        upcomingBookings: 7,
+        responseRate: 95
       }
+
+      const mockBookings: Booking[] = [
+        {
+          id: "1",
+          clientName: "Sarah & Mike",
+          eventDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          status: "confirmed",
+          amount: 85000,
+          service: "Wedding Photography",
+          clientPhone: "+94 71 234 5678",
+          clientEmail: "sarah.mike@email.com",
+          notes: "Outdoor ceremony, indoor reception. Need drone shots."
+        },
+        {
+          id: "2",
+          clientName: "Priya & David",
+          eventDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          status: "pending",
+          amount: 65000,
+          service: "Engagement Shoot",
+          clientPhone: "+94 77 345 6789",
+          clientEmail: "priya.david@email.com",
+          notes: "Beach location, sunset timing preferred."
+        },
+        {
+          id: "3",
+          clientName: "Emma & James",
+          eventDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          status: "completed",
+          amount: 75000,
+          service: "Wedding Photography",
+          clientPhone: "+94 76 456 7890",
+          clientEmail: "emma.james@email.com",
+          notes: "Traditional ceremony, modern reception."
+        }
+      ]
+
+      setStats(mockStats)
+      setBookings(mockBookings)
+      setLoading(false)
     } catch (error) {
-      console.error('Error fetching vendor stats:', error)
-    } finally {
-      setIsLoading(false)
+      console.error('Error fetching vendor data:', error)
+      setLoading(false)
     }
   }
 
-  const fetchServices = async () => {
-    try {
-      setServicesLoading(true)
-      const response = await fetch('/api/dashboard/vendor/services')
-      if (response.ok) {
-        const data = await response.json()
-        setServices(data.services)
-      }
-    } catch (error) {
-      console.error('Error fetching services:', error)
-    } finally {
-      setServicesLoading(false)
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('si-LK', {
+      style: 'currency',
+      currency: 'LKR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'bg-green-500'
+      case 'pending': return 'bg-yellow-500'
+      case 'completed': return 'bg-blue-500'
+      case 'cancelled': return 'bg-red-500'
+      default: return 'bg-gray-500'
     }
   }
 
-  const fetchBookings = async () => {
-    try {
-      setBookingsLoading(true)
-      const response = await fetch('/api/dashboard/vendor/bookings')
-      if (response.ok) {
-        const data = await response.json()
-        setBookings(data.bookings)
-      }
-    } catch (error) {
-      console.error('Error fetching bookings:', error)
-    } finally {
-      setBookingsLoading(false)
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'Confirmed'
+      case 'pending': return 'Pending'
+      case 'completed': return 'Completed'
+      case 'cancelled': return 'Cancelled'
+      default: return 'Unknown'
     }
   }
 
-  const fetchAnalytics = async () => {
-    try {
-      setAnalyticsLoading(true)
-      const response = await fetch('/api/dashboard/vendor/analytics')
-      if (response.ok) {
-        const data = await response.json()
-        setAnalytics(data.analytics)
-      }
-    } catch (error) {
-      console.error('Error fetching analytics:', error)
-    } finally {
-      setAnalyticsLoading(false)
-    }
+  const handleBookingAction = (bookingId: string, action: 'confirm' | 'complete' | 'cancel') => {
+    // TODO: Implement booking actions
+    console.log(`Action ${action} on booking ${bookingId}`)
   }
 
-  const fetchMessages = async () => {
-    try {
-      setMessagesLoading(true)
-      const response = await fetch('/api/dashboard/vendor/messages')
-      if (response.ok) {
-        const data = await response.json()
-        setMessages(data.messages)
-      }
-    } catch (error) {
-      console.error('Error fetching messages:', error)
-    } finally {
-      setMessagesLoading(false)
-    }
-  }
-
-  const handleServiceAction = async (serviceId: string, action: string) => {
-    try {
-      const response = await fetch('/api/dashboard/vendor/services', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          serviceId, 
-          updates: { isActive: action === 'activate' } 
-        })
-      })
-      
-      if (response.ok) {
-        fetchServices()
-        fetchVendorStats()
-      }
-    } catch (error) {
-      console.error('Error updating service:', error)
-    }
-  }
-
-  const handleBookingAction = async (bookingId: string, action: string) => {
-    try {
-      const response = await fetch('/api/dashboard/vendor/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId, action })
-      })
-      
-      if (response.ok) {
-        fetchBookings()
-        fetchVendorStats()
-      }
-    } catch (error) {
-      console.error('Error processing booking action:', error)
-    }
-  }
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-32 w-32 animate-spin text-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading vendor dashboard...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6">
-      {/* Vendor Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-blue-100 rounded-full">
-            <Store className="h-8 w-8 text-blue-600" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold">Vendor Dashboard</h1>
-            <p className="text-gray-600 mt-2">Manage your business, services, and bookings</p>
-          </div>
+    <DashboardLayout title="Vendor Dashboard" description="Manage your bookings and business">
+      <div className="space-y-6">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalBookings}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.upcomingBookings} upcoming
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.completedBookings} completed bookings
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Rating</CardTitle>
+              <Star className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.averageRating}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalReviews} reviews
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.responseRate}%</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.pendingBookings} pending
+              </p>
+            </CardContent>
+          </Card>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon">
-            <Settings className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalBookings}</div>
-            <p className="text-xs text-muted-foreground">+15% from last month</p>
-          </CardContent>
-        </Card>
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="clients">Clients</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">LKR {stats.totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Avg: LKR 39,000</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Rating</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageRating}</div>
-            <p className="text-xs text-muted-foreground">18 reviews</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Services</CardTitle>
-            <Store className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeServices}</div>
-            <p className="text-xs text-muted-foreground">All available</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Vendor Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
-          <TabsTrigger value="services">Services</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="messages">Messages</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="h-5 w-5 mr-2" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">New booking received</p>
-                      <p className="text-xs text-gray-500">1 hour ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Payment received</p>
-                      <p className="text-xs text-gray-500">3 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">New review posted</p>
-                      <p className="text-xs text-gray-500">1 day ago</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
+          <TabsContent value="overview" className="space-y-6">
+            {/* Quick Actions */}
             <Card>
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button className="w-full" variant="outline">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    View Calendar
+                  </Button>
+                  <Button className="w-full" variant="outline">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Messages
+                  </Button>
+                  <Button className="w-full" variant="outline">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Profile Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Bookings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Bookings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {bookings.slice(0, 3).map((booking) => (
+                    <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-3 h-3 rounded-full ${getStatusColor(booking.status)}`}></div>
+                        <div>
+                          <p className="font-medium">{booking.clientName}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {booking.eventDate.toLocaleDateString()} - {booking.service}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium">{formatCurrency(booking.amount)}</span>
+                        <Badge variant="outline">{getStatusText(booking.status)}</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="bookings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Bookings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {bookings.map((booking) => (
+                    <div key={booking.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="font-medium">{booking.clientName}</h3>
+                          <p className="text-sm text-muted-foreground">{booking.service}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium">{formatCurrency(booking.amount)}</span>
+                          <Badge variant="outline">{getStatusText(booking.status)}</Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Event Date</p>
+                          <p className="font-medium">{booking.eventDate.toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Contact</p>
+                          <p className="font-medium">{booking.clientPhone}</p>
+                          <p className="text-sm text-muted-foreground">{booking.clientEmail}</p>
+                        </div>
+                      </div>
+                      
+                      {booking.notes && (
+                        <div className="mb-4">
+                          <p className="text-sm text-muted-foreground">Notes</p>
+                          <p className="text-sm">{booking.notes}</p>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center space-x-2">
+                        {booking.status === 'pending' && (
+                          <>
+                            <Button size="sm" onClick={() => handleBookingAction(booking.id, 'confirm')}>
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Confirm
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleBookingAction(booking.id, 'cancel')}>
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Decline
+                            </Button>
+                          </>
+                        )}
+                        
+                        {booking.status === 'confirmed' && (
+                          <Button size="sm" onClick={() => handleBookingAction(booking.id, 'complete')}>
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Mark Complete
+                          </Button>
+                        )}
+                        
+                        <Button size="sm" variant="outline">
+                          <MessageSquare className="h-4 w-4 mr-1" />
+                          Message Client
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="clients" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Client Management</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Service Management</p>
-                      <p className="text-xs text-gray-500">Manage your services</p>
+                      <h3 className="text-lg font-medium">Client Overview</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Manage your client relationships and communication
+                      </p>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => setActiveTab('services')}>
-                      Manage Services
+                    <Button>
+                      <Users className="h-4 w-4 mr-2" />
+                      View All Clients
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Booking Calendar</p>
-                      <p className="text-xs text-gray-500">View your schedule</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{stats.totalBookings}</div>
+                      <p className="text-sm text-muted-foreground">Total Clients</p>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => setActiveTab('bookings')}>
-                      View Calendar
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Business Profile</p>
-                      <p className="text-xs text-gray-500">Update your profile</p>
+                    <div className="p-4 border rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">{stats.completedBookings}</div>
+                      <p className="text-sm text-muted-foreground">Satisfied Clients</p>
                     </div>
-                    <Button size="sm" variant="outline">
-                      Update Profile
-                    </Button>
+                    <div className="p-4 border rounded-lg">
+                      <div className="text-2xl font-bold text-yellow-600">{stats.pendingBookings}</div>
+                      <p className="text-sm text-muted-foreground">Pending Responses</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="bookings" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Calendar className="h-5 w-5 mr-2" />
-                Booking Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {bookingsLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin" />
-                  <p>Loading bookings...</p>
-                </div>
-              ) : bookings.length > 0 ? (
+          <TabsContent value="analytics" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Business Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-4">
-                  {bookings.map((booking: any) => (
-                    <div key={booking._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Calendar className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{booking.client?.name || 'Unknown Client'}</p>
-                          <p className="text-sm text-gray-500">{new Date(booking.date).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
-                          booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {booking.status}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleBookingAction(booking._id, 'confirm')}
-                        >
-                          Confirm
-                        </Button>
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-medium">Performance Metrics</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Track your business performance and growth
+                      </p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No bookings yet</p>
-                  <p className="text-sm">Bookings will appear here once clients make reservations</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="services" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Store className="h-5 w-5 mr-2" />
-                  Service Management
-                </div>
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Service
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {servicesLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin" />
-                  <p>Loading services...</p>
-                </div>
-              ) : services.length > 0 ? (
-                <div className="space-y-4">
-                  {services.map((service: any) => (
-                    <div key={service._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <Store className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{service.name}</p>
-                          <p className="text-sm text-gray-500">{service.category}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          service.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          {service.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleServiceAction(service._id, service.isActive ? 'deactivate' : 'activate')}
-                        >
-                          {service.isActive ? 'Deactivate' : 'Activate'}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Store className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No services yet</p>
-                  <p className="text-sm">Add your first service to start receiving bookings</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="boosts" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Zap className="h-5 w-5 mr-2" />
-                Boost Campaigns
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <Zap className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>Boost your venue visibility</p>
-                <p className="text-sm">Create targeted campaigns to reach more couples</p>
-                <Button className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Boost Campaign
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                Business Analytics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {analyticsLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin" />
-                  <p>Loading analytics...</p>
-                </div>
-              ) : analytics && analytics.bookings && analytics.revenue && analytics.reviews ? (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button variant="outline">
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      Export Report
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 border rounded-lg">
-                      <h3 className="font-semibold">Bookings</h3>
-                      <p className="text-2xl font-bold">{analytics.bookings.total || 0}</p>
-                      <p className="text-sm text-gray-500">Total bookings in period</p>
+                      <div className="text-2xl font-bold text-green-600">{stats.averageRating}</div>
+                      <p className="text-sm text-muted-foreground">Average Rating</p>
                     </div>
                     <div className="p-4 border rounded-lg">
-                      <h3 className="font-semibold">Revenue</h3>
-                      <p className="text-2xl font-bold">LKR {analytics.revenue.data?.totalRevenue?.toLocaleString() || 0}</p>
-                      <p className="text-sm text-gray-500">Total revenue in period</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <h3 className="font-semibold">Reviews</h3>
-                      <p className="text-2xl font-bold">{analytics.reviews.data?.averageRating?.toFixed(1) || 0}</p>
-                      <p className="text-sm text-gray-500">Average rating</p>
+                      <div className="text-2xl font-bold text-blue-600">{stats.responseRate}%</div>
+                      <p className="text-sm text-muted-foreground">Response Rate</p>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <TrendingUp className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No analytics data yet</p>
-                  <p className="text-sm">Analytics will appear here once you have activity</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="messages" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <MessageCircle className="h-5 w-5 mr-2" />
-                Client Messages
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {messagesLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin" />
-                  <p>Loading messages...</p>
-                </div>
-              ) : messages.length > 0 ? (
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-4">
-                  {messages.map((message: any) => (
-                    <div key={message._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                          <MessageCircle className="h-5 w-5 text-orange-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{message.client?.name || 'Unknown Client'}</p>
-                          <p className="text-sm text-gray-500 line-clamp-2">{message.content}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">{new Date(message.createdAt).toLocaleDateString()}</p>
-                        {!message.isRead && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto mt-2"></div>
-                        )}
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-medium">Account Settings</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Manage your profile and business information
+                      </p>
                     </div>
-                  ))}
+                    <Button>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2">Business Hours</h4>
+                      <p className="text-sm text-muted-foreground">9:00 AM - 6:00 PM</p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2">Service Areas</h4>
+                      <p className="text-sm text-muted-foreground">Colombo, Kandy, Galle</p>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <MessageCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No messages yet</p>
-                  <p className="text-sm">Client messages will appear here once they contact you</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
-}
-
-export default function VendorDashboard() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <VendorDashboardContent />
-    </Suspense>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardLayout>
   )
 }

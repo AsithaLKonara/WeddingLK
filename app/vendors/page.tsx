@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -49,12 +49,7 @@ export default function VendorsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState("")
 
-  useEffect(() => {
-    fetchVendors()
-    fetchCategories()
-  }, [])
-
-  const fetchVendors = async () => {
+  const fetchVendors = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -76,9 +71,9 @@ export default function VendorsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedCategory, selectedLocation, searchQuery])
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch('/api/vendors/categories')
       if (response.ok) {
@@ -88,11 +83,16 @@ export default function VendorsPage() {
     } catch (error) {
       console.error('Failed to fetch categories:', error)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchVendors()
-  }, [searchQuery, selectedCategory, selectedLocation])
+    fetchCategories()
+  }, [fetchVendors, fetchCategories])
+
+  useEffect(() => {
+    fetchVendors()
+  }, [fetchVendors])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

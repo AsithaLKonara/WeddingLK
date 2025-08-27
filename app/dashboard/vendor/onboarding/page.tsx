@@ -85,7 +85,7 @@ export default function VendorOnboardingWizard() {
       toast({
         title: "Upload Failed",
         description: error instanceof Error ? error.message : 'Failed to upload file',
-        variant: "destructive",
+        type: "error",
       })
       return null
     } finally {
@@ -142,14 +142,14 @@ export default function VendorOnboardingWizard() {
       const result = await res.json()
       if (res.ok && result.success) {
         setSuccess(true)
-        toast({ title: "Saved!", variant: "default" })
+        toast({ title: "Saved!", type: "success" })
       } else {
         setErrors({ api: result.error || "Failed to save data" })
-        toast({ title: result.error || "Failed to save data", variant: "destructive" })
+        toast({ title: result.error || "Failed to save data", type: "error" })
       }
     } catch (err) {
       setErrors({ api: "Network error" })
-      toast({ title: "Network error", variant: "destructive" })
+      toast({ title: "Network error", type: "error" })
     } finally {
       setLoading(false)
     }

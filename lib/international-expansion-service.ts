@@ -410,9 +410,9 @@ class InternationalExpansionService {
   async getSupportedCurrencies(): Promise<string[]> {
     const currencies = new Set<string>()
     
-    for (const region of this.supportedRegions.values()) {
+    Array.from(this.supportedRegions.values()).forEach(region => {
       region.currencies.forEach(currency => currencies.add(currency))
-    }
+    });
     
     return Array.from(currencies)
   }
@@ -457,9 +457,9 @@ class InternationalExpansionService {
   async getSupportedLanguages(): Promise<string[]> {
     const languages = new Set<string>()
     
-    for (const region of this.supportedRegions.values()) {
+    Array.from(this.supportedRegions.values()).forEach(region => {
       region.languages.forEach(language => languages.add(language))
-    }
+    });
     
     return Array.from(languages)
   }

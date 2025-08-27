@@ -4,13 +4,12 @@ import { Booking } from "@/lib/models/booking"
 import { Venue } from "@/lib/models/venue"
 import { Vendor } from "@/lib/models/vendor"
 import { User } from "@/lib/models/user"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { auth } from "@/lib/auth-config"
 
 // POST /api/bookings - Create booking
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -105,7 +104,7 @@ export async function POST(request: NextRequest) {
 // GET /api/bookings - Get bookings
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -195,7 +194,7 @@ export async function GET(request: NextRequest) {
 // PUT /api/bookings - Update booking
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -269,7 +268,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/bookings - Cancel booking
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

@@ -324,7 +324,7 @@ class RealTimeCollaborationService {
 
   private handleDisconnect(socket: any) {
     // Find and remove user from all sessions
-    for (const [sessionId, session] of this.activeSessions.entries()) {
+    Array.from(this.activeSessions.entries()).forEach(([sessionId, session]) => {
       if (session.activeUsers.has(socket.id)) {
         const userSession = session.activeUsers.get(socket.id)
         if (userSession) {
@@ -342,7 +342,7 @@ class RealTimeCollaborationService {
           }
         }
       }
-    }
+    });
 
     this.userSessions.delete(socket.id)
     console.log(`🔌 User disconnected from collaboration service: ${socket.id}`)

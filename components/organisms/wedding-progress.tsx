@@ -60,7 +60,7 @@ export function WeddingProgress() {
       toast({
         title: "Error",
         description: "Failed to update milestone status. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -72,7 +72,7 @@ export function WeddingProgress() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -99,7 +99,7 @@ export function WeddingProgress() {
       toast({
         title: "Error",
         description: "Failed to add milestone. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -111,7 +111,7 @@ export function WeddingProgress() {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
-        variant: "destructive",
+        type: "error",
       })
       return
     }
@@ -139,7 +139,7 @@ export function WeddingProgress() {
       toast({
         title: "Error",
         description: "Failed to update milestone. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
@@ -158,7 +158,7 @@ export function WeddingProgress() {
       toast({
         title: "Error",
         description: "Failed to delete milestone. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)

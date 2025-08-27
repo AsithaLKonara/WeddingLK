@@ -279,13 +279,13 @@ export class OptimizedAISearch {
     let validEntries = 0;
     let expiredEntries = 0;
     
-    for (const [key, value] of searchCache.entries()) {
+    Array.from(searchCache.entries()).forEach(([key, value]) => {
       if ((now - value.timestamp) < CACHE_TTL) {
         validEntries++;
       } else {
         expiredEntries++;
       }
-    }
+    });
     
     return {
       totalEntries: searchCache.size,

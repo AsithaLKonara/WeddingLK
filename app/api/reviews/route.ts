@@ -4,13 +4,11 @@ import { Review } from "@/lib/models/review"
 import { User } from "@/lib/models/user"
 import { Vendor } from "@/lib/models/vendor"
 import { Venue } from "@/lib/models/venue"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-
+import { auth } from "@/lib/auth-config"
 // POST /api/reviews - Submit review
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -229,7 +227,7 @@ export async function GET(request: NextRequest) {
 // PUT /api/reviews - Update review
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -304,7 +302,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/reviews - Delete review
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

@@ -1,23 +1,28 @@
-module.exports = {
-  preset: 'ts-jest',
+const nextJest = require('next/jest')
+
+const createJestConfig = nextJest({
+  // Provide the path to your Next.js app to load next.config.js and .env files
+  dir: './',
+})
+
+// Add any custom config to be passed to Jest
+const customJestConfig = {
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.tsx'],
-  setupFiles: ['<rootDir>/tests/setup-env.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testMatch: [
-    '<rootDir>/tests/unit/**/*.test.{ts,tsx}',
-    '<rootDir>/tests/integration/**/*.test.{ts,tsx}',
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
+    '<rootDir>/coverage/',
   ],
   collectCoverageFrom: [
-    'app/**/*.{ts,tsx}',
-    'components/**/*.{ts,tsx}',
-    'lib/**/*.{ts,tsx}',
+    'app/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{js,jsx,ts,tsx}',
+    'lib/**/*.{js,jsx,ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
-    '!**/.next/**',
-    '!**/coverage/**',
   ],
   coverageThreshold: {
     global: {
@@ -27,28 +32,11 @@ module.exports = {
       statements: 70,
     },
   },
-  testEnvironmentOptions: {
-    url: 'http://localhost:3000',
-  },
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.jest.json',
-      jsx: 'react-jsx',
-      useESM: false,
-    }],
-    '^.+\\.mjs$': 'babel-jest',
-    '^.+\\.js$': 'babel-jest',
-  },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  transformIgnorePatterns: [
-    'node_modules/(?!(.*\\.mjs$|next-auth|@next-auth|@auth|mongodb|bson|mongodb-memory-server|@mongodb|mongodb-memory-server-core|@paralleldrive|cuid2|@noble))',
+  testMatch: [
+    '<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/**/*.{test,spec}.{js,jsx,ts,tsx}',
   ],
-  extensionsToTreatAsEsm: ['.ts', '.tsx'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
-    '^next-auth/react$': '<rootDir>/tests/mocks/next-auth-react.js',
-    '^next-auth$': '<rootDir>/tests/mocks/next-auth.js',
-  },
-  coverageReporters: ['text', 'lcov', 'html', 'json'],
-  coverageDirectory: 'coverage',
-}; 
+}
+
+// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
+module.exports = createJestConfig(customJestConfig) 

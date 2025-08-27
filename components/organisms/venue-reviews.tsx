@@ -63,13 +63,13 @@ export function VenueReviews({ reviews, rating, venueId, venueName }: VenueRevie
       toast({
         title: "Thank you!",
         description: "Your feedback helps other couples.",
-        variant: "default"
+        type: "success"
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update helpful status.",
-        variant: "destructive"
+        type: "error"
       })
     }
   }
@@ -82,13 +82,13 @@ export function VenueReviews({ reviews, rating, venueId, venueName }: VenueRevie
       toast({
         title: "Review reported",
         description: "Thank you for helping us maintain quality.",
-        variant: "default"
+        type: "success"
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to report review.",
-        variant: "destructive"
+        type: "error"
       })
     } finally {
       setIsLoading(false)
@@ -103,13 +103,13 @@ export function VenueReviews({ reviews, rating, venueId, venueName }: VenueRevie
       toast({
         title: "More reviews loaded",
         description: "Additional reviews have been loaded.",
-        variant: "default"
+        type: "success"
       })
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to load more reviews.",
-        variant: "destructive"
+        type: "error"
       })
     } finally {
       setIsLoading(false)

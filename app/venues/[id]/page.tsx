@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -77,11 +77,7 @@ export default function VenueDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
-  useEffect(() => {
-    loadVenue()
-  }, [venueId])
-
-  const loadVenue = async () => {
+  const loadVenue = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -96,7 +92,7 @@ export default function VenueDetailPage() {
         toast({
           title: "Error",
           description: data.error || 'Failed to load venue',
-          variant: "destructive",
+          type: "error",
         })
       }
     } catch (error) {
@@ -105,12 +101,16 @@ export default function VenueDetailPage() {
       toast({
         title: "Error",
         description: 'Failed to load venue',
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [venueId, toast])
+
+  useEffect(() => {
+    loadVenue()
+  }, [loadVenue])
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-LK', {

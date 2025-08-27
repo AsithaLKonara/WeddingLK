@@ -28,18 +28,19 @@ export function ContactForm() {
       // Mock API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      toast({ 
+      toast({
         title: "Message sent successfully!", 
         description: "We&apos;ll get back to you as soon as possible.",
-        variant: "default"
+        type: "success"
       })
       
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" })
     } catch (error) {
-      toast({ 
-        title: "Failed to send message", 
+      console.error('Error sending message:', error)
+      toast({
+        title: "Failed to send message",
         description: "Please try again later.",
-        variant: "destructive"
+        type: "error"
       })
     } finally {
       setIsLoading(false)

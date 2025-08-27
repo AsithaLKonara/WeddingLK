@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle, AlertCircle, Activity } from "lucide-react"
@@ -22,7 +22,7 @@ export function PlatformStatus() {
     { name: "AI Search", status: "operational", lastChecked: new Date().toISOString() },
   ])
 
-  const checkSystemStatus = async () => {
+  const checkSystemStatus = useCallback(async () => {
     // This would normally check actual system health
     // For demo purposes, we'll simulate status checks
     const updatedSystems = systems.map((system) => ({
@@ -31,13 +31,13 @@ export function PlatformStatus() {
       responseTime: Math.floor(Math.random() * 200) + 50, // Random response time 50-250ms
     }))
     setSystems(updatedSystems)
-  }
+  }, [systems])
 
   useEffect(() => {
     checkSystemStatus()
     const interval = setInterval(checkSystemStatus, 30000) // Check every 30 seconds
     return () => clearInterval(interval)
-  }, [])
+  }, [checkSystemStatus])
 
   const getStatusIcon = (status: string) => {
     switch (status) {

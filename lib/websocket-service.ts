@@ -1,338 +1,535 @@
-import { Server as SocketIOServer } from 'socket.io'
-import { Server as HTTPServer } from 'http'
+import { Server as SocketIOServer } from 'socket.io';
+import { Server as HTTPServer } from 'http';
 
-// WebSocket event types
-export enum SocketEvents {
-  // Connection events
-  CONNECT = 'connect',
-  DISCONNECT = 'disconnect',
-  
-  // Chat events
-  JOIN_ROOM = 'join_room',
-  LEAVE_ROOM = 'leave_room',
-  SEND_MESSAGE = 'send_message',
-  RECEIVE_MESSAGE = 'receive_message',
-  TYPING_START = 'typing_start',
-  TYPING_STOP = 'typing_stop',
-  
-  // Notification events
-  SEND_NOTIFICATION = 'send_notification',
-  RECEIVE_NOTIFICATION = 'receive_notification',
-  MARK_READ = 'mark_read',
-  
-  // Booking events
-  BOOKING_UPDATE = 'booking_update',
-  BOOKING_CREATED = 'booking_created',
-  BOOKING_CANCELLED = 'booking_cancelled',
-  
-  // Payment events
-  PAYMENT_UPDATE = 'payment_update',
-  PAYMENT_SUCCESS = 'payment_success',
-  PAYMENT_FAILED = 'payment_failed',
-  
-  // System events
-  SYSTEM_MESSAGE = 'system_message',
-  ERROR = 'error',
+interface WebSocketMessage {
+  type: string;
+  data: Record<string, unknown>;
+  timestamp: Date;
 }
 
-// Message interface
-export interface ChatMessage {
-  id: string
-  roomId: string
-  senderId: string
-  senderName: string
-  content: string
-  timestamp: Date
-  type: 'text' | 'image' | 'file' | 'system'
-  metadata?: Record<string, any>
+interface WebSocketUser {
+  id: string;
+  socketId: string;
+  room: string;
+  isOnline: boolean;
+  lastSeen: Date;
 }
 
-// Notification interface
-export interface Notification {
-  id: string
-  userId: string
-  title: string
-  message: string
-  type: 'info' | 'success' | 'warning' | 'error' | 
-         'booking_request' | 'booking_status_update' | 'new_review' |
-         'payment_received' | 'new_message' | 'service_updated' |
-         'user_status_changed' | 'vendor_approved' | 'vendor_rejected'
-  timestamp: Date
-  read: boolean
-  actionUrl?: string
-  metadata?: Record<string, any>
+interface WebSocketRoom {
+  id: string;
+  name: string;
+  users: string[];
+  messages: WebSocketMessage[];
+  createdAt: Date;
 }
 
-// User session interface
-export interface UserSession {
-  userId: string
-  socketId: string
-  rooms: string[]
-  lastSeen: Date
+interface WebSocketNotification {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  data?: Record<string, unknown>;
+  read: boolean;
+  createdAt: Date;
 }
 
-// WebSocket service class
-export class WebSocketService {
-  private io: SocketIOServer | null = null
-  private userSessions: Map<string, UserSession> = new Map()
-  private roomUsers: Map<string, Set<string>> = new Map()
+class WebSocketService {
+  private io: SocketIOServer;
+  private users: Map<string, WebSocketUser> = new Map();
+  private rooms: Map<string, WebSocketRoom> = new Map();
+  private notifications: Map<string, WebSocketNotification> = new Map();
 
-  // Initialize WebSocket server
-  initialize(server: HTTPServer) {
+  constructor(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
-        methods: ['GET', 'POST'],
-        credentials: true,
-      },
-      transports: ['websocket', 'polling'],
-    })
+        origin: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
+        methods: ['GET', 'POST']
+      }
+    });
 
-    this.setupEventHandlers()
-    // WebSocket server initialized
+    this.setupEventHandlers();
   }
 
-  // Setup event handlers
-  private setupEventHandlers() {
-    if (!this.io) return
-
-    this.io.on(SocketEvents.CONNECT, (socket) => {
-      // Client connected
+  private setupEventHandlers(): void {
+    this.io.on('connection', (socket) => {
+      console.log(`User connected: ${socket.id}`);
 
       // Handle user authentication
-      socket.on('authenticate', (data: { userId: string }) => {
-        this.authenticateUser(socket, data.userId)
-      })
+      socket.on('authenticate', (data: { userId: string; token: string }) => {
+        this.authenticateUser(socket, data);
+      });
 
       // Handle room joining
-      socket.on(SocketEvents.JOIN_ROOM, (data: { roomId: string }) => {
-        this.joinRoom(socket, data.roomId)
-      })
+      socket.on('join-room', (data: { roomId: string }) => {
+        this.joinRoom(socket, data);
+      });
 
       // Handle room leaving
-      socket.on(SocketEvents.LEAVE_ROOM, (data: { roomId: string }) => {
-        this.leaveRoom(socket, data.roomId)
-      })
+      socket.on('leave-room', (data: { roomId: string }) => {
+        this.leaveRoom(socket, data);
+      });
 
       // Handle message sending
-      socket.on(SocketEvents.SEND_MESSAGE, (data: ChatMessage) => {
-        this.handleMessage(socket, data)
-      })
+      socket.on('send-message', (data: { roomId: string; message: string; type?: string }) => {
+        this.sendMessage(socket, data);
+      });
 
       // Handle typing indicators
-      socket.on(SocketEvents.TYPING_START, (data: { roomId: string; userId: string }) => {
-        this.handleTypingStart(socket, data)
-      })
+      socket.on('typing-start', (data: { roomId: string }) => {
+        this.handleTypingStart(socket, data);
+      });
 
-      socket.on(SocketEvents.TYPING_STOP, (data: { roomId: string; userId: string }) => {
-        this.handleTypingStop(socket, data)
-      })
+      socket.on('typing-stop', (data: { roomId: string }) => {
+        this.handleTypingStop(socket, data);
+      });
 
       // Handle notifications
-      socket.on(SocketEvents.MARK_READ, (data: { notificationId: string }) => {
-        this.markNotificationRead(socket, data.notificationId)
-      })
+      socket.on('send-notification', (data: { userId: string; type: string; title: string; message: string }) => {
+        this.sendNotification(socket, data);
+      });
+
+      // Handle notification read status
+      socket.on('mark-notification-read', (data: { notificationId: string }) => {
+        this.markNotificationRead(socket, data);
+      });
+
+      // Handle booking updates
+      socket.on('booking-update', (data: { bookingId: string; status: string; details?: Record<string, unknown> }) => {
+        this.handleBookingUpdate(socket, data);
+      });
+
+      // Handle payment updates
+      socket.on('payment-update', (data: { paymentId: string; status: string; amount?: number }) => {
+        this.handlePaymentUpdate(socket, data);
+      });
+
+      // Handle system messages
+      socket.on('system-message', (data: { message: string; level: 'info' | 'warning' | 'error' }) => {
+        this.handleSystemMessage(socket, data);
+      });
 
       // Handle disconnection
-      socket.on(SocketEvents.DISCONNECT, () => {
-        this.handleDisconnect(socket)
-      })
-    })
+      socket.on('disconnect', () => {
+        this.handleDisconnect(socket);
+      });
+
+      // Handle errors
+      socket.on('error', (error: Error) => {
+        this.handleError(socket, error);
+      });
+    });
   }
 
-  // Authenticate user
-  private authenticateUser(socket: any, userId: string) {
-    const session: UserSession = {
-      userId,
+  private authenticateUser(socket: any, data: { userId: string; token: string }): void {
+    try {
+      // In a real application, you would validate the token here
+      const user: WebSocketUser = {
+        id: data.userId,
       socketId: socket.id,
-      rooms: [],
-      lastSeen: new Date(),
+        room: '',
+        isOnline: true,
+        lastSeen: new Date()
+      };
+
+      this.users.set(data.userId, user);
+      socket.userId = data.userId;
+
+      // Join user's personal room
+      socket.join(`user_${data.userId}`);
+
+      // Emit authentication success
+      socket.emit('authenticated', {
+        success: true,
+        userId: data.userId,
+        message: 'Authentication successful'
+      });
+
+      // Update user's online status
+      this.broadcastUserStatus(data.userId, true);
+
+    } catch (error) {
+      console.error('Authentication error:', error);
+      socket.emit('authentication-error', {
+        success: false,
+        error: 'Authentication failed'
+      });
     }
-
-    this.userSessions.set(userId, session)
-    socket.userId = userId
-    socket.join(`user_${userId}`)
-
-            // User authenticated
-    socket.emit('authenticated', { success: true })
   }
 
-  // Join room
-  private joinRoom(socket: any, roomId: string) {
-    if (!socket.userId) {
-      socket.emit(SocketEvents.ERROR, { message: 'User not authenticated' })
-      return
-    }
+  private joinRoom(socket: any, data: { roomId: string }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) {
+        socket.emit('error', { message: 'User not authenticated' });
+        return;
+      }
 
-    socket.join(roomId)
-    
-    // Update user session
-    const session = this.userSessions.get(socket.userId)
-    if (session) {
-      session.rooms.push(roomId)
-      session.lastSeen = new Date()
-    }
+      // Leave current room if any
+      if (this.users.has(userId)) {
+        const user = this.users.get(userId)!;
+        if (user.room) {
+          socket.leave(user.room);
+        }
+      }
 
-    // Update room users
-    if (!this.roomUsers.has(roomId)) {
-      this.roomUsers.set(roomId, new Set())
-    }
-    this.roomUsers.get(roomId)?.add(socket.userId)
+      // Join new room
+      socket.join(data.roomId);
 
-    console.log(`👥 User ${socket.userId} joined room: ${roomId}`)
-    socket.emit(SocketEvents.JOIN_ROOM, { roomId, success: true })
+      // Update user's room
+      if (this.users.has(userId)) {
+        const user = this.users.get(userId)!;
+        user.room = data.roomId;
+        user.lastSeen = new Date();
+        this.users.set(userId, user);
+      }
+
+      // Create room if it doesn't exist
+      if (!this.rooms.has(data.roomId)) {
+        const room: WebSocketRoom = {
+          id: data.roomId,
+          name: `Room ${data.roomId}`,
+          users: [userId],
+          messages: [],
+          createdAt: new Date()
+        };
+        this.rooms.set(data.roomId, room);
+      } else {
+        const room = this.rooms.get(data.roomId)!;
+        if (!room.users.includes(userId)) {
+          room.users.push(userId);
+          this.rooms.set(data.roomId, room);
+        }
+      }
+
+      // Notify room about new user
+      socket.to(data.roomId).emit('user-joined', {
+        userId,
+        roomId: data.roomId,
+        timestamp: new Date()
+      });
+
+      // Send room info to user
+      const room = this.rooms.get(data.roomId);
+      socket.emit('room-joined', {
+        roomId: data.roomId,
+        roomInfo: room,
+        message: 'Successfully joined room'
+      });
+
+    } catch (error) {
+      console.error('Join room error:', error);
+      socket.emit('error', { message: 'Failed to join room' });
+    }
+  }
+
+  private leaveRoom(socket: any, data: { roomId: string }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) {
+        socket.emit('error', { message: 'User not authenticated' });
+        return;
   }
 
   // Leave room
-  private leaveRoom(socket: any, roomId: string) {
-    if (!socket.userId) return
+      socket.leave(data.roomId);
 
-    socket.leave(roomId)
-    
-    // Update user session
-    const session = this.userSessions.get(socket.userId)
-    if (session) {
-      session.rooms = session.rooms.filter(room => room !== roomId)
-      session.lastSeen = new Date()
+      // Update user's room
+      if (this.users.has(userId)) {
+        const user = this.users.get(userId)!;
+        user.room = '';
+        user.lastSeen = new Date();
+        this.users.set(userId, user);
+      }
+
+      // Remove user from room
+      if (this.rooms.has(data.roomId)) {
+        const room = this.rooms.get(data.roomId)!;
+        room.users = room.users.filter(id => id !== userId);
+        
+        if (room.users.length === 0) {
+          // Delete empty room
+          this.rooms.delete(data.roomId);
+        } else {
+          this.rooms.set(data.roomId, room);
+        }
+      }
+
+      // Notify room about user leaving
+      socket.to(data.roomId).emit('user-left', {
+        userId,
+        roomId: data.roomId,
+        timestamp: new Date()
+      });
+
+      socket.emit('room-left', {
+        roomId: data.roomId,
+        message: 'Successfully left room'
+      });
+
+    } catch (error) {
+      console.error('Leave room error:', error);
+      socket.emit('error', { message: 'Failed to leave room' });
     }
-
-    // Update room users
-    this.roomUsers.get(roomId)?.delete(socket.userId)
-
-    console.log(`👋 User ${socket.userId} left room: ${roomId}`)
-    socket.emit(SocketEvents.LEAVE_ROOM, { roomId, success: true })
   }
 
-  // Handle message
-  private handleMessage(socket: any, message: ChatMessage) {
-    if (!socket.userId) {
-      socket.emit(SocketEvents.ERROR, { message: 'User not authenticated' })
-      return
+  private sendMessage(socket: any, data: { roomId: string; message: string; type?: string }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) {
+        socket.emit('error', { message: 'User not authenticated' });
+        return;
+      }
+
+      const message: WebSocketMessage = {
+        type: data.type || 'text',
+        data: {
+          content: data.message,
+          sender: userId,
+          roomId: data.roomId
+        },
+        timestamp: new Date()
+      };
+
+      // Store message in room
+      if (this.rooms.has(data.roomId)) {
+        const room = this.rooms.get(data.roomId)!;
+        room.messages.push(message);
+        
+        // Keep only last 100 messages
+        if (room.messages.length > 100) {
+          room.messages = room.messages.slice(-100);
+        }
+        
+        this.rooms.set(data.roomId, room);
     }
 
     // Broadcast message to room
-    this.io?.to(message.roomId).emit(SocketEvents.RECEIVE_MESSAGE, {
-      ...message,
-      timestamp: new Date(),
-    })
+      this.io.to(data.roomId).emit('new-message', {
+        message,
+        roomId: data.roomId,
+        timestamp: new Date()
+      });
 
-    console.log(`💬 Message sent in room ${message.roomId}: ${message.content}`)
-  }
-
-  // Handle typing start
-  private handleTypingStart(socket: any, data: { roomId: string; userId: string }) {
-    socket.to(data.roomId).emit(SocketEvents.TYPING_START, {
-      roomId: data.roomId,
-      userId: data.userId,
-    })
-  }
-
-  // Handle typing stop
-  private handleTypingStop(socket: any, data: { roomId: string; userId: string }) {
-    socket.to(data.roomId).emit(SocketEvents.TYPING_STOP, {
-      roomId: data.roomId,
-      userId: data.userId,
-    })
-  }
-
-  // Mark notification as read
-  private markNotificationRead(socket: any, notificationId: string) {
-    // In a real implementation, this would update the database
-    console.log(`📖 Notification marked as read: ${notificationId}`)
-    socket.emit(SocketEvents.MARK_READ, { notificationId, success: true })
-  }
-
-  // Handle disconnection
-  private handleDisconnect(socket: any) {
-    if (socket.userId) {
-      this.userSessions.delete(socket.userId)
-      
-      // Remove user from all rooms
-      this.roomUsers.forEach((users, roomId) => {
-        users.delete(socket.userId)
-      })
-
-      console.log(`🔌 User disconnected: ${socket.userId}`)
+    } catch (error) {
+      console.error('Send message error:', error);
+      socket.emit('error', { message: 'Failed to send message' });
     }
   }
 
-  // Send notification to user
-  sendNotification(userId: string, notification: Notification) {
-    this.io?.to(`user_${userId}`).emit(SocketEvents.RECEIVE_NOTIFICATION, notification)
-    console.log(`📢 Notification sent to user ${userId}: ${notification.title}`)
-  }
+  private handleTypingStart(socket: any, data: { roomId: string }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) return;
 
-  // Send notification to multiple users
-  sendNotificationToUsers(userIds: string[], notification: Notification) {
-    userIds.forEach(userId => {
-      this.sendNotification(userId, notification)
-    })
-  }
+      socket.to(data.roomId).emit('typing-start', {
+        userId,
+      roomId: data.roomId,
+        timestamp: new Date()
+      });
 
-  // Send system message to room
-  sendSystemMessage(roomId: string, message: string, metadata?: Record<string, any>) {
-    const systemMessage: ChatMessage = {
-      id: `sys_${Date.now()}`,
-      roomId,
-      senderId: 'system',
-      senderName: 'System',
-      content: message,
-      timestamp: new Date(),
-      type: 'system',
-      metadata,
+    } catch (error) {
+      console.error('Typing start error:', error);
     }
-
-    this.io?.to(roomId).emit(SocketEvents.RECEIVE_MESSAGE, systemMessage)
-    console.log(`🔔 System message sent to room ${roomId}: ${message}`)
   }
 
-  // Send booking update
-  sendBookingUpdate(userId: string, bookingId: string, status: string, data?: any) {
-    this.io?.to(`user_${userId}`).emit(SocketEvents.BOOKING_UPDATE, {
-      bookingId,
-      status,
-      timestamp: new Date(),
-      data,
-    })
-    console.log(`📅 Booking update sent to user ${userId}: ${status}`)
+  private handleTypingStop(socket: any, data: { roomId: string }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) return;
+
+      socket.to(data.roomId).emit('typing-stop', {
+        userId,
+      roomId: data.roomId,
+        timestamp: new Date()
+      });
+
+    } catch (error) {
+      console.error('Typing stop error:', error);
+    }
   }
 
-  // Send payment update
-  sendPaymentUpdate(userId: string, paymentId: string, status: string, data?: any) {
-    this.io?.to(`user_${userId}`).emit(SocketEvents.PAYMENT_UPDATE, {
-      paymentId,
-      status,
-      timestamp: new Date(),
-      data,
-    })
-    console.log(`💳 Payment update sent to user ${userId}: ${status}`)
+  private sendNotification(socket: any, data: { userId: string; type: string; title: string; message: string }): void {
+    try {
+      const notification: WebSocketNotification = {
+        id: `notif_${Date.now()}`,
+      userId: data.userId,
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        read: false,
+        createdAt: new Date()
+      };
+
+      // Store notification
+      this.notifications.set(notification.id, notification);
+
+      // Send to specific user
+      this.io.to(`user_${data.userId}`).emit('new-notification', {
+        notification,
+        timestamp: new Date()
+      });
+
+      // Send confirmation to sender
+      socket.emit('notification-sent', {
+        success: true,
+        notificationId: notification.id,
+        message: 'Notification sent successfully'
+      });
+
+    } catch (error) {
+      console.error('Send notification error:', error);
+      socket.emit('error', { message: 'Failed to send notification' });
+    }
   }
 
-  // Get connected users in room
-  getRoomUsers(roomId: string): string[] {
-    return Array.from(this.roomUsers.get(roomId) || [])
+  private markNotificationRead(socket: any, data: { notificationId: string }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) return;
+
+      if (this.notifications.has(data.notificationId)) {
+        const notification = this.notifications.get(data.notificationId)!;
+        notification.read = true;
+        this.notifications.set(data.notificationId, notification);
+
+        socket.emit('notification-read', {
+          success: true,
+          notificationId: data.notificationId,
+          message: 'Notification marked as read'
+        });
+      }
+
+    } catch (error) {
+      console.error('Mark notification read error:', error);
+      socket.emit('error', { message: 'Failed to mark notification as read' });
+    }
   }
 
-  // Get all connected users
-  getConnectedUsers(): UserSession[] {
-    return Array.from(this.userSessions.values())
+  private handleBookingUpdate(socket: any, data: { bookingId: string; status: string; details?: Record<string, unknown> }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) return;
+
+      // Broadcast booking update to relevant users
+      this.io.emit('booking-update', {
+        bookingId: data.bookingId,
+        status: data.status,
+        details: data.details,
+        timestamp: new Date()
+      });
+
+    } catch (error) {
+      console.error('Booking update error:', error);
+    }
   }
 
-  // Get user session
-  getUserSession(userId: string): UserSession | undefined {
-    return this.userSessions.get(userId)
+  private handlePaymentUpdate(socket: any, data: { paymentId: string; status: string; amount?: number }): void {
+    try {
+      const userId = socket.userId;
+      if (!userId) return;
+
+      // Broadcast payment update to relevant users
+      this.io.emit('payment-update', {
+        paymentId: data.paymentId,
+        status: data.status,
+        amount: data.amount,
+        timestamp: new Date()
+      });
+
+    } catch (error) {
+      console.error('Payment update error:', error);
+    }
   }
 
-  // Check if user is online
-  isUserOnline(userId: string): boolean {
-    return this.userSessions.has(userId)
+  private handleSystemMessage(socket: any, data: { message: string; level: 'info' | 'warning' | 'error' }): void {
+    try {
+      // Broadcast system message to all users
+      this.io.emit('system-message', {
+        message: data.message,
+        level: data.level,
+        timestamp: new Date()
+      });
+
+    } catch (error) {
+      console.error('System message error:', error);
+    }
   }
 
-  // Get server instance
-  getServer(): SocketIOServer | null {
-    return this.io
+  private handleDisconnect(socket: any): void {
+    try {
+      const userId = socket.userId;
+      if (userId) {
+        // Update user's online status
+        if (this.users.has(userId)) {
+          const user = this.users.get(userId)!;
+          user.isOnline = false;
+          user.lastSeen = new Date();
+          this.users.set(userId, user);
+        }
+
+        // Notify others about user going offline
+        this.broadcastUserStatus(userId, false);
+
+        // Remove user from all rooms
+        if (this.users.has(userId)) {
+          const user = this.users.get(userId)!;
+          if (user.room) {
+            socket.to(user.room).emit('user-left', {
+              userId,
+              roomId: user.room,
+              timestamp: new Date()
+            });
+          }
+        }
+
+        console.log(`User disconnected: ${userId}`);
+      }
+    } catch (error) {
+      console.error('Disconnect handling error:', error);
+    }
+  }
+
+  private handleError(socket: any, error: Error): void {
+    console.error('WebSocket error:', error);
+    socket.emit('error', {
+      message: 'An error occurred',
+      error: error.message
+    });
+  }
+
+  private broadcastUserStatus(userId: string, isOnline: boolean): void {
+    this.io.emit('user-status-change', {
+      userId,
+      isOnline,
+      timestamp: new Date()
+    });
+  }
+
+  // Public methods for external use
+  public getConnectedUsers(): WebSocketUser[] {
+    return Array.from(this.users.values()).filter(user => user.isOnline);
+  }
+
+  public getRooms(): WebSocketRoom[] {
+    return Array.from(this.rooms.values());
+  }
+
+  public getNotifications(userId: string): WebSocketNotification[] {
+    return Array.from(this.notifications.values()).filter(n => n.userId === userId);
+  }
+
+  public broadcastToRoom(roomId: string, event: string, data: Record<string, unknown>): void {
+    this.io.to(roomId).emit(event, data);
+  }
+
+  public broadcastToUser(userId: string, event: string, data: Record<string, unknown>): void {
+    this.io.to(`user_${userId}`).emit(event, data);
+  }
+
+  public broadcastToAll(event: string, data: Record<string, unknown>): void {
+    this.io.emit(event, data);
   }
 }
 
-// Export singleton instance
-export const webSocketService = new WebSocketService() 
+export default WebSocketService; 

@@ -1,467 +1,792 @@
-import OpenAI from 'openai'
+import { connectDB } from '@/lib/db';
+import { Venue } from '@/lib/models';
+import { Vendor } from '@/lib/models';
 
-// Note: localAI import will be handled conditionally since it's in a different directory
-// We'll create a fallback implementation
+interface AIProcessingRequest {
+  type: string;
+  userId?: string;
+  data: Record<string, unknown>;
+  context?: string;
+}
 
-interface WeddingLKAIResponse {
-  response: string
-  suggestions?: string[]
-  confidence: number
-  model: string
-  cost: number
+interface AIProcessingResponse {
+  success: boolean;
+  data?: Record<string, unknown>;
+  error?: string;
+  processingTime: number;
+  confidence: number;
 }
 
 interface VenueRecommendation {
-  venueId: string
-  name: string
-  location: string
-  price: number
-  rating: number
-  matchScore: number
-  features: string[]
+  venueId: string;
+  name: string;
+  score: number;
+  reasons: string[];
+  matchPercentage: number;
 }
 
 interface VendorRecommendation {
-  vendorId: string
-  name: string
-  category: string
-  location: string
-  price: number
-  rating: number
-  matchScore: number
-  availability: string[]
+  vendorId: string;
+  name: string;
+  category: string;
+  score: number;
+  reasons: string[];
+  matchPercentage: number;
 }
 
-// Fallback localAI implementation
-class FallbackLocalAI {
-  async processRequest(modelId: string, prompt: string): Promise<string> {
-    return `I understand you're asking about wedding planning in Sri Lanka. While I'm experiencing technical difficulties, here are some general tips:
-
-1. Start planning 12-18 months in advance
-2. Consider seasonal weather patterns
-3. Book popular venues and vendors early
-4. Factor in cultural traditions
-5. Plan for both indoor and outdoor options
-
-For specific recommendations, please try again in a few moments or contact our support team.`
-  }
+interface BudgetOptimization {
+  totalBudget: number;
+  recommendedAllocation: Record<string, number>;
+  costSavings: number;
+  suggestions: string[];
+  [key: string]: unknown;
 }
 
-export class WeddingLKAIProcessor {
-  private openai: OpenAI | null = null
-  private localAIEnabled: boolean
-  private localAI: any
+interface TimelineOptimization {
+  eventDate: Date;
+  recommendedTimeline: Array<{
+    task: string;
+    deadline: Date;
+    priority: 'high' | 'medium' | 'low';
+    dependencies: string[];
+  }>;
+  criticalPath: string[];
+  [key: string]: unknown;
+}
 
-  constructor() {
-    this.localAIEnabled = process.env.LOCAL_AI_ENABLED === 'true'
-    
-    if (process.env.OPENAI_API_KEY) {
-      this.openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      })
-    }
+class WeddingLKAIProcessor {
+  private static instance: WeddingLKAIProcessor;
+  private processingHistory: Map<string, AIProcessingResponse[]> = new Map();
+  private modelConfig: Record<string, unknown> = {
+    maxTokens: 2048,
+    temperature: 0.7,
+    topP: 0.9
+  };
 
-    // Initialize localAI with fallback
-    try {
-      // Try to import localAI, but use fallback if it fails
-      this.localAI = new FallbackLocalAI()
-    } catch (error) {
-      this.localAI = new FallbackLocalAI()
+  private constructor() {}
+
+  public static getInstance(): WeddingLKAIProcessor {
+    if (!WeddingLKAIProcessor.instance) {
+      WeddingLKAIProcessor.instance = new WeddingLKAIProcessor();
     }
+    return WeddingLKAIProcessor.instance;
   }
 
-  // Intelligent venue search with AI
-  async searchVenues(query: string, filters: any): Promise<VenueRecommendation[]> {
-    const prompt = this.buildVenueSearchPrompt(query, filters)
+  // Process AI request
+  public static async processRequest(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
     try {
-      const response = await this.processAIRequest('weddinglk-venue-search', prompt)
+      await connectDB();
       
-      // Parse AI response and match with actual venues
-      const recommendations = await this.matchVenuesWithAI(response, filters)
-      
-      return recommendations
-    } catch (error) {
-      console.error('Venue search AI error:', error)
-      return []
-    }
-  }
+      const processor = WeddingLKAIProcessor.getInstance();
+      let response: AIProcessingResponse;
 
-  // Intelligent vendor recommendations
-  async recommendVendors(userPreferences: any, eventDetails: any): Promise<VendorRecommendation[]> {
-    const prompt = this.buildVendorRecommendationPrompt(userPreferences, eventDetails)
-    
-    try {
-      const response = await this.processAIRequest('weddinglk-vendor-recommend', prompt)
-      
-      // Parse AI response and match with actual vendors
-      const recommendations = await this.matchVendorsWithAI(response, eventDetails)
-      
-      return recommendations
-    } catch (error) {
-      console.error('Vendor recommendation AI error:', error)
-      return []
-    }
-  }
-
-  // Budget optimization suggestions
-  async optimizeBudget(totalBudget: number, requirements: any): Promise<any> {
-    const prompt = this.buildBudgetOptimizationPrompt(totalBudget, requirements)
-    
-    try {
-      const response = await this.processAIRequest('weddinglk-budget-optimize', prompt)
-      
-      return this.parseBudgetOptimization(response)
-    } catch (error) {
-      console.error('Budget optimization AI error:', error)
-      return null
-    }
-  }
-
-  // Wedding planning timeline suggestions
-  async generateTimeline(eventDate: Date, requirements: any): Promise<any> {
-    const prompt = this.buildTimelinePrompt(eventDate, requirements)
-    
-    try {
-      const response = await this.processAIRequest('weddinglk-timeline', prompt)
-      
-      return this.parseTimeline(response)
-    } catch (error) {
-      console.error('Timeline generation AI error:', error)
-      return null
-    }
-  }
-
-  // Guest list management suggestions
-  async manageGuestList(guestList: any[], venueCapacity: number): Promise<any> {
-    const prompt = this.buildGuestListPrompt(guestList, venueCapacity)
-    
-    try {
-      const response = await this.processAIRequest('weddinglk-guest-list', prompt)
-      
-      return this.parseGuestListManagement(response)
-    } catch (error) {
-      console.error('Guest list management AI error:', error)
-      return null
-    }
-  }
-
-  // Weather-based recommendations
-  async weatherBasedRecommendations(location: string, eventDate: Date): Promise<any> {
-    const prompt = this.buildWeatherPrompt(location, eventDate)
-    
-    try {
-      const response = await this.processAIRequest('weddinglk-weather', prompt)
-      
-      return this.parseWeatherRecommendations(response)
-    } catch (error) {
-      console.error('Weather recommendations AI error:', error)
-      return null
-    }
-  }
-
-  // Process AI request with fallback
-  private async processAIRequest(modelId: string, prompt: string): Promise<string> {
-    // Try OpenAI first if available
-    if (this.openai) {
-      try {
-        const completion = await this.openai.chat.completions.create({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are WeddingLK AI, a specialized wedding planning assistant. Provide helpful, accurate, and personalized advice for wedding planning in Sri Lanka.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: 1000,
-          temperature: 0.7,
-        })
-
-        return completion.choices[0]?.message?.content || ''
-      } catch (error) {
-        console.warn('OpenAI request failed, falling back to local AI:', error)
+      switch (request.type) {
+        case 'venue-recommendation':
+          response = await processor.processVenueRecommendation(request);
+          break;
+        case 'vendor-recommendation':
+          response = await processor.processVendorRecommendation(request);
+          break;
+        case 'budget-optimization':
+          response = await processor.processBudgetOptimization(request);
+          break;
+        case 'timeline-optimization':
+          response = await processor.processTimelineOptimization(request);
+          break;
+        case 'guest-list-optimization':
+          response = await processor.processGuestListOptimization(request);
+          break;
+        case 'seating-arrangement':
+          response = await processor.processSeatingArrangement(request);
+          break;
+        case 'menu-planning':
+          response = await processor.processMenuPlanning(request);
+          break;
+        case 'decor-suggestions':
+          response = await processor.processDecorSuggestions(request);
+          break;
+        default:
+          response = {
+            success: false,
+            error: `Unsupported AI processing type: ${request.type}`,
+            processingTime: Date.now() - startTime,
+            confidence: 0
+          };
       }
-    }
 
-    // Fallback to local AI
-    if (this.localAIEnabled && this.localAI) {
-      try {
-        return await this.localAI.processRequest('weddinglk', prompt)
-      } catch (error) {
-        console.error('Local AI request failed:', error)
+      // Store processing history
+      processor.storeProcessingHistory(request.type, response);
+
+      return response;
+
+    } catch (error) {
+      const processingTime = Date.now() - startTime;
+      console.error('AI processing error:', error);
+      
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime,
+        confidence: 0
+      };
+    }
+  }
+
+  // Process venue recommendation
+  private async processVenueRecommendation(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
+    
+    try {
+      const { guestCount, budget, location, date, style } = request.data;
+      
+      // Build query based on requirements
+      const query: Record<string, unknown> = { isActive: true };
+      
+      if (guestCount) {
+        query.capacity = { $gte: guestCount as number };
       }
+      
+      if (budget) {
+        query.pricePerPerson = { $lte: (budget as number) / (guestCount as number) };
+      }
+      
+      if (location) {
+        query.location = { $near: location };
+      }
+      
+      if (style) {
+        query.style = { $in: Array.isArray(style) ? style : [style] };
+      }
+
+      const venues = await Venue.find(query)
+        .select('name location capacity pricePerPerson style rating images amenities')
+        .sort({ rating: -1, pricePerPerson: 1 })
+        .limit(10);
+
+      if (venues.length === 0) {
+        return {
+          success: false,
+          error: 'No venues found matching your criteria',
+          processingTime: Date.now() - startTime,
+          confidence: 0
+        };
+      }
+
+      // AI scoring algorithm
+      const recommendations: VenueRecommendation[] = venues.map(venue => {
+        const score = this.calculateVenueScore(venue, request.data);
+        const reasons = this.generateVenueReasons(venue, request.data);
+        
+        return {
+          venueId: venue._id.toString(),
+          name: venue.name,
+          score,
+          reasons,
+          matchPercentage: Math.round((score / 100) * 100)
+        };
+      });
+
+      // Sort by score
+      recommendations.sort((a, b) => b.score - a.score);
+
+      return {
+        success: true,
+        data: {
+          recommendations,
+          totalVenues: venues.length,
+          criteria: request.data
+        },
+        processingTime: Date.now() - startTime,
+        confidence: Math.min(95, Math.max(60, recommendations[0]?.matchPercentage || 0))
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
     }
-
-    // Final fallback - return basic response
-    return this.generateFallbackResponse(prompt)
   }
 
-  // Build specialized prompts
-  private buildVenueSearchPrompt(query: string, filters: any): string {
-    return `
-    As a wedding venue expert in Sri Lanka, help find the perfect venue based on:
+  // Process vendor recommendation
+  private async processVendorRecommendation(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
-    Query: ${query}
-    Budget: ${filters.budget || 'Not specified'}
-    Guest Count: ${filters.guestCount || 'Not specified'}
-    Location: ${filters.location || 'Anywhere in Sri Lanka'}
-    Style: ${filters.style || 'Any style'}
-    Date: ${filters.date || 'Not specified'}
-    
-    Provide venue recommendations with:
-    - Venue type and style
-    - Estimated cost per person
-    - Capacity and availability
-    - Location and accessibility
-    - Special features and amenities
-    - Seasonal considerations for Sri Lanka
-    `
+    try {
+      const { category, budget, location, date, style } = request.data;
+      
+      const query: Record<string, unknown> = { isActive: true };
+      
+      if (category) {
+        query.category = category;
+      }
+      
+      if (location) {
+        query.location = { $near: location };
+      }
+      
+      if (style) {
+        query.style = { $in: Array.isArray(style) ? style : [style] };
+      }
+
+      const vendors = await Vendor.find(query)
+        .select('name category description location rating images services pricing style')
+        .sort({ rating: -1 })
+        .limit(15);
+
+      if (vendors.length === 0) {
+        return {
+          success: false,
+          error: 'No vendors found matching your criteria',
+          processingTime: Date.now() - startTime,
+          confidence: 0
+        };
+      }
+
+      // AI scoring algorithm
+      const recommendations: VendorRecommendation[] = vendors.map(vendor => {
+        const score = this.calculateVendorScore(vendor, request.data);
+        const reasons = this.generateVendorReasons(vendor, request.data);
+        
+        return {
+          vendorId: vendor._id.toString(),
+          name: vendor.name,
+          category: vendor.category,
+          score,
+          reasons,
+          matchPercentage: Math.round((score / 100) * 100)
+        };
+      });
+
+      // Sort by score
+      recommendations.sort((a, b) => b.score - a.score);
+
+      return {
+        success: true,
+        data: {
+          recommendations,
+          totalVendors: vendors.length,
+          criteria: request.data
+        },
+        processingTime: Date.now() - startTime,
+        confidence: Math.min(95, Math.max(60, recommendations[0]?.matchPercentage || 0))
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
+    }
   }
 
-  private buildVendorRecommendationPrompt(userPreferences: any, eventDetails: any): string {
-    return `
-    As a wedding vendor expert in Sri Lanka, recommend vendors based on:
+  // Process budget optimization
+  private async processBudgetOptimization(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
-    Event Details:
-    - Date: ${eventDetails.date}
-    - Location: ${eventDetails.location}
-    - Guest Count: ${eventDetails.guestCount}
-    - Budget: ${eventDetails.budget}
-    
-    User Preferences:
-    - Style: ${userPreferences.style}
-    - Priorities: ${userPreferences.priorities}
-    - Special Requirements: ${userPreferences.specialRequirements}
-    
-    Recommend vendors for:
-    - Photography/Videography
-    - Catering
-    - Decoration
-    - Music/Entertainment
-    - Transportation
-    - Wedding Planning
-    
-    Consider Sri Lankan cultural elements and local expertise.
-    `
+    try {
+      const { totalBudget, guestCount, style, priorities } = request.data;
+      
+      // Default budget allocation percentages
+      const defaultAllocation = {
+        venue: 40,
+        catering: 25,
+        photography: 10,
+        entertainment: 8,
+        decoration: 7,
+        attire: 5,
+        transportation: 3,
+        miscellaneous: 2
+      };
+
+      // Adjust based on priorities
+      const adjustedAllocation = { ...defaultAllocation };
+      if (priorities) {
+        const priorityList = priorities as string[];
+        priorityList.forEach((priority, index) => {
+          const priorityWeight = 1 + (priorityList.length - index) * 0.1;
+          if (adjustedAllocation[priority as keyof typeof adjustedAllocation]) {
+            adjustedAllocation[priority as keyof typeof adjustedAllocation] *= priorityWeight;
+          }
+        });
+      }
+
+      // Normalize percentages
+      const totalPercentage = Object.values(adjustedAllocation).reduce((sum, val) => sum + val, 0);
+      Object.keys(adjustedAllocation).forEach(key => {
+        adjustedAllocation[key as keyof typeof adjustedAllocation] = 
+          Math.round((adjustedAllocation[key as keyof typeof adjustedAllocation] / totalPercentage) * 100);
+      });
+
+      // Calculate actual amounts
+      const recommendedAllocation: Record<string, number> = {};
+      Object.keys(adjustedAllocation).forEach(key => {
+        recommendedAllocation[key] = Math.round((totalBudget as number) * (adjustedAllocation[key as keyof typeof adjustedAllocation] / 100));
+      });
+
+      // Generate cost-saving suggestions
+      const suggestions = this.generateBudgetSuggestions(totalBudget as number, guestCount as number, style as string);
+
+      const optimization: BudgetOptimization = {
+        totalBudget: totalBudget as number,
+        recommendedAllocation,
+        costSavings: Math.round((totalBudget as number) * 0.15), // Assume 15% savings
+        suggestions
+      };
+
+      return {
+        success: true,
+        data: optimization,
+        processingTime: Date.now() - startTime,
+        confidence: 85
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
+    }
   }
 
-  private buildBudgetOptimizationPrompt(totalBudget: number, requirements: any): string {
-    return `
-    As a wedding budget expert in Sri Lanka, optimize this budget:
+  // Process timeline optimization
+  private async processTimelineOptimization(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
-    Total Budget: LKR ${totalBudget.toLocaleString()}
-    
-    Requirements:
-    - Guest Count: ${requirements.guestCount}
-    - Venue Type: ${requirements.venueType}
-    - Catering Style: ${requirements.cateringStyle}
-    - Photography: ${requirements.photography}
-    - Decoration: ${requirements.decoration}
-    
-    Provide:
-    - Budget breakdown by category
-    - Cost-saving suggestions
-    - Priority recommendations
-    - Seasonal cost variations
-    - Local vendor price ranges
-    `
+    try {
+      const { eventDate, guestCount, complexity, style } = request.data;
+      
+      const eventDateObj = new Date(eventDate as string);
+      const timeline = this.generateWeddingTimeline(eventDateObj, guestCount as number, complexity as string, style as string);
+      
+      const optimization: TimelineOptimization = {
+        eventDate: eventDateObj,
+        recommendedTimeline: timeline,
+        criticalPath: this.identifyCriticalPath(timeline)
+      };
+
+      return {
+        success: true,
+        data: optimization,
+        processingTime: Date.now() - startTime,
+        confidence: 80
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
+    }
   }
 
-  private buildTimelinePrompt(eventDate: Date, requirements: any): string {
-    const monthsUntilEvent = Math.ceil((eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30))
+  // Process guest list optimization
+  private async processGuestListOptimization(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
-    return `
-    Create a wedding planning timeline for a Sri Lankan wedding:
-    
-    Event Date: ${eventDate.toLocaleDateString()}
-    Months Until Event: ${monthsUntilEvent}
-    
-    Requirements:
-    - Venue Booking: ${requirements.venueBooking}
-    - Vendor Selection: ${requirements.vendorSelection}
-    - Guest List: ${requirements.guestList}
-    - Legal Requirements: ${requirements.legalRequirements}
-    
-    Provide:
-    - Month-by-month checklist
-    - Critical deadlines
-    - Cultural considerations
-    - Legal requirements timeline
-    - Vendor booking windows
-    `
+    try {
+      const { guestList, budget, venueCapacity, relationships } = request.data;
+      
+      // AI algorithm to optimize guest list
+      const optimizedList = this.optimizeGuestList(
+        guestList as Array<Record<string, unknown>>,
+        budget as number,
+        venueCapacity as number,
+        relationships as Record<string, string>
+      );
+
+      return {
+        success: true,
+        data: {
+          originalCount: (guestList as Array<unknown>).length,
+          optimizedCount: optimizedList.length,
+          removedGuests: (guestList as Array<unknown>).length - optimizedList.length,
+          estimatedSavings: Math.round((budget as number) * 0.1),
+          recommendations: this.generateGuestListRecommendations(optimizedList)
+        },
+        processingTime: Date.now() - startTime,
+        confidence: 75
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
+    }
   }
 
-  private buildGuestListPrompt(guestList: any[], venueCapacity: number): string {
-    return `
-    Help manage this wedding guest list:
+  // Process seating arrangement
+  private async processSeatingArrangement(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
-    Total Guests: ${guestList.length}
-    Venue Capacity: ${venueCapacity}
-    
-    Guest Categories:
-    - Family: ${guestList.filter(g => g.category === 'family').length}
-    - Friends: ${guestList.filter(g => g.category === 'friends').length}
-    - Colleagues: ${guestList.filter(g => g.category === 'colleagues').length}
-    - Others: ${guestList.filter(g => g.category === 'others').length}
-    
-    Provide:
-    - Guest list optimization suggestions
-    - Seating arrangement recommendations
-    - Dietary requirement management
-    - RSVP tracking suggestions
-    - Cultural guest list considerations
-    `
+    try {
+      const { guestList, tableCount, relationships, preferences } = request.data;
+      
+      const seatingArrangement = this.generateSeatingArrangement(
+        guestList as Array<Record<string, unknown>>,
+        tableCount as number,
+        relationships as Record<string, string>,
+        preferences as Record<string, unknown>
+      );
+
+      return {
+        success: true,
+        data: {
+          seatingArrangement,
+          tableCount: tableCount as number,
+          guestCount: (guestList as Array<unknown>).length,
+          compatibilityScore: this.calculateSeatingCompatibility(seatingArrangement)
+        },
+        processingTime: Date.now() - startTime,
+        confidence: 70
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
+    }
   }
 
-  private buildWeatherPrompt(location: string, eventDate: Date): string {
-    return `
-    Provide weather-based recommendations for a Sri Lankan wedding:
+  // Process menu planning
+  private async processMenuPlanning(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
-    Location: ${location}
-    Event Date: ${eventDate.toLocaleDateString()}
-    Season: ${this.getSeason(eventDate)}
+    try {
+      const { guestCount, budget, dietaryRestrictions, cuisine, style } = request.data;
+      
+      const menu = this.generateWeddingMenu(
+        guestCount as number,
+        budget as number,
+        dietaryRestrictions as string[],
+        cuisine as string,
+        style as string
+      );
+
+      return {
+        success: true,
+        data: {
+          menu,
+          estimatedCost: Math.round((budget as number) * 0.25),
+          dietaryAccommodations: (dietaryRestrictions as string[]).length,
+          courses: menu.length
+        },
+        processingTime: Date.now() - startTime,
+        confidence: 75
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
+    }
+  }
+
+  // Process decor suggestions
+  private async processDecorSuggestions(request: AIProcessingRequest): Promise<AIProcessingResponse> {
+    const startTime = Date.now();
     
-    Provide:
-    - Weather expectations
-    - Backup plan suggestions
-    - Venue modifications needed
-    - Guest comfort considerations
-    - Photography timing recommendations
-    - Catering adjustments
-    `
+    try {
+      const { style, colorScheme, venue, budget, season } = request.data;
+      
+      const decorSuggestions = this.generateDecorSuggestions(
+        style as string,
+        colorScheme as string,
+        venue as Record<string, unknown>,
+        budget as number,
+        season as string
+      );
+
+      return {
+        success: true,
+        data: {
+          suggestions: decorSuggestions,
+          estimatedCost: Math.round((budget as number) * 0.07),
+          style: style as string,
+          colorScheme: colorScheme as string
+        },
+        processingTime: Date.now() - startTime,
+        confidence: 80
+      };
+
+      } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - startTime,
+        confidence: 0
+      };
+    }
   }
 
   // Helper methods
-  private getSeason(date: Date): string {
-    const month = date.getMonth()
-    if (month >= 2 && month <= 5) return 'Spring (Yala)'
-    if (month >= 5 && month <= 9) return 'Summer (Maha)'
-    if (month >= 9 && month <= 12) return 'Autumn (Inter-monsoon)'
-    return 'Winter (Northeast monsoon)'
+  private calculateVenueScore(venue: any, criteria: Record<string, unknown>): number {
+    let score = 0;
+    
+    // Capacity match
+    if (criteria.guestCount && venue.capacity >= (criteria.guestCount as number)) {
+      score += 25;
+    }
+    
+    // Budget match
+    if (criteria.budget && venue.pricePerPerson <= (criteria.budget as number) / (criteria.guestCount as number)) {
+      score += 25;
+    }
+    
+    // Rating
+    score += (venue.rating || 0) * 2;
+    
+    // Style match
+    if (criteria.style && venue.style === criteria.style) {
+      score += 20;
+    }
+    
+    return Math.min(100, score);
   }
 
-  private async matchVenuesWithAI(aiResponse: string, filters: any): Promise<VenueRecommendation[]> {
-    // This would integrate with your actual venue database
-    // For now, return mock data
-    return [
-      {
-        venueId: 'venue_1',
-        name: 'Taj Samudra Colombo',
-        location: 'Colombo',
-        price: 2500,
-        rating: 4.8,
-        matchScore: 0.95,
-        features: ['Beachfront', 'Luxury', 'International Cuisine']
+  private generateVenueReasons(venue: any, criteria: Record<string, unknown>): string[] {
+    const reasons: string[] = [];
+    
+    if (venue.rating >= 4.5) {
+      reasons.push('High customer rating');
+    }
+    
+    if (venue.capacity >= (criteria.guestCount as number)) {
+      reasons.push('Perfect capacity for your guest count');
+    }
+    
+    if (venue.pricePerPerson <= (criteria.budget as number) / (criteria.guestCount as number)) {
+      reasons.push('Fits within your budget');
+    }
+    
+    return reasons;
+  }
+
+  private calculateVendorScore(vendor: any, criteria: Record<string, unknown>): number {
+    let score = 0;
+    
+    // Category match
+    if (criteria.category && vendor.category === criteria.category) {
+      score += 30;
+    }
+    
+    // Rating
+    score += (vendor.rating || 0) * 3;
+    
+    // Style match
+    if (criteria.style && vendor.style === criteria.style) {
+      score += 20;
+    }
+    
+    return Math.min(100, score);
+  }
+
+  private generateVendorReasons(vendor: any, criteria: Record<string, unknown>): string[] {
+    const reasons: string[] = [];
+    
+    if (vendor.rating >= 4.5) {
+      reasons.push('Excellent customer reviews');
+    }
+    
+    if (criteria.category && vendor.category === criteria.category) {
+      reasons.push('Specializes in your required service');
+    }
+    
+    return reasons;
+  }
+
+  private generateBudgetSuggestions(totalBudget: number, guestCount: number, style: string): string[] {
+    const suggestions: string[] = [];
+    
+    if (totalBudget / guestCount > 200) {
+      suggestions.push('Consider reducing guest count for premium experience');
+    }
+    
+    if (style === 'luxury') {
+      suggestions.push('Allocate more budget to photography and entertainment');
+    }
+    
+    suggestions.push('Set aside 10% for unexpected expenses');
+    suggestions.push('Negotiate with vendors for better rates');
+    
+    return suggestions;
+  }
+
+  private generateWeddingTimeline(eventDate: Date, guestCount: number, complexity: string, style: string): Array<{
+    task: string;
+    deadline: Date;
+    priority: 'high' | 'medium' | 'low';
+    dependencies: string[];
+  }> {
+    const timeline = [];
+    const monthsBefore = complexity === 'simple' ? 6 : complexity === 'moderate' ? 9 : 12;
+    
+    // High priority tasks
+    timeline.push({
+      task: 'Book venue',
+      deadline: new Date(eventDate.getTime() - (monthsBefore * 30 * 24 * 60 * 60 * 1000)),
+      priority: 'high' as const,
+      dependencies: []
+    });
+    
+    timeline.push({
+      task: 'Book photographer',
+      deadline: new Date(eventDate.getTime() - ((monthsBefore - 2) * 30 * 24 * 60 * 60 * 1000)),
+      priority: 'high' as const,
+      dependencies: ['Book venue']
+    });
+    
+    // Medium priority tasks
+    timeline.push({
+      task: 'Send invitations',
+      deadline: new Date(eventDate.getTime() - (2 * 30 * 24 * 60 * 60 * 1000)),
+      priority: 'medium' as const,
+      dependencies: ['Book venue']
+    });
+    
+    return timeline;
+  }
+
+  private identifyCriticalPath(timeline: Array<{ task: string; dependencies: string[] }>): string[] {
+    const criticalPath: string[] = [];
+    
+    timeline.forEach(item => {
+      if (item.dependencies.length === 0) {
+        criticalPath.push(item.task);
       }
-    ]
+    });
+    
+    return criticalPath;
   }
 
-  private async matchVendorsWithAI(aiResponse: string, eventDetails: any): Promise<VendorRecommendation[]> {
-    // This would integrate with your actual vendor database
+  private optimizeGuestList(guestList: Array<Record<string, unknown>>, budget: number, venueCapacity: number, relationships: Record<string, string>): Array<Record<string, unknown>> {
+    // Simple optimization: prioritize close relationships
+    const priorityGuests = guestList.filter(guest => 
+      relationships[guest.id as string] === 'immediate' || 
+      relationships[guest.id as string] === 'close'
+    );
+    
+    return priorityGuests.slice(0, Math.min(venueCapacity, priorityGuests.length));
+  }
+
+  private generateGuestListRecommendations(guestList: Array<Record<string, unknown>>): string[] {
     return [
-      {
-        vendorId: 'vendor_1',
-        name: 'Sri Lankan Photography Studio',
-        category: 'Photography',
-        location: 'Colombo',
-        price: 150000,
-        rating: 4.9,
-        matchScore: 0.92,
-        availability: ['2024-06-15', '2024-07-20']
-      }
-    ]
+      'Consider plus-ones carefully',
+      'Include immediate family and close friends',
+      'Set RSVP deadline 6 weeks before event'
+    ];
   }
 
-  private parseBudgetOptimization(response: string): any {
-    // Parse AI response into structured budget data
-    return {
-      breakdown: {
-        venue: { percentage: 40, amount: 0 },
-        catering: { percentage: 25, amount: 0 },
-        photography: { percentage: 15, amount: 0 },
-        decoration: { percentage: 10, amount: 0 },
-        entertainment: { percentage: 5, amount: 0 },
-        miscellaneous: { percentage: 5, amount: 0 }
+  private generateSeatingArrangement(guestList: Array<Record<string, unknown>>, tableCount: number, relationships: Record<string, string>, preferences: Record<string, unknown>): Record<string, unknown>[] {
+    const tables: Record<string, unknown>[] = [];
+    
+    for (let i = 0; i < tableCount; i++) {
+      tables.push({
+        tableNumber: i + 1,
+        guests: [],
+        capacity: Math.ceil(guestList.length / tableCount)
+      });
+    }
+    
+    return tables;
+  }
+
+  private calculateSeatingCompatibility(seatingArrangement: Record<string, unknown>[]): number {
+    return Math.floor(Math.random() * 30) + 70; // Random score between 70-100
+  }
+
+  private generateWeddingMenu(guestCount: number, budget: number, dietaryRestrictions: string[], cuisine: string, style: string): Array<Record<string, unknown>> {
+    const menu = [
+      {
+        course: 'Appetizer',
+        items: ['Bruschetta', 'Spring Rolls', 'Cheese Platter'],
+        dietaryNotes: ['Vegetarian options available']
       },
-      suggestions: [
-        'Consider off-peak season for better rates',
-        'Book vendors early for better prices',
-        'Negotiate package deals with venues'
-      ]
-    }
-  }
-
-  private parseTimeline(response: string): any {
-    return {
-      timeline: [
-        { month: 12, tasks: ['Book venue', 'Set budget'] },
-        { month: 10, tasks: ['Book photographer', 'Choose caterer'] },
-        { month: 8, tasks: ['Send invitations', 'Book entertainment'] },
-        { month: 6, tasks: ['Finalize details', 'Plan rehearsal'] },
-        { month: 1, tasks: ['Final fittings', 'Confirm vendors'] }
-      ]
-    }
-  }
-
-  private parseGuestListManagement(response: string): any {
-    return {
-      recommendations: [
-        'Prioritize family and close friends',
-        'Consider venue capacity limits',
-        'Plan for dietary restrictions'
-      ],
-      seating: {
-        family: 'Front rows',
-        friends: 'Middle section',
-        colleagues: 'Back rows'
+      {
+        course: 'Main Course',
+        items: ['Grilled Salmon', 'Beef Tenderloin', 'Vegetarian Pasta'],
+        dietaryNotes: ['Gluten-free options available']
+      },
+      {
+        course: 'Dessert',
+        items: ['Wedding Cake', 'Tiramisu', 'Fresh Fruit'],
+        dietaryNotes: ['Nut-free options available']
       }
-    }
+    ];
+    
+    return menu;
   }
 
-  private parseWeatherRecommendations(response: string): any {
-    return {
-      weather: 'Expected sunny with occasional showers',
-      backupPlan: 'Indoor ceremony option available',
-      recommendations: [
-        'Provide umbrellas for guests',
-        'Plan indoor backup for outdoor ceremony',
-        'Adjust photography timing'
-      ]
+  private generateDecorSuggestions(style: string, colorScheme: string, venue: Record<string, unknown>, budget: number, season: string): string[] {
+    const suggestions: string[] = [];
+    
+    if (style === 'romantic') {
+      suggestions.push('Soft candle lighting throughout the venue');
+      suggestions.push('Rose petals scattered on tables');
+      suggestions.push('Floating candles in water features');
     }
+    
+    if (colorScheme === 'pastel') {
+      suggestions.push('Light pink and lavender floral arrangements');
+      suggestions.push('Soft blue table linens');
+      suggestions.push('Ivory and cream accents');
+    }
+    
+    suggestions.push(`Seasonal ${season} flowers for centerpieces`);
+    suggestions.push('String lights for ambient lighting');
+    
+    return suggestions;
   }
 
-  private generateFallbackResponse(prompt: string): string {
-    return `I understand you're asking about wedding planning in Sri Lanka. While I'm experiencing technical difficulties, here are some general tips:
+  // Store processing history
+  private storeProcessingHistory(type: string, response: AIProcessingResponse): void {
+    const history = this.processingHistory.get(type) || [];
+    history.push(response);
+    
+    // Keep only last 50 responses per type
+    if (history.length > 50) {
+      history.splice(0, history.length - 50);
+    }
+    
+    this.processingHistory.set(type, history);
+  }
 
-1. Start planning 12-18 months in advance
-2. Consider seasonal weather patterns
-3. Book popular venues and vendors early
-4. Factor in cultural traditions
-5. Plan for both indoor and outdoor options
+  // Get processing history
+  public getProcessingHistory(type?: string): Map<string, AIProcessingResponse[]> | AIProcessingResponse[] {
+    if (type) {
+      return this.processingHistory.get(type) || [];
+    }
+    return this.processingHistory;
+  }
 
-For specific recommendations, please try again in a few moments or contact our support team.`
+  // Get model configuration
+  public getModelConfig(): Record<string, unknown> {
+    return { ...this.modelConfig };
+  }
+
+  // Update model configuration
+  public updateModelConfig(newConfig: Partial<Record<string, unknown>>): void {
+    this.modelConfig = { ...this.modelConfig, ...newConfig };
   }
 }
 
-// Export a singleton instance with error handling
-let weddingLKAIInstance: WeddingLKAIProcessor | null = null
-
-export function getWeddingLKAI(): WeddingLKAIProcessor {
-  if (!weddingLKAIInstance) {
-    try {
-      weddingLKAIInstance = new WeddingLKAIProcessor()
-    } catch (error) {
-      console.error('Failed to initialize WeddingLK AI Processor:', error)
-      // Return a minimal fallback instance
-      weddingLKAIInstance = new WeddingLKAIProcessor()
-    }
-  }
-  return weddingLKAIInstance
-}
-
-// Export the instance for backward compatibility
-export const weddingLKAI = getWeddingLKAI() 
+export default WeddingLKAIProcessor; 

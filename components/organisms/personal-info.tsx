@@ -23,11 +23,11 @@ export function PersonalInfo() {
     setIsLoading(true)
     
     try {
-      // Mock API call
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({ title: "Profile updated successfully!", variant: "default" })
+      toast({ title: "Profile updated successfully!", type: "success" })
     } catch (error) {
-      toast({ title: "Failed to update profile", variant: "destructive" })
+      toast({ title: "Failed to update profile", type: "error" })
     } finally {
       setIsLoading(false)
     }

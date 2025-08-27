@@ -1,12 +1,18 @@
 // AI Service for WeddingLK
 // Provides AI-powered features for wedding planning
 
+import OpenAI from 'openai';
+import { 
+  AIRecommendation,
+  User as UserType,
+  Venue as VenueType,
+  Vendor as VendorType,
+  Booking as BookingType,
+  Payment as PaymentType,
+  UserPreferences
+} from '@/lib/types';
 import { connectDB } from './db';
 import { User, Vendor, Venue, Booking, Payment } from './models';
-import { advancedCache } from './advanced-cache-service';
-
-import OpenAI from 'openai'
-// Removed unused imports for code quality
 
 // Initialize OpenAI client conditionally
 let openai: OpenAI | null = null
@@ -14,15 +20,6 @@ if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   })
-}
-
-interface AIRecommendation {
-  type: 'venue' | 'vendor' | 'service'
-  id: string
-  name: string
-  reason: string
-  confidence: number
-  price: number
 }
 
 interface WeddingPlan {
@@ -79,10 +76,10 @@ class AIService {
         Style: ${preferences.style}
         
         Available Venues:
-        ${venues.map((v: any) => `- ${v.name}: ${v.location}, LKR ${v.price}, ${v.capacity} guests`).join('\n')}
+        ${venues.map((v: VenueType) => `- ${v.name}: ${v.location}, LKR ${v.price}, ${v.capacity} guests`).join('\n')}
         
         Available Vendors:
-        ${vendors.map((v: any) => `- ${v.name}: ${v.category}, ${v.location}, LKR ${v.price}`).join('\n')}
+        ${vendors.map((v: VendorType) => `- ${v.name}: ${v.category}, ${v.location}, LKR ${v.price}`).join('\n')}
         
         Provide 3 venue recommendations and 2 vendor recommendations with reasons.
         Format as JSON array with: type, id, name, reason, confidence (0-1), price
@@ -105,7 +102,7 @@ class AIService {
   }
 
   // Get basic recommendations when AI is not available
-  private getBasicRecommendations(venues: any[], vendors: any[], preferences: any): AIRecommendation[] {
+  private getBasicRecommendations(venues: VenueType[], vendors: VendorType[], preferences: UserPreferences): AIRecommendation[] {
     const recommendations: AIRecommendation[] = []
 
     // Add top-rated venues
@@ -118,8 +115,11 @@ class AIService {
         type: 'venue',
         id: venue._id.toString(),
         name: venue.name,
-        reason: `Highly rated venue (${venue.rating}/5) in ${venue.location}`,
+        title: venue.name,
+        description: `Highly rated venue (${venue.rating}/5) in ${venue.location}`,
         confidence: 0.8,
+        score: venue.rating,
+        data: { price: venue.price, location: venue.location },
         price: venue.price
       })
     })
@@ -134,8 +134,11 @@ class AIService {
         type: 'vendor',
         id: vendor._id.toString(),
         name: vendor.name,
-        reason: `Top-rated ${vendor.category} service in ${vendor.location}`,
+        title: vendor.name,
+        description: `Top-rated ${vendor.category} service in ${vendor.location}`,
         confidence: 0.8,
+        score: vendor.rating,
+        data: { price: vendor.price, category: vendor.category },
         price: vendor.price
       })
     })
@@ -195,7 +198,7 @@ class AIService {
   }
 
   // Get basic wedding timeline when AI is not available
-  private getBasicWeddingTimeline(daysUntilWedding: number, preferences: any): WeddingPlan {
+  private getBasicWeddingTimeline(daysUntilWedding: number, preferences: UserPreferences): WeddingPlan {
     const timeline = [
       {
         date: new Date(Date.now() + (daysUntilWedding - 60) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -222,11 +225,11 @@ class AIService {
       budget: {
         total: preferences.budget || 500000,
         breakdown: {
-          venue: preferences.budget * 0.4 || 200000,
-          catering: preferences.budget * 0.25 || 125000,
-          photography: preferences.budget * 0.15 || 75000,
-          decoration: preferences.budget * 0.1 || 50000,
-          other: preferences.budget * 0.1 || 50000
+          venue: (preferences.budget || 500000) * 0.4,
+          catering: (preferences.budget || 500000) * 0.25,
+          photography: (preferences.budget || 500000) * 0.15,
+          decoration: (preferences.budget || 500000) * 0.1,
+          other: (preferences.budget || 500000) * 0.1
         },
         recommendations: [
           'Consider booking vendors early for better rates',
@@ -256,7 +259,7 @@ class AIService {
   }
 
   // Smart search with semantic understanding
-  async semanticSearch(query: string, filters: any = {}): Promise<{ venues: any[], vendors: any[], extractedParams: any }> {
+  async semanticSearch(query: string, filters: any = {}): Promise<{ venues: VenueType[], vendors: VendorType[], extractedParams: any }> {
     try {
       await connectDB()
       
@@ -451,7 +454,7 @@ class AIService {
       .map(b => b.services || b.vendorCategory || [])
       .flat()
       .filter(Boolean)
-    return [...new Set(categories)]
+    return Array.from(new Set(categories))
   }
 
   private calculateActivityLevel(bookings: any[], payments: any[]): 'low' | 'medium' | 'high' {

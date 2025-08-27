@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,7 +54,7 @@ function EnhancedRegistrationContent() {
   }, [searchParams]);
 
   // Define registration steps
-  const registrationSteps: RegistrationStep[] = [
+  const registrationSteps = useMemo<RegistrationStep[]>(() => [
     {
       id: 'role_selection',
       title: 'Choose Your Role',
@@ -95,7 +95,7 @@ function EnhancedRegistrationContent() {
       required: true,
       estimatedTime: 3
     }
-  ];
+  ], [selectedRole]);
 
   // Update step status based on current progress
   useEffect(() => {
@@ -109,7 +109,7 @@ function EnhancedRegistrationContent() {
       }
     });
     // Note: In a real implementation, you'd update the steps state here
-  }, [currentStep, selectedRole]);
+  }, [currentStep, selectedRole, registrationSteps]);
 
   const handleRoleSelection = (role: string) => {
     setSelectedRole(role);

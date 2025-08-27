@@ -91,7 +91,7 @@ export function SavedVenues() {
       toast({
         title: "Navigation Error",
         description: "Failed to open venue. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(null)
@@ -109,8 +109,8 @@ export function SavedVenues() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to remove venue. Please try again.",
-        variant: "destructive",
+        description: "Failed to remove venue from saved list. Please try again.",
+        type: "error",
       })
     } finally {
       setIsLoading(null)
@@ -135,10 +135,39 @@ export function SavedVenues() {
       toast({
         title: "Booking Error",
         description: "Failed to start booking. Please try again.",
-        variant: "destructive",
+        type: "error",
       })
     } finally {
       setIsLoading(null)
+    }
+  }
+
+  const handleShareVenue = async (venue: SavedVenue) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: venue.name,
+          text: `Check out this amazing venue: ${venue.name}`,
+          url: `/venues/${venue.id}`
+        })
+        toast({
+          title: "Venue shared successfully!",
+          type: "success",
+        })
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(`${venue.name}: /venues/${venue.id}`)
+        toast({
+          title: "Venue link copied to clipboard!",
+          type: "success",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to share venue. Please try again.",
+        type: "error",
+      })
     }
   }
 

@@ -44,18 +44,18 @@ export function VenueBooking({ venue }: VenueBookingProps) {
     if (!bookingData.phone || !/^\+?\d{10,15}$/.test(bookingData.phone.replace(/\s/g, ""))) err.phone = "Enter a valid phone number"
     setErrors(err)
     if (Object.keys(err).length > 0) {
-      toast({ title: "Please fix the errors above.", variant: "destructive" })
+      toast({ title: "Please fix the errors above.", type: "error" })
       return
     }
     setIsSubmitting(true)
     try {
       // Simulate API call
       await new Promise((res) => setTimeout(res, 1200))
-      toast({ title: "Booking request sent!", variant: "default" })
+      toast({ title: "Booking request sent!", type: "success" })
       setBookingData({ date: "", guests: "", name: "", email: "", phone: "", message: "" })
       setErrors({})
     } catch {
-      toast({ title: "Failed to send booking request.", variant: "destructive" })
+      toast({ title: "Failed to send booking request.", type: "error" })
     } finally {
       setIsSubmitting(false)
     }

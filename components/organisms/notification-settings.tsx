@@ -26,10 +26,11 @@ export function NotificationSettings() {
   const handleSave = async () => {
     setIsLoading(true)
     try {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      toast({ title: "Settings saved successfully!", variant: "default" })
+      toast({ title: "Settings saved successfully!", type: "success" })
     } catch (error) {
-      toast({ title: "Failed to save settings", variant: "destructive" })
+      toast({ title: "Failed to save settings", type: "error" })
     } finally {
       setIsLoading(false)
     }

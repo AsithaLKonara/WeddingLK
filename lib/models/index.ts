@@ -9,7 +9,6 @@ import { Service } from './service';
 import { Message } from './message';
 import { Notification } from './notification';
 import { Task } from './task';
-import VenueBoost from './venueBoost';
 import { Client } from './client';
 import { Conversation } from './conversation';
 import { VendorProfile } from './vendorProfile';

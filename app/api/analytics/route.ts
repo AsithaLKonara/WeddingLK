@@ -1,12 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { connectDB } from '@/lib/db'
-import AnalyticsDashboard from '@/lib/analytics-dashboard'
-import SecurityService from '@/lib/security-service'
-import PerformanceMonitor from '@/lib/performance-monitor'
+import { NextRequest, NextResponse } from 'next/server';
+import AnalyticsDashboard from '@/lib/analytics-dashboard';
+import PerformanceMonitor from '@/lib/performance-monitor';
+import SecurityService from '@/lib/security-service';
+import { connectDB } from '@/lib/db';
 
-// GET /api/analytics - Get comprehensive analytics
+interface AnalyticsQuery {
+  type: string;
+  timeRange: string;
+  venueId?: string;
+  vendorId?: string;
+}
+
+interface AnalyticsData {
+  [key: string]: unknown;
+}
+
 export async function GET(request: NextRequest) {
-  return PerformanceMonitor.trackAPIPerformance('analytics', async () => {
+  return PerformanceMonitor.trackAPIPerformance('analytics-fetch', async () => {
     try {
       // Security validation
       const securityCheck = SecurityService.validateRequest(request)
@@ -21,38 +31,55 @@ export async function GET(request: NextRequest) {
       
       const { searchParams } = new URL(request.url)
       const type = searchParams.get('type') || 'overview'
-      const timeRange = searchParams.get('timeRange') || '24h'
+      const timeRange = searchParams.get('timeRange') || '7d'
+      const venueId = searchParams.get('venueId') || undefined
+      const vendorId = searchParams.get('vendorId') || undefined
+
+      // Build query object
+      const query: Record<string, unknown> = {}
+      if (venueId) {
+        query.venue = venueId
+      }
+      if (vendorId) {
+        query.vendor = vendorId
+      }
 
       // Get analytics based on type
-      let analyticsData: Record<string, unknown> = {}
+      let analyticsData: AnalyticsData = {}
 
       switch (type) {
-        case 'overview':
+        case 'overview': {
           const overviewMetrics = await AnalyticsDashboard.getAnalyticsMetrics()
           analyticsData = { ...overviewMetrics }
           break
-        case 'charts':
+        }
+        case 'charts': {
           const chartData = await AnalyticsDashboard.getChartData(
             timeRange === '7d' ? 7 : timeRange === '1h' ? 1 : 30
           )
           analyticsData = { ...chartData }
           break
-        case 'realtime':
+        }
+        case 'realtime': {
           analyticsData = await AnalyticsDashboard.getRealTimeData()
           break
-        case 'performance':
+        }
+        case 'performance': {
           // Ensure timeRange is one of the allowed values
           const validTimeRange = (timeRange === '1h' || timeRange === '24h' || timeRange === '7d') 
             ? timeRange as '1h' | '24h' | '7d' 
             : '24h'
           analyticsData = await PerformanceMonitor.getPerformanceAnalytics(validTimeRange)
           break
-        case 'security':
+        }
+        case 'security': {
           analyticsData = SecurityService.getSecurityStats()
           break
-        default:
+        }
+        default: {
           const defaultMetrics = await AnalyticsDashboard.getAnalyticsMetrics()
           analyticsData = { ...defaultMetrics }
+        }
       }
 
       return NextResponse.json({

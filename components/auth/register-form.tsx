@@ -55,7 +55,7 @@ export function RegisterForm() {
       if (Object.keys(err).length > 0) {
         setErrors(err)
         setIsLoading(false)
-        toast({ title: "Please fix the errors above.", variant: "destructive" })
+        toast({ title: "Please fix the errors above.", type: "error" })
         return
       }
       // Prepare payload
@@ -82,13 +82,13 @@ export function RegisterForm() {
         if (formData.userType === "vendor" && data.vendor && data.vendor._id) {
           localStorage.setItem('vendorId', data.vendor._id)
         }
-        toast({ title: "Registration successful! Please check your email to verify your account.", variant: "default" })
+        toast({ title: "Registration successful! Please check your email to verify your account.", type: "success" })
         window.location.href = "/dashboard"
       } else {
-        toast({ title: data.error || "Registration failed", variant: "destructive" })
+        toast({ title: data.error || "Registration failed", type: "error" })
       }
     } catch (error) {
-      toast({ title: "Registration failed. Please try again.", variant: "destructive" })
+      toast({ title: "Registration failed. Please try again.", type: "error" })
     } finally {
       setIsLoading(false)
     }

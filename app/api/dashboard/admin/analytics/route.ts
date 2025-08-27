@@ -6,12 +6,10 @@ import { Venue } from "@/lib/models/venue"
 import { Booking } from "@/lib/models/booking"
 import { Payment } from "@/lib/models/Payment"
 import { Review } from "@/lib/models/review"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-
+import { auth } from "@/lib/auth-config"
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session || session.user?.role !== 'admin') {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

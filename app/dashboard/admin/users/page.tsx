@@ -38,7 +38,7 @@ import {
   Clock
 } from 'lucide-react';
 
-interface User {
+interface UserData {
   id: string;
   name: string;
   email: string;
@@ -50,8 +50,8 @@ interface User {
 }
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
@@ -62,7 +62,7 @@ export default function AdminUsersPage() {
     const fetchUsers = async () => {
       try {
         // Mock data - replace with actual API call
-        const mockUsers: User[] = [
+        const mockUsers: UserData[] = [
           {
             id: '1',
             name: 'John Doe',
@@ -202,7 +202,7 @@ export default function AdminUsersPage() {
       // Update local state
       setUsers(prevUsers =>
         prevUsers.map(user =>
-          user.id === userId ? { ...user, role: newRole as User['role'] } : user
+          user.id === userId ? { ...user, role: newRole as UserData['role'] } : user
         )
       );
     } catch (error) {
@@ -218,7 +218,7 @@ export default function AdminUsersPage() {
       // Update local state
       setUsers(prevUsers =>
         prevUsers.map(user =>
-          user.id === userId ? { ...user, status: newStatus as User['status'] } : user
+          user.id === userId ? { ...user, status: newStatus as UserData['status'] } : user
         )
       );
     } catch (error) {

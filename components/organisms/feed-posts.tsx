@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import VenueSocialFeed from "@/components/organisms/venue-social-feed"
+import VenueSocialFeed from "@/components/organisms/venue-social-feed-enhanced"
 import { Filter, TrendingUp, Clock, Heart } from "lucide-react"
 
 interface FeedPostsProps {

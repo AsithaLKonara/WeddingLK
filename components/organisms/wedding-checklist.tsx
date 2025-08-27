@@ -117,20 +117,25 @@ export function WeddingChecklist() {
     if (Object.keys(err).length > 0) return
     setIsTaskSaving(true)
     try {
-      await new Promise(res => setTimeout(res, 800))
-      if (isAddOpen) {
-        setChecklist(prev => [...prev, { ...taskForm, id: Date.now().toString(), completed: false }])
-        toast({ title: "Task added!", variant: "default" })
-        setIsAddOpen(false)
-      } else if (isEditOpen && editTask) {
-        setChecklist(prev => prev.map(t => t.id === editTask.id ? { ...taskForm, id: editTask.id, completed: t.completed } : t))
-        toast({ title: "Task updated!", variant: "default" })
-        setIsEditOpen(false)
-        setEditTask(null)
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      if (editTask) {
+        const updated = { ...editTask, ...taskForm }
+        setChecklist(checklist.map(t => t.id === editTask.id ? updated : t))
+        toast({ title: "Task updated!", type: "success" })
+      } else {
+        const newTask = { ...taskForm, id: Date.now().toString(), completed: false, createdAt: new Date() }
+        setChecklist([...checklist, newTask])
+        toast({ title: "Task added!", type: "success" })
       }
-    } catch (err) {
-      console.error('Error updating task:', err);
-      toast({ title: "Failed to update task", variant: "destructive" });
+      
+      setTaskForm({ title: "", description: "", category: "Planning", timeline: "", priority: "medium" })
+      setTaskFormErrors({})
+      setIsAddOpen(false)
+      setEditTask(null)
+    } catch (error) {
+      toast({ title: "Failed to update task", type: "error" });
     }
     setIsTaskSaving(false)
   }
@@ -139,7 +144,7 @@ export function WeddingChecklist() {
     setChecklist((prev) => prev.map((item) => {
       if (item.id === id) {
         const updated = { ...item, completed: !item.completed }
-        toast({ title: updated.completed ? "Task marked as complete!" : "Task marked as incomplete!", variant: "default" })
+        toast({ title: updated.completed ? "Task marked as complete!" : "Task marked as incomplete!", type: "success" })
         return updated
       }
       return item
@@ -343,5 +348,5 @@ export function WeddingChecklist() {
   )
 }
 
-
 export default WeddingChecklist
+

@@ -108,11 +108,11 @@ export function GuestList() {
     await new Promise(res => setTimeout(res, 800))
     if (isAddOpen) {
       setGuests(prev => [...prev, { ...guestForm, id: Date.now().toString() }])
-      toast({ title: "Guest added!", variant: "default" })
+      toast({ title: "Guest added!", type: "success" })
       setIsAddOpen(false)
     } else if (isEditOpen && editGuest) {
       setGuests(prev => prev.map(g => g.id === editGuest.id ? { ...guestForm, id: editGuest.id } : g))
-      toast({ title: "Guest updated!", variant: "default" })
+      toast({ title: "Guest updated!", type: "success" })
       setIsEditOpen(false)
       setEditGuest(null)
     }
@@ -121,7 +121,7 @@ export function GuestList() {
 
   const handleCopy = (value: string, label: string) => {
     navigator.clipboard.writeText(value)
-    toast({ title: `${label} copied!`, variant: "default" })
+    toast({ title: `${label} copied!`, type: "success" })
   }
 
   const filteredGuests = guests.filter((guest) => {

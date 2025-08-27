@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -43,14 +43,7 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) =>
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  useEffect(() => {
-    if (isMonitoring) {
-      const interval = setInterval(collectMetrics, 5000); // Collect every 5 seconds
-      return () => clearInterval(interval);
-    }
-  }, [isMonitoring]);
-
-  const collectMetrics = async () => {
+  const collectMetrics = useCallback(async () => {
     try {
       // Page load time
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
@@ -102,7 +95,14 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) =>
     } catch (error) {
       console.error('Error collecting performance metrics:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isMonitoring) {
+      const interval = setInterval(collectMetrics, 5000); // Collect every 5 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isMonitoring, collectMetrics]);
 
   const calculateUserExperienceScore = (metrics: PerformanceMetrics): number => {
     let score = 100;

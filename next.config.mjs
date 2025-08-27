@@ -1,31 +1,44 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Temporarily disable TypeScript and ESLint checking to allow the application to compile and run
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Enable standalone output for Docker
+  // Production optimizations
   output: 'standalone',
-  // Server external packages (correct location for Next.js 15)
-  serverExternalPackages: ['mongoose'],
+  
+  // Enable ESLint and TypeScript checking
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
   // Image optimization
   images: {
-    domains: ['localhost', 'res.cloudinary.com'],
-    unoptimized: false,
+    domains: [
+      'localhost',
+      'res.cloudinary.com',
+      'images.unsplash.com',
+      'via.placeholder.com'
+    ],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  // Asset handling
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
-  // Experimental features for better performance
+
+  // CSS optimization
   experimental: {
-    optimizePackageImports: ['@mui/material', '@mui/icons-material', 'lucide-react'],
-    optimizeCss: true,
+    optimizeCss: false, // Disabled due to critters compatibility issues
+    optimizePackageImports: [
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-toast',
+      'lucide-react',
+      'framer-motion'
+    ],
     turbo: {
       rules: {
         '*.svg': {
@@ -35,43 +48,117 @@ const nextConfig = {
       },
     },
   },
-  // Webpack configuration
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
+
+  // Compression and performance
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: false,
+
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    // Bundle analyzer
+    if (process.env.ANALYZE === 'true') {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'static',
+          openAnalyzer: false,
+        })
+      )
     }
-    
-    // Optimize CSS extraction - simplified and safer
-    if (!isServer && config.optimization?.splitChunks?.cacheGroups) {
-      config.optimization.splitChunks.cacheGroups.styles = {
-        name: 'styles',
-        test: /\.(css|scss)$/,
-        chunks: 'all',
-        enforce: true,
-      };
+
+    // Tree shaking and dead code elimination
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        usedExports: true,
+        sideEffects: false,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        },
+      }
     }
-    
-    return config;
+
+    // Image optimization
+    config.module.rules.push({
+      test: /\.(png|jpe?g|gif|svg)$/i,
+      use: [
+        {
+          loader: 'image-webpack-loader',
+          options: {
+            mozjpeg: {
+              progressive: true,
+              quality: 65,
+            },
+            optipng: {
+              enabled: false,
+            },
+            pngquant: {
+              quality: [0.65, 0.90],
+              speed: 4,
+            },
+            gifsicle: {
+              interlaced: false,
+            },
+            webp: {
+              quality: 75,
+            },
+          },
+        },
+      ],
+    })
+
+    return config
   },
-  // Headers for better asset handling
+
+  // Headers for performance and security
   async headers() {
     return [
       {
-        source: '/_next/static/:path*',
+        source: '/(.*)',
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
       },
       {
-        source: '/static/:path*',
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=600',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
         headers: [
           {
             key: 'Cache-Control',
@@ -79,8 +166,34 @@ const nextConfig = {
           },
         ],
       },
-    ];
+    ]
   },
-};
 
-export default nextConfig; 
+  // Redirects for SEO and user experience
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/wedding-packages',
+        destination: '/packages',
+        permanent: true,
+      },
+    ]
+  },
+
+  // Rewrites for API versioning
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: '/api/:path*',
+      },
+    ]
+  },
+}
+
+export default nextConfig 

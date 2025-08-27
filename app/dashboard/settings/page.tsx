@@ -119,7 +119,7 @@ export default function SettingsPage() {
     if (Object.keys(err).length > 0) {
       setProfileErrors(err)
       setIsSaving(false)
-      toast({ title: "Please fix the errors above.", variant: "destructive" })
+      toast({ title: "Please fix the errors above.", type: "error" })
       return
     }
     // Simulate API call
@@ -127,20 +127,20 @@ export default function SettingsPage() {
       // Simulate API call
       setTimeout(() => {
         setIsSaving(false)
-        toast({ title: "Profile updated!", variant: "default" })
+        toast({ title: "Profile updated!", type: "success" })
       }, 1000)
     } catch (err) {
       console.error('Error updating profile:', err);
-      toast({ title: "Failed to update profile", variant: "destructive" });
+      toast({ title: "Failed to update profile", type: "error" });
     }
   }
 
   const handleSaveNotifications = () => {
-    toast({ title: "Notification preferences saved!", variant: "default" })
+    toast({ title: "Notification preferences saved!", type: "success" })
   }
 
   const handleSavePrivacy = () => {
-    toast({ title: "Privacy settings saved!", variant: "default" })
+    toast({ title: "Privacy settings saved!", type: "success" })
   }
 
   const handleEnable2FA = async () => {
@@ -156,12 +156,12 @@ export default function SettingsPage() {
       if (res.ok && data.success) {
         setOtpSent(true)
         setShow2FASetup(true)
-        toast({ title: "OTP sent to your email.", variant: "default" })
+        toast({ title: "OTP sent to your email.", type: "success" })
       } else {
-        toast({ title: data.error || "Failed to send OTP", variant: "destructive" })
+        toast({ title: data.error || "Failed to send OTP", type: "error" })
       }
     } catch (error) {
-      toast({ title: "Failed to send OTP. Please try again.", variant: "destructive" })
+      toast({ title: "Failed to send OTP. Please try again.", type: "error" })
     } finally {
       setIs2FALoading(false)
     }
@@ -186,14 +186,14 @@ export default function SettingsPage() {
         setTwoFactorEnabled(true)
         setShow2FASetup(false)
         setOtp("")
-        toast({ title: "2FA enabled!", variant: "default" })
+        toast({ title: "2FA enabled!", type: "success" })
       } else {
         setOtpError(data.error || "Invalid code. Please try again.")
-        toast({ title: data.error || "Invalid code. Please try again.", variant: "destructive" })
+        toast({ title: data.error || "Invalid code. Please try again.", type: "error" })
       }
     } catch (error) {
       setOtpError("Verification failed. Please try again.")
-      toast({ title: "Verification failed. Please try again.", variant: "destructive" })
+      toast({ title: "Verification failed. Please try again.", type: "error" })
     } finally {
       setIs2FALoading(false)
     }
@@ -208,11 +208,11 @@ export default function SettingsPage() {
         setTwoFactorEnabled(false)
         setShow2FASetup(false)
         setOtp("")
-        toast({ title: "2FA disabled.", variant: "default" })
+        toast({ title: "2FA disabled.", type: "success" })
         setIs2FALoading(false)
       }, 1000)
     } catch (error) {
-      toast({ title: "Failed to disable 2FA.", variant: "destructive" })
+      toast({ title: "Failed to disable 2FA.", type: "error" })
       setIs2FALoading(false)
     }
   }
@@ -516,8 +516,8 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="outline" onClick={() => toast({ title: "Change Password coming soon!", variant: "default" })}>Change Password</Button>
-              <Button variant="outline" onClick={() => toast({ title: "Download Data coming soon!", variant: "default" })}>Download Data</Button>
+              <Button variant="outline" onClick={() => toast({ title: "Change Password coming soon!", type: "default" })}>Change Password</Button>
+              <Button variant="outline" onClick={() => toast({ title: "Download Data coming soon!", type: "default" })}>Download Data</Button>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="destructive">Delete Account</Button>
@@ -531,7 +531,7 @@ export default function SettingsPage() {
                     <DialogClose asChild>
                       <Button variant="outline">Cancel</Button>
                     </DialogClose>
-                    <Button variant="destructive" onClick={() => { toast({ title: "Account deleted.", variant: "destructive" }); }}>Delete</Button>
+                    <Button variant="destructive" onClick={() => { toast({ title: "Account deleted.", type: "error" }); }}>Delete</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

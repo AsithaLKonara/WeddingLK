@@ -1,396 +1,412 @@
-import { connectDB } from './db'
-import { performance } from 'perf_hooks'
-
 interface PerformanceMetrics {
-  timestamp: Date
-  type: 'api' | 'page' | 'database' | 'external'
-  name: string
-  duration: number
-  status: 'success' | 'error' | 'timeout'
-  metadata?: any
+  responseTime: number;
+  memoryUsage: number;
+  cpuUsage: number;
+  databaseQueryTime: number;
+  cacheHitRate: number;
+  errorRate: number;
+  throughput: number;
 }
 
-interface SystemMetrics {
-  memory: {
-    used: number
-    total: number
-    percentage: number
-  }
-  cpu: {
-    usage: number
-    load: number
-  }
-  database: {
-    connections: number
-    responseTime: number
-    health: 'healthy' | 'warning' | 'error'
-  }
-  api: {
-    requestsPerMinute: number
-    averageResponseTime: number
-    errorRate: number
-  }
+interface PerformanceData {
+  timestamp: Date;
+  metrics: PerformanceMetrics;
+  context: string;
+  userId?: string;
+  sessionId?: string;
+}
+
+interface PerformanceThresholds {
+  responseTime: number;
+  memoryUsage: number;
+  cpuUsage: number;
+  databaseQueryTime: number;
+  errorRate: number;
+}
+
+interface PerformanceAlert {
+  type: 'warning' | 'critical';
+  metric: string;
+  value: number;
+  threshold: number;
+  message: string;
+  timestamp: Date;
 }
 
 class PerformanceMonitor {
-  private metrics: PerformanceMetrics[] = []
-  private startTime = Date.now()
-  private requestCount = 0
-  private errorCount = 0
+  private static instance: PerformanceMonitor;
+  private metrics: Map<string, PerformanceData[]> = new Map();
+  private thresholds: PerformanceThresholds = {
+    responseTime: 1000, // 1 second
+    memoryUsage: 80, // 80%
+    cpuUsage: 90, // 90%
+    databaseQueryTime: 500, // 500ms
+    errorRate: 5 // 5%
+  };
+  private alerts: PerformanceAlert[] = [];
+
+  private constructor() {}
+
+  public static getInstance(): PerformanceMonitor {
+    if (!PerformanceMonitor.instance) {
+      PerformanceMonitor.instance = new PerformanceMonitor();
+    }
+    return PerformanceMonitor.instance;
+  }
 
   // Track API performance
-  async trackAPIPerformance(name: string, fn: () => Promise<any>): Promise<any> {
-    const start = performance.now()
-    const startTime = new Date()
+  public static async trackAPIPerformance(context: string, operation: () => Promise<unknown>): Promise<unknown> {
+    const startTime = Date.now();
 
     try {
-      const result = await fn()
-      const duration = performance.now() - start
+      const result = await operation();
+      const endTime = Date.now();
+      const endMemory = process.memoryUsage();
+      const endCpu = process.cpuUsage();
 
-      this.recordMetric({
-        timestamp: startTime,
-        type: 'api',
-        name,
-        duration,
-        status: 'success'
-      })
+      const metrics: PerformanceMetrics = {
+        responseTime: endTime - startTime,
+        memoryUsage: (endMemory.heapUsed / endMemory.heapTotal) * 100,
+        cpuUsage: ((endCpu.user + endCpu.system) / 1000000), // Convert to seconds
+        databaseQueryTime: 0, // Will be updated by database operations
+        cacheHitRate: 0, // Will be updated by cache operations
+        errorRate: 0,
+        throughput: 1
+      };
 
-      return result
+      const performanceData: PerformanceData = {
+        timestamp: new Date(),
+        metrics,
+        context
+      };
+
+      // Store performance data
+      await PerformanceMonitor.storePerformanceData(performanceData);
+
+      // Check thresholds and generate alerts
+      PerformanceMonitor.checkThresholds(metrics, context);
+
+      return result;
 
     } catch (error) {
-      const duration = performance.now() - start
-      this.errorCount++
+      const endTime = Date.now();
+      const endMemory = process.memoryUsage();
+      const endCpu = process.cpuUsage();
 
-      this.recordMetric({
-        timestamp: startTime,
-        type: 'api',
-        name,
-        duration,
-        status: 'error',
-        metadata: { error: error instanceof Error ? error.message : 'Unknown error' }
-      })
+      const metrics: PerformanceMetrics = {
+        responseTime: endTime - startTime,
+        memoryUsage: (endMemory.heapUsed / endMemory.heapTotal) * 100,
+        cpuUsage: ((endCpu.user + endCpu.system) / 1000000),
+        databaseQueryTime: 0,
+        cacheHitRate: 0,
+        errorRate: 100,
+        throughput: 1
+      };
 
-      throw error
-    } finally {
-      this.requestCount++
+      const performanceData: PerformanceData = {
+        timestamp: new Date(),
+        metrics,
+        context
+      };
+
+      await PerformanceMonitor.storePerformanceData(performanceData);
+      PerformanceMonitor.checkThresholds(metrics, context);
+
+      throw error;
     }
   }
 
   // Track database performance
-  async trackDatabasePerformance(operation: string, fn: () => Promise<any>): Promise<any> {
-    const start = performance.now()
-    const startTime = new Date()
+  public static async trackDatabasePerformance(operation: string, query: string, operationFn: () => Promise<unknown>): Promise<unknown> {
+    const startTime = Date.now();
 
     try {
-      const result = await fn()
-      const duration = performance.now() - start
+      const result = await operationFn();
+      const endTime = Date.now();
+      const queryTime = endTime - startTime;
 
-      this.recordMetric({
-        timestamp: startTime,
-        type: 'database',
-        name: operation,
-        duration,
-        status: 'success'
-      })
+      // Update database query time in recent performance data
+      const instance = PerformanceMonitor.getInstance();
+      const recentData = instance.metrics.get('database') || [];
+      if (recentData.length > 0) {
+        const latest = recentData[recentData.length - 1];
+        latest.metrics.databaseQueryTime = queryTime;
+      }
 
-      return result
+      return result;
 
     } catch (error) {
-      const duration = performance.now() - start
+      const endTime = Date.now();
+      const queryTime = endTime - startTime;
 
-      this.recordMetric({
-        timestamp: startTime,
-        type: 'database',
-        name: operation,
-        duration,
-        status: 'error',
-        metadata: { error: error instanceof Error ? error.message : 'Unknown error' }
-      })
+      console.error(`Database operation failed: ${operation}`, {
+        query,
+        queryTime,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
 
-      throw error
+      throw error;
     }
   }
 
-  // Track page load performance
-  trackPagePerformance(pageName: string, loadTime: number, status: 'success' | 'error' = 'success') {
-    this.recordMetric({
-      timestamp: new Date(),
-      type: 'page',
-      name: pageName,
-      duration: loadTime,
-      status
-    })
+  // Track cache performance
+  public static trackCachePerformance(hit: boolean): void {
+    const instance = PerformanceMonitor.getInstance();
+    const recentData = instance.metrics.get('cache') || [];
+    
+    if (recentData.length > 0) {
+      const latest = recentData[recentData.length - 1];
+      latest.metrics.cacheHitRate = hit ? 100 : 0;
+    }
   }
 
-  // Get system metrics
-  async getSystemMetrics(): Promise<SystemMetrics> {
-    const memoryUsage = process.memoryUsage()
-    const uptime = process.uptime()
+  // Store performance data
+  private static async storePerformanceData(data: PerformanceData): Promise<void> {
+    try {
+      // Store in memory for quick access
+      const instance = PerformanceMonitor.getInstance();
+      const contextData = instance.metrics.get(data.context) || [];
+      contextData.push(data);
+      
+      // Keep only last 100 entries per context
+      if (contextData.length > 100) {
+        contextData.splice(0, contextData.length - 100);
+      }
+      
+      instance.metrics.set(data.context, contextData);
 
-    // Calculate memory metrics
-    const memory = {
-      used: Math.round(memoryUsage.heapUsed / 1024 / 1024), // MB
-      total: Math.round(memoryUsage.heapTotal / 1024 / 1024), // MB
-      percentage: Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100)
+    } catch (error) {
+      console.error('Error storing performance data:', error);
+    }
+  }
+
+  // Check performance thresholds
+  private static checkThresholds(metrics: PerformanceMetrics, context: string): void {
+    const instance = PerformanceMonitor.getInstance();
+    const alerts: PerformanceAlert[] = [];
+
+    if (metrics.responseTime > instance.thresholds.responseTime) {
+      alerts.push({
+        type: metrics.responseTime > instance.thresholds.responseTime * 2 ? 'critical' : 'warning',
+        metric: 'responseTime',
+        value: metrics.responseTime,
+        threshold: instance.thresholds.responseTime,
+        message: `Response time ${metrics.responseTime}ms exceeds threshold ${instance.thresholds.responseTime}ms in ${context}`,
+        timestamp: new Date()
+      });
     }
 
-    // Calculate CPU metrics (simplified)
-    const cpu = {
-      usage: Math.round((process.cpuUsage().user + process.cpuUsage().system) / 1000000), // seconds
-      load: Math.round(uptime / 60) // minutes
+    if (metrics.memoryUsage > instance.thresholds.memoryUsage) {
+      alerts.push({
+        type: metrics.memoryUsage > instance.thresholds.memoryUsage * 1.2 ? 'critical' : 'warning',
+        metric: 'memoryUsage',
+        value: metrics.memoryUsage,
+        threshold: instance.thresholds.memoryUsage,
+        message: `Memory usage ${metrics.memoryUsage.toFixed(2)}% exceeds threshold ${instance.thresholds.memoryUsage}% in ${context}`,
+        timestamp: new Date()
+      });
     }
 
-    // Database metrics
-    const database = await this.getDatabaseMetrics()
-
-    // API metrics
-    const api = this.getAPIMetrics()
-
-    return {
-      memory,
-      cpu,
-      database,
-      api
+    if (metrics.cpuUsage > instance.thresholds.cpuUsage) {
+      alerts.push({
+        type: metrics.cpuUsage > instance.thresholds.cpuUsage * 1.1 ? 'critical' : 'warning',
+        metric: 'cpuUsage',
+        value: metrics.cpuUsage,
+        threshold: instance.thresholds.cpuUsage,
+        message: `CPU usage ${metrics.cpuUsage.toFixed(2)}s exceeds threshold ${instance.thresholds.cpuUsage}s in ${context}`,
+        timestamp: new Date()
+      });
     }
+
+    if (metrics.databaseQueryTime > instance.thresholds.databaseQueryTime) {
+      alerts.push({
+        type: metrics.databaseQueryTime > instance.thresholds.databaseQueryTime * 2 ? 'critical' : 'warning',
+        metric: 'databaseQueryTime',
+        value: metrics.databaseQueryTime,
+        threshold: instance.thresholds.databaseQueryTime,
+        message: `Database query time ${metrics.databaseQueryTime}ms exceeds threshold ${instance.thresholds.databaseQueryTime}ms in ${context}`,
+        timestamp: new Date()
+      });
+    }
+
+    if (metrics.errorRate > instance.thresholds.errorRate) {
+      alerts.push({
+        type: metrics.errorRate > instance.thresholds.errorRate * 2 ? 'critical' : 'warning',
+        metric: 'errorRate',
+        value: metrics.errorRate,
+        threshold: instance.thresholds.errorRate,
+        message: `Error rate ${metrics.errorRate}% exceeds threshold ${instance.thresholds.errorRate}% in ${context}`,
+        timestamp: new Date()
+      });
+    }
+
+    // Add alerts to the list
+    instance.alerts.push(...alerts);
+
+    // Keep only last 100 alerts
+    if (instance.alerts.length > 100) {
+      instance.alerts = instance.alerts.slice(-100);
+    }
+
+    // Log critical alerts
+    alerts.filter(alert => alert.type === 'critical').forEach(alert => {
+      console.error('CRITICAL PERFORMANCE ALERT:', alert.message);
+    });
   }
 
   // Get performance analytics
-  async getPerformanceAnalytics(timeRange: '1h' | '24h' | '7d' = '24h') {
-    const now = new Date()
-    let startTime: Date
-
-    switch (timeRange) {
-      case '1h':
-        startTime = new Date(now.getTime() - 60 * 60 * 1000)
-        break
-      case '24h':
-        startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-        break
-      case '7d':
-        startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-        break
-      default:
-        startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-    }
-
-    const filteredMetrics = this.metrics.filter(m => m.timestamp >= startTime)
-
-    // API performance analysis
-    const apiMetrics = filteredMetrics.filter(m => m.type === 'api')
-    const apiPerformance = {
-      totalRequests: apiMetrics.length,
-      averageResponseTime: apiMetrics.length > 0 
-        ? apiMetrics.reduce((sum, m) => sum + m.duration, 0) / apiMetrics.length 
-        : 0,
-      errorRate: apiMetrics.length > 0 
-        ? (apiMetrics.filter(m => m.status === 'error').length / apiMetrics.length) * 100 
-        : 0,
-      slowestEndpoints: this.getSlowestEndpoints(apiMetrics),
-      mostErrorProne: this.getMostErrorProne(apiMetrics)
-    }
-
-    // Database performance analysis
-    const dbMetrics = filteredMetrics.filter(m => m.type === 'database')
-    const dbPerformance = {
-      totalOperations: dbMetrics.length,
-      averageResponseTime: dbMetrics.length > 0 
-        ? dbMetrics.reduce((sum, m) => sum + m.duration, 0) / dbMetrics.length 
-        : 0,
-      errorRate: dbMetrics.length > 0 
-        ? (dbMetrics.filter(m => m.status === 'error').length / dbMetrics.length) * 100 
-        : 0,
-      slowestOperations: this.getSlowestEndpoints(dbMetrics)
-    }
-
-    // Page performance analysis
-    const pageMetrics = filteredMetrics.filter(m => m.type === 'page')
-    const pagePerformance = {
-      totalPages: pageMetrics.length,
-      averageLoadTime: pageMetrics.length > 0 
-        ? pageMetrics.reduce((sum, m) => sum + m.duration, 0) / pageMetrics.length 
-        : 0,
-      slowestPages: this.getSlowestEndpoints(pageMetrics)
-    }
-
-    return {
-      timeRange,
-      apiPerformance,
-      dbPerformance,
-      pagePerformance,
-      summary: {
-        totalMetrics: filteredMetrics.length,
-        uptime: process.uptime(),
-        memoryUsage: process.memoryUsage()
-      }
-    }
-  }
-
-  // Get alerts for performance issues
-  async getPerformanceAlerts() {
-    const alerts = []
-    const systemMetrics = await this.getSystemMetrics()
-    const analytics = await this.getPerformanceAnalytics('1h')
-
-    // Memory alerts
-    if (systemMetrics.memory.percentage > 80) {
-      alerts.push({
-        type: 'memory',
-        severity: 'high',
-        message: `High memory usage: ${systemMetrics.memory.percentage}%`,
-        timestamp: new Date()
-      })
-    }
-
-    // API error rate alerts
-    if (analytics.apiPerformance.errorRate > 5) {
-      alerts.push({
-        type: 'api',
-        severity: 'medium',
-        message: `High API error rate: ${analytics.apiPerformance.errorRate.toFixed(2)}%`,
-        timestamp: new Date()
-      })
-    }
-
-    // Database alerts
-    if (systemMetrics.database.health === 'error') {
-      alerts.push({
-        type: 'database',
-        severity: 'high',
-        message: 'Database health check failed',
-        timestamp: new Date()
-      })
-    }
-
-    // Response time alerts
-    if (analytics.apiPerformance.averageResponseTime > 1000) {
-      alerts.push({
-        type: 'performance',
-        severity: 'medium',
-        message: `Slow API response time: ${analytics.apiPerformance.averageResponseTime.toFixed(2)}ms`,
-        timestamp: new Date()
-      })
-    }
-
-    return alerts
-  }
-
-  // Record a performance metric
-  private recordMetric(metric: PerformanceMetrics) {
-    this.metrics.push(metric)
-    
-    // Keep only last 1000 metrics to prevent memory issues
-    if (this.metrics.length > 1000) {
-      this.metrics = this.metrics.slice(-1000)
-    }
-  }
-
-  // Get database metrics
-  private async getDatabaseMetrics() {
+  public static async getPerformanceAnalytics(timeRange: '1h' | '24h' | '7d'): Promise<Record<string, unknown>> {
     try {
-      await connectDB()
+      const instance = PerformanceMonitor.getInstance();
+      const now = new Date();
+      let startDate: Date;
       
-      const start = performance.now()
-      await require('mongoose').connection.db.admin().ping()
-      const responseTime = performance.now() - start
-
-      let health: 'healthy' | 'warning' | 'error'
-      if (responseTime < 100) {
-        health = 'healthy'
-      } else if (responseTime < 500) {
-        health = 'warning'
-      } else {
-        health = 'error'
+      switch (timeRange) {
+        case '1h':
+          startDate = new Date();
+          startDate.setHours(now.getHours() - 1);
+          break;
+        case '24h':
+          startDate = new Date();
+          startDate.setDate(now.getDate() - 1);
+          break;
+        case '7d':
+          startDate = new Date();
+          startDate.setDate(now.getDate() - 7);
+          break;
+        default:
+          startDate = new Date();
       }
 
+      // Get performance data from memory
+      const allData = Array.from(instance.metrics.values()).flat();
+      const performanceData = allData.filter(data => 
+        data.timestamp >= startDate && data.timestamp <= now
+      );
+
+      if (performanceData.length === 0) {
       return {
-        connections: require('mongoose').connection.readyState === 1 ? 1 : 0,
-        responseTime,
-        health
+          success: true,
+          timeRange,
+          message: 'No performance data available for the specified time range',
+          data: {
+            averageResponseTime: 0,
+            averageMemoryUsage: 0,
+            averageCpuUsage: 0,
+            averageDatabaseQueryTime: 0,
+            totalErrors: 0,
+            totalRequests: 0
+          }
+        };
       }
-    } catch (error) {
-      return {
-        connections: 0,
+
+      // Calculate averages
+      const totalMetrics = performanceData.reduce((acc: Record<string, number>, data: PerformanceData) => {
+        acc.responseTime += data.metrics.responseTime;
+        acc.memoryUsage += data.metrics.memoryUsage;
+        acc.cpuUsage += data.metrics.cpuUsage;
+        acc.databaseQueryTime += data.metrics.databaseQueryTime;
+        acc.errors += data.metrics.errorRate > 0 ? 1 : 0;
+        return acc;
+      }, {
         responseTime: 0,
-        health: 'error' as const
-      }
+        memoryUsage: 0,
+        cpuUsage: 0,
+        databaseQueryTime: 0,
+        errors: 0
+      });
+
+      const count = performanceData.length;
+      const analytics = {
+        timeRange,
+        totalRequests: count,
+        averageResponseTime: Math.round(totalMetrics.responseTime / count),
+        averageMemoryUsage: Math.round((totalMetrics.memoryUsage / count) * 100) / 100,
+        averageCpuUsage: Math.round((totalMetrics.cpuUsage / count) * 100) / 100,
+        averageDatabaseQueryTime: Math.round(totalMetrics.databaseQueryTime / count),
+        totalErrors: totalMetrics.errors,
+        errorRate: Math.round((totalMetrics.errors / count) * 100),
+        performanceTrend: this.calculatePerformanceTrend(performanceData)
+      };
+
+      return {
+        success: true,
+        data: analytics
+      };
+
+    } catch (error) {
+      console.error('Error getting performance analytics:', error);
+      return {
+        success: false,
+        error: 'Failed to get performance analytics',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
   }
 
-  // Get API metrics
-  private getAPIMetrics() {
-    const now = Date.now()
-    const oneMinuteAgo = now - 60 * 1000
-    
-    const recentRequests = this.metrics.filter(m => 
-      m.type === 'api' && m.timestamp.getTime() > oneMinuteAgo
-    )
+  // Calculate performance trend
+  private static calculatePerformanceTrend(data: PerformanceData[]): string {
+    if (data.length < 2) return 'insufficient_data';
 
-    const requestsPerMinute = recentRequests.length
-    const averageResponseTime = recentRequests.length > 0 
-      ? recentRequests.reduce((sum, m) => sum + m.duration, 0) / recentRequests.length 
-      : 0
-    const errorRate = recentRequests.length > 0 
-      ? (recentRequests.filter(m => m.status === 'error').length / recentRequests.length) * 100 
-      : 0
+    const firstHalf = data.slice(0, Math.floor(data.length / 2));
+    const secondHalf = data.slice(Math.floor(data.length / 2));
+
+    const firstAvg = firstHalf.reduce((sum, item) => sum + item.metrics.responseTime, 0) / firstHalf.length;
+    const secondAvg = secondHalf.reduce((sum, item) => sum + item.metrics.responseTime, 0) / secondHalf.length;
+
+    const change = ((secondAvg - firstAvg) / firstAvg) * 100;
+
+    if (change < -10) return 'improving';
+    if (change > 10) return 'degrading';
+    return 'stable';
+  }
+
+  // Get performance alerts
+  public static getPerformanceAlerts(): PerformanceAlert[] {
+    return PerformanceMonitor.getInstance().alerts;
+  }
+
+  // Update performance thresholds
+  public static updateThresholds(newThresholds: Partial<PerformanceThresholds>): void {
+    const instance = PerformanceMonitor.getInstance();
+    instance.thresholds = { ...instance.thresholds, ...newThresholds };
+  }
+
+  // Get current performance metrics
+  public static getCurrentMetrics(): PerformanceMetrics {
+    const memoryUsage = process.memoryUsage();
+    const cpuUsage = process.cpuUsage();
 
     return {
-      requestsPerMinute,
-      averageResponseTime,
-      errorRate
+      responseTime: 0,
+      memoryUsage: (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100,
+      cpuUsage: (cpuUsage.user + cpuUsage.system) / 1000000,
+      databaseQueryTime: 0,
+      cacheHitRate: 0,
+      errorRate: 0,
+      throughput: 0
+    };
+  }
+
+  // Clear old performance data
+  public static async clearOldData(daysToKeep: number = 30): Promise<void> {
+    try {
+      const instance = PerformanceMonitor.getInstance();
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+
+      // Clear old data from memory
+      Array.from(instance.metrics.entries()).forEach(([context, data]) => {
+        const filteredData = data.filter(item => item.timestamp >= cutoffDate);
+        instance.metrics.set(context, filteredData);
+      });
+
+      console.log(`Cleared performance data older than ${daysToKeep} days`);
+
+    } catch (error) {
+      console.error('Error clearing old performance data:', error);
     }
-  }
-
-  // Get slowest endpoints
-  private getSlowestEndpoints(metrics: PerformanceMetrics[]) {
-    return metrics
-      .reduce((acc, metric) => {
-        const existing = acc.find(item => item.name === metric.name)
-        if (existing) {
-          existing.count++
-          existing.totalDuration += metric.duration
-          existing.averageDuration = existing.totalDuration / existing.count
-        } else {
-          acc.push({
-            name: metric.name,
-            count: 1,
-            totalDuration: metric.duration,
-            averageDuration: metric.duration
-          })
-        }
-        return acc
-      }, [] as Array<{ name: string; count: number; totalDuration: number; averageDuration: number }>)
-      .sort((a, b) => b.averageDuration - a.averageDuration)
-      .slice(0, 5)
-  }
-
-  // Get most error-prone endpoints
-  private getMostErrorProne(metrics: PerformanceMetrics[]) {
-    return metrics
-      .reduce((acc, metric) => {
-        const existing = acc.find(item => item.name === metric.name)
-        if (existing) {
-          existing.total++
-          if (metric.status === 'error') existing.errors++
-          existing.errorRate = (existing.errors / existing.total) * 100
-        } else {
-          acc.push({
-            name: metric.name,
-            total: 1,
-            errors: metric.status === 'error' ? 1 : 0,
-            errorRate: metric.status === 'error' ? 100 : 0
-          })
-        }
-        return acc
-      }, [] as Array<{ name: string; total: number; errors: number; errorRate: number }>)
-      .sort((a, b) => b.errorRate - a.errorRate)
-      .slice(0, 5)
-  }
-
-  // Clear old metrics
-  clearOldMetrics(olderThanHours: number = 24) {
-    const cutoff = new Date(Date.now() - olderThanHours * 60 * 60 * 1000)
-    this.metrics = this.metrics.filter(m => m.timestamp > cutoff)
   }
 }
 
-export default new PerformanceMonitor() 
+export default PerformanceMonitor; 

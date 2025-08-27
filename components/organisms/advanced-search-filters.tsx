@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -121,22 +121,22 @@ export function AdvancedSearchFilters({
     'Religious'
   ]
 
-  useEffect(() => {
-    if (filters.query.length > 2) {
-      loadSuggestions()
-    } else {
-      setSuggestions([])
-    }
-  }, [filters.query])
-
-  const loadSuggestions = async () => {
+  const loadSuggestions = useCallback(async () => {
     try {
       const searchSuggestions = aiSearch.getSearchSuggestions(filters.query)
       setSuggestions(searchSuggestions)
     } catch (error) {
       console.error('Failed to load suggestions:', error)
     }
-  }
+  }, [filters.query])
+
+  useEffect(() => {
+    if (filters.query.length > 2) {
+      loadSuggestions()
+    } else {
+      setSuggestions([])
+    }
+  }, [filters.query, loadSuggestions])
 
   const handleAISearch = async () => {
     if (!filters.query.trim()) return
@@ -174,13 +174,13 @@ export function AdvancedSearchFilters({
       toast({
         title: "AI Search Complete",
         description: `Found ${results.length} results with AI-powered insights`,
-        variant: "default"
+        type: "success"
       })
     } catch (error) {
       toast({
         title: "AI Search Failed",
         description: "Please try again later",
-        variant: "destructive"
+        type: "error"
       })
     } finally {
       setIsLoading(false)
@@ -192,7 +192,7 @@ export function AdvancedSearchFilters({
     toast({
       title: "Search Applied",
       description: "Filters have been applied to your search",
-      variant: "default"
+      type: "success"
     })
   }
 
@@ -203,7 +203,7 @@ export function AdvancedSearchFilters({
       toast({
         title: "Filters Saved",
         description: `"${name}" has been saved`,
-        variant: "default"
+        type: "success"
       })
     }
   }
@@ -214,7 +214,7 @@ export function AdvancedSearchFilters({
       toast({
         title: "Filters Loaded",
         description: `"${name}" has been loaded`,
-        variant: "default"
+        type: "success"
       })
     }
   }
