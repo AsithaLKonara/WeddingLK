@@ -18,7 +18,11 @@ declare global {
   var mongoose: ConnectionCache | undefined;
 }
 
-const cached: ConnectionCache = global.mongoose || { conn: null, promise: null, connecting: false };
+const cached: ConnectionCache = global.mongoose || {
+  conn: null,
+  promise: null,
+  connecting: false,
+};
 
 if (!global.mongoose) {
   global.mongoose = cached;
@@ -46,11 +50,11 @@ export async function connectDB() {
   if (!cached.promise) {
     // Use the MONGODB_URI from environment (required for production)
     const uri = MONGODB_URI;
-    
+
     if (!uri) {
       throw new Error('MONGODB_URI environment variable is required');
     }
-    
+
     const opts = {
       bufferCommands: true,
       maxPoolSize: 10,
@@ -72,8 +76,10 @@ export async function connectDB() {
       maxRetries: 5,
     };
 
-    console.log(`🔌 Attempting to connect to MongoDB: ${uri.replace(/\/\/.*@/, '//***@')}`);
-    
+    console.log(
+      `🔌 Attempting to connect to MongoDB: ${uri.replace(/\/\/.*@/, '//***@')}`
+    );
+
     cached.connecting = true;
     cached.promise = mongoose.connect(uri, opts);
   }
@@ -81,23 +87,23 @@ export async function connectDB() {
   try {
     cached.conn = await cached.promise;
     cached.connecting = false;
-    
+
     console.log('✅ MongoDB connected successfully');
-    
+
     // Enable query performance monitoring
     if (process.env.NODE_ENV === 'development') {
       mongoose.set('debug', false);
     }
-    
+
     // Set global performance options
     mongoose.set('strictQuery', false);
-    
+
     return cached.conn;
   } catch (e) {
     cached.promise = null;
     cached.connecting = false;
     console.error('❌ MongoDB connection failed:', e);
-    
+
     // For development/production, try to continue without database
     console.warn('⚠️ Continuing without database connection');
     return null;
@@ -109,7 +115,7 @@ mongoose.connection.on('connected', () => {
   console.log('✅ Mongoose connected to MongoDB');
 });
 
-mongoose.connection.on('error', (err) => {
+mongoose.connection.on('error', err => {
   console.error('❌ Mongoose connection error:', err);
 });
 

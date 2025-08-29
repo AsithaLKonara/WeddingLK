@@ -35,7 +35,7 @@ export class CacheInvalidationService {
       pattern: 'user:*',
       ttl: 300,
       priority: 'high',
-      dependencies: ['user:profile', 'user:preferences', 'user:bookings']
+      dependencies: ['user:profile', 'user:preferences', 'user:bookings'],
     });
 
     // Vendor-related cache invalidation
@@ -43,7 +43,7 @@ export class CacheInvalidationService {
       pattern: 'vendor:*',
       ttl: 600,
       priority: 'medium',
-      dependencies: ['vendors:list', 'vendor:search', 'vendor:stats']
+      dependencies: ['vendors:list', 'vendor:search', 'vendor:stats'],
     });
 
     // Venue-related cache invalidation
@@ -51,7 +51,7 @@ export class CacheInvalidationService {
       pattern: 'venue:*',
       ttl: 600,
       priority: 'medium',
-      dependencies: ['venues:list', 'venue:search', 'venue:stats']
+      dependencies: ['venues:list', 'venue:search', 'venue:stats'],
     });
 
     // Booking-related cache invalidation
@@ -59,7 +59,7 @@ export class CacheInvalidationService {
       pattern: 'booking:*',
       ttl: 300,
       priority: 'high',
-      dependencies: ['user:bookings', 'vendor:bookings', 'booking:stats']
+      dependencies: ['user:bookings', 'vendor:bookings', 'booking:stats'],
     });
 
     // Review-related cache invalidation
@@ -67,7 +67,7 @@ export class CacheInvalidationService {
       pattern: 'review:*',
       ttl: 300,
       priority: 'medium',
-      dependencies: ['vendor:rating', 'venue:rating', 'review:stats']
+      dependencies: ['vendor:rating', 'venue:rating', 'review:stats'],
     });
 
     // Stats-related cache invalidation
@@ -75,7 +75,7 @@ export class CacheInvalidationService {
       pattern: 'stats:*',
       ttl: 900,
       priority: 'low',
-      dependencies: ['home:stats', 'dashboard:stats', 'analytics:stats']
+      dependencies: ['home:stats', 'dashboard:stats', 'analytics:stats'],
     });
   }
 
@@ -87,11 +87,13 @@ export class CacheInvalidationService {
 
   // Invalidate cache based on entity changes
   async invalidateCache(event: InvalidationEvent) {
-    console.log(`🔄 Cache invalidation event: ${event.type} ${event.entity}:${event.entityId}`);
-    
+    console.log(
+      `🔄 Cache invalidation event: ${event.type} ${event.entity}:${event.entityId}`
+    );
+
     // Add to processing queue
     this.invalidationQueue.push(event);
-    
+
     // Process queue if not already processing
     if (!this.isProcessing) {
       this.processQueue();
@@ -105,7 +107,9 @@ export class CacheInvalidationService {
     }
 
     this.isProcessing = true;
-    console.log(`📋 Processing invalidation queue: ${this.invalidationQueue.length} events`);
+    console.log(
+      `📋 Processing invalidation queue: ${this.invalidationQueue.length} events`
+    );
 
     try {
       // Sort by priority
@@ -113,7 +117,10 @@ export class CacheInvalidationService {
         const aRule = this.getRuleForEntity(a.entity);
         const bRule = this.getRuleForEntity(b.entity);
         const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return (priorityOrder[bRule?.priority || 'low']) - (priorityOrder[aRule?.priority || 'low']);
+        return (
+          priorityOrder[bRule?.priority || 'low'] -
+          priorityOrder[aRule?.priority || 'low']
+        );
       });
 
       // Process events
@@ -124,12 +131,11 @@ export class CacheInvalidationService {
       // Clear processed events
       this.invalidationQueue = [];
       console.log('✅ Invalidation queue processed successfully');
-
     } catch (error) {
       console.error('❌ Error processing invalidation queue:', error);
     } finally {
       this.isProcessing = false;
-      
+
       // Process remaining events if any were added during processing
       if (this.invalidationQueue.length > 0) {
         setTimeout(() => this.processQueue(), 100);
@@ -148,14 +154,16 @@ export class CacheInvalidationService {
     try {
       // Invalidate specific entity cache
       await this.invalidateEntityCache(event.entity, event.entityId);
-      
+
       // Invalidate dependent caches
       await this.invalidateDependentCaches(rule.dependencies);
-      
-      console.log(`✅ Cache invalidated for ${event.entity}:${event.entityId}`);
 
+      console.log(`✅ Cache invalidated for ${event.entity}:${event.entityId}`);
     } catch (error) {
-      console.error(`❌ Failed to invalidate cache for ${event.entity}:${event.entityId}:`, error);
+      console.error(
+        `❌ Failed to invalidate cache for ${event.entity}:${event.entityId}:`,
+        error
+      );
     }
   }
 
@@ -184,7 +192,10 @@ export class CacheInvalidationService {
         await advancedCache.clearNamespace(dependency);
         console.log(`🗑️ Invalidated dependent cache: ${dependency}`);
       } catch (error) {
-        console.warn(`Failed to invalidate dependent cache ${dependency}:`, error);
+        console.warn(
+          `Failed to invalidate dependent cache ${dependency}:`,
+          error
+        );
       }
     }
   }
@@ -202,7 +213,7 @@ export class CacheInvalidationService {
   // Bulk invalidation for multiple entities
   async bulkInvalidate(events: InvalidationEvent[]) {
     console.log(`🔄 Bulk cache invalidation: ${events.length} events`);
-    
+
     for (const event of events) {
       await this.invalidateCache(event);
     }
@@ -211,7 +222,7 @@ export class CacheInvalidationService {
   // Invalidate all cache
   async invalidateAll() {
     console.log('🗑️ Invalidating all cache');
-    
+
     try {
       await advancedCache.clearNamespace('weddinglk');
       console.log('✅ All cache invalidated successfully');
@@ -226,12 +237,14 @@ export class CacheInvalidationService {
       rulesCount: this.invalidationRules.size,
       queueLength: this.invalidationQueue.length,
       isProcessing: this.isProcessing,
-      rules: Array.from(this.invalidationRules.entries()).map(([name, rule]) => ({
-        name,
-        pattern: rule.pattern,
-        priority: rule.priority,
-        dependenciesCount: rule.dependencies.length
-      }))
+      rules: Array.from(this.invalidationRules.entries()).map(
+        ([name, rule]) => ({
+          name,
+          pattern: rule.pattern,
+          priority: rule.priority,
+          dependenciesCount: rule.dependencies.length,
+        })
+      ),
     };
   }
 
@@ -247,4 +260,4 @@ export class CacheInvalidationService {
 }
 
 // Export singleton instance
-export const cacheInvalidationService = new CacheInvalidationService(); 
+export const cacheInvalidationService = new CacheInvalidationService();

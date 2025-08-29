@@ -16,10 +16,20 @@ interface Notification {
   userId: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 
-         'booking_request' | 'booking_status_update' | 'new_review' |
-         'payment_received' | 'new_message' | 'service_updated' |
-         'user_status_changed' | 'vendor_approved' | 'vendor_rejected';
+  type:
+    | 'info'
+    | 'success'
+    | 'warning'
+    | 'error'
+    | 'booking_request'
+    | 'booking_status_update'
+    | 'new_review'
+    | 'payment_received'
+    | 'new_message'
+    | 'service_updated'
+    | 'user_status_changed'
+    | 'vendor_approved'
+    | 'vendor_rejected';
   timestamp: Date;
   read: boolean;
   data?: any;
@@ -54,10 +64,13 @@ export const useSocket = () => {
   const initializeSocket = useCallback(() => {
     if (!session?.user?.email) return;
 
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000', {
-      transports: ['websocket', 'polling'],
-      autoConnect: true,
-    });
+    const socket = io(
+      process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000',
+      {
+        transports: ['websocket', 'polling'],
+        autoConnect: true,
+      }
+    );
 
     socketRef.current = socket;
 
@@ -71,7 +84,7 @@ export const useSocket = () => {
         socket.emit('authenticate', {
           userId: session.user.id || session.user.email,
           email: session.user.email,
-          role: session.user.role || 'user'
+          role: session.user.role || 'user',
         });
       }
     });
@@ -81,17 +94,17 @@ export const useSocket = () => {
       setSocketState(prev => ({ ...prev, isConnected: false }));
     });
 
-    socket.on('connect_error', (error) => {
+    socket.on('connect_error', error => {
       console.error('🔌 Socket connection error:', error);
       setSocketState(prev => ({ ...prev, error: error.message }));
     });
 
     // Authentication events
-    socket.on('authenticated', (data) => {
+    socket.on('authenticated', data => {
       if (data.success) {
         console.log('✅ Socket authenticated');
         setSocketState(prev => ({ ...prev, isAuthenticated: true }));
-        
+
         // Join user's personal room
         if (session.user?.id || session.user?.email) {
           socket.emit('join-user-room', session.user.id || session.user.email);
@@ -136,7 +149,7 @@ export const useSocket = () => {
     });
 
     // Error handling
-    socket.on('error', (error) => {
+    socket.on('error', error => {
       console.error('🔌 Socket error:', error);
       setSocketState(prev => ({ ...prev, error: error.message }));
     });
@@ -158,58 +171,76 @@ export const useSocket = () => {
   }, []);
 
   // Join vendor room
-  const joinVendorRoom = useCallback((vendorId: string) => {
-    if (socketRef.current && socketState.isAuthenticated) {
-      socketRef.current.emit('join-vendor-room', vendorId);
-      console.log(`🏢 Joined vendor room: ${vendorId}`);
-    }
-  }, [socketState.isAuthenticated]);
+  const joinVendorRoom = useCallback(
+    (vendorId: string) => {
+      if (socketRef.current && socketState.isAuthenticated) {
+        socketRef.current.emit('join-vendor-room', vendorId);
+        console.log(`🏢 Joined vendor room: ${vendorId}`);
+      }
+    },
+    [socketState.isAuthenticated]
+  );
 
   // Join venue room
-  const joinVenueRoom = useCallback((venueId: string) => {
-    if (socketRef.current && socketState.isAuthenticated) {
-      socketRef.current.emit('join-venue-room', venueId);
-      console.log(`🏛️ Joined venue room: ${venueId}`);
-    }
-  }, [socketState.isAuthenticated]);
+  const joinVenueRoom = useCallback(
+    (venueId: string) => {
+      if (socketRef.current && socketState.isAuthenticated) {
+        socketRef.current.emit('join-venue-room', venueId);
+        console.log(`🏛️ Joined venue room: ${venueId}`);
+      }
+    },
+    [socketState.isAuthenticated]
+  );
 
   // Send message
-  const sendMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
-    if (socketRef.current && socketState.isAuthenticated) {
-      const fullMessage: Message = {
-        ...message,
-        id: Date.now().toString(), // Temporary ID
-        timestamp: new Date(),
-      };
-      socketRef.current.emit('send-message', fullMessage);
-      return fullMessage;
-    }
-    return null;
-  }, [socketState.isAuthenticated]);
+  const sendMessage = useCallback(
+    (message: Omit<Message, 'id' | 'timestamp'>) => {
+      if (socketRef.current && socketState.isAuthenticated) {
+        const fullMessage: Message = {
+          ...message,
+          id: Date.now().toString(), // Temporary ID
+          timestamp: new Date(),
+        };
+        socketRef.current.emit('send-message', fullMessage);
+        return fullMessage;
+      }
+      return null;
+    },
+    [socketState.isAuthenticated]
+  );
 
   // Send typing indicator
-  const sendTypingIndicator = useCallback((receiverId: string, isTyping: boolean) => {
-    if (socketRef.current && socketState.isAuthenticated) {
-      socketRef.current.emit(isTyping ? 'typing-start' : 'typing-stop', {
-        receiverId,
-        senderId: session?.user?.id || session?.user?.email
-      });
-    }
-  }, [socketState.isAuthenticated, session]);
+  const sendTypingIndicator = useCallback(
+    (receiverId: string, isTyping: boolean) => {
+      if (socketRef.current && socketState.isAuthenticated) {
+        socketRef.current.emit(isTyping ? 'typing-start' : 'typing-stop', {
+          receiverId,
+          senderId: session?.user?.id || session?.user?.email,
+        });
+      }
+    },
+    [socketState.isAuthenticated, session]
+  );
 
   // Mark message as read
-  const markMessageAsRead = useCallback((messageId: string) => {
-    if (socketRef.current && socketState.isAuthenticated) {
-      socketRef.current.emit('mark-read', messageId);
-    }
-  }, [socketState.isAuthenticated]);
+  const markMessageAsRead = useCallback(
+    (messageId: string) => {
+      if (socketRef.current && socketState.isAuthenticated) {
+        socketRef.current.emit('mark-read', messageId);
+      }
+    },
+    [socketState.isAuthenticated]
+  );
 
   // Mark notification as read
-  const markNotificationAsRead = useCallback((notificationId: string) => {
-    if (socketRef.current && socketState.isAuthenticated) {
-      socketRef.current.emit('notification-read', notificationId);
-    }
-  }, [socketState.isAuthenticated]);
+  const markNotificationAsRead = useCallback(
+    (notificationId: string) => {
+      if (socketRef.current && socketState.isAuthenticated) {
+        socketRef.current.emit('notification-read', notificationId);
+      }
+    },
+    [socketState.isAuthenticated]
+  );
 
   // Clear notifications
   const clearNotifications = useCallback(() => {
@@ -234,12 +265,12 @@ export const useSocket = () => {
     isConnected: socketState.isConnected,
     isAuthenticated: socketState.isAuthenticated,
     error: socketState.error,
-    
+
     // Data
     messages,
     notifications,
     typingUsers,
-    
+
     // Actions
     sendMessage,
     sendTypingIndicator,
@@ -248,8 +279,8 @@ export const useSocket = () => {
     joinVendorRoom,
     joinVenueRoom,
     clearNotifications,
-    
+
     // Connection management
     disconnectSocket,
   };
-}; 
+};

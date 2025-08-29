@@ -2,67 +2,69 @@
 // Provides AI-powered features for wedding planning
 
 import OpenAI from 'openai';
-import { 
+import {
   AIRecommendation,
   User as UserType,
   Venue as VenueType,
   Vendor as VendorType,
   Booking as BookingType,
   Payment as PaymentType,
-  UserPreferences
+  UserPreferences,
 } from '@/lib/types';
 import { connectDB } from './db';
 import { User, Vendor, Venue, Booking, Payment } from './models';
 
 // Initialize OpenAI client conditionally
-let openai: OpenAI | null = null
+let openai: OpenAI | null = null;
 if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-  })
+  });
 }
 
 interface WeddingPlan {
   timeline: Array<{
-    date: string
-    task: string
-    description: string
-    priority: 'low' | 'medium' | 'high'
-  }>
+    date: string;
+    task: string;
+    description: string;
+    priority: 'low' | 'medium' | 'high';
+  }>;
   budget: {
-    total: number
-    breakdown: Record<string, number>
-    recommendations: string[]
-  }
+    total: number;
+    breakdown: Record<string, number>;
+    recommendations: string[];
+  };
   checklist: Array<{
-    category: string
+    category: string;
     items: Array<{
-      task: string
-      completed: boolean
-      dueDate?: string
-    }>
-  }>
+      task: string;
+      completed: boolean;
+      dueDate?: string;
+    }>;
+  }>;
 }
 
 class AIService {
   // Intelligent venue and vendor recommendations
-  async getPersonalizedRecommendations(userId: string): Promise<AIRecommendation[]> {
+  async getPersonalizedRecommendations(
+    userId: string
+  ): Promise<AIRecommendation[]> {
     try {
-      await connectDB()
-      
-      const user = await User.findById(userId)
-      if (!user) throw new Error('User not found')
+      await connectDB();
 
-      const { preferences } = user
-      if (!preferences) throw new Error('User preferences not found')
+      const user = await User.findById(userId);
+      if (!user) throw new Error('User not found');
+
+      const { preferences } = user;
+      if (!preferences) throw new Error('User preferences not found');
 
       // Get all venues and vendors
-      const venues = await Venue.find({ isActive: true })
-      const vendors = await Vendor.find({ isActive: true })
+      const venues = await Venue.find({ isActive: true });
+      const vendors = await Vendor.find({ isActive: true });
 
       // If OpenAI is not available, return basic recommendations
       if (!openai) {
-        return this.getBasicRecommendations(venues, vendors, preferences)
+        return this.getBasicRecommendations(venues, vendors, preferences);
       }
 
       // Create AI prompt for recommendations
@@ -83,32 +85,35 @@ class AIService {
         
         Provide 3 venue recommendations and 2 vendor recommendations with reasons.
         Format as JSON array with: type, id, name, reason, confidence (0-1), price
-      `
+      `;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 1000
-      })
+        max_tokens: 1000,
+      });
 
-      const recommendations = JSON.parse(completion.choices[0].message.content || '[]')
-      return recommendations
-
+      const recommendations = JSON.parse(
+        completion.choices[0].message.content || '[]'
+      );
+      return recommendations;
     } catch (error) {
-      console.error('AI recommendation error:', error)
-      return []
+      console.error('AI recommendation error:', error);
+      return [];
     }
   }
 
   // Get basic recommendations when AI is not available
-  private getBasicRecommendations(venues: VenueType[], vendors: VendorType[], preferences: UserPreferences): AIRecommendation[] {
-    const recommendations: AIRecommendation[] = []
+  private getBasicRecommendations(
+    venues: VenueType[],
+    vendors: VendorType[],
+    preferences: UserPreferences
+  ): AIRecommendation[] {
+    const recommendations: AIRecommendation[] = [];
 
     // Add top-rated venues
-    const topVenues = venues
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 3)
+    const topVenues = venues.sort((a, b) => b.rating - a.rating).slice(0, 3);
 
     topVenues.forEach(venue => {
       recommendations.push({
@@ -120,14 +125,12 @@ class AIService {
         confidence: 0.8,
         score: venue.rating,
         data: { price: venue.price, location: venue.location },
-        price: venue.price
-      })
-    })
+        price: venue.price,
+      });
+    });
 
     // Add top-rated vendors
-    const topVendors = vendors
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 2)
+    const topVendors = vendors.sort((a, b) => b.rating - a.rating).slice(0, 2);
 
     topVendors.forEach(vendor => {
       recommendations.push({
@@ -139,28 +142,31 @@ class AIService {
         confidence: 0.8,
         score: vendor.rating,
         data: { price: vendor.price, category: vendor.category },
-        price: vendor.price
-      })
-    })
+        price: vendor.price,
+      });
+    });
 
-    return recommendations
+    return recommendations;
   }
 
   // Generate personalized wedding timeline
   async generateWeddingTimeline(userId: string): Promise<WeddingPlan> {
     try {
-      await connectDB()
-      
-      const user = await User.findById(userId)
-      if (!user?.preferences?.weddingDate) throw new Error('Wedding date not found')
+      await connectDB();
 
-      const weddingDate = new Date(user.preferences.weddingDate)
-      const today = new Date()
-      const daysUntilWedding = Math.ceil((weddingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      const user = await User.findById(userId);
+      if (!user?.preferences?.weddingDate)
+        throw new Error('Wedding date not found');
+
+      const weddingDate = new Date(user.preferences.weddingDate);
+      const today = new Date();
+      const daysUntilWedding = Math.ceil(
+        (weddingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       // If OpenAI is not available, return basic timeline
       if (!openai) {
-        return this.getBasicWeddingTimeline(daysUntilWedding, user.preferences)
+        return this.getBasicWeddingTimeline(daysUntilWedding, user.preferences);
       }
 
       const prompt = `
@@ -179,46 +185,65 @@ class AIService {
         3. Checklist: Organized by categories (venue, vendors, attire, etc.)
         
         Format as JSON with timeline, budget, and checklist properties.
-      `
+      `;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 2000
-      })
+        max_tokens: 2000,
+      });
 
-      const weddingPlan = JSON.parse(completion.choices[0].message.content || '{}')
-      return weddingPlan
-
+      const weddingPlan = JSON.parse(
+        completion.choices[0].message.content || '{}'
+      );
+      return weddingPlan;
     } catch (error) {
-      console.error('AI timeline generation error:', error)
-      return this.getBasicWeddingTimeline(30, { budget: 500000, guestCount: 200 })
+      console.error('AI timeline generation error:', error);
+      return this.getBasicWeddingTimeline(30, {
+        budget: 500000,
+        guestCount: 200,
+      });
     }
   }
 
   // Get basic wedding timeline when AI is not available
-  private getBasicWeddingTimeline(daysUntilWedding: number, preferences: UserPreferences): WeddingPlan {
+  private getBasicWeddingTimeline(
+    daysUntilWedding: number,
+    preferences: UserPreferences
+  ): WeddingPlan {
     const timeline = [
       {
-        date: new Date(Date.now() + (daysUntilWedding - 60) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        date: new Date(
+          Date.now() + (daysUntilWedding - 60) * 24 * 60 * 60 * 1000
+        )
+          .toISOString()
+          .split('T')[0],
         task: 'Book Venue',
         description: 'Secure your wedding venue',
-        priority: 'high' as const
+        priority: 'high' as const,
       },
       {
-        date: new Date(Date.now() + (daysUntilWedding - 45) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        date: new Date(
+          Date.now() + (daysUntilWedding - 45) * 24 * 60 * 60 * 1000
+        )
+          .toISOString()
+          .split('T')[0],
         task: 'Book Vendors',
         description: 'Book photography, catering, and other services',
-        priority: 'high' as const
+        priority: 'high' as const,
       },
       {
-        date: new Date(Date.now() + (daysUntilWedding - 30) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        date: new Date(
+          Date.now() + (daysUntilWedding - 30) * 24 * 60 * 60 * 1000
+        )
+          .toISOString()
+          .split('T')[0],
         task: 'Send Invitations',
         description: 'Send out wedding invitations',
-        priority: 'medium' as const
-      }
-    ]
+        priority: 'medium' as const,
+      },
+    ];
 
     return {
       timeline,
@@ -229,13 +254,13 @@ class AIService {
           catering: (preferences.budget || 500000) * 0.25,
           photography: (preferences.budget || 500000) * 0.15,
           decoration: (preferences.budget || 500000) * 0.1,
-          other: (preferences.budget || 500000) * 0.1
+          other: (preferences.budget || 500000) * 0.1,
         },
         recommendations: [
           'Consider booking vendors early for better rates',
           'Set aside 10% for unexpected expenses',
-          'Compare multiple quotes before making decisions'
-        ]
+          'Compare multiple quotes before making decisions',
+        ],
       },
       checklist: [
         {
@@ -243,29 +268,36 @@ class AIService {
           items: [
             { task: 'Book venue', completed: false },
             { task: 'Visit venue', completed: false },
-            { task: 'Sign contract', completed: false }
-          ]
+            { task: 'Sign contract', completed: false },
+          ],
         },
         {
           category: 'Vendors',
           items: [
             { task: 'Book photographer', completed: false },
             { task: 'Book caterer', completed: false },
-            { task: 'Book decorator', completed: false }
-          ]
-        }
-      ]
-    }
+            { task: 'Book decorator', completed: false },
+          ],
+        },
+      ],
+    };
   }
 
   // Smart search with semantic understanding
-  async semanticSearch(query: string, filters: any = {}): Promise<{ venues: VenueType[], vendors: VendorType[], extractedParams: any }> {
+  async semanticSearch(
+    query: string,
+    filters: any = {}
+  ): Promise<{
+    venues: VenueType[];
+    vendors: VendorType[];
+    extractedParams: any;
+  }> {
     try {
-      await connectDB()
-      
+      await connectDB();
+
       // If OpenAI is not available, return basic search
       if (!openai) {
-        return this.getBasicSearch(query, filters)
+        return this.getBasicSearch(query, filters);
       }
 
       const prompt = `
@@ -280,140 +312,152 @@ class AIService {
         5. Specific requirements
         
         Return as JSON with extracted parameters.
-      `
+      `;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
-        max_tokens: 500
-      })
+        max_tokens: 500,
+      });
 
-      const extractedParams = JSON.parse(completion.choices[0].message.content || '{}')
+      const extractedParams = JSON.parse(
+        completion.choices[0].message.content || '{}'
+      );
 
       // Build database query based on extracted parameters
-      const venueQuery: any = { isActive: true }
-      const vendorQuery: any = { isActive: true }
+      const venueQuery: any = { isActive: true };
+      const vendorQuery: any = { isActive: true };
 
       if (extractedParams.location) {
-        venueQuery.location = { $regex: extractedParams.location, $options: 'i' }
-        vendorQuery.location = { $regex: extractedParams.location, $options: 'i' }
+        venueQuery.location = {
+          $regex: extractedParams.location,
+          $options: 'i',
+        };
+        vendorQuery.location = {
+          $regex: extractedParams.location,
+          $options: 'i',
+        };
       }
 
       if (extractedParams.budgetRange) {
-        venueQuery.price = { $lte: extractedParams.budgetRange.max }
-        vendorQuery.price = { $lte: extractedParams.budgetRange.max }
+        venueQuery.price = { $lte: extractedParams.budgetRange.max };
+        vendorQuery.price = { $lte: extractedParams.budgetRange.max };
       }
 
       if (extractedParams.guestCount) {
-        venueQuery.capacity = { $gte: extractedParams.guestCount }
+        venueQuery.capacity = { $gte: extractedParams.guestCount };
       }
 
-      const venues = await Venue.find(venueQuery).limit(10)
-      const vendors = await Vendor.find(vendorQuery).limit(10)
+      const venues = await Venue.find(venueQuery).limit(10);
+      const vendors = await Vendor.find(vendorQuery).limit(10);
 
-      return { venues, vendors, extractedParams }
-
+      return { venues, vendors, extractedParams };
     } catch (error) {
-      console.error('Semantic search error:', error)
-      return this.getBasicSearch(query, filters)
+      console.error('Semantic search error:', error);
+      return this.getBasicSearch(query, filters);
     }
   }
 
   // Get basic search when AI is not available
   private async getBasicSearch(query: string, filters: any): Promise<any> {
     try {
-      await connectDB()
-      
-      const venueQuery: any = { isActive: true }
-      const vendorQuery: any = { isActive: true }
+      await connectDB();
+
+      const venueQuery: any = { isActive: true };
+      const vendorQuery: any = { isActive: true };
 
       if (filters?.location) {
-        venueQuery.location = { $regex: filters.location, $options: 'i' }
-        vendorQuery.location = { $regex: filters.location, $options: 'i' }
+        venueQuery.location = { $regex: filters.location, $options: 'i' };
+        vendorQuery.location = { $regex: filters.location, $options: 'i' };
       }
 
       if (filters?.maxPrice) {
-        venueQuery.price = { $lte: filters.maxPrice }
-        vendorQuery.price = { $lte: filters.maxPrice }
+        venueQuery.price = { $lte: filters.maxPrice };
+        vendorQuery.price = { $lte: filters.maxPrice };
       }
 
       if (filters?.guestCount) {
-        venueQuery.capacity = { $gte: filters.guestCount }
+        venueQuery.capacity = { $gte: filters.guestCount };
       }
 
-      const venues = await Venue.find(venueQuery).limit(10)
-      const vendors = await Vendor.find(vendorQuery).limit(10)
+      const venues = await Venue.find(venueQuery).limit(10);
+      const vendors = await Vendor.find(vendorQuery).limit(10);
 
-      return { venues, vendors, extractedParams: filters }
+      return { venues, vendors, extractedParams: filters };
     } catch (error) {
-      console.error('Basic search error:', error)
-      return { venues: [], vendors: [], extractedParams: {} }
+      console.error('Basic search error:', error);
+      return { venues: [], vendors: [], extractedParams: {} };
     }
   }
 
   // Generate personalized content
-  async generateContent(type: 'email' | 'description' | 'proposal', context: any): Promise<string> {
+  async generateContent(
+    type: 'email' | 'description' | 'proposal',
+    context: any
+  ): Promise<string> {
     try {
       if (!openai) {
-        return this.getBasicContent(type, context)
+        return this.getBasicContent(type, context);
       }
 
       const prompts = {
         email: `Write a professional wedding planning email for: ${JSON.stringify(context)}`,
         description: `Write an engaging venue/vendor description for: ${JSON.stringify(context)}`,
-        proposal: `Write a wedding proposal for: ${JSON.stringify(context)}`
-      }
+        proposal: `Write a wedding proposal for: ${JSON.stringify(context)}`,
+      };
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompts[type] }],
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: prompts[type] }],
         temperature: 0.7,
-        max_tokens: 500
-      })
+        max_tokens: 500,
+      });
 
-      return completion.choices[0].message.content || ''
-
+      return completion.choices[0].message.content || '';
     } catch (error) {
-      console.error('Content generation error:', error)
-      return this.getBasicContent(type, context)
+      console.error('Content generation error:', error);
+      return this.getBasicContent(type, context);
     }
   }
 
   // Get basic content when AI is not available
-  private getBasicContent(type: 'email' | 'description' | 'proposal', context: any): string {
+  private getBasicContent(
+    type: 'email' | 'description' | 'proposal',
+    context: any
+  ): string {
     const templates = {
       email: `Thank you for your interest in our wedding planning services. We're excited to help you create your perfect day!`,
       description: `A beautiful and elegant venue perfect for your special day.`,
-      proposal: `Will you marry me?`
-    }
-    return templates[type] || ''
+      proposal: `Will you marry me?`,
+    };
+    return templates[type] || '';
   }
 
   // Analyze user behavior and preferences
   async analyzeUserBehavior(userId: string): Promise<any> {
     try {
-      await connectDB()
-      
-      const user = await User.findById(userId)
-      const bookings = await Booking.find({ userId })
-      const payments = await Payment.find({ userId })
+      await connectDB();
+
+      const user = await User.findById(userId);
+      const bookings = await Booking.find({ userId });
+      const payments = await Payment.find({ userId });
 
       const analysis: {
-        preferences: any
-        bookingHistory: number
-        totalSpent: number
-        favoriteCategories: string[]
-        activityLevel: 'low' | 'medium' | 'high'
-        recommendations: string[]
+        preferences: any;
+        bookingHistory: number;
+        totalSpent: number;
+        favoriteCategories: string[];
+        activityLevel: 'low' | 'medium' | 'high';
+        recommendations: string[];
       } = {
         preferences: user?.preferences || {},
         bookingHistory: bookings.length,
         totalSpent: payments.reduce((sum: number, p: any) => sum + p.amount, 0),
         favoriteCategories: this.extractFavoriteCategories(bookings),
         activityLevel: this.calculateActivityLevel(bookings, payments),
-        recommendations: []
-      }
+        recommendations: [],
+      };
 
       // Generate personalized recommendations based on analysis
       if (openai) {
@@ -422,29 +466,29 @@ class AIService {
           ${JSON.stringify(analysis)}
           
           Provide 3 personalized recommendations for next steps.
-        `
+        `;
 
         const completion = await openai.chat.completions.create({
-          model: "gpt-4",
-          messages: [{ role: "user", content: prompt }],
+          model: 'gpt-4',
+          messages: [{ role: 'user', content: prompt }],
           temperature: 0.7,
-          max_tokens: 300
-        })
+          max_tokens: 300,
+        });
 
-        analysis.recommendations = completion.choices[0].message.content?.split('\n') || []
+        analysis.recommendations =
+          completion.choices[0].message.content?.split('\n') || [];
       } else {
         analysis.recommendations = [
           'Consider booking your venue early',
           'Explore vendor packages for better rates',
-          'Start planning your wedding timeline'
-        ]
+          'Start planning your wedding timeline',
+        ];
       }
 
-      return analysis
-
+      return analysis;
     } catch (error) {
-      console.error('User behavior analysis error:', error)
-      return {}
+      console.error('User behavior analysis error:', error);
+      return {};
     }
   }
 
@@ -453,16 +497,19 @@ class AIService {
     const categories = bookings
       .map(b => b.services || b.vendorCategory || [])
       .flat()
-      .filter(Boolean)
-    return Array.from(new Set(categories))
+      .filter(Boolean);
+    return Array.from(new Set(categories));
   }
 
-  private calculateActivityLevel(bookings: any[], payments: any[]): 'low' | 'medium' | 'high' {
-    const totalActivity = bookings.length + payments.length
-    if (totalActivity > 10) return 'high'
-    if (totalActivity > 5) return 'medium'
-    return 'low'
+  private calculateActivityLevel(
+    bookings: any[],
+    payments: any[]
+  ): 'low' | 'medium' | 'high' {
+    const totalActivity = bookings.length + payments.length;
+    if (totalActivity > 10) return 'high';
+    if (totalActivity > 5) return 'medium';
+    return 'low';
   }
 }
 
-export default new AIService() 
+export default new AIService();

@@ -1,233 +1,230 @@
-import { NextRequest, NextResponse } from "next/server"
-import { connectDB } from "@/lib/db"
-import { auth } from "@/lib/auth-config"
+import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '@/lib/db';
+import { auth } from '@/lib/auth-config';
 // In-memory settings store (in production, use database)
 let platformSettings = {
   general: {
-    siteName: "WeddingLK",
+    siteName: 'WeddingLK',
     siteDescription: "Sri Lanka's Premier Wedding Planning Platform",
     maintenanceMode: false,
     registrationEnabled: true,
-    emailVerificationRequired: true
+    emailVerificationRequired: true,
   },
   business: {
     commissionRate: 10, // 10%
     minimumPayout: 5000, // LKR
     autoApproveVendors: false,
     requireVendorVerification: true,
-    maxImagesPerListing: 20
+    maxImagesPerListing: 20,
   },
   security: {
     maxLoginAttempts: 5,
     sessionTimeout: 24, // hours
     require2FA: false,
     passwordMinLength: 8,
-    enableRateLimiting: true
+    enableRateLimiting: true,
   },
   notifications: {
     emailNotifications: true,
     smsNotifications: false,
     pushNotifications: true,
-    adminAlerts: true
+    adminAlerts: true,
   },
   features: {
     aiSearch: true,
     advancedAnalytics: true,
     mobileApp: true,
     paymentGateway: true,
-    reviewSystem: true
-  }
-}
+    reviewSystem: true,
+  },
+};
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session || session.user?.role !== 'admin') {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await connectDB()
+    await connectDB();
 
     // Get settings by category
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
 
-    if (category && platformSettings[category as keyof typeof platformSettings]) {
-      return NextResponse.json({ 
-        settings: platformSettings[category as keyof typeof platformSettings] 
-      })
+    if (
+      category &&
+      platformSettings[category as keyof typeof platformSettings]
+    ) {
+      return NextResponse.json({
+        settings: platformSettings[category as keyof typeof platformSettings],
+      });
     }
 
-    return NextResponse.json({ settings: platformSettings })
-
+    return NextResponse.json({ settings: platformSettings });
   } catch (error) {
-    console.error("Error fetching platform settings:", error)
+    console.error('Error fetching platform settings:', error);
     return NextResponse.json(
-      { error: "Failed to fetch platform settings" },
+      { error: 'Failed to fetch platform settings' },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session || session.user?.role !== 'admin') {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await connectDB()
+    await connectDB();
 
-    const body = await request.json()
-    const { category, updates } = body
+    const body = await request.json();
+    const { category, updates } = body;
 
     if (!category || !updates) {
       return NextResponse.json(
-        { error: "Category and updates are required" },
+        { error: 'Category and updates are required' },
         { status: 400 }
-      )
+      );
     }
 
     if (!platformSettings[category as keyof typeof platformSettings]) {
       return NextResponse.json(
-        { error: "Invalid settings category" },
+        { error: 'Invalid settings category' },
         { status: 400 }
-      )
+      );
     }
 
     // Update settings
     platformSettings[category as keyof typeof platformSettings] = {
       ...platformSettings[category as keyof typeof platformSettings],
-      ...updates
-    }
+      ...updates,
+    };
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       settings: platformSettings[category as keyof typeof platformSettings],
-      message: "Settings updated successfully" 
-    })
-
+      message: 'Settings updated successfully',
+    });
   } catch (error) {
-    console.error("Error updating platform settings:", error)
+    console.error('Error updating platform settings:', error);
     return NextResponse.json(
-      { error: "Failed to update platform settings" },
+      { error: 'Failed to update platform settings' },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session || session.user?.role !== 'admin') {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await connectDB()
+    await connectDB();
 
-    const body = await request.json()
-    const { action, data } = body
+    const body = await request.json();
+    const { action, data } = body;
 
     if (!action) {
       return NextResponse.json(
-        { error: "Action is required" },
+        { error: 'Action is required' },
         { status: 400 }
-      )
+      );
     }
 
-    let result: any = {}
+    let result: any = {};
 
     switch (action) {
       case 'resetSettings':
         // Reset to default settings
         platformSettings = {
           general: {
-            siteName: "WeddingLK",
+            siteName: 'WeddingLK',
             siteDescription: "Sri Lanka's Premier Wedding Planning Platform",
             maintenanceMode: false,
             registrationEnabled: true,
-            emailVerificationRequired: true
+            emailVerificationRequired: true,
           },
           business: {
             commissionRate: 10,
             minimumPayout: 5000,
             autoApproveVendors: false,
             requireVendorVerification: true,
-            maxImagesPerListing: 20
+            maxImagesPerListing: 20,
           },
           security: {
             maxLoginAttempts: 5,
             sessionTimeout: 24,
             require2FA: false,
             passwordMinLength: 8,
-            enableRateLimiting: true
+            enableRateLimiting: true,
           },
           notifications: {
             emailNotifications: true,
             smsNotifications: false,
             pushNotifications: true,
-            adminAlerts: true
+            adminAlerts: true,
           },
           features: {
             aiSearch: true,
             advancedAnalytics: true,
             mobileApp: true,
             paymentGateway: true,
-            reviewSystem: true
-          }
-        }
-        result = { message: "Settings reset to defaults" }
-        break
+            reviewSystem: true,
+          },
+        };
+        result = { message: 'Settings reset to defaults' };
+        break;
 
       case 'exportSettings':
-        result = { settings: platformSettings }
-        break
+        result = { settings: platformSettings };
+        break;
 
       case 'importSettings':
         if (!data || !data.settings) {
           return NextResponse.json(
-            { error: "Settings data is required for import" },
+            { error: 'Settings data is required for import' },
             { status: 400 }
-          )
+          );
         }
-        platformSettings = data.settings
-        result = { message: "Settings imported successfully" }
-        break
+        platformSettings = data.settings;
+        result = { message: 'Settings imported successfully' };
+        break;
 
       case 'testEmail':
         // Test email configuration
-        result = { message: "Email test completed", success: true }
-        break
+        result = { message: 'Email test completed', success: true };
+        break;
 
       case 'testSMS':
         // Test SMS configuration
-        result = { message: "SMS test completed", success: true }
-        break
+        result = { message: 'SMS test completed', success: true };
+        break;
 
       case 'systemHealth':
         // Check system health
         result = {
-          database: "Connected",
-          email: "Configured",
-          sms: "Configured",
-          payment: "Active",
-          overall: "Healthy"
-        }
-        break
+          database: 'Connected',
+          email: 'Configured',
+          sms: 'Configured',
+          payment: 'Active',
+          overall: 'Healthy',
+        };
+        break;
 
       default:
-        return NextResponse.json(
-          { error: "Invalid action" },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
-    return NextResponse.json(result)
-
+    return NextResponse.json(result);
   } catch (error) {
-    console.error("Error processing settings action:", error)
+    console.error('Error processing settings action:', error);
     return NextResponse.json(
-      { error: "Failed to process settings action" },
+      { error: 'Failed to process settings action' },
       { status: 500 }
-    )
+    );
   }
-} 
+}

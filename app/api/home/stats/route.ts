@@ -42,46 +42,70 @@ export async function GET(request: NextRequest) {
       bookingStats,
       reviewStats,
       categoryStats,
-      performanceStats
+      performanceStats,
     ] = await Promise.all([
       // User statistics
-      User.aggregate([
-        { $group: { _id: null, total: { $sum: 1 } } }
-      ]).exec(),
-      
+      User.aggregate([{ $group: { _id: null, total: { $sum: 1 } } }]).exec(),
+
       // Vendor statistics
       Vendor.aggregate([
         { $match: { isActive: true } },
-        { $group: { _id: null, total: { $sum: 1 }, verified: { $sum: { $cond: ['$isVerified', 1, 0] } } } }
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            verified: { $sum: { $cond: ['$isVerified', 1, 0] } },
+          },
+        },
       ]).exec(),
-      
+
       // Venue statistics
       Venue.aggregate([
         { $match: { isActive: true } },
-        { $group: { _id: null, total: { $sum: 1 }, featured: { $sum: { $cond: ['$featured', 1, 0] } } } }
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            featured: { $sum: { $cond: ['$featured', 1, 0] } },
+          },
+        },
       ]).exec(),
-      
+
       // Booking statistics
       Booking.aggregate([
-        { $group: { _id: null, total: { $sum: 1 }, confirmed: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] } } } }
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            confirmed: {
+              $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
+            },
+          },
+        },
       ]).exec(),
-      
+
       // Review statistics
       Review.aggregate([
         { $match: { isVerified: true } },
-        { $group: { _id: null, total: { $sum: 1 }, avgRating: { $avg: '$rating' } } }
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            avgRating: { $avg: '$rating' },
+          },
+        },
       ]).exec(),
-      
+
       // Category statistics
       Vendor.aggregate([
         { $match: { isActive: true } },
         { $group: { _id: '$businessType', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
-        { $limit: 10 }
+        { $limit: 10 },
       ]).exec(),
-      
+
       // Performance metrics
-      getPerformanceMetrics()
+      getPerformanceMetrics(),
     ]);
 
     const stats = {
@@ -123,10 +147,9 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       fromCache: false,
     });
-
   } catch (error) {
     console.error('Error fetching home stats:', error);
-    
+
     // If database fails, try to serve stale cache
     if (cachedStats && cachedStats.isStale) {
       console.log(`⚠️ Serving stale cache due to database error`);
@@ -138,12 +161,15 @@ export async function GET(request: NextRequest) {
         stale: true,
       });
     }
-    
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch home stats',
-      timestamp: new Date().toISOString(),
-    }, { status: 500 });
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to fetch home stats',
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -154,26 +180,38 @@ async function getPerformanceMetrics() {
       // Average rating across all vendors and venues
       Review.aggregate([
         { $match: { isVerified: true } },
-        { $group: { _id: null, avgRating: { $avg: '$rating' } } }
+        { $group: { _id: null, avgRating: { $avg: '$rating' } } },
       ]).exec(),
-      
+
       // Success rate (confirmed vs total bookings)
       Booking.aggregate([
-        { $group: { _id: null, total: { $sum: 1 }, confirmed: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] } } } }
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            confirmed: {
+              $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
+            },
+          },
+        },
       ]).exec(),
-      
+
       // Total bookings for conversion rate
-      Booking.countDocuments()
+      Booking.countDocuments(),
     ]);
 
     const avgRatingValue = avgRating[0]?.avgRating || 0;
-    const successRate = successRateData[0] ? (successRateData[0].confirmed / successRateData[0].total) * 100 : 0;
+    const successRate = successRateData[0]
+      ? (successRateData[0].confirmed / successRateData[0].total) * 100
+      : 0;
 
     return {
       averageRating: Math.round(avgRatingValue * 10) / 10,
       successRate: Math.round(successRate * 10) / 10,
       totalBookings,
-      conversionRate: Math.round((successRateData[0]?.confirmed / totalBookings) * 100 * 10) / 10,
+      conversionRate:
+        Math.round((successRateData[0]?.confirmed / totalBookings) * 100 * 10) /
+        10,
     };
   } catch (error) {
     console.error('Performance metrics error:', error);
@@ -184,4 +222,4 @@ async function getPerformanceMetrics() {
       conversionRate: 0,
     };
   }
-} 
+}

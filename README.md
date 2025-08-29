@@ -5,6 +5,7 @@ A modern, scalable wedding platform built with Next.js 15, TypeScript, and Mongo
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 20+
 - Docker & Docker Compose
 - Git
@@ -12,18 +13,21 @@ A modern, scalable wedding platform built with Next.js 15, TypeScript, and Mongo
 ### Production Deployment
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/weddinglk-nextjs.git
    cd weddinglk-nextjs
    ```
 
 2. **Configure environment**
+
    ```bash
    cp env.production.template .env.production
    # Edit .env.production with your production values
    ```
 
 3. **Deploy**
+
    ```bash
    chmod +x scripts/deploy.sh
    ./scripts/deploy.sh
@@ -64,6 +68,7 @@ npm run build
 ## 🚀 Vercel Deployment (Recommended)
 
 ### **Quick Deploy to Vercel**
+
 ```bash
 # Install Vercel CLI
 npm install -g vercel
@@ -79,6 +84,7 @@ vercel --prod
 ```
 
 ### **Environment Setup for Vercel**
+
 ```bash
 # Copy Vercel environment template
 cp env.vercel.template .env.vercel

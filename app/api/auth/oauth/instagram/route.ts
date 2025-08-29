@@ -62,8 +62,9 @@ export async function GET(request: NextRequest) {
     let profilePicture = '';
     if (mediaResponse.ok) {
       const mediaData = await mediaResponse.json();
-      const firstImage = mediaData.data?.find((item: any) => 
-        item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM'
+      const firstImage = mediaData.data?.find(
+        (item: any) =>
+          item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM'
       );
       if (firstImage) {
         profilePicture = firstImage.media_url || firstImage.thumbnail_url;
@@ -78,11 +79,13 @@ export async function GET(request: NextRequest) {
       picture: profilePicture,
       provider: 'instagram',
       accessToken: tokenData.access_token,
-      expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
+      expiresAt: tokenData.expires_in
+        ? Date.now() + tokenData.expires_in * 1000
+        : undefined,
       additionalData: {
         username: userData.username,
-        account_type: userData.account_type
-      }
+        account_type: userData.account_type,
+      },
     });
 
     if (authResult.success && authResult.token) {
@@ -101,4 +104,4 @@ export async function GET(request: NextRequest) {
       `${process.env.NEXTAUTH_URL}/login?error=${encodeURIComponent('Authentication failed')}`
     );
   }
-} 
+}

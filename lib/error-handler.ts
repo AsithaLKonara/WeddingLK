@@ -89,12 +89,210 @@ export class DatabaseError extends AppError {
 
 export class ExternalServiceError extends AppError {
   constructor(service: string, message: string, details?: any) {
-    super(`External service error: ${message}`, 502, 'EXTERNAL_SERVICE_ERROR', { service, ...details });
+    super(`External service error: ${message}`, 502, 'EXTERNAL_SERVICE_ERROR', {
+      service,
+      ...details,
+    });
   }
 }
 
+export interface ErrorInfo {
+  message: string;
+  stack?: string | undefined;
+  context?: Record<string, any> | undefined;
+  timestamp: Date;
+  userId?: string | undefined;
+  sessionId?: string | undefined;
+  url?: string | undefined;
+  userAgent?: string | undefined;
+}
+
+export class ErrorHandler {
+  private static instance: ErrorHandler;
+  private isProduction = process.env.NODE_ENV === 'production';
+
+  private constructor() {}
+
+  static getInstance(): ErrorHandler {
+    if (!ErrorHandler.instance) {
+      ErrorHandler.instance = new ErrorHandler();
+    }
+    return ErrorHandler.instance;
+  }
+
+  /**
+   * Log an error with context information
+   */
+  logError(error: Error | string, context?: Record<string, any>): void {
+    const errorInfo: ErrorInfo = {
+      message: typeof error === 'string' ? error : error.message,
+      stack: error instanceof Error ? error.stack : undefined,
+      context,
+      timestamp: new Date(),
+      url: typeof window !== 'undefined' ? window.location.href : undefined,
+      userAgent:
+        typeof window !== 'undefined' ? window.navigator.userAgent : undefined,
+    };
+
+    // Always log to console in development
+    if (!this.isProduction) {
+      console.error('🚨 Error caught by ErrorHandler:', errorInfo);
+      return;
+    }
+
+    // In production, send to monitoring service
+    this.sendToMonitoringService(errorInfo);
+  }
+
+  /**
+   * Handle API errors specifically
+   */
+  handleApiError(error: any, endpoint?: string): void {
+    const context = {
+      type: 'API_ERROR',
+      endpoint,
+      status: error.status || error.statusCode,
+      response: error.response?.data,
+    };
+
+    this.logError(error, context);
+  }
+
+  /**
+   * Handle validation errors
+   */
+  handleValidationError(error: any, field?: string): void {
+    const context = {
+      type: 'VALIDATION_ERROR',
+      field,
+      value: error.value,
+      rule: error.rule,
+    };
+
+    this.logError(error, context);
+  }
+
+  /**
+   * Handle authentication errors
+   */
+  handleAuthError(error: any, action?: string): void {
+    const context = {
+      type: 'AUTH_ERROR',
+      action,
+      code: error.code,
+    };
+
+    this.logError(error, context);
+  }
+
+  /**
+   * Send error to monitoring service (e.g., Sentry, LogRocket)
+   */
+  private sendToMonitoringService(errorInfo: ErrorInfo): void {
+    try {
+      // Example: Send to Sentry
+      // if (typeof window !== 'undefined' && window.Sentry) {
+      //   window.Sentry.captureException(new Error(errorInfo.message), {
+      //     extra: errorInfo.context,
+      //     tags: {
+      //       type: errorInfo.context?.type || 'GENERAL_ERROR',
+      //     },
+      //   });
+      // }
+
+      // Example: Send to custom endpoint
+      // fetch('/api/errors', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(errorInfo),
+      // }).catch(console.error);
+
+      // For now, just log to console in production
+      console.error('Production Error:', errorInfo);
+    } catch (monitoringError) {
+      // Fallback to console if monitoring fails
+      console.error(
+        'Failed to send error to monitoring service:',
+        monitoringError
+      );
+      console.error('Original error:', errorInfo);
+    }
+  }
+
+  /**
+   * Create a user-friendly error message
+   */
+  getUserFriendlyMessage(error: Error | string): string {
+    const message = typeof error === 'string' ? error : error.message;
+
+    // Map technical errors to user-friendly messages
+    const errorMap: Record<string, string> = {
+      'Network Error':
+        'Unable to connect to the server. Please check your internet connection.',
+      'Request timeout': 'The request took too long. Please try again.',
+      Unauthorized: 'Please log in to continue.',
+      Forbidden: "You don't have permission to perform this action.",
+      'Not Found': 'The requested resource was not found.',
+      'Internal Server Error':
+        'Something went wrong on our end. Please try again later.',
+      'Validation failed': 'Please check your input and try again.',
+    };
+
+    return errorMap[message] || 'Something went wrong. Please try again.';
+  }
+
+  /**
+   * Check if error is retryable
+   */
+  isRetryableError(error: any): boolean {
+    const retryableStatuses = [408, 429, 500, 502, 503, 504];
+    const retryableMessages = [
+      'Network Error',
+      'Request timeout',
+      'ECONNRESET',
+    ];
+
+    if (error.status && retryableStatuses.includes(error.status)) {
+      return true;
+    }
+
+    if (
+      error.message &&
+      retryableMessages.some(msg => error.message.includes(msg))
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+}
+
+// Export singleton instance
+export const errorHandler = ErrorHandler.getInstance();
+
+// Convenience functions
+export const logError = (
+  error: Error | string,
+  context?: Record<string, any>
+) => errorHandler.logError(error, context);
+
+export const handleApiError = (error: any, endpoint?: string) =>
+  errorHandler.handleApiError(error, endpoint);
+
+export const handleValidationError = (error: any, field?: string) =>
+  errorHandler.handleValidationError(error, field);
+
+export const handleAuthError = (error: any, action?: string) =>
+  errorHandler.handleAuthError(error, action);
+
+export const getUserFriendlyMessage = (error: Error | string) =>
+  errorHandler.getUserFriendlyMessage(error);
+
+export const isRetryableError = (error: any) =>
+  errorHandler.isRetryableError(error);
+
 // Error handler for API routes
-export function handleApiError(error: any): ErrorResponse {
+export function handleApiRouteError(error: any): ErrorResponse {
   const requestId = generateRequestId();
   const timestamp = new Date().toISOString();
 
@@ -146,12 +344,16 @@ export function handleApiError(error: any): ErrorResponse {
   // Handle MongoDB duplicate key errors
   if (error.code === 11000) {
     const field = Object.keys(error.keyPattern)[0];
+    const keyValue =
+      error.keyValue && typeof error.keyValue === 'object'
+        ? error.keyValue
+        : {};
     return {
       success: false,
       error: {
         code: 'DUPLICATE_KEY_ERROR',
         message: `${field} already exists`,
-        details: { field, value: error.keyValue[field] },
+        details: { field, value: keyValue[field as keyof typeof keyValue] },
         timestamp,
         requestId,
       },
@@ -203,9 +405,10 @@ export function handleApiError(error: any): ErrorResponse {
     success: false,
     error: {
       code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'production' 
-        ? 'An internal error occurred' 
-        : error.message,
+      message:
+        process.env.NODE_ENV === 'production'
+          ? 'An internal error occurred'
+          : error.message,
       details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       timestamp,
       requestId,
@@ -237,24 +440,27 @@ export class ErrorRecovery {
     baseDelay: number = 1000
   ): Promise<T> {
     let lastError: Error;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error as Error;
-        
+
         if (attempt === maxRetries) {
           throw lastError;
         }
-        
+
         const delay = baseDelay * Math.pow(2, attempt - 1);
-        console.warn(`Attempt ${attempt} failed, retrying in ${delay}ms:`, error);
-        
+        console.warn(
+          `Attempt ${attempt} failed, retrying in ${delay}ms:`,
+          error
+        );
+
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
-    
+
     throw lastError!;
   }
 
@@ -273,7 +479,11 @@ export class ErrorRecovery {
           if (Date.now() - lastFailureTime > resetTimeout) {
             state = 'HALF_OPEN';
           } else {
-            throw new AppError('Circuit breaker is open', 503, 'CIRCUIT_BREAKER_OPEN');
+            throw new AppError(
+              'Circuit breaker is open',
+              503,
+              'CIRCUIT_BREAKER_OPEN'
+            );
           }
         }
 
@@ -287,22 +497,22 @@ export class ErrorRecovery {
         } catch (error) {
           failureCount++;
           lastFailureTime = Date.now();
-          
+
           if (failureCount >= failureThreshold) {
             state = 'OPEN';
           }
-          
+
           throw error;
         }
       },
-      
+
       getState() {
         return state;
       },
-      
+
       getStats() {
         return { failureCount, lastFailureTime, state };
-      }
+      },
     };
   }
 }
@@ -313,7 +523,7 @@ export function setupGlobalErrorHandlers() {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   });
 
-  process.on('uncaughtException', (error) => {
+  process.on('uncaughtException', error => {
     console.error('Uncaught Exception:', error);
     process.exit(1);
   });
@@ -322,14 +532,20 @@ export function setupGlobalErrorHandlers() {
 // Database connection error handler
 export function handleDatabaseError(error: any): never {
   console.error('Database connection error:', error);
-  
+
   if (error.name === 'MongoServerError' && error.code === 18) {
-    throw new DatabaseError('Authentication failed. Please check database credentials.');
+    throw new DatabaseError(
+      'Authentication failed. Please check database credentials.'
+    );
   }
-  
+
   if (error.name === 'MongoNetworkError') {
-    throw new DatabaseError('Database connection failed. Please check if MongoDB is running.');
+    throw new DatabaseError(
+      'Database connection failed. Please check if MongoDB is running.'
+    );
   }
-  
-  throw new DatabaseError('Database operation failed', { originalError: error.message });
-} 
+
+  throw new DatabaseError('Database operation failed', {
+    originalError: error.message,
+  });
+}

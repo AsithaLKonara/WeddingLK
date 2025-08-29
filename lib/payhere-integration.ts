@@ -1,78 +1,77 @@
-import * as crypto from 'crypto'
+import * as crypto from 'crypto';
 
 interface PayHereConfig {
-  merchantId: string
-  secretKey: string
-  sandboxMode: boolean
+  merchantId: string;
+  secretKey: string;
+  sandboxMode: boolean;
 }
 
 interface PayHerePaymentRequest {
-  merchant_id: string
-  return_url: string
-  cancel_url: string
-  notify_url: string
-  first_name: string
-  last_name: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  country: string
-  order_id: string
-  items: string
-  currency: string
-  amount: number
-  custom_1?: string
-  custom_2?: string
-  hash: string
+  merchant_id: string;
+  return_url: string;
+  cancel_url: string;
+  notify_url: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  order_id: string;
+  items: string;
+  currency: string;
+  amount: number;
+  custom_1?: string;
+  custom_2?: string;
+  hash: string;
 }
 
 interface PayHereInstallmentPlan {
-  planId: string
-  name: string
-  installments: number
-  interestRate: number
-  processingFee: number
-  minAmount: number
-  maxAmount: number
+  planId: string;
+  name: string;
+  installments: number;
+  interestRate: number;
+  processingFee: number;
+  minAmount: number;
+  maxAmount: number;
 }
 
 export class PayHereIntegration {
-  private config: PayHereConfig
-  private baseUrl: string
+  private config: PayHereConfig;
+  private baseUrl: string;
 
   constructor() {
     this.config = {
       merchantId: process.env.PAYHERE_MERCHANT_ID || '',
       secretKey: process.env.PAYHERE_SECRET_KEY || '',
-      sandboxMode: process.env.PAYHERE_SANDBOX_MODE === 'true'
-    }
-    
-    this.baseUrl = this.config.sandboxMode 
+      sandboxMode: process.env.PAYHERE_SANDBOX_MODE === 'true',
+    };
+
+    this.baseUrl = this.config.sandboxMode
       ? 'https://sandbox.payhere.lk/pay/checkout'
-      : 'https://www.payhere.lk/pay/checkout'
+      : 'https://www.payhere.lk/pay/checkout';
   }
 
   // Create payment request for various payment methods
   async createPaymentRequest(paymentData: {
-    orderId: string
-    amount: number
-    currency: string
+    orderId: string;
+    amount: number;
+    currency: string;
     customer: {
-      firstName: string
-      lastName: string
-      email: string
-      phone: string
-      address: string
-      city: string
-    }
-    items: string
-    returnUrl: string
-    cancelUrl: string
-    notifyUrl: string
-    customFields?: Record<string, string>
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string;
+      address: string;
+      city: string;
+    };
+    items: string;
+    returnUrl: string;
+    cancelUrl: string;
+    notifyUrl: string;
+    customFields?: Record<string, string>;
   }): Promise<PayHerePaymentRequest> {
-    
     const paymentRequest: PayHerePaymentRequest = {
       merchant_id: this.config.merchantId,
       return_url: paymentData.returnUrl,
@@ -91,33 +90,38 @@ export class PayHereIntegration {
       amount: paymentData.amount,
       custom_1: paymentData.customFields?.custom_1 || '',
       custom_2: paymentData.customFields?.custom_2 || '',
-      hash: ''
-    }
+      hash: '',
+    };
 
     // Generate hash for security
-    paymentRequest.hash = this.generateHash(paymentRequest)
+    paymentRequest.hash = this.generateHash(paymentRequest);
 
-    return paymentRequest
+    return paymentRequest;
   }
 
   // Create installment payment plan
   async createInstallmentPayment(paymentData: {
-    orderId: string
-    totalAmount: number
-    installments: number
-    customer: any
-    items: string
-    returnUrl: string
-    cancelUrl: string
-    notifyUrl: string
+    orderId: string;
+    totalAmount: number;
+    installments: number;
+    customer: any;
+    items: string;
+    returnUrl: string;
+    cancelUrl: string;
+    notifyUrl: string;
   }): Promise<{
-    paymentUrl: string
-    installmentPlan: PayHereInstallmentPlan
-    monthlyPayment: number
+    paymentUrl: string;
+    installmentPlan: PayHereInstallmentPlan;
+    monthlyPayment: number;
   }> {
-    
-    const installmentPlan = this.getInstallmentPlan(paymentData.installments, paymentData.totalAmount)
-    const monthlyPayment = this.calculateMonthlyPayment(paymentData.totalAmount, installmentPlan)
+    const installmentPlan = this.getInstallmentPlan(
+      paymentData.installments,
+      paymentData.totalAmount
+    );
+    const monthlyPayment = this.calculateMonthlyPayment(
+      paymentData.totalAmount,
+      installmentPlan
+    );
 
     const paymentRequest = await this.createPaymentRequest({
       orderId: `${paymentData.orderId}_INST_${installmentPlan.planId}`,
@@ -130,33 +134,32 @@ export class PayHereIntegration {
       notifyUrl: paymentData.notifyUrl,
       customFields: {
         custom_1: `installment_plan:${installmentPlan.planId}`,
-        custom_2: `total_amount:${paymentData.totalAmount}:installments:${installmentPlan.installments}`
-      }
-    })
+        custom_2: `total_amount:${paymentData.totalAmount}:installments:${installmentPlan.installments}`,
+      },
+    });
 
-    const paymentUrl = this.buildPaymentUrl(paymentRequest)
+    const paymentUrl = this.buildPaymentUrl(paymentRequest);
 
     return {
       paymentUrl,
       installmentPlan,
-      monthlyPayment
-    }
+      monthlyPayment,
+    };
   }
 
   // Create eZ Cash payment
   async createEzCashPayment(paymentData: {
-    orderId: string
-    amount: number
-    customer: any
-    items: string
-    returnUrl: string
-    cancelUrl: string
-    notifyUrl: string
+    orderId: string;
+    amount: number;
+    customer: any;
+    items: string;
+    returnUrl: string;
+    cancelUrl: string;
+    notifyUrl: string;
   }): Promise<{
-    paymentUrl: string
-    paymentMethod: string
+    paymentUrl: string;
+    paymentMethod: string;
   }> {
-    
     const paymentRequest = await this.createPaymentRequest({
       orderId: `${paymentData.orderId}_EZCASH`,
       amount: paymentData.amount,
@@ -167,32 +170,31 @@ export class PayHereIntegration {
       cancelUrl: paymentData.cancelUrl,
       notifyUrl: paymentData.notifyUrl,
       customFields: {
-        custom_1: 'payment_method:ezcash'
-      }
-    })
+        custom_1: 'payment_method:ezcash',
+      },
+    });
 
-    const paymentUrl = this.buildPaymentUrl(paymentRequest)
+    const paymentUrl = this.buildPaymentUrl(paymentRequest);
 
     return {
       paymentUrl,
-      paymentMethod: 'eZ Cash'
-    }
+      paymentMethod: 'eZ Cash',
+    };
   }
 
   // Create mCash payment
   async createMCashPayment(paymentData: {
-    orderId: string
-    amount: number
-    customer: any
-    items: string
-    returnUrl: string
-    cancelUrl: string
-    notifyUrl: string
+    orderId: string;
+    amount: number;
+    customer: any;
+    items: string;
+    returnUrl: string;
+    cancelUrl: string;
+    notifyUrl: string;
   }): Promise<{
-    paymentUrl: string
-    paymentMethod: string
+    paymentUrl: string;
+    paymentMethod: string;
   }> {
-    
     const paymentRequest = await this.createPaymentRequest({
       orderId: `${paymentData.orderId}_MCASH`,
       amount: paymentData.amount,
@@ -203,33 +205,32 @@ export class PayHereIntegration {
       cancelUrl: paymentData.cancelUrl,
       notifyUrl: paymentData.notifyUrl,
       customFields: {
-        custom_1: 'payment_method:mcash'
-      }
-    })
+        custom_1: 'payment_method:mcash',
+      },
+    });
 
-    const paymentUrl = this.buildPaymentUrl(paymentRequest)
+    const paymentUrl = this.buildPaymentUrl(paymentRequest);
 
     return {
       paymentUrl,
-      paymentMethod: 'mCash'
-    }
+      paymentMethod: 'mCash',
+    };
   }
 
   // Create bank transfer payment
   async createBankTransferPayment(paymentData: {
-    orderId: string
-    amount: number
-    customer: any
-    items: string
-    returnUrl: string
-    cancelUrl: string
-    notifyUrl: string
+    orderId: string;
+    amount: number;
+    customer: any;
+    items: string;
+    returnUrl: string;
+    cancelUrl: string;
+    notifyUrl: string;
   }): Promise<{
-    paymentUrl: string
-    paymentMethod: string
-    bankDetails: any
+    paymentUrl: string;
+    paymentMethod: string;
+    bankDetails: any;
   }> {
-    
     const paymentRequest = await this.createPaymentRequest({
       orderId: `${paymentData.orderId}_BANK`,
       amount: paymentData.amount,
@@ -240,11 +241,11 @@ export class PayHereIntegration {
       cancelUrl: paymentData.cancelUrl,
       notifyUrl: paymentData.notifyUrl,
       customFields: {
-        custom_1: 'payment_method:bank_transfer'
-      }
-    })
+        custom_1: 'payment_method:bank_transfer',
+      },
+    });
 
-    const paymentUrl = this.buildPaymentUrl(paymentRequest)
+    const paymentUrl = this.buildPaymentUrl(paymentRequest);
 
     const bankDetails = {
       bankName: 'Commercial Bank of Ceylon',
@@ -252,46 +253,46 @@ export class PayHereIntegration {
       accountName: 'WeddingLK (Pvt) Ltd',
       branch: 'Colombo 03',
       swiftCode: 'CCEYLKLX',
-      reference: paymentData.orderId
-    }
+      reference: paymentData.orderId,
+    };
 
     return {
       paymentUrl,
       paymentMethod: 'Bank Transfer',
-      bankDetails
-    }
+      bankDetails,
+    };
   }
 
   // Verify payment notification
   verifyPaymentNotification(notificationData: any): {
-    isValid: boolean
-    paymentStatus: string
-    orderId: string
-    amount: number
-    transactionId: string
+    isValid: boolean;
+    paymentStatus: string;
+    orderId: string;
+    amount: number;
+    transactionId: string;
   } {
     try {
-      const receivedHash = notificationData.hash
-      const calculatedHash = this.generateHash(notificationData)
+      const receivedHash = notificationData.hash;
+      const calculatedHash = this.generateHash(notificationData);
 
-      const isValid = receivedHash === calculatedHash
+      const isValid = receivedHash === calculatedHash;
 
       return {
         isValid,
         paymentStatus: notificationData.payment_status || 'unknown',
         orderId: notificationData.order_id || '',
         amount: parseFloat(notificationData.payhere_amount || '0'),
-        transactionId: notificationData.payment_id || ''
-      }
+        transactionId: notificationData.payment_id || '',
+      };
     } catch (error) {
-      console.error('Payment verification error:', error)
+      console.error('Payment verification error:', error);
       return {
         isValid: false,
         paymentStatus: 'verification_failed',
         orderId: '',
         amount: 0,
-        transactionId: ''
-      }
+        transactionId: '',
+      };
     }
   }
 
@@ -305,7 +306,7 @@ export class PayHereIntegration {
         interestRate: 0,
         processingFee: 500,
         minAmount: 50000,
-        maxAmount: 500000
+        maxAmount: 500000,
       },
       {
         planId: '6_MONTHS',
@@ -314,7 +315,7 @@ export class PayHereIntegration {
         interestRate: 2.5,
         processingFee: 750,
         minAmount: 100000,
-        maxAmount: 1000000
+        maxAmount: 1000000,
       },
       {
         planId: '12_MONTHS',
@@ -323,60 +324,76 @@ export class PayHereIntegration {
         interestRate: 5.0,
         processingFee: 1000,
         minAmount: 200000,
-        maxAmount: 2000000
-      }
-    ]
+        maxAmount: 2000000,
+      },
+    ];
   }
 
   // Helper methods
   private generateHash(data: any): string {
-    const hashString = Object.keys(data)
-      .filter(key => key !== 'hash')
-      .sort()
-      .map(key => `${key}=${data[key]}`)
-      .join('&') + this.config.secretKey
+    const hashString =
+      Object.keys(data)
+        .filter(key => key !== 'hash')
+        .sort()
+        .map(key => `${key}=${data[key]}`)
+        .join('&') + this.config.secretKey;
 
-    return crypto.createHash('md5').update(hashString).digest('hex').toUpperCase()
+    return crypto
+      .createHash('md5')
+      .update(hashString)
+      .digest('hex')
+      .toUpperCase();
   }
 
   public buildPaymentUrl(paymentRequest: PayHerePaymentRequest): string {
-    const params = new URLSearchParams()
-    
+    const params = new URLSearchParams();
+
     Object.entries(paymentRequest).forEach(([key, value]) => {
       if (value) {
-        params.append(key, value.toString())
+        params.append(key, value.toString());
       }
-    })
+    });
 
-    return `${this.baseUrl}?${params.toString()}`
+    return `${this.baseUrl}?${params.toString()}`;
   }
 
-  private getInstallmentPlan(installments: number, amount: number): PayHereInstallmentPlan {
-    const plans = this.getAvailableInstallmentPlans()
-    const plan = plans.find(p => p.installments === installments && 
-                                amount >= p.minAmount && 
-                                amount <= p.maxAmount)
-    
+  private getInstallmentPlan(
+    installments: number,
+    amount: number
+  ): PayHereInstallmentPlan {
+    const plans = this.getAvailableInstallmentPlans();
+    const plan = plans.find(
+      p =>
+        p.installments === installments &&
+        amount >= p.minAmount &&
+        amount <= p.maxAmount
+    );
+
     if (!plan) {
-      throw new Error(`No suitable installment plan found for ${installments} installments and amount ${amount}`)
+      throw new Error(
+        `No suitable installment plan found for ${installments} installments and amount ${amount}`
+      );
     }
 
-    return plan
+    return plan;
   }
 
-  private calculateMonthlyPayment(totalAmount: number, plan: PayHereInstallmentPlan): number {
-    const interestAmount = (totalAmount * plan.interestRate) / 100
-    const totalWithInterest = totalAmount + interestAmount + plan.processingFee
-    return Math.ceil(totalWithInterest / plan.installments)
+  private calculateMonthlyPayment(
+    totalAmount: number,
+    plan: PayHereInstallmentPlan
+  ): number {
+    const interestAmount = (totalAmount * plan.interestRate) / 100;
+    const totalWithInterest = totalAmount + interestAmount + plan.processingFee;
+    return Math.ceil(totalWithInterest / plan.installments);
   }
 
   // Get payment status
   async getPaymentStatus(orderId: string): Promise<{
-    status: string
-    amount: number
-    transactionId: string
-    paymentMethod: string
-    paidAt?: Date
+    status: string;
+    amount: number;
+    transactionId: string;
+    paymentMethod: string;
+    paidAt?: Date;
   }> {
     // This would typically make an API call to PayHere
     // For now, return mock data
@@ -385,23 +402,27 @@ export class PayHereIntegration {
       amount: 0,
       transactionId: `txn_${Date.now()}`,
       paymentMethod: 'credit_card',
-      paidAt: new Date()
-    }
+      paidAt: new Date(),
+    };
   }
 
   // Process refund
-  async processRefund(transactionId: string, amount: number, reason: string): Promise<{
-    success: boolean
-    refundId: string
-    message: string
+  async processRefund(
+    transactionId: string,
+    amount: number,
+    reason: string
+  ): Promise<{
+    success: boolean;
+    refundId: string;
+    message: string;
   }> {
     // This would make an API call to PayHere for refund
     return {
       success: true,
       refundId: `refund_${Date.now()}`,
-      message: 'Refund processed successfully'
-    }
+      message: 'Refund processed successfully',
+    };
   }
 }
 
-export const payHereIntegration = new PayHereIntegration() 
+export const payHereIntegration = new PayHereIntegration();

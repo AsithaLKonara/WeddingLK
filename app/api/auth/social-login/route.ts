@@ -7,10 +7,10 @@ import { generateJWT } from '@/lib/auth/jwt-utils';
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    
+
     const body = await request.json();
     const { provider, token, role } = body;
-    
+
     // Validate required fields
     if (!provider || !token) {
       return NextResponse.json(
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Validate provider
     const validProviders = ['google', 'facebook', 'instagram', 'linkedin'];
     if (!validProviders.includes(provider)) {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Verify social token
     const profile = await verifySocialToken(provider, token);
     if (!profile) {
@@ -36,23 +36,23 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    
+
     // Handle social login
     const result = await handleSocialLogin(profile);
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: 'Social login failed', message: result.message },
         { status: 500 }
       );
     }
-    
+
     // Generate JWT token
     const jwtToken = generateJWT(result.user);
-    
+
     // Update last login
     await result.user.updateLastActive();
-    
+
     return NextResponse.json({
       success: true,
       token: jwtToken,
@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
       isNewUser: result.isNewUser,
       message: result.message,
     });
-    
   } catch (error) {
     console.error('Social login error:', error);
     return NextResponse.json(
@@ -111,12 +110,11 @@ export async function GET() {
         color: '#0A66C2',
       },
     ];
-    
+
     return NextResponse.json({
       success: true,
       providers,
     });
-    
   } catch (error) {
     console.error('Error getting social providers:', error);
     return NextResponse.json(
@@ -124,4 +122,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}

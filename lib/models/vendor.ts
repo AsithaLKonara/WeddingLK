@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from 'mongoose';
 
 const VendorSchema = new mongoose.Schema(
   {
@@ -6,7 +6,16 @@ const VendorSchema = new mongoose.Schema(
     businessName: { type: String, required: true },
     category: {
       type: String,
-      enum: ["photographer", "decorator", "catering", "music", "transport", "makeup", "jewelry", "clothing"],
+      enum: [
+        'photographer',
+        'decorator',
+        'catering',
+        'music',
+        'transport',
+        'makeup',
+        'jewelry',
+        'clothing',
+      ],
       required: true,
     },
     description: { type: String, required: true },
@@ -37,7 +46,7 @@ const VendorSchema = new mongoose.Schema(
     portfolio: [{ type: String }],
     pricing: {
       startingPrice: { type: Number, required: true },
-      currency: { type: String, default: "LKR" },
+      currency: { type: String, default: 'LKR' },
       packages: [
         {
           name: { type: String },
@@ -58,26 +67,35 @@ const VendorSchema = new mongoose.Schema(
     },
     reviews: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         rating: { type: Number, required: true },
         comment: { type: String },
         images: [{ type: String }],
         createdAt: { type: Date, default: Date.now },
       },
     ],
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     featured: { type: Boolean, default: false },
     onboardingComplete: { type: Boolean, default: false },
     subscription: {
-      plan: { type: String, enum: ["basic", "premium", "pro"], default: "basic" },
+      plan: {
+        type: String,
+        enum: ['basic', 'premium', 'pro'],
+        default: 'basic',
+      },
       expiresAt: { type: Date },
     },
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
-export const Vendor = mongoose.models.Vendor || mongoose.model("Vendor", VendorSchema)
+export const Vendor =
+  mongoose.models.Vendor || mongoose.model('Vendor', VendorSchema);

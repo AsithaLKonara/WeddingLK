@@ -27,7 +27,12 @@ class Logger {
   }
 
   private shouldLog(level: LogLevel): boolean {
-    const levels = [LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG];
+    const levels = [
+      LogLevel.ERROR,
+      LogLevel.WARN,
+      LogLevel.INFO,
+      LogLevel.DEBUG,
+    ];
     return levels.indexOf(level) <= levels.indexOf(this.logLevel);
   }
 
@@ -37,11 +42,17 @@ class Logger {
     const message = entry.message;
     const context = entry.context ? ` | ${JSON.stringify(entry.context)}` : '';
     const requestId = entry.requestId ? ` | ${entry.requestId}` : '';
-    
+
     return `[${timestamp}] ${level} | ${message}${context}${requestId}`;
   }
 
-  private log(level: LogLevel, message: string, context?: Record<string, unknown>, error?: Error, requestId?: string) {
+  private log(
+    level: LogLevel,
+    message: string,
+    context?: Record<string, unknown>,
+    error?: Error,
+    requestId?: string
+  ) {
     if (!this.shouldLog(level)) return;
 
     const entry: LogEntry = {
@@ -71,17 +82,22 @@ class Logger {
       // In development, use colored console output
       const colors = {
         [LogLevel.ERROR]: '\x1b[31m', // Red
-        [LogLevel.WARN]: '\x1b[33m',  // Yellow
-        [LogLevel.INFO]: '\x1b[36m',  // Cyan
+        [LogLevel.WARN]: '\x1b[33m', // Yellow
+        [LogLevel.INFO]: '\x1b[36m', // Cyan
         [LogLevel.DEBUG]: '\x1b[90m', // Gray
       };
       const reset = '\x1b[0m';
-      
+
       console.log(`${colors[level]}${formattedMessage}${reset}`);
     }
   }
 
-  error(message: string, context?: Record<string, unknown>, error?: Error, requestId?: string) {
+  error(
+    message: string,
+    context?: Record<string, unknown>,
+    error?: Error,
+    requestId?: string
+  ) {
     this.log(LogLevel.ERROR, message, context, error, requestId);
   }
 
@@ -93,24 +109,56 @@ class Logger {
     this.log(LogLevel.INFO, message, context, undefined, requestId);
   }
 
-  debug(message: string, context?: Record<string, unknown>, requestId?: string) {
+  debug(
+    message: string,
+    context?: Record<string, unknown>,
+    requestId?: string
+  ) {
     this.log(LogLevel.DEBUG, message, context, undefined, requestId);
   }
 
   // Convenience methods for common logging patterns
-  apiRequest(method: string, url: string, requestId: string, context?: Record<string, unknown>) {
+  apiRequest(
+    method: string,
+    url: string,
+    requestId: string,
+    context?: Record<string, unknown>
+  ) {
     this.info(`API ${method} ${url}`, { method, url, ...context }, requestId);
   }
 
-  apiResponse(status: number, url: string, responseTime: number, requestId: string) {
-    this.info(`API Response ${status} ${url}`, { status, url, responseTime }, requestId);
+  apiResponse(
+    status: number,
+    url: string,
+    responseTime: number,
+    requestId: string
+  ) {
+    this.info(
+      `API Response ${status} ${url}`,
+      { status, url, responseTime },
+      requestId
+    );
   }
 
-  databaseOperation(operation: string, collection: string, duration: number, context?: Record<string, unknown>) {
-    this.info(`DB ${operation} on ${collection}`, { operation, collection, duration, ...context });
+  databaseOperation(
+    operation: string,
+    collection: string,
+    duration: number,
+    context?: Record<string, unknown>
+  ) {
+    this.info(`DB ${operation} on ${collection}`, {
+      operation,
+      collection,
+      duration,
+      ...context,
+    });
   }
 
-  userAction(action: string, userId: string, context?: Record<string, unknown>) {
+  userAction(
+    action: string,
+    userId: string,
+    context?: Record<string, unknown>
+  ) {
     this.info(`User Action: ${action}`, { action, userId, ...context });
   }
 
@@ -118,7 +166,12 @@ class Logger {
     this.info(`System Event: ${event}`, { event, ...context });
   }
 
-  performance(metric: string, value: number, unit: string, context?: Record<string, unknown>) {
+  performance(
+    metric: string,
+    value: number,
+    unit: string,
+    context?: Record<string, unknown>
+  ) {
     this.info(`Performance: ${metric}`, { metric, value, unit, ...context });
   }
 }
@@ -127,17 +180,30 @@ class Logger {
 export const logger = new Logger();
 
 // Export convenience functions
-export const logError = (message: string, context?: Record<string, unknown>, error?: Error, requestId?: string) => 
-  logger.error(message, context, error, requestId);
+export const logError = (
+  message: string,
+  context?: Record<string, unknown>,
+  error?: Error,
+  requestId?: string
+) => logger.error(message, context, error, requestId);
 
-export const logWarn = (message: string, context?: Record<string, unknown>, requestId?: string) => 
-  logger.warn(message, context, requestId);
+export const logWarn = (
+  message: string,
+  context?: Record<string, unknown>,
+  requestId?: string
+) => logger.warn(message, context, requestId);
 
-export const logInfo = (message: string, context?: Record<string, unknown>, requestId?: string) => 
-  logger.info(message, context, requestId);
+export const logInfo = (
+  message: string,
+  context?: Record<string, unknown>,
+  requestId?: string
+) => logger.info(message, context, requestId);
 
-export const logDebug = (message: string, context?: Record<string, unknown>, requestId?: string) => 
-  logger.debug(message, context, requestId);
+export const logDebug = (
+  message: string,
+  context?: Record<string, unknown>,
+  requestId?: string
+) => logger.debug(message, context, requestId);
 
 // Export for use in other modules
 export default logger;

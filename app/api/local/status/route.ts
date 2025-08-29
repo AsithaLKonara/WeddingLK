@@ -14,29 +14,30 @@ export async function GET(request: NextRequest) {
       messages: await localDb.count('messages'),
       tasks: await localDb.count('tasks'),
     };
-    
-    const totalRecords = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    const totalRecords = Object.values(counts).reduce(
+      (sum, count) => sum + count,
+      0
+    );
+
+    return NextResponse.json({
+      success: true,
       message: 'Local database status',
       data: {
         counts,
         totalRecords,
         isSeeded: totalRecords > 0,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
-    
   } catch (error) {
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to get database status',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
   }
 }
-

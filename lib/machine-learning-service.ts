@@ -1,72 +1,72 @@
-import { connectDB } from '@/lib/db'
+import { connectDB } from '@/lib/db';
 
 interface MLModelConfig {
-  modelType: 'recommendation' | 'pricing' | 'demand' | 'sentiment'
-  parameters: Record<string, number | string | boolean>
-  trainingDataSize: number
+  modelType: 'recommendation' | 'pricing' | 'demand' | 'sentiment';
+  parameters: Record<string, number | string | boolean>;
+  trainingDataSize: number;
 }
 
 interface TrainingResult {
-  success: boolean
-  accuracy: number
-  modelVersion: string
-  trainingTime: number
+  success: boolean;
+  accuracy: number;
+  modelVersion: string;
+  trainingTime: number;
 }
 
 interface PredictionInput {
-  userId?: string
-  venueId?: string
-  vendorId?: string
-  budget?: number
-  date?: Date
-  location?: string
-  guestCount?: number
-  preferences?: Record<string, unknown>
+  userId?: string;
+  venueId?: string;
+  vendorId?: string;
+  budget?: number;
+  date?: Date;
+  location?: string;
+  guestCount?: number;
+  preferences?: Record<string, unknown>;
 }
 
 interface PredictionOutput {
-  confidence: number
+  confidence: number;
   recommendations: Array<{
-    id: string
-    type: 'venue' | 'vendor' | 'package'
-    score: number
-    reasoning: string
-  }>
+    id: string;
+    type: 'venue' | 'vendor' | 'package';
+    score: number;
+    reasoning: string;
+  }>;
   insights: Array<{
-    type: string
-    value: string
-    impact: 'positive' | 'negative' | 'neutral'
-  }>
+    type: string;
+    value: string;
+    impact: 'positive' | 'negative' | 'neutral';
+  }>;
 }
 
 interface UserBehavior {
-  userId: string
+  userId: string;
   actions: Array<{
-    type: string
-    timestamp: Date
-    metadata: Record<string, unknown>
-  }>
-  preferences: Record<string, unknown>
+    type: string;
+    timestamp: Date;
+    metadata: Record<string, unknown>;
+  }>;
+  preferences: Record<string, unknown>;
   engagement: {
-    totalActions: number
-    lastActive: Date
-    favoriteCategories: string[]
-  }
+    totalActions: number;
+    lastActive: Date;
+    favoriteCategories: string[];
+  };
 }
 
 interface MarketTrends {
-  category: string
-  demandTrend: 'increasing' | 'decreasing' | 'stable'
-  priceTrend: 'increasing' | 'decreasing' | 'stable'
-  seasonality: Record<string, number>
-  recommendations: string[]
+  category: string;
+  demandTrend: 'increasing' | 'decreasing' | 'stable';
+  priceTrend: 'increasing' | 'decreasing' | 'stable';
+  seasonality: Record<string, number>;
+  recommendations: string[];
 }
 
 export class MachineLearningService {
-  private modelConfigs: Map<string, MLModelConfig> = new Map()
+  private modelConfigs: Map<string, MLModelConfig> = new Map();
 
   constructor() {
-    this.initializeModels()
+    this.initializeModels();
   }
 
   private initializeModels(): void {
@@ -75,47 +75,53 @@ export class MachineLearningService {
       parameters: {
         learningRate: 0.01,
         epochs: 100,
-        batchSize: 32
+        batchSize: 32,
       },
-      trainingDataSize: 10000
-    })
+      trainingDataSize: 10000,
+    });
 
     this.modelConfigs.set('pricing', {
       modelType: 'pricing',
       parameters: {
         learningRate: 0.005,
         epochs: 150,
-        batchSize: 64
+        batchSize: 64,
       },
-      trainingDataSize: 5000
-    })
+      trainingDataSize: 5000,
+    });
   }
 
-  async trainRecommendationModel(trainingData: unknown[]): Promise<TrainingResult> {
+  async trainRecommendationModel(
+    trainingData: unknown[]
+  ): Promise<TrainingResult> {
     try {
-      console.log(`Training recommendation model with ${trainingData.length} samples`)
-      
+      console.log(
+        `Training recommendation model with ${trainingData.length} samples`
+      );
+
       // TODO: Implement actual ML training
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       return {
         success: true,
         accuracy: 0.85,
         modelVersion: 'v1.0.0',
-        trainingTime: 1000
-      }
+        trainingTime: 1000,
+      };
     } catch (error) {
-      console.error('Training failed:', error)
+      console.error('Training failed:', error);
       return {
         success: false,
         accuracy: 0,
         modelVersion: 'v0.0.0',
-        trainingTime: 0
-      }
+        trainingTime: 0,
+      };
     }
   }
 
-  async predictRecommendations(input: PredictionInput): Promise<PredictionOutput> {
+  async predictRecommendations(
+    input: PredictionInput
+  ): Promise<PredictionOutput> {
     try {
       // TODO: Implement actual ML prediction
       const mockRecommendations = [
@@ -123,9 +129,9 @@ export class MachineLearningService {
           id: 'venue_1',
           type: 'venue' as const,
           score: 0.92,
-          reasoning: 'High match with user preferences and budget'
-        }
-      ]
+          reasoning: 'High match with user preferences and budget',
+        },
+      ];
 
       return {
         confidence: 0.85,
@@ -134,17 +140,17 @@ export class MachineLearningService {
           {
             type: 'budget_optimization',
             value: 'Consider weekday bookings for 15% savings',
-            impact: 'positive' as const
-          }
-        ]
-      }
+            impact: 'positive' as const,
+          },
+        ],
+      };
     } catch (error) {
-      console.error('Prediction failed:', error)
+      console.error('Prediction failed:', error);
       return {
         confidence: 0,
         recommendations: [],
-        insights: []
-      }
+        insights: [],
+      };
     }
   }
 
@@ -158,12 +164,12 @@ export class MachineLearningService {
         engagement: {
           totalActions: 0,
           lastActive: new Date(),
-          favoriteCategories: []
-        }
-      }
+          favoriteCategories: [],
+        },
+      };
     } catch (error) {
-      console.error('Behavior analysis failed:', error)
-      throw error
+      console.error('Behavior analysis failed:', error);
+      throw error;
     }
   }
 
@@ -175,86 +181,101 @@ export class MachineLearningService {
         demandTrend: 'stable' as const,
         priceTrend: 'increasing' as const,
         seasonality: {},
-        recommendations: []
-      }
+        recommendations: [],
+      };
     } catch (error) {
-      console.error('Market analysis failed:', error)
-      throw error
+      console.error('Market analysis failed:', error);
+      throw error;
     }
   }
 
-  async optimizePricing(venueId: string, marketData: unknown): Promise<{
-    currentPrice: number
-    recommendedPrice: number
-    reasoning: string
+  async optimizePricing(
+    venueId: string,
+    marketData: unknown
+  ): Promise<{
+    currentPrice: number;
+    recommendedPrice: number;
+    reasoning: string;
   }> {
     try {
       // TODO: Implement actual pricing optimization
       return {
         currentPrice: 50000,
         recommendedPrice: 55000,
-        reasoning: 'Market demand is high, slight increase recommended'
-      }
+        reasoning: 'Market demand is high, slight increase recommended',
+      };
     } catch (error) {
-      console.error('Pricing optimization failed:', error)
-      throw error
+      console.error('Pricing optimization failed:', error);
+      throw error;
     }
   }
 
-  async generatePersonalizedContent(userId: string, contentType: string): Promise<{
-    content: string
-    personalizationScore: number
-    metadata: Record<string, unknown>
+  async generatePersonalizedContent(
+    userId: string,
+    contentType: string
+  ): Promise<{
+    content: string;
+    personalizationScore: number;
+    metadata: Record<string, unknown>;
   }> {
     try {
       // TODO: Implement actual content generation
       return {
         content: 'Personalized content based on your preferences',
         personalizationScore: 0.78,
-        metadata: {}
-      }
+        metadata: {},
+      };
     } catch (error) {
-      console.error('Content generation failed:', error)
-      throw error
+      console.error('Content generation failed:', error);
+      throw error;
     }
   }
 
-  async updateModel(modelType: string, newData: unknown[]): Promise<TrainingResult> {
+  async updateModel(
+    modelType: string,
+    newData: unknown[]
+  ): Promise<TrainingResult> {
     try {
-      const config = this.modelConfigs.get(modelType)
+      const config = this.modelConfigs.get(modelType);
       if (!config) {
-        throw new Error(`Unknown model type: ${modelType}`)
+        throw new Error(`Unknown model type: ${modelType}`);
       }
 
       // TODO: Implement actual model update
-      return await this.trainRecommendationModel(newData)
+      return await this.trainRecommendationModel(newData);
     } catch (error) {
-      console.error('Model update failed:', error)
-      throw error
+      console.error('Model update failed:', error);
+      throw error;
     }
   }
 
-  getModelStatus(): Record<string, {
-    version: string
-    lastUpdated: Date
-    performance: number
-  }> {
-    const status: Record<string, {
-      version: string
-      lastUpdated: Date
-      performance: number
-    }> = {}
+  getModelStatus(): Record<
+    string,
+    {
+      version: string;
+      lastUpdated: Date;
+      performance: number;
+    }
+  > {
+    const status: Record<
+      string,
+      {
+        version: string;
+        lastUpdated: Date;
+        performance: number;
+      }
+    > = {};
 
     for (const [modelType, config] of this.modelConfigs) {
       status[modelType] = {
         version: 'v1.0.0',
         lastUpdated: new Date(),
-        performance: 0.85
-      }
+        performance: 0.85,
+      };
     }
 
-    return status
+    return status;
   }
 }
 
-export const mlService = new MachineLearningService() 
+export const mlService = new MachineLearningService();

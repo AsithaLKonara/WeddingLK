@@ -2,15 +2,15 @@
 
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { 
-  CheckCircle, 
-  Circle, 
+import {
+  CheckCircle,
+  Circle,
   Loader2,
   ArrowLeft,
   ArrowRight,
   Save,
   Eye,
-  XCircle
+  XCircle,
 } from 'lucide-react';
 import { RoleSelection } from '@/components/auth/role-selection';
 import { EnhancedRegistrationForm } from '@/components/auth/enhanced-registration-form';
@@ -45,54 +45,61 @@ function EnhancedRegistrationContent() {
   // Get role from URL params or default to empty
   useEffect(() => {
     const roleParam = searchParams.get('role');
-    if (roleParam && ['user', 'vendor', 'wedding_planner'].includes(roleParam)) {
+    if (
+      roleParam &&
+      ['user', 'vendor', 'wedding_planner'].includes(roleParam)
+    ) {
       setselectedRole(roleParam);
     }
   }, [searchParams]);
 
   // Define registration steps
-  const registrationSteps = useMemo<RegistrationStep[]>(() => [
-    {
-      id: 'role_selection',
-      title: 'Choose Your Role',
-      description: 'select how you want to use WeddingLK',
-      status: 'pending',
-      required: true,
-      estimatedTime: 1
-    },
-    {
-      id: 'basic_info',
-      title: 'Basic Information',
-      description: 'Enter your personal details and contact information',
-      status: 'pending',
-      required: true,
-      estimatedTime: 5
-    },
-    {
-      id: 'role_specific',
-      title: 'Role-Specific Details',
-      description: 'Provide information specific to your selected role',
-      status: 'pending',
-      required: true,
-      estimatedTime: 10
-    },
-    {
-      id: 'documents',
-      title: 'Document Verification',
-      description: 'Upload required documents for verification',
-      status: 'pending',
-      required: selectedRole === 'vendor' || selectedRole === 'wedding_planner',
-      estimatedTime: 15
-    },
-    {
-      id: 'review',
-      title: 'Review & Submit',
-      description: 'Review your information and complete registration',
-      status: 'pending',
-      required: true,
-      estimatedTime: 3
-    }
-  ], [selectedRole]);
+  const registrationSteps = useMemo<RegistrationStep[]>(
+    () => [
+      {
+        id: 'role_selection',
+        title: 'Choose Your Role',
+        description: 'select how you want to use WeddingLK',
+        status: 'pending',
+        required: true,
+        estimatedTime: 1,
+      },
+      {
+        id: 'basic_info',
+        title: 'Basic Information',
+        description: 'Enter your personal details and contact information',
+        status: 'pending',
+        required: true,
+        estimatedTime: 5,
+      },
+      {
+        id: 'role_specific',
+        title: 'Role-Specific Details',
+        description: 'Provide information specific to your selected role',
+        status: 'pending',
+        required: true,
+        estimatedTime: 10,
+      },
+      {
+        id: 'documents',
+        title: 'Document Verification',
+        description: 'Upload required documents for verification',
+        status: 'pending',
+        required:
+          selectedRole === 'vendor' || selectedRole === 'wedding_planner',
+        estimatedTime: 15,
+      },
+      {
+        id: 'review',
+        title: 'Review & Submit',
+        description: 'Review your information and complete registration',
+        status: 'pending',
+        required: true,
+        estimatedTime: 3,
+      },
+    ],
+    [selectedRole]
+  );
 
   // Update step status based on current progress
   useEffect(() => {
@@ -169,12 +176,15 @@ function EnhancedRegistrationContent() {
         role: selectedRole,
         formData,
         currentStep,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-      
-      localStorage.setItem(`registration_progress_${selectedRole}`, JSON.stringify(progressData));
+
+      localStorage.setItem(
+        `registration_progress_${selectedRole}`,
+        JSON.stringify(progressData)
+      );
       setSuccess('Progress saved successfully!');
-      
+
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       setError('Failed to save progress');
@@ -195,7 +205,7 @@ function EnhancedRegistrationContent() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -205,12 +215,11 @@ function EnhancedRegistrationContent() {
 
       const result = await response.json();
       setSuccess('Registration successful! Redirecting to dashboard...');
-      
+
       // Redirect to dashboard after successful registration
       setTimeout(() => {
         router.push('/dashboard');
       }, 2000);
-
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Registration failed');
     } finally {
@@ -222,7 +231,7 @@ function EnhancedRegistrationContent() {
     const completedSteps = registrationSteps
       .slice(0, currentStep + 1)
       .filter(step => step.status === 'completed').length;
-    
+
     return (completedSteps / registrationSteps.length) * 100;
   };
 
@@ -231,13 +240,16 @@ function EnhancedRegistrationContent() {
       case 0:
         return (
           <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Choose Your Role</h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Select how you want to use WeddingLK. This will determine the features available to you.
+            <div className='mb-6'>
+              <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>
+                Choose Your Role
+              </h2>
+              <p className='text-gray-600 dark:text-gray-400'>
+                Select how you want to use WeddingLK. This will determine the
+                features available to you.
               </p>
             </div>
-            <div className="space-y-6">
+            <div className='space-y-6'>
               <RoleSelection onRoleSelect={handleRoleselection} />
             </div>
           </div>
@@ -255,13 +267,16 @@ function EnhancedRegistrationContent() {
       case 2:
         return (
           <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Additional Information</h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Provide additional details specific to your role as a {selectedRole.replace('_', ' ')}.
+            <div className='mb-6'>
+              <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>
+                Additional Information
+              </h2>
+              <p className='text-gray-600 dark:text-gray-400'>
+                Provide additional details specific to your role as a{' '}
+                {selectedRole.replace('_', ' ')}.
               </p>
             </div>
-            <div className="space-y-6">
+            <div className='space-y-6'>
               <EnhancedRegistrationForm
                 role={selectedRole}
                 onSuccess={handleFormDataUpdate}
@@ -274,44 +289,55 @@ function EnhancedRegistrationContent() {
       case 3:
         return (
           <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Document Verification</h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Upload required documents to verify your identity and qualifications.
+            <div className='mb-6'>
+              <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>
+                Document Verification
+              </h2>
+              <p className='text-gray-600 dark:text-gray-400'>
+                Upload required documents to verify your identity and
+                qualifications.
               </p>
             </div>
-            <div className="space-y-6">
-              <div className="space-y-6">
+            <div className='space-y-6'>
+              <div className='space-y-6'>
                 {selectedRole === 'vendor' && (
                   <DocumentUpload
-                    documentType="business_license"
-                    onUpload={async (file) => {
+                    documentType='business_license'
+                    onUpload={async file => {
                       // Handle file upload
                       console.log('Uploading business license:', file);
                     }}
-                    onRemove={(fileId) => {
+                    onRemove={fileId => {
                       // Handle file removal
                       console.log('Removing file:', fileId);
                     }}
                     maxFileSize={10 * 1024 * 1024} // 10MB
-                    allowedTypes={['application/pdf', 'image/jpeg', 'image/png']}
+                    allowedTypes={[
+                      'application/pdf',
+                      'image/jpeg',
+                      'image/png',
+                    ]}
                     required={true}
                   />
                 )}
-                
+
                 {selectedRole === 'wedding_planner' && (
                   <DocumentUpload
-                    documentType="professional_certification"
-                    onUpload={async (file) => {
+                    documentType='professional_certification'
+                    onUpload={async file => {
                       // Handle file upload
                       console.log('Uploading certification:', file);
                     }}
-                    onRemove={(fileId) => {
+                    onRemove={fileId => {
                       // Handle file removal
                       console.log('Removing file:', fileId);
                     }}
                     maxFileSize={10 * 1024 * 1024} // 10MB
-                    allowedTypes={['application/pdf', 'image/jpeg', 'image/png']}
+                    allowedTypes={[
+                      'application/pdf',
+                      'image/jpeg',
+                      'image/png',
+                    ]}
                     required={false}
                   />
                 )}
@@ -323,52 +349,57 @@ function EnhancedRegistrationContent() {
       case 4:
         return (
           <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Review & Submit</h2>
-              <p className="text-gray-600 dark:text-gray-400">
+            <div className='mb-6'>
+              <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>
+                Review & Submit
+              </h2>
+              <p className='text-gray-600 dark:text-gray-400'>
                 Review your information before completing registration.
               </p>
             </div>
-            <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(formData).map(([key, value]) => {
-                    if (typeof value === 'object' && value !== null) return null;
-                    if (value === undefined || value === '') return null;
-                    
-                    return (
-                      <div key={key} className="flex justify-between p-2 bg-gray-50 rounded">
-                        <span className="font-medium capitalize">
-                          {key.replace(/([A-Z])/g, ' $1')}:
-                        </span>
-                        <span className="text-gray-600">{String(value)}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+            <div className='space-y-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {Object.entries(formData).map(([key, value]) => {
+                  if (typeof value === 'object' && value !== null) return null;
+                  if (value === undefined || value === '') return null;
 
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => setCurrentStep(currentStep - 1)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </button>
-                  
-                  <button
-                    onClick={handleSubmit}
-                    disabled={loading || !isCurrentStepComplete()}
-                    className="flex-1"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                    )}
-                    Complete Registration
-                  </button>
-                </div>
+                  return (
+                    <div
+                      key={key}
+                      className='flex justify-between p-2 bg-gray-50 rounded'
+                    >
+                      <span className='font-medium capitalize'>
+                        {key.replace(/([A-Z])/g, ' $1')}:
+                      </span>
+                      <span className='text-gray-600'>{String(value)}</span>
+                    </div>
+                  );
+                })}
               </div>
+
+              <div className='flex gap-3 pt-4'>
+                <button
+                  onClick={() => setCurrentStep(currentStep - 1)}
+                  className='px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center'
+                >
+                  <ArrowLeft className='w-4 h-4 mr-2' />
+                  Back
+                </button>
+
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading || !isCurrentStepComplete()}
+                  className='flex-1'
+                >
+                  {loading ? (
+                    <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+                  ) : (
+                    <CheckCircle className='w-4 h-4 mr-2' />
+                  )}
+                  Complete Registration
+                </button>
+              </div>
+            </div>
           </div>
         );
 
@@ -378,41 +409,40 @@ function EnhancedRegistrationContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className='min-h-screen bg-gray-50 py-8'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className='text-center mb-8'>
+          <h1 className='text-3xl font-bold text-gray-900 mb-2'>
             Create Your WeddingLK Account
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Join thousands of couples, vendors, and wedding planners who trust WeddingLK for their wedding needs.
+          <p className='text-gray-600 max-w-2xl mx-auto'>
+            Join thousands of couples, vendors, and wedding planners who trust
+            WeddingLK for their wedding needs.
           </p>
         </div>
 
         {/* Error/Success Messages */}
         {error && (
-          <div className="mb-6 border-red-200 bg-red-50 p-4 rounded-lg flex items-start space-x-3">
-            <XCircle className="w-4 h-4 text-red-600 mt-0.5" />
-            <p className="text-red-800">{error}</p>
+          <div className='mb-6 border-red-200 bg-red-50 p-4 rounded-lg flex items-start space-x-3'>
+            <XCircle className='w-4 h-4 text-red-600 mt-0.5' />
+            <p className='text-red-800'>{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 border-green-200 bg-green-50 p-4 rounded-lg flex items-start space-x-3">
-            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-            <p className="text-green-800">{success}</p>
+          <div className='mb-6 border-green-200 bg-green-50 p-4 rounded-lg flex items-start space-x-3'>
+            <CheckCircle className='w-4 h-4 text-green-600 mt-0.5' />
+            <p className='text-green-800'>{success}</p>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           {/* Main Content */}
-          <div className="lg:col-span-2">
-            {renderCurrentStep()}
-          </div>
+          <div className='lg:col-span-2'>{renderCurrentStep()}</div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className='space-y-6'>
             {/* Progress Tracking */}
             <RegistrationProgress
               steps={registrationSteps}
@@ -424,13 +454,15 @@ function EnhancedRegistrationContent() {
 
             {/* Social Login */}
             <div>
-              <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-900">Quick Sign Up</h3>
-                <p className="text-xs text-gray-600">
+              <div className='mb-4'>
+                <h3 className='text-sm font-medium text-gray-900'>
+                  Quick Sign Up
+                </h3>
+                <p className='text-xs text-gray-600'>
                   Already have an account? Sign in with social media
                 </p>
               </div>
-              <div className="space-y-3">
+              <div className='space-y-3'>
                 <SocialLoginButtons
                   onSuccess={() => router.push('/dashboard')}
                   onError={setError}
@@ -440,15 +472,18 @@ function EnhancedRegistrationContent() {
             </div>
 
             {/* Help & Support */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="mb-3">
-                <h3 className="text-sm font-medium text-blue-800">Need Help?</h3>
+            <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+              <div className='mb-3'>
+                <h3 className='text-sm font-medium text-blue-800'>
+                  Need Help?
+                </h3>
               </div>
-              <div className="space-y-3">
-                <p className="text-xs text-blue-700">
-                  Our support team is here to help you complete your registration.
+              <div className='space-y-3'>
+                <p className='text-xs text-blue-700'>
+                  Our support team is here to help you complete your
+                  registration.
                 </p>
-                <button className="w-full bg-white border border-blue-300 text-blue-700 px-3 py-2 rounded-md text-sm hover:bg-blue-50">
+                <button className='w-full bg-white border border-blue-300 text-blue-700 px-3 py-2 rounded-md text-sm hover:bg-blue-50'>
                   Contact Support
                 </button>
               </div>
@@ -466,4 +501,4 @@ export default function EnhancedRegistrationPage() {
       <EnhancedRegistrationContent />
     </Suspense>
   );
-} 
+}

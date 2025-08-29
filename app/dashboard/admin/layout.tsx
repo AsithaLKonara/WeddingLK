@@ -7,17 +7,12 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className='min-h-screen bg-gray-50'>
       <AdminHeader />
-      <div className="flex">
-        <AdminNavigation 
-          userRole="admin"
-          unreadNotifications={0}
-        />
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+      <div className='flex'>
+        <AdminNavigation userRole='admin' unreadNotifications={0} />
+        <main className='flex-1 p-6'>{children}</main>
       </div>
     </div>
   );
-} 
+}

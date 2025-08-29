@@ -1,37 +1,48 @@
-import React, { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react'
-import { cn } from '@/lib/utils'
+import React, {
+  forwardRef,
+  InputHTMLAttributes,
+  TextareaHTMLAttributes,
+  SelectHTMLAttributes,
+} from 'react';
+import { cn } from '@/lib/utils';
 
-export interface AccessibleInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string
-  error?: string
-  helperText?: string
-  required?: boolean
-  ariaDescribedBy?: string
-  ariaInvalid?: boolean
+export interface AccessibleInputProps
+  extends InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export interface AccessibleTextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label: string
-  error?: string
-  helperText?: string
-  required?: boolean
-  ariaDescribedBy?: string
-  ariaInvalid?: boolean
+export interface AccessibleTextareaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export interface AccessibleSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label: string
-  options: Array<{ value: string; label: string; disabled?: boolean }>
-  error?: string
-  helperText?: string
-  required?: boolean
-  placeholder?: string
-  ariaDescribedBy?: string
-  ariaInvalid?: boolean
+export interface AccessibleSelectProps
+  extends SelectHTMLAttributes<HTMLSelectElement> {
+  label: string;
+  options: Array<{ value: string; label: string; disabled?: boolean }>;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
+  placeholder?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
 // Accessible Input Component
-export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps>(
+export const AccessibleInput = forwardRef<
+  HTMLInputElement,
+  AccessibleInputProps
+>(
   (
     {
       className,
@@ -46,24 +57,28 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
     },
     ref
   ) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
-    const errorId = error ? `${inputId}-error` : undefined
-    const helperId = helperText ? `${inputId}-helper` : undefined
-    
+    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+    const errorId = error ? `${inputId}-error` : undefined;
+    const helperId = helperText ? `${inputId}-helper` : undefined;
+
     const describedBy = [ariaDescribedBy, errorId, helperId]
       .filter(Boolean)
-      .join(' ')
+      .join(' ');
 
     return (
-      <div className="space-y-2">
+      <div className='space-y-2'>
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-foreground"
+          className='block text-sm font-medium text-foreground'
         >
           {label}
-          {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
+          {required && (
+            <span className='text-destructive ml-1' aria-label='required'>
+              *
+            </span>
+          )}
         </label>
-        
+
         <input
           ref={ref}
           id={inputId}
@@ -82,25 +97,28 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
           aria-required={required}
           {...props}
         />
-        
+
         {helperText && (
-          <p id={helperId} className="text-sm text-muted-foreground">
+          <p id={helperId} className='text-sm text-muted-foreground'>
             {helperText}
           </p>
         )}
-        
+
         {error && (
-          <p id={errorId} className="text-sm text-destructive" role="alert">
+          <p id={errorId} className='text-sm text-destructive' role='alert'>
             {error}
           </p>
         )}
       </div>
-    )
+    );
   }
-)
+);
 
 // Accessible Textarea Component
-export const AccessibleTextarea = forwardRef<HTMLTextAreaElement, AccessibleTextareaProps>(
+export const AccessibleTextarea = forwardRef<
+  HTMLTextAreaElement,
+  AccessibleTextareaProps
+>(
   (
     {
       className,
@@ -115,24 +133,29 @@ export const AccessibleTextarea = forwardRef<HTMLTextAreaElement, AccessibleText
     },
     ref
   ) => {
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`
-    const errorId = error ? `${textareaId}-error` : undefined
-    const helperId = helperText ? `${textareaId}-helper` : undefined
-    
+    const textareaId =
+      id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+    const errorId = error ? `${textareaId}-error` : undefined;
+    const helperId = helperText ? `${textareaId}-helper` : undefined;
+
     const describedBy = [ariaDescribedBy, errorId, helperId]
       .filter(Boolean)
-      .join(' ')
+      .join(' ');
 
     return (
-      <div className="space-y-2">
+      <div className='space-y-2'>
         <label
           htmlFor={textareaId}
-          className="block text-sm font-medium text-foreground"
+          className='block text-sm font-medium text-foreground'
         >
           {label}
-          {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
+          {required && (
+            <span className='text-destructive ml-1' aria-label='required'>
+              *
+            </span>
+          )}
         </label>
-        
+
         <textarea
           ref={ref}
           id={textareaId}
@@ -150,25 +173,28 @@ export const AccessibleTextarea = forwardRef<HTMLTextAreaElement, AccessibleText
           aria-required={required}
           {...props}
         />
-        
+
         {helperText && (
-          <p id={helperId} className="text-sm text-muted-foreground">
+          <p id={helperId} className='text-sm text-muted-foreground'>
             {helperText}
           </p>
         )}
-        
+
         {error && (
-          <p id={errorId} className="text-sm text-destructive" role="alert">
+          <p id={errorId} className='text-sm text-destructive' role='alert'>
             {error}
           </p>
         )}
       </div>
-    )
+    );
   }
-)
+);
 
 // Accessible Select Component
-export const AccessibleSelect = forwardRef<HTMLSelectElement, AccessibleSelectProps>(
+export const AccessibleSelect = forwardRef<
+  HTMLSelectElement,
+  AccessibleSelectProps
+>(
   (
     {
       className,
@@ -185,24 +211,28 @@ export const AccessibleSelect = forwardRef<HTMLSelectElement, AccessibleSelectPr
     },
     ref
   ) => {
-    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`
-    const errorId = error ? `${selectId}-error` : undefined
-    const helperId = helperText ? `${selectId}-helper` : undefined
-    
+    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+    const errorId = error ? `${selectId}-error` : undefined;
+    const helperId = helperText ? `${selectId}-helper` : undefined;
+
     const describedBy = [ariaDescribedBy, errorId, helperId]
       .filter(Boolean)
-      .join(' ')
+      .join(' ');
 
     return (
-      <div className="space-y-2">
+      <div className='space-y-2'>
         <label
           htmlFor={selectId}
-          className="block text-sm font-medium text-foreground"
+          className='block text-sm font-medium text-foreground'
         >
           {label}
-          {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
+          {required && (
+            <span className='text-destructive ml-1' aria-label='required'>
+              *
+            </span>
+          )}
         </label>
-        
+
         <select
           ref={ref}
           id={selectId}
@@ -220,12 +250,12 @@ export const AccessibleSelect = forwardRef<HTMLSelectElement, AccessibleSelectPr
           {...props}
         >
           {placeholder && (
-            <option value="" disabled>
+            <option value='' disabled>
               {placeholder}
             </option>
           )}
-          
-          {options.map((option) => (
+
+          {options.map(option => (
             <option
               key={option.value}
               value={option.value}
@@ -235,30 +265,30 @@ export const AccessibleSelect = forwardRef<HTMLSelectElement, AccessibleSelectPr
             </option>
           ))}
         </select>
-        
+
         {helperText && (
-          <p id={helperId} className="text-sm text-muted-foreground">
+          <p id={helperId} className='text-sm text-muted-foreground'>
             {helperText}
           </p>
         )}
-        
+
         {error && (
-          <p id={errorId} className="text-sm text-destructive" role="alert">
+          <p id={errorId} className='text-sm text-destructive' role='alert'>
             {error}
           </p>
         )}
       </div>
-    )
+    );
   }
-)
+);
 
 // Accessible Fieldset Component
 export interface AccessibleFieldsetProps {
-  legend: string
-  children: React.ReactNode
-  className?: string
-  required?: boolean
-  error?: string
+  legend: string;
+  children: React.ReactNode;
+  className?: string;
+  required?: boolean;
+  error?: string;
 }
 
 export const AccessibleFieldset: React.FC<AccessibleFieldsetProps> = ({
@@ -266,64 +296,63 @@ export const AccessibleFieldset: React.FC<AccessibleFieldsetProps> = ({
   children,
   className,
   required = false,
-  error
+  error,
 }) => {
-  const fieldsetId = `fieldset-${Math.random().toString(36).substr(2, 9)}`
-  const errorId = error ? `${fieldsetId}-error` : undefined
+  const fieldsetId = `fieldset-${Math.random().toString(36).substr(2, 9)}`;
+  const errorId = error ? `${fieldsetId}-error` : undefined;
 
   return (
     <fieldset className={cn('space-y-4', className)}>
-      <legend className="text-lg font-semibold text-foreground">
+      <legend className='text-lg font-semibold text-foreground'>
         {legend}
-        {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
+        {required && (
+          <span className='text-destructive ml-1' aria-label='required'>
+            *
+          </span>
+        )}
       </legend>
-      
+
       {children}
-      
+
       {error && (
-        <p id={errorId} className="text-sm text-destructive" role="alert">
+        <p id={errorId} className='text-sm text-destructive' role='alert'>
           {error}
         </p>
       )}
     </fieldset>
-  )
-}
+  );
+};
 
 // Accessible Checkbox Component
-export interface AccessibleCheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label: string
-  error?: string
-  helperText?: string
-  required?: boolean
+export interface AccessibleCheckboxProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  label: string;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
 }
 
-export const AccessibleCheckbox = forwardRef<HTMLInputElement, AccessibleCheckboxProps>(
+export const AccessibleCheckbox = forwardRef<
+  HTMLInputElement,
+  AccessibleCheckboxProps
+>(
   (
-    {
-      className,
-      label,
-      error,
-      helperText,
-      required = false,
-      id,
-      ...props
-    },
+    { className, label, error, helperText, required = false, id, ...props },
     ref
   ) => {
-    const checkboxId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`
-    const errorId = error ? `${checkboxId}-error` : undefined
-    const helperId = helperText ? `${checkboxId}-helper` : undefined
-    
-    const describedBy = [errorId, helperId]
-      .filter(Boolean)
-      .join(' ')
+    const checkboxId =
+      id || `checkbox-${Math.random().toString(36).substr(2, 9)}`;
+    const errorId = error ? `${checkboxId}-error` : undefined;
+    const helperId = helperText ? `${checkboxId}-helper` : undefined;
+
+    const describedBy = [errorId, helperId].filter(Boolean).join(' ');
 
     return (
-      <div className="flex items-start space-x-2">
+      <div className='flex items-start space-x-2'>
         <input
           ref={ref}
           id={checkboxId}
-          type="checkbox"
+          type='checkbox'
           className={cn(
             'h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary',
             'disabled:cursor-not-allowed disabled:opacity-50',
@@ -335,44 +364,48 @@ export const AccessibleCheckbox = forwardRef<HTMLInputElement, AccessibleCheckbo
           aria-required={required}
           {...props}
         />
-        
-        <div className="space-y-1">
+
+        <div className='space-y-1'>
           <label
             htmlFor={checkboxId}
-            className="text-sm font-medium text-foreground"
+            className='text-sm font-medium text-foreground'
           >
             {label}
-            {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
+            {required && (
+              <span className='text-destructive ml-1' aria-label='required'>
+                *
+              </span>
+            )}
           </label>
-          
+
           {helperText && (
-            <p id={helperId} className="text-sm text-muted-foreground">
+            <p id={helperId} className='text-sm text-muted-foreground'>
               {helperText}
             </p>
           )}
-          
+
           {error && (
-            <p id={errorId} className="text-sm text-destructive" role="alert">
+            <p id={errorId} className='text-sm text-destructive' role='alert'>
               {error}
             </p>
           )}
         </div>
       </div>
-    )
+    );
   }
-)
+);
 
 // Accessible Radio Group Component
 export interface AccessibleRadioGroupProps {
-  name: string
-  label: string
-  options: Array<{ value: string; label: string; disabled?: boolean }>
-  value?: string
-  onChange?: (value: string) => void
-  error?: string
-  helperText?: string
-  required?: boolean
-  className?: string
+  name: string;
+  label: string;
+  options: Array<{ value: string; label: string; disabled?: boolean }>;
+  value?: string;
+  onChange?: (value: string) => void;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
+  className?: string;
 }
 
 export const AccessibleRadioGroup: React.FC<AccessibleRadioGroupProps> = ({
@@ -384,64 +417,66 @@ export const AccessibleRadioGroup: React.FC<AccessibleRadioGroupProps> = ({
   error,
   helperText,
   required = false,
-  className
+  className,
 }) => {
-  const groupId = `radio-group-${Math.random().toString(36).substr(2, 9)}`
-  const errorId = error ? `${groupId}-error` : undefined
-  const helperId = helperText ? `${groupId}-helper` : undefined
-  
-  const describedBy = [errorId, helperId]
-    .filter(Boolean)
-    .join(' ')
+  const groupId = `radio-group-${Math.random().toString(36).substr(2, 9)}`;
+  const errorId = error ? `${groupId}-error` : undefined;
+  const helperId = helperText ? `${groupId}-helper` : undefined;
+
+  const describedBy = [errorId, helperId].filter(Boolean).join(' ');
 
   return (
     <fieldset className={cn('space-y-3', className)}>
-      <legend className="text-sm font-medium text-foreground">
+      <legend className='text-sm font-medium text-foreground'>
         {label}
-        {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
+        {required && (
+          <span className='text-destructive ml-1' aria-label='required'>
+            *
+          </span>
+        )}
       </legend>
-      
-      <div className="space-y-2">
-        {options.map((option) => (
-          <div key={option.value} className="flex items-center space-x-2">
+
+      <div className='space-y-2'>
+        {options.map(option => (
+          <div key={option.value} className='flex items-center space-x-2'>
             <input
               id={`${groupId}-${option.value}`}
               name={name}
-              type="radio"
+              type='radio'
               value={option.value}
               checked={value === option.value}
-              onChange={(e) => onChange?.(e.target.value)}
+              onChange={e => onChange?.(e.target.value)}
               disabled={option.disabled}
-              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+              className='h-4 w-4 border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50'
               aria-describedby={describedBy || undefined}
             />
-            
+
             <label
               htmlFor={`${groupId}-${option.value}`}
-              className="text-sm text-foreground"
+              className='text-sm text-foreground'
             >
               {option.label}
             </label>
           </div>
         ))}
       </div>
-      
+
       {helperText && (
-        <p id={helperId} className="text-sm text-muted-foreground">
+        <p id={helperId} className='text-sm text-muted-foreground'>
           {helperText}
         </p>
       )}
-      
+
       {error && (
-        <p id={errorId} className="text-sm text-destructive" role="alert">
+        <p id={errorId} className='text-sm text-destructive' role='alert'>
           {error}
         </p>
       )}
     </fieldset>
-  )
-}
+  );
+};
 
-AccessibleInput.displayName = 'AccessibleInput'
-AccessibleTextarea.displayName = 'AccessibleTextarea'
-AccessibleSelect.displayName = 'AccessibleSelect'
-AccessibleCheckbox.displayName = 'AccessibleCheckbox'
+AccessibleInput.displayName = 'AccessibleInput';
+AccessibleTextarea.displayName = 'AccessibleTextarea';
+AccessibleSelect.displayName = 'AccessibleSelect';
+AccessibleCheckbox.displayName = 'AccessibleCheckbox';

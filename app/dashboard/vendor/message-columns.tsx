@@ -1,174 +1,175 @@
-"use client"
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, Eye, Reply, Archive } from "lucide-react"
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal, Eye, Reply, Archive } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenulabel,
-  DropdownMenuhr,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export type Message = {
-  _id: string
-  conversationId: string
+  _id: string;
+  conversationId: string;
   client: {
-    name: string
-    email: string
-    avatar?: string
-  }
-  content: string
-  messageType: 'text' | 'image' | 'file'
-  direction: 'inbound' | 'outbound'
-  isRead: boolean
-  createdAt: string
-}
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  content: string;
+  messageType: 'text' | 'image' | 'file';
+  direction: 'inbound' | 'outbound';
+  isRead: boolean;
+  createdAt: string;
+};
 
 export const columns: ColumnDef<Message>[] = [
   {
-    accessorKey: "client",
-    header: "Client",
+    accessorKey: 'client',
+    header: 'Client',
     cell: ({ row }) => {
-      const message = row.original
+      const message = row.original;
       return (
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+        <div className='flex items-center space-x-3'>
+          <div className='w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center'>
             {message.client.avatar ? (
-              <img 
-                src={message.client.avatar} 
+              <img
+                src={message.client.avatar}
                 alt={message.client.name}
-                className="w-8 h-8 rounded-full object-cover"
+                className='w-8 h-8 rounded-full object-cover'
               />
             ) : (
-              <span className="text-sm font-medium text-gray-600">
+              <span className='text-sm font-medium text-gray-600'>
                 {message.client.name.charAt(0).toUpperCase()}
               </span>
             )}
           </div>
           <div>
-            <div className="font-medium">{message.client.name}</div>
-            <div className="text-sm text-gray-500">{message.client.email}</div>
+            <div className='font-medium'>{message.client.name}</div>
+            <div className='text-sm text-gray-500'>{message.client.email}</div>
           </div>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "content",
-    header: "Message",
+    accessorKey: 'content',
+    header: 'Message',
     cell: ({ row }) => {
-      const message = row.original
-      const isOutbound = message.direction === 'outbound'
-      
+      const message = row.original;
+      const isOutbound = message.direction === 'outbound';
+
       return (
         <div className={`max-w-xs ${isOutbound ? 'text-right' : 'text-left'}`}>
-          <div className={`inline-block p-2 rounded-lg ${
-            isOutbound 
-              ? 'bg-blue-100 text-blue-900' 
-              : 'bg-gray-100 text-gray-900'
-          }`}>
-            <div className="text-sm line-clamp-2">
+          <div
+            className={`inline-block p-2 rounded-lg ${
+              isOutbound
+                ? 'bg-blue-100 text-blue-900'
+                : 'bg-gray-100 text-gray-900'
+            }`}
+          >
+            <div className='text-sm line-clamp-2'>
               {message.messageType === 'image' && '📷 Image'}
               {message.messageType === 'file' && '📎 File'}
               {message.messageType === 'text' && message.content}
             </div>
           </div>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "direction",
-    header: "Type",
+    accessorKey: 'direction',
+    header: 'Type',
     cell: ({ row }) => {
-      const direction = row.getValue("direction") as string
-      const isOutbound = direction === 'outbound'
-      
+      const direction = row.getValue('direction') as string;
+      const isOutbound = direction === 'outbound';
+
       return (
-        <span variant={isOutbound ? "default" : "secondary"}>
-          {isOutbound ? "Sent" : "Received"}
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            isOutbound
+              ? 'bg-blue-100 text-blue-800'
+              : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {isOutbound ? 'Sent' : 'Received'}
         </span>
-      )
+      );
     },
   },
   {
-    accessorKey: "isRead",
-    header: "Status",
+    accessorKey: 'isRead',
+    header: 'Status',
     cell: ({ row }) => {
-      const message = row.original
-      const isOutbound = message.direction === 'outbound'
-      
+      const message = row.original;
+      const isOutbound = message.direction === 'outbound';
+
       if (isOutbound) {
         return (
-          <span variant="outline" className="text-green-600">
-            Sent
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              message.isRead
+                ? 'bg-green-100 text-green-800'
+                : 'bg-yellow-100 text-yellow-800'
+            }`}
+          >
+            {message.isRead ? 'Read' : 'Delivered'}
           </span>
-        )
+        );
       }
-      
+
       return (
-        <span variant={message.isRead ? "secondary" : "default"}>
-          {message.isRead ? "Read" : "Unread"}
+        <span className='px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
+          Received
         </span>
-      )
+      );
     },
   },
   {
-    accessorKey: "createdAt",
-    header: "Time",
+    accessorKey: 'createdAt',
+    header: 'Date',
     cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"))
-      const now = new Date()
-      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-      
-      let timeText = ''
-      if (diffInHours < 1) {
-        timeText = 'Just now'
-      } else if (diffInHours < 24) {
-        timeText = `${diffInHours}h ago`
-      } else {
-        timeText = date.toLocaleDateString()
-      }
-      
+      const date = new Date(row.getValue('createdAt'));
       return (
-        <div className="text-sm text-gray-500">
-          {timeText}
-        </div>
-      )
+        <div className='text-sm text-gray-500'>{date.toLocaleDateString()}</div>
+      );
     },
   },
   {
-    id: "actions",
+    id: 'actions',
+    header: 'Actions',
     cell: ({ row }) => {
-      const message = row.original
+      const message = row.original;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <button className='h-8 w-8 p-0'>
+              <span className='sr-only'>Open menu</span>
+              <MoreHorizontal className='h-4 w-4' />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenulabel>Actions</DropdownMenulabel>
+          <DropdownMenuContent align='end'>
             <DropdownMenuItem>
-              <Eye className="mr-2 h-4 w-4" />
-              View Full Message
+              <Eye className='mr-2 h-4 w-4' />
+              View Message
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Reply className="mr-2 h-4 w-4" />
+              <Reply className='mr-2 h-4 w-4' />
               Reply
             </DropdownMenuItem>
-            <DropdownMenuhr />
+            <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Archive className="mr-2 h-4 w-4" />
+              <Archive className='mr-2 h-4 w-4' />
               Archive
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-] 
+];

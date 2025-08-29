@@ -98,21 +98,21 @@ class MobileAppService {
         'push-notifications',
         'offline-support',
         'dark-mode',
-        'multi-language'
+        'multi-language',
       ],
       settings: {
         enablePushNotifications: true,
         enableOfflineMode: true,
         enableDarkMode: false,
         language: 'en',
-        theme: 'light'
-      }
+        theme: 'light',
+      },
     };
   }
 
   // Generate mobile app manifest
   static generateMobileAppManifest(): MobileAppManifest {
-      return {
+    return {
       name: 'WeddingLK - Wedding Planning Made Easy',
       short_name: 'WeddingLK',
       description: 'Your complete wedding planning companion',
@@ -124,14 +124,14 @@ class MobileAppService {
         {
           src: '/icons/icon-192x192.png',
           sizes: '192x192',
-          type: 'image/png'
+          type: 'image/png',
         },
         {
           src: '/icons/icon-512x512.png',
           sizes: '512x512',
-          type: 'image/png'
-        }
-      ]
+          type: 'image/png',
+        },
+      ],
     };
   }
 
@@ -139,20 +139,21 @@ class MobileAppService {
   static generateReactNativeConfig(): ReactNativeConfig {
     return {
       apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
-      websocketUrl: process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'ws://localhost:3001',
+      websocketUrl:
+        process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'ws://localhost:3001',
       features: [
         'real-time-updates',
         'offline-caching',
         'push-notifications',
         'biometric-auth',
-        'deep-linking'
+        'deep-linking',
       ],
       settings: {
         cacheTimeout: 300000, // 5 minutes
         maxRetries: 3,
         requestTimeout: 10000, // 10 seconds
-        enableLogging: process.env.NODE_ENV === 'development'
-      }
+        enableLogging: process.env.NODE_ENV === 'development',
+      },
     };
   }
 
@@ -169,15 +170,16 @@ class MobileAppService {
               name: 'action',
               type: 'string',
               required: true,
-              description: 'Action to perform (user-data, venues, vendors, bookings, push-notification)'
+              description:
+                'Action to perform (user-data, venues, vendors, bookings, push-notification)',
             },
             {
               name: 'data',
               type: 'object',
               required: false,
-              description: 'Additional data for the action'
-            }
-          ]
+              description: 'Additional data for the action',
+            },
+          ],
         },
         {
           path: '/api/mobile',
@@ -188,13 +190,14 @@ class MobileAppService {
               name: 'type',
               type: 'string',
               required: false,
-              description: 'Type of data to retrieve (config, manifest, react-native-config, api-docs)'
-            }
-          ]
-        }
+              description:
+                'Type of data to retrieve (config, manifest, react-native-config, api-docs)',
+            },
+          ],
+        },
       ],
       authentication: 'Bearer token in Authorization header',
-      rateLimiting: '100 requests per minute per user'
+      rateLimiting: '100 requests per minute per user',
     };
   }
 
@@ -202,13 +205,13 @@ class MobileAppService {
   static async testMobileAppService(): Promise<Record<string, unknown>> {
     try {
       await connectDB();
-      
+
       const results = {
         database: 'Connected',
         config: this.getMobileAppConfig(),
         manifest: this.generateMobileAppManifest(),
         rnConfig: this.generateReactNativeConfig(),
-        apiDocs: this.generateMobileAPIDocs()
+        apiDocs: this.generateMobileAPIDocs(),
       };
 
       return results;
@@ -216,30 +219,35 @@ class MobileAppService {
       console.error('Mobile app service test failed:', error);
       return {
         error: 'Mobile app service test failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
 
   // Get mobile user data
-  static async getMobileUserData(userId: string): Promise<MobileUserData | null> {
+  static async getMobileUserData(
+    userId: string
+  ): Promise<MobileUserData | null> {
     try {
       await connectDB();
-      
+
       const user = await User.findById(userId).select('-password');
       if (!user) {
         return null;
       }
 
-      const notifications = await Notification.find({ userId, read: false }).limit(10);
-      
+      const notifications = await Notification.find({
+        userId,
+        read: false,
+      }).limit(10);
+
       return {
         user: {
           id: user._id.toString(),
           name: user.name || 'Unknown User',
           email: user.email,
           role: user.role,
-          profile: user.profile || {}
+          profile: user.profile || {},
         },
         preferences: user.preferences || {},
         notifications: notifications.map(n => ({
@@ -247,8 +255,8 @@ class MobileAppService {
           title: n.title,
           message: n.message,
           type: n.type,
-          createdAt: n.createdAt
-        }))
+          createdAt: n.createdAt,
+        })),
       };
     } catch (error) {
       console.error('Error getting mobile user data:', error);
@@ -257,27 +265,36 @@ class MobileAppService {
   }
 
   // Get mobile venues
-  static async getMobileVenues(filters: Record<string, unknown>): Promise<MobileVenuesData | null> {
+  static async getMobileVenues(
+    filters: Record<string, unknown>
+  ): Promise<MobileVenuesData | null> {
     try {
       await connectDB();
-      
+
       const query: Record<string, unknown> = { isActive: true };
-      
+
       if (filters.location) {
         query.location = { $near: filters.location };
       }
-      
+
       if (filters.capacity) {
         query.capacity = { $gte: filters.capacity };
       }
-      
-      if (filters.priceRange && typeof filters.priceRange === 'object' && 'min' in filters.priceRange && 'max' in filters.priceRange) {
+
+      if (
+        filters.priceRange &&
+        typeof filters.priceRange === 'object' &&
+        'min' in filters.priceRange &&
+        'max' in filters.priceRange
+      ) {
         const priceRange = filters.priceRange as { min: number; max: number };
         query.pricePerPerson = { $gte: priceRange.min, $lte: priceRange.max };
       }
 
       const venues = await Venue.find(query)
-        .select('name description location capacity pricePerPerson images rating')
+        .select(
+          'name description location capacity pricePerPerson images rating'
+        )
         .limit(20);
 
       return {
@@ -289,10 +306,10 @@ class MobileAppService {
           capacity: v.capacity,
           pricePerPerson: v.pricePerPerson,
           images: v.images,
-          rating: v.rating
+          rating: v.rating,
         })),
         total: venues.length,
-        filters
+        filters,
       };
     } catch (error) {
       console.error('Error getting mobile venues:', error);
@@ -301,20 +318,22 @@ class MobileAppService {
   }
 
   // Get mobile vendors
-  static async getMobileVendors(filters: Record<string, unknown>): Promise<MobileVendorsData | null> {
+  static async getMobileVendors(
+    filters: Record<string, unknown>
+  ): Promise<MobileVendorsData | null> {
     try {
       await connectDB();
-      
+
       const query: Record<string, unknown> = { isActive: true };
-      
+
       if (filters.category) {
         query.category = filters.category;
       }
-      
+
       if (filters.location) {
         query.location = { $near: filters.location };
       }
-      
+
       if (filters.rating) {
         query.rating = { $gte: filters.rating };
       }
@@ -332,10 +351,10 @@ class MobileAppService {
           location: v.location,
           rating: v.rating,
           images: v.images,
-          services: v.services
+          services: v.services,
         })),
         total: vendors.length,
-        filters
+        filters,
       };
     } catch (error) {
       console.error('Error getting mobile vendors:', error);
@@ -344,10 +363,12 @@ class MobileAppService {
   }
 
   // Get mobile bookings
-  static async getMobileBookings(userId: string): Promise<MobileBookingsData | null> {
+  static async getMobileBookings(
+    userId: string
+  ): Promise<MobileBookingsData | null> {
     try {
       await connectDB();
-      
+
       const bookings = await Booking.find({ userId })
         .populate('venue', 'name location')
         .populate('vendor', 'name category')
@@ -362,10 +383,10 @@ class MobileAppService {
           date: b.date,
           status: b.status,
           totalAmount: b.totalAmount,
-          createdAt: b.createdAt
+          createdAt: b.createdAt,
         })),
         total: bookings.length,
-        status: 'active'
+        status: 'active',
       };
     } catch (error) {
       console.error('Error getting mobile bookings:', error);
@@ -374,10 +395,13 @@ class MobileAppService {
   }
 
   // Send mobile push notification
-  static async sendMobilePushNotification(userId: string, notification: PushNotificationData): Promise<Record<string, unknown> | null> {
+  static async sendMobilePushNotification(
+    userId: string,
+    notification: PushNotificationData
+  ): Promise<Record<string, unknown> | null> {
     try {
       await connectDB();
-      
+
       // Create notification record
       const newNotification = new Notification({
         userId,
@@ -385,7 +409,7 @@ class MobileAppService {
         message: notification.body,
         type: 'push',
         data: notification.data || {},
-        read: false
+        read: false,
       });
 
       await newNotification.save();
@@ -395,7 +419,7 @@ class MobileAppService {
       return {
         success: true,
         notificationId: newNotification._id.toString(),
-        message: 'Push notification sent successfully'
+        message: 'Push notification sent successfully',
       };
     } catch (error) {
       console.error('Error sending mobile push notification:', error);
@@ -404,4 +428,4 @@ class MobileAppService {
   }
 }
 
-export default MobileAppService; 
+export default MobileAppService;

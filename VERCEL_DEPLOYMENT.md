@@ -7,16 +7,19 @@ This guide will help you deploy your WeddingLK Next.js application to Vercel, th
 ## 🔧 Pre-Deployment Setup
 
 ### **1. Install Vercel CLI**
+
 ```bash
 npm install -g vercel
 ```
 
 ### **2. Login to Vercel**
+
 ```bash
 vercel login
 ```
 
 ### **3. Generate New Secrets for Vercel**
+
 ```bash
 # Generate new NEXTAUTH_SECRET
 openssl rand -base64 64
@@ -28,6 +31,7 @@ openssl rand -base64 32
 ## 🌐 Database Setup for Vercel
 
 ### **MongoDB Atlas (Recommended)**
+
 1. Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
 2. Create a free cluster
 3. Create a database user with read/write permissions
@@ -35,6 +39,7 @@ openssl rand -base64 32
 5. Update `MONGODB_URI` in Vercel environment variables
 
 ### **Redis Setup**
+
 - Use [Upstash Redis](https://upstash.com/) (Vercel integration)
 - Or [Redis Cloud](https://redis.com/try-free/)
 - Update `REDIS_URL` in Vercel environment variables
@@ -42,11 +47,13 @@ openssl rand -base64 32
 ## 🔐 Environment Variables Configuration
 
 ### **1. Copy Vercel Template**
+
 ```bash
 cp env.vercel.template .env.vercel
 ```
 
 ### **2. Configure Environment Variables**
+
 Edit `.env.vercel` with your production values:
 
 ```env
@@ -79,6 +86,7 @@ UPLOAD_API_KEY=your_upload_api_key
 ## 🚀 Deployment Steps
 
 ### **1. Initial Deployment**
+
 ```bash
 # Deploy to Vercel
 vercel
@@ -93,6 +101,7 @@ vercel
 ```
 
 ### **2. Set Environment Variables**
+
 ```bash
 # Set all environment variables
 vercel env add MONGODB_URI
@@ -115,6 +124,7 @@ vercel env add COOKIE_SECRET
 ```
 
 ### **3. Deploy to Production**
+
 ```bash
 # Deploy to production
 vercel --prod
@@ -123,16 +133,19 @@ vercel --prod
 ## 🔍 Post-Deployment Verification
 
 ### **1. Check Application Health**
+
 - Visit your Vercel domain
 - Test the homepage
 - Check API endpoints: `/api/health`
 
 ### **2. Test Authentication**
+
 - Test user registration
 - Test login functionality
 - Verify OAuth integrations
 
 ### **3. Test Database Operations**
+
 - Create a test user
 - Verify data persistence
 - Check Redis caching
@@ -140,12 +153,14 @@ vercel --prod
 ## 🚨 Troubleshooting
 
 ### **Common Issues**
+
 1. **Build Failures**: Check Node.js version compatibility
 2. **Environment Variables**: Verify all required variables are set
 3. **Database Connection**: Check MongoDB Atlas network access
 4. **OAuth Errors**: Verify redirect URIs and credentials
 
 ### **Debug Commands**
+
 ```bash
 # Check deployment status
 vercel ls

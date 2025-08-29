@@ -1,34 +1,31 @@
-import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth-config"
-import { connectDB } from "@/lib/db"
-import { User } from "@/lib/models/user"
-import { Message } from "@/lib/models/message"
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth-config';
+import { connectDB } from '@/lib/db';
+import { User } from '@/lib/models/user';
+import { Message } from '@/lib/models/message';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
-    
+    const session = await auth();
+
     if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await connectDB()
+    await connectDB();
 
-    const user = await User.findOne({ email: session.user.email })
+    const user = await User.findOne({ email: session.user.email });
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get all conversations for the user
     const conversations = await Message.aggregate([
       {
         $match: {
-          $or: [
-            { sender: user._id },
-            { receiver: user._id }
-          ],
-          isDeleted: false
-        }
+          $or: [{ sender: user._id }, { receiver: user._id }],
+          isDeleted: false,
+        },
       },
       {
         $group: {
@@ -37,36 +34,39 @@ export async function GET(request: NextRequest) {
           unreadCount: {
             $sum: {
               $cond: [
-                { 
+                {
                   $and: [
                     { $eq: ['$receiver', user._id] },
-                    { $eq: ['$isRead', false] }
-                  ]
+                    { $eq: ['$isRead', false] },
+                  ],
                 },
                 1,
-                0
-              ]
-            }
-          }
-        }
+                0,
+              ],
+            },
+          },
+        },
       },
       {
-        $sort: { 'lastMessage.createdAt': -1 }
-      }
-    ])
+        $sort: { 'lastMessage.createdAt': -1 },
+      },
+    ]);
 
     // Populate user information for each conversation
     const populatedConversations = await Promise.all(
-      conversations.map(async (conv) => {
-        const lastMessage = conv.lastMessage
-        
-        // Determine the other user in the conversation
-        const otherUserId = lastMessage.sender.toString() === user._id.toString() 
-          ? lastMessage.receiver 
-          : lastMessage.sender
+      conversations.map(async conv => {
+        const lastMessage = conv.lastMessage;
 
-        const otherUser = await User.findById(otherUserId).select('name email avatar role')
-        
+        // Determine the other user in the conversation
+        const otherUserId =
+          lastMessage.sender.toString() === user._id.toString()
+            ? lastMessage.receiver
+            : lastMessage.sender;
+
+        const otherUser = await User.findById(otherUserId).select(
+          'name email avatar role'
+        );
+
         return {
           conversationId: conv._id,
           otherUser,
@@ -74,20 +74,19 @@ export async function GET(request: NextRequest) {
             content: lastMessage.content,
             messageType: lastMessage.messageType,
             createdAt: lastMessage.createdAt,
-            isRead: lastMessage.isRead
+            isRead: lastMessage.isRead,
           },
-          unreadCount: conv.unreadCount
-        }
+          unreadCount: conv.unreadCount,
+        };
       })
-    )
+    );
 
-    return NextResponse.json({ conversations: populatedConversations })
-
+    return NextResponse.json({ conversations: populatedConversations });
   } catch (error) {
-    console.error("Error fetching conversations:", error)
+    console.error('Error fetching conversations:', error);
     return NextResponse.json(
-      { error: "Failed to fetch conversations" },
+      { error: 'Failed to fetch conversations' },
       { status: 500 }
-    )
+    );
   }
-} 
+}

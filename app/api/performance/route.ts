@@ -8,12 +8,12 @@ export async function GET(request: NextRequest) {
     // Get cache statistics
     const cacheStats = await advancedCache.getStats();
     const cacheHealth = await advancedCache.healthCheck();
-    
+
     // Get database pool statistics
     const poolStats = dbPoolManager.getPoolStats();
     const poolHealth = await dbPoolManager.healthCheck();
     const poolPerformance = dbPoolManager.getPerformanceMetrics();
-    
+
     // Get system performance metrics
     const systemMetrics = {
       uptime: process.uptime(),
@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
       },
       system: systemMetrics,
       summary: {
-        overallHealth: cacheHealth && poolHealth.isHealthy ? 'healthy' : 'degraded',
+        overallHealth:
+          cacheHealth && poolHealth.isHealthy ? 'healthy' : 'degraded',
         cacheHitRate: cacheStats.hitRate,
         poolUtilization: poolStats.connectionUtilization,
         averageResponseTime: poolPerformance.averageResponseTime,
@@ -49,13 +50,15 @@ export async function GET(request: NextRequest) {
       data: performanceData,
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Error fetching performance metrics:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch performance metrics',
-      timestamp: new Date().toISOString(),
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to fetch performance metrics',
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    );
   }
-} 
+}

@@ -1,7 +1,5 @@
 import nodemailer from 'nodemailer';
 
-
-
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
@@ -32,7 +30,7 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
 // Add missing sendVerificationEmail function
 export const sendVerificationEmail = async (to: string, token: string) => {
   const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
-  
+
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #333;">Verify Your Email</h2>
@@ -44,4 +42,4 @@ export const sendVerificationEmail = async (to: string, token: string) => {
   `;
 
   return sendEmail(to, 'Verify Your Email - WeddingLK', html);
-}; 
+};

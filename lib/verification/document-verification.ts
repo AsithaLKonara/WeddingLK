@@ -32,7 +32,7 @@ class DocumentVerificationService {
       description: 'Government-issued ID card or passport',
       maxFileSize: 5 * 1024 * 1024, // 5MB
       allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
-      required: true
+      required: true,
     },
     {
       id: 'address_proof',
@@ -40,7 +40,7 @@ class DocumentVerificationService {
       description: 'Utility bill or bank statement',
       maxFileSize: 5 * 1024 * 1024, // 5MB
       allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
-      required: true
+      required: true,
     },
     {
       id: 'business_license',
@@ -48,8 +48,8 @@ class DocumentVerificationService {
       description: 'Business registration or license',
       maxFileSize: 10 * 1024 * 1024, // 10MB
       allowedMimeTypes: ['image/jpeg', 'image/png', 'application/pdf'],
-      required: false
-    }
+      required: false,
+    },
   ];
 
   private constructor() {}
@@ -83,7 +83,7 @@ class DocumentVerificationService {
         fileName,
         filePath,
         uploadDate: new Date(),
-        status: 'pending'
+        status: 'pending',
       };
 
       // Notify admins
@@ -98,7 +98,7 @@ class DocumentVerificationService {
 
   // Review document
   async reviewDocument(
-    documentId: string, 
+    documentId: string,
     status: 'approved' | 'rejected',
     verifiedBy: string,
     rejectionReason?: string
@@ -114,7 +114,7 @@ class DocumentVerificationService {
         uploadDate: new Date(),
         status,
         verifiedBy,
-        verifiedAt: new Date()
+        verifiedAt: new Date(),
       };
 
       if (status === 'rejected' && rejectionReason) {
@@ -143,8 +143,8 @@ class DocumentVerificationService {
 
   // Validate document before upload
   validateDocument(
-    documentType: string, 
-    fileSize: number, 
+    documentType: string,
+    fileSize: number,
     mimeType: string
   ): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
@@ -156,16 +156,20 @@ class DocumentVerificationService {
     }
 
     if (fileSize > docType.maxFileSize) {
-      errors.push(`File size exceeds maximum allowed (${docType.maxFileSize / (1024 * 1024)}MB)`);
+      errors.push(
+        `File size exceeds maximum allowed (${docType.maxFileSize / (1024 * 1024)}MB)`
+      );
     }
 
     if (!docType.allowedMimeTypes.includes(mimeType)) {
-      errors.push(`File type not allowed. Allowed types: ${docType.allowedMimeTypes.join(', ')}`);
+      errors.push(
+        `File type not allowed. Allowed types: ${docType.allowedMimeTypes.join(', ')}`
+      );
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -176,8 +180,10 @@ class DocumentVerificationService {
 
   private async notifyAdminsOfNewDocument(document: Document): Promise<void> {
     try {
-      const admins = await User.find({ role: { $in: ['admin', 'maintainer'] } });
-      
+      const admins = await (User as any).find({
+        role: { $in: ['admin', 'maintainer'] },
+      });
+
       for (const admin of admins) {
         await sendEmail(
           admin.email,
@@ -192,26 +198,24 @@ class DocumentVerificationService {
 
   private async notifyUserOfDocumentReview(document: Document): Promise<void> {
     try {
-      const user = await User.findById(document.userId);
+      const user = await (User as any).findById(document.userId);
       if (!user) return;
 
-      const subject = document.status === 'approved' 
-        ? 'Document Verification Approved' 
-        : 'Document Verification Rejected';
+      const subject =
+        document.status === 'approved'
+          ? 'Document Verification Approved'
+          : 'Document Verification Rejected';
 
-      const message = document.status === 'approved'
-        ? `Congratulations! Your ${document.documentType} has been approved. Your account verification status has been updated.`
-        : `Your ${document.documentType} has been rejected for the following reason: ${document.rejectionReason}. Please review the requirements and submit a new document.`;
+      const message =
+        document.status === 'approved'
+          ? `Congratulations! Your ${document.documentType} has been approved. Your account verification status has been updated.`
+          : `Your ${document.documentType} has been rejected for the following reason: ${document.rejectionReason}. Please review the requirements and submit a new document.`;
 
-      await sendEmail(
-        user.email,
-        subject,
-        message
-      );
+      await sendEmail(user.email, subject, message);
     } catch (error) {
       console.error('Error notifying user:', error);
     }
   }
 }
 
-export default DocumentVerificationService.getInstance(); 
+export default DocumentVerificationService.getInstance();

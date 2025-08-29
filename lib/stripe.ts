@@ -4,17 +4,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-06-30.basil',
 });
 
-interface PaymentIntentRequest {
-  amount: number;
-  currency?: string;
-}
+// interface PaymentIntentRequest {
+//   amount: number;
+//   currency?: string;
+// }
 
-interface CustomerRequest {
-  email: string;
-  name: string;
-}
+// interface CustomerRequest {
+//   email: string;
+//   name: string;
+// }
 
-export const createPaymentIntent = async (amount: number, currency: string = 'lkr') => {
+export const createPaymentIntent = async (
+  amount: number,
+  currency: string = 'lkr'
+) => {
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
@@ -47,7 +50,10 @@ export const createCustomer = async (email: string, name: string) => {
   }
 };
 
-export const createSubscription = async (customerId: string, priceId: string) => {
+export const createSubscription = async (
+  customerId: string,
+  priceId: string
+) => {
   try {
     const subscription = await stripe.subscriptions.create({
       customer: customerId,
@@ -55,10 +61,10 @@ export const createSubscription = async (customerId: string, priceId: string) =>
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription' },
       expand: ['latest_invoice.payment_intent'],
-    })
-    return subscription
+    });
+    return subscription;
   } catch (error) {
-    console.error('Error creating subscription:', error)
-    throw error
+    console.error('Error creating subscription:', error);
+    throw error;
   }
-} 
+};

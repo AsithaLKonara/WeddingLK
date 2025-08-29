@@ -9,10 +9,10 @@ const mockVerificationStatus = {
       id: 'doc1',
       type: 'id_proof',
       status: 'pending',
-      uploadedAt: new Date()
-    }
+      uploadedAt: new Date(),
+    },
   ],
-  lastUpdated: new Date()
+  lastUpdated: new Date(),
 };
 
 export async function GET(request: NextRequest) {
@@ -34,14 +34,13 @@ export async function GET(request: NextRequest) {
     // For now, return mock data
     const status = {
       ...mockVerificationStatus,
-      userId: targetUserId
+      userId: targetUserId,
     };
 
     return NextResponse.json({
       success: true,
-      status
+      status,
     });
-
   } catch (error) {
     console.error('Verification status error:', error);
     return NextResponse.json(
@@ -49,4 +48,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

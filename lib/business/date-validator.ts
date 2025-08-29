@@ -12,7 +12,15 @@ export interface DateConstraints {
   minimumAdvanceNotice: number; // days
   maximumAdvanceBooking: number; // days
   blackoutDates: string[]; // YYYY-MM-DD format
-  preferredDays: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday')[];
+  preferredDays: (
+    | 'monday'
+    | 'tuesday'
+    | 'wednesday'
+    | 'thursday'
+    | 'friday'
+    | 'saturday'
+    | 'sunday'
+  )[];
   seasonalRestrictions?: {
     startMonth: number; // 1-12
     endMonth: number; // 1-12
@@ -74,7 +82,7 @@ export function validateWeddingDate(
     // Parse the date
     const selectedDate = new Date(date);
     const today = new Date();
-    
+
     // Reset time to start of day for accurate comparison
     selectedDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
@@ -92,16 +100,22 @@ export function validateWeddingDate(
     }
 
     // Calculate days until event
-    const daysUntilEvent = Math.ceil((selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const daysUntilEvent = Math.ceil(
+      (selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     // Check minimum advance notice
     if (daysUntilEvent < constraints.minimumAdvanceNotice) {
-      errors.push(`Wedding date must be at least ${constraints.minimumAdvanceNotice} days in advance.`);
+      errors.push(
+        `Wedding date must be at least ${constraints.minimumAdvanceNotice} days in advance.`
+      );
     }
 
     // Check maximum advance booking
     if (daysUntilEvent > constraints.maximumAdvanceBooking) {
-      errors.push(`Cannot book more than ${constraints.maximumAdvanceBooking} days in advance.`);
+      errors.push(
+        `Cannot book more than ${constraints.maximumAdvanceBooking} days in advance.`
+      );
     }
 
     // Check blackout dates
@@ -112,50 +126,71 @@ export function validateWeddingDate(
     // Check if date is a holiday
     const allHolidays = [...HOLIDAYS_2024, ...HOLIDAYS_2025];
     if (allHolidays.includes(date)) {
-      warnings.push('Selected date is a holiday. This may affect vendor availability and costs.');
+      warnings.push(
+        'Selected date is a holiday. This may affect vendor availability and costs.'
+      );
     }
 
     // Check seasonal restrictions
     if (constraints.seasonalRestrictions) {
       const month = selectedDate.getMonth() + 1;
-      if (month >= constraints.seasonalRestrictions.startMonth && month <= constraints.seasonalRestrictions.endMonth) {
-        warnings.push(`Seasonal restriction: ${constraints.seasonalRestrictions.reason}`);
+      if (
+        month >= constraints.seasonalRestrictions.startMonth &&
+        month <= constraints.seasonalRestrictions.endMonth
+      ) {
+        warnings.push(
+          `Seasonal restriction: ${constraints.seasonalRestrictions.reason}`
+        );
       }
     }
 
     // Check day of week preferences
-    const dayOfWeek = selectedDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as any;
+    const dayOfWeek = selectedDate
+      .toLocaleDateString('en-US', { weekday: 'long' })
+      .toLowerCase() as any;
     if (!constraints.preferredDays.includes(dayOfWeek)) {
-      warnings.push(`Consider choosing a ${constraints.preferredDays.join(' or ')} for better vendor availability.`);
+      warnings.push(
+        `Consider choosing a ${constraints.preferredDays.join(' or ')} for better vendor availability.`
+      );
     }
 
     // Check if it's a weekend
-    const isWeekend = selectedDate.getDay() === 0 || selectedDate.getDay() === 6;
+    const isWeekend =
+      selectedDate.getDay() === 0 || selectedDate.getDay() === 6;
     if (isWeekend) {
-      warnings.push('Weekend dates typically have higher demand and may cost more.');
+      warnings.push(
+        'Weekend dates typically have higher demand and may cost more.'
+      );
     }
 
     // Check peak season
     const month = selectedDate.getMonth() + 1;
     const isPeakSeason = [6, 7, 8, 12].includes(month);
     if (isPeakSeason) {
-      warnings.push('Peak season dates (June-August, December) typically have higher demand and costs.');
+      warnings.push(
+        'Peak season dates (June-August, December) typically have higher demand and costs.'
+      );
     }
 
     // Provide suggestions for better dates
     if (daysUntilEvent < 180) {
-      suggestions.push('Consider booking further in advance for better vendor availability and rates.');
+      suggestions.push(
+        'Consider booking further in advance for better vendor availability and rates.'
+      );
     }
 
     if (isWeekend && isPeakSeason) {
-      suggestions.push('Consider a weekday or off-peak season date for potential cost savings.');
+      suggestions.push(
+        'Consider a weekday or off-peak season date for potential cost savings.'
+      );
     }
 
     // Check for optimal timing
     if (daysUntilEvent >= 180 && daysUntilEvent <= 365) {
-      suggestions.push('This is an optimal booking timeframe for good vendor availability and rates.');
+      suggestions.push(
+        'This is an optimal booking timeframe for good vendor availability and rates.'
+      );
     }
-
   } catch (error) {
     errors.push('Error processing date validation.');
     console.error('Date validation error:', error);
@@ -172,17 +207,21 @@ export function validateWeddingDate(
 export function getWeddingDateInfo(date: string): WeddingDateInfo {
   const selectedDate = new Date(date);
   const today = new Date();
-  
+
   // Reset time to start of day
   selectedDate.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
 
-  const daysUntilEvent = Math.ceil((selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const daysUntilEvent = Math.ceil(
+    (selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
   const monthsUntilEvent = Math.ceil(daysUntilEvent / 30.44);
 
-  const dayOfWeek = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+  const dayOfWeek = selectedDate.toLocaleDateString('en-US', {
+    weekday: 'long',
+  });
   const isWeekend = selectedDate.getDay() === 0 || selectedDate.getDay() === 6;
-  
+
   // Determine season
   const month = selectedDate.getMonth() + 1;
   let season: 'spring' | 'summer' | 'fall' | 'winter';
@@ -219,21 +258,21 @@ export function suggestWeddingDates(
   const suggestions: string[] = [];
   const start = new Date(startDate);
   const end = new Date(endDate);
-  
+
   const currentDate = new Date(start);
-  
+
   while (currentDate <= end && suggestions.length < count) {
     const dateString = currentDate.toISOString().split('T')[0];
     const validation = validateWeddingDate(dateString, constraints);
-    
+
     if (validation.isValid && validation.warnings.length === 0) {
       suggestions.push(dateString);
     }
-    
+
     // Move to next day
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  
+
   return suggestions;
 }
 
@@ -247,7 +286,8 @@ export function calculateOptimalBookingTime(
 } {
   const wedding = new Date(weddingDate);
   const today = new Date();
-  const monthsUntilWedding = (wedding.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 30.44);
+  const monthsUntilWedding =
+    (wedding.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 30.44);
 
   const bookingTimelines = {
     venue: { critical: 12, high: 9, medium: 6, low: 3 },
@@ -284,10 +324,13 @@ export function calculateOptimalBookingTime(
     urgency,
     message,
   };
-} 
+}
 
 // Format date for display
-export function formatDate(date: Date, format: 'short' | 'long' | 'full' = 'short'): string {
+export function formatDate(
+  date: Date,
+  format: 'short' | 'long' | 'full' = 'short'
+): string {
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: format === 'short' ? 'short' : 'long',
@@ -299,4 +342,4 @@ export function formatDate(date: Date, format: 'short' | 'long' | 'full' = 'shor
   }
 
   return date.toLocaleDateString('en-US', options);
-} 
+}

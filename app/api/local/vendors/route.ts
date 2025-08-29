@@ -5,7 +5,11 @@ import { localDb } from '@/lib/db-local';
 export async function GET(request: NextRequest) {
   try {
     const vendors = await localDb.find('vendors');
-    return NextResponse.json({ success: true, data: vendors, count: vendors.length });
+    return NextResponse.json({
+      success: true,
+      data: vendors,
+      count: vendors.length,
+    });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch vendors' },
@@ -27,4 +31,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

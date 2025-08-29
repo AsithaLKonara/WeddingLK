@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import { NextApiRequest, NextApiResponse } from 'next';
+// import { NextApiRequest, NextApiResponse } from 'next';
 
 interface SocketUser {
   userId: string;
@@ -23,10 +23,20 @@ interface Notification {
   userId: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 
-         'booking_request' | 'booking_status_update' | 'new_review' |
-         'payment_received' | 'new_message' | 'service_updated' |
-         'user_status_changed' | 'vendor_approved' | 'vendor_rejected';
+  type:
+    | 'info'
+    | 'success'
+    | 'warning'
+    | 'error'
+    | 'booking_request'
+    | 'booking_status_update'
+    | 'new_review'
+    | 'payment_received'
+    | 'new_message'
+    | 'service_updated'
+    | 'user_status_changed'
+    | 'vendor_approved'
+    | 'vendor_rejected';
   timestamp: Date;
   read: boolean;
   data?: any;
@@ -40,10 +50,10 @@ class SocketService {
   initialize(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-        methods: ["GET", "POST"],
-        credentials: true
-      }
+        origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+        credentials: true,
+      },
     });
 
     this.setupEventHandlers();
@@ -53,13 +63,16 @@ class SocketService {
   private setupEventHandlers() {
     if (!this.io) return;
 
-    this.io.on('connection', (socket) => {
+    this.io.on('connection', socket => {
       console.log(`🔌 User connected: ${socket.id}`);
 
       // User authentication
-      socket.on('authenticate', (data: { userId: string; email: string; role: string }) => {
-        this.handleAuthentication(socket, data);
-      });
+      socket.on(
+        'authenticate',
+        (data: { userId: string; email: string; role: string }) => {
+          this.handleAuthentication(socket, data);
+        }
+      );
 
       // Join user to their personal room
       socket.on('join-user-room', (userId: string) => {
@@ -85,13 +98,19 @@ class SocketService {
       });
 
       // Handle typing indicators
-      socket.on('typing-start', (data: { receiverId: string; senderId: string }) => {
-        this.handleTypingIndicator(socket, data, true);
-      });
+      socket.on(
+        'typing-start',
+        (data: { receiverId: string; senderId: string }) => {
+          this.handleTypingIndicator(socket, data, true);
+        }
+      );
 
-      socket.on('typing-stop', (data: { receiverId: string; senderId: string }) => {
-        this.handleTypingIndicator(socket, data, false);
-      });
+      socket.on(
+        'typing-stop',
+        (data: { receiverId: string; senderId: string }) => {
+          this.handleTypingIndicator(socket, data, false);
+        }
+      );
 
       // Handle read receipts
       socket.on('mark-read', (messageId: string) => {
@@ -110,16 +129,19 @@ class SocketService {
     });
   }
 
-  private handleAuthentication(socket: any, data: { userId: string; email: string; role: string }) {
+  private handleAuthentication(
+    socket: any,
+    data: { userId: string; email: string; role: string }
+  ) {
     const user: SocketUser = {
       userId: data.userId,
       email: data.email,
       role: data.role,
-      socketId: socket.id
+      socketId: socket.id,
     };
 
     this.connectedUsers.set(socket.id, user);
-    
+
     if (!this.userSockets.has(data.userId)) {
       this.userSockets.set(data.userId, []);
     }
@@ -143,7 +165,7 @@ class SocketService {
         this.io?.to(socketId).emit('new-message', {
           ...message,
           senderId: sender.userId,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       });
     }
@@ -151,13 +173,19 @@ class SocketService {
     // Emit back to sender for confirmation
     socket.emit('message-sent', {
       ...message,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
-    console.log(`💬 Message sent from ${sender.userId} to ${message.receiverId}`);
+    console.log(
+      `💬 Message sent from ${sender.userId} to ${message.receiverId}`
+    );
   }
 
-  private handleTypingIndicator(socket: any, data: { receiverId: string; senderId: string }, isTyping: boolean) {
+  private handleTypingIndicator(
+    socket: any,
+    data: { receiverId: string; senderId: string },
+    isTyping: boolean
+  ) {
     const sender = this.connectedUsers.get(socket.id);
     if (!sender) return;
 
@@ -166,7 +194,7 @@ class SocketService {
       receiverSockets.forEach(socketId => {
         this.io?.to(socketId).emit('typing-indicator', {
           senderId: sender.userId,
-          isTyping
+          isTyping,
         });
       });
     }
@@ -185,7 +213,9 @@ class SocketService {
     if (!user) return;
 
     // Handle notification read logic here
-    console.log(`📖 Notification ${notificationId} marked as read by ${user.userId}`);
+    console.log(
+      `📖 Notification ${notificationId} marked as read by ${user.userId}`
+    );
   }
 
   private handleDisconnection(socket: any) {
@@ -193,7 +223,7 @@ class SocketService {
     if (user) {
       // Remove from connected users
       this.connectedUsers.delete(socket.id);
-      
+
       // Remove socket from user's socket list
       const userSockets = this.userSockets.get(user.userId);
       if (userSockets) {
@@ -204,7 +234,7 @@ class SocketService {
           this.userSockets.set(user.userId, updatedSockets);
         }
       }
-      
+
       console.log(`🔌 User disconnected: ${user.email}`);
     }
   }
@@ -260,4 +290,4 @@ const socketService = new SocketService();
 export default socketService;
 
 // Export types for use in other files
-export type { SocketUser, Message, Notification }; 
+export type { SocketUser, Message, Notification };

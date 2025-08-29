@@ -63,12 +63,14 @@ export async function GET(request: NextRequest) {
       provider: 'google',
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
-      expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
+      expiresAt: tokenData.expires_in
+        ? Date.now() + tokenData.expires_in * 1000
+        : undefined,
       additionalData: {
         locale: userData.locale,
         verified_email: userData.verified_email,
-        hd: userData.hd
-      }
+        hd: userData.hd,
+      },
     });
 
     if (authResult.success && authResult.token) {
@@ -87,4 +89,4 @@ export async function GET(request: NextRequest) {
       `${process.env.NEXTAUTH_URL}/login?error=${encodeURIComponent('Authentication failed')}`
     );
   }
-} 
+}

@@ -9,13 +9,13 @@ export interface IUser extends Document {
   phone?: string;
   dateOfBirth?: Date;
   gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
-  
+
   // Role Management
   role: 'user' | 'vendor' | 'wedding_planner' | 'admin' | 'maintainer';
   roleVerified: boolean;
   roleVerifiedAt?: Date;
   roleVerifiedBy?: mongoose.Types.ObjectId;
-  
+
   // Profile Information
   avatar?: string;
   bio?: string;
@@ -29,7 +29,7 @@ export interface IUser extends Document {
       longitude: number;
     };
   };
-  
+
   // Preferences
   preferences: {
     language: string;
@@ -46,7 +46,7 @@ export interface IUser extends Document {
       push: boolean;
     };
   };
-  
+
   // Social Authentication
   socialAccounts: {
     google?: {
@@ -74,24 +74,24 @@ export interface IUser extends Document {
       picture?: string;
     };
   };
-  
+
   // Verification Status
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   isIdentityVerified: boolean;
   verificationDocuments: mongoose.Types.ObjectId[];
-  
+
   // Account Status
   status: 'active' | 'inactive' | 'suspended' | 'pending_verification';
   lastLoginAt?: Date;
   loginAttempts: number;
   lockedUntil?: Date;
-  
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
   lastActiveAt: Date;
-  
+
   // Methods
   comparePassword(candidatePassword: string): Promise<boolean>;
   updateLastActive(): Promise<void>;
@@ -111,9 +111,11 @@ const UserSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: function(this: any) {
+      required: function (this: any) {
         // Password is required only if no social accounts
-        return !this.socialAccounts || Object.keys(this.socialAccounts).length === 0;
+        return (
+          !this.socialAccounts || Object.keys(this.socialAccounts).length === 0
+        );
       },
       minlength: 8,
     },
@@ -133,7 +135,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       enum: ['male', 'female', 'other', 'prefer_not_to_say'],
     },
-    
+
     // Role Management
     role: {
       type: String,
@@ -152,7 +154,7 @@ const UserSchema: Schema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    
+
     // Profile Information
     avatar: {
       type: String,
@@ -190,7 +192,7 @@ const UserSchema: Schema = new Schema(
         },
       },
     },
-    
+
     // Preferences
     preferences: {
       language: {
@@ -234,7 +236,7 @@ const UserSchema: Schema = new Schema(
         },
       },
     },
-    
+
     // Social Authentication
     socialAccounts: {
       google: {
@@ -262,7 +264,7 @@ const UserSchema: Schema = new Schema(
         picture: String,
       },
     },
-    
+
     // Verification Status
     isEmailVerified: {
       type: Boolean,
@@ -276,11 +278,13 @@ const UserSchema: Schema = new Schema(
       type: Boolean,
       default: false,
     },
-    verificationDocuments: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Document',
-    }],
-    
+    verificationDocuments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Document',
+      },
+    ],
+
     // Account Status
     status: {
       type: String,
@@ -313,7 +317,7 @@ UserSchema.index({ 'socialAccounts.instagram.id': 1 });
 UserSchema.index({ 'socialAccounts.linkedin.id': 1 });
 
 // Pre-save middleware
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function (next) {
   if (this.isModified('password') && this.password) {
     try {
       // Hash password with salt
@@ -323,25 +327,27 @@ UserSchema.pre('save', async function(next) {
       return next(error as Error);
     }
   }
-  
+
   // Set lastActiveAt to current time
   this.lastActiveAt = new Date();
-  
+
   next();
 });
 
 // Instance methods
-UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
   if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-UserSchema.methods.updateLastActive = async function(): Promise<void> {
+UserSchema.methods.updateLastActive = async function (): Promise<void> {
   this.lastActiveAt = new Date();
   await this.save();
 };
 
-UserSchema.methods.incrementLoginAttempts = async function(): Promise<void> {
+UserSchema.methods.incrementLoginAttempts = async function (): Promise<void> {
   this.loginAttempts += 1;
   if (this.loginAttempts >= 5) {
     this.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // Lock for 30 minutes
@@ -349,19 +355,21 @@ UserSchema.methods.incrementLoginAttempts = async function(): Promise<void> {
   await this.save();
 };
 
-UserSchema.methods.resetLoginAttempts = async function(): Promise<void> {
+UserSchema.methods.resetLoginAttempts = async function (): Promise<void> {
   this.loginAttempts = 0;
   this.lockedUntil = undefined;
   await this.save();
 };
 
-UserSchema.methods.lockAccount = async function(durationMinutes: number): Promise<void> {
+UserSchema.methods.lockAccount = async function (
+  durationMinutes: number
+): Promise<void> {
   this.lockedUntil = new Date(Date.now() + durationMinutes * 60 * 1000);
   this.status = 'suspended';
   await this.save();
 };
 
-UserSchema.methods.unlockAccount = async function(): Promise<void> {
+UserSchema.methods.unlockAccount = async function (): Promise<void> {
   this.lockedUntil = undefined;
   this.status = 'active';
   this.loginAttempts = 0;
@@ -369,13 +377,17 @@ UserSchema.methods.unlockAccount = async function(): Promise<void> {
 };
 
 // Static methods
-UserSchema.statics.findBySocialAccount = function(provider: string, socialId: string) {
+UserSchema.statics.findBySocialAccount = function (
+  provider: string,
+  socialId: string
+) {
   return this.findOne({ [`socialAccounts.${provider}.id`]: socialId });
 };
 
-UserSchema.statics.findByEmail = function(email: string) {
+UserSchema.statics.findByEmail = function (email: string) {
   return this.findOne({ email: email.toLowerCase() });
 };
 
-export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+export const User =
+  mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 export default User;

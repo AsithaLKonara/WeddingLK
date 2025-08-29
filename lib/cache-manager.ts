@@ -18,7 +18,7 @@ class CacheManager {
       this.isConnected = true;
     });
 
-    this.redis.on('error', (err) => {
+    this.redis.on('error', err => {
       console.error('❌ Redis connection error:', err);
       this.isConnected = false;
     });
@@ -31,7 +31,7 @@ class CacheManager {
 
   async get(key: string): Promise<any> {
     if (!this.isConnected) return null;
-    
+
     try {
       const value = await this.redis.get(key);
       return value ? JSON.parse(value) : null;
@@ -43,7 +43,7 @@ class CacheManager {
 
   async set(key: string, value: any, ttl: number = 300): Promise<void> {
     if (!this.isConnected) return;
-    
+
     try {
       await this.redis.setex(key, ttl, JSON.stringify(value));
     } catch (error) {
@@ -53,7 +53,7 @@ class CacheManager {
 
   async del(key: string): Promise<void> {
     if (!this.isConnected) return;
-    
+
     try {
       await this.redis.del(key);
     } catch (error) {
@@ -63,7 +63,7 @@ class CacheManager {
 
   async flush(): Promise<void> {
     if (!this.isConnected) return;
-    
+
     try {
       await this.redis.flushall();
       console.log('✅ Cache flushed successfully');
@@ -97,11 +97,15 @@ export const cacheManager = new CacheManager();
 
 // Cache decorator for functions
 export function Cache(ttl: number = 300, keyPrefix?: string) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+  return function (
+    target: any,
+    propertyName: string,
+    descriptor: PropertyDescriptor
+  ) {
     const method = descriptor.value;
 
     descriptor.value = async function (...args: any[]) {
-      const cacheKey = keyPrefix 
+      const cacheKey = keyPrefix
         ? CacheManager.generateKey(keyPrefix, { args: JSON.stringify(args) })
         : `${target.constructor.name}:${propertyName}:${JSON.stringify(args)}`;
 
@@ -116,10 +120,10 @@ export function Cache(ttl: number = 300, keyPrefix?: string) {
       const result = await method.apply(this, args);
       await cacheManager.set(cacheKey, result, ttl);
       console.log(`💾 Cache miss: ${cacheKey}`);
-      
+
       return result;
     };
   };
 }
 
-export default cacheManager; 
+export default cacheManager;

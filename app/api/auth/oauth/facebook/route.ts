@@ -65,11 +65,13 @@ export async function GET(request: NextRequest) {
       picture: userData.picture?.data?.url,
       provider: 'facebook',
       accessToken: tokenData.access_token,
-      expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
+      expiresAt: tokenData.expires_in
+        ? Date.now() + tokenData.expires_in * 1000
+        : undefined,
       additionalData: {
         ...additionalData,
-        picture_data: userData.picture
-      }
+        picture_data: userData.picture,
+      },
     });
 
     if (authResult.success && authResult.token) {
@@ -88,4 +90,4 @@ export async function GET(request: NextRequest) {
       `${process.env.NEXTAUTH_URL}/login?error=${encodeURIComponent('Authentication failed')}`
     );
   }
-} 
+}

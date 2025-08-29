@@ -43,7 +43,9 @@ export function validateBookingRequest(
 
   // Basic validation
   if (!request.venueId || !request.userId || !request.date) {
-    errors.push('Missing required fields: venueId, userId, and date are required');
+    errors.push(
+      'Missing required fields: venueId, userId, and date are required'
+    );
   }
 
   if (request.guestCount <= 0) {
@@ -69,8 +71,10 @@ export function validateBookingRequest(
   }
 
   // Notice period validation
-  const daysUntilEvent = Math.ceil((selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  
+  const daysUntilEvent = Math.ceil(
+    (selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
   if (daysUntilEvent < venue.minimumNotice) {
     errors.push('Insufficient notice period');
   }
@@ -82,7 +86,7 @@ export function validateBookingRequest(
   // Time validation
   const startTime = request.startTime;
   const endTime = request.endTime;
-  
+
   if (startTime >= endTime) {
     errors.push('Start time must be before end time');
   }
@@ -99,7 +103,7 @@ export function validateBookingRequest(
   // Business hours validation (assuming 6 AM to 2 AM next day)
   const startHour = parseInt(startTime.split(':')[0]);
   const endHour = parseInt(endTime.split(':')[0]);
-  
+
   if (startHour < 6 || startHour > 23) {
     errors.push('Start time must be between 6:00 AM and 11:00 PM');
   }
@@ -132,7 +136,9 @@ export function validateBookingModification(
   // Check if modification is within allowed timeframe
   const eventDate = new Date(originalBooking.date);
   const today = new Date();
-  const daysUntilEvent = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const daysUntilEvent = Math.ceil(
+    (eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
   if (daysUntilEvent < 7) {
     errors.push('Cannot modify booking within 7 days of event');
@@ -150,7 +156,7 @@ export function validateBookingModification(
     if (newDate < today) {
       errors.push('Cannot change to a date in the past');
     }
-    
+
     if (!venue.availableDates.includes(modifications.date)) {
       errors.push('New date is not available');
     }
@@ -172,7 +178,9 @@ export function validateCancellation(
 
   const eventDate = new Date(booking.date);
   const today = new Date();
-  const daysUntilEvent = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const daysUntilEvent = Math.ceil(
+    (eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
   // Check cancellation policy
   if (daysUntilEvent < 30) {
@@ -192,4 +200,4 @@ export function validateCancellation(
     errors,
     warnings: warnings.length > 0 ? warnings : undefined,
   };
-} 
+}

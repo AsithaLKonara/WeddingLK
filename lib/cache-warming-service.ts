@@ -43,7 +43,7 @@ export class CacheWarmingService {
       frequency: 5,
       lastRun: new Date(0),
       isActive: true,
-      dependencies: ['health', 'stats']
+      dependencies: ['health', 'stats'],
     });
 
     // High priority - warm every 15 minutes
@@ -53,7 +53,7 @@ export class CacheWarmingService {
       frequency: 15,
       lastRun: new Date(0),
       isActive: true,
-      dependencies: ['vendors', 'venues', 'user-profiles']
+      dependencies: ['vendors', 'venues', 'user-profiles'],
     });
 
     // Medium priority - warm every 30 minutes
@@ -63,7 +63,7 @@ export class CacheWarmingService {
       frequency: 30,
       lastRun: new Date(0),
       isActive: true,
-      dependencies: ['reviews', 'categories', 'locations']
+      dependencies: ['reviews', 'categories', 'locations'],
     });
 
     // Low priority - warm every hour
@@ -73,7 +73,7 @@ export class CacheWarmingService {
       frequency: 60,
       lastRun: new Date(0),
       isActive: true,
-      dependencies: ['analytics', 'reports', 'archived-data']
+      dependencies: ['analytics', 'reports', 'archived-data'],
     });
   }
 
@@ -135,7 +135,6 @@ export class CacheWarmingService {
       for (const strategy of sortedStrategies) {
         await this.runStrategy(strategy);
       }
-
     } catch (error) {
       console.error('❌ Error running warming strategies:', error);
     } finally {
@@ -180,10 +179,9 @@ export class CacheWarmingService {
       strategy.lastRun = new Date();
 
       console.log(`✅ Strategy completed: ${strategy.name}`);
-
     } catch (error) {
       console.error(`❌ Strategy failed: ${strategy.name}:`, error);
-      
+
       task.status = 'failed';
       task.endTime = new Date();
       task.error = error instanceof Error ? error.message : 'Unknown error';
@@ -195,10 +193,10 @@ export class CacheWarmingService {
     try {
       // Warm health check
       await this.warmHealthCheck();
-      
+
       // Warm basic stats
       await this.warmBasicStats();
-      
+
       console.log('🔥 Critical data warmed successfully');
     } catch (error) {
       console.error('❌ Failed to warm critical data:', error);
@@ -210,13 +208,13 @@ export class CacheWarmingService {
     try {
       // Warm vendor list
       await this.warmVendorList();
-      
+
       // Warm venue list
       await this.warmVenueList();
-      
+
       // Warm user profiles
       await this.warmUserProfiles();
-      
+
       console.log('🔥 High priority data warmed successfully');
     } catch (error) {
       console.error('❌ Failed to warm high priority data:', error);
@@ -228,13 +226,13 @@ export class CacheWarmingService {
     try {
       // Warm reviews
       await this.warmReviews();
-      
+
       // Warm categories
       await this.warmCategories();
-      
+
       // Warm locations
       await this.warmLocations();
-      
+
       console.log('🔥 Medium priority data warmed successfully');
     } catch (error) {
       console.error('❌ Failed to warm medium priority data:', error);
@@ -246,10 +244,10 @@ export class CacheWarmingService {
     try {
       // Warm analytics
       await this.warmAnalytics();
-      
+
       // Warm reports
       await this.warmReports();
-      
+
       console.log('🔥 Low priority data warmed successfully');
     } catch (error) {
       console.error('❌ Failed to warm low priority data:', error);
@@ -264,7 +262,7 @@ export class CacheWarmingService {
         timestamp: new Date().toISOString(),
         database: 'connected',
         cache: 'connected',
-        system: 'operational'
+        system: 'operational',
       };
 
       await advancedCache.set('health', 'check', healthData, { ttl: 30 });
@@ -283,10 +281,12 @@ export class CacheWarmingService {
         venues: { total: 0, featured: 0 },
         bookings: { total: 0, confirmed: 0 },
         reviews: { total: 0, averageRating: 0 },
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
 
-      await advancedCache.set('home', 'stats:comprehensive', statsData, { ttl: 600 });
+      await advancedCache.set('home', 'stats:comprehensive', statsData, {
+        ttl: 600,
+      });
       console.log('🔥 Basic stats warmed');
     } catch (error) {
       console.warn('Failed to warm basic stats:', error);
@@ -305,10 +305,20 @@ export class CacheWarmingService {
       const vendorData = {
         vendors,
         pagination: { page: 1, limit: 20, total: vendors.length, pages: 1 },
-        filters: { category: null, location: null, rating: null, sortBy: 'rating' }
+        filters: {
+          category: null,
+          location: null,
+          rating: null,
+          sortBy: 'rating',
+        },
       };
 
-      await advancedCache.set('vendors', 'vendors:1:20:all:all:all:rating', vendorData, { ttl: 300 });
+      await advancedCache.set(
+        'vendors',
+        'vendors:1:20:all:all:all:rating',
+        vendorData,
+        { ttl: 300 }
+      );
       console.log('🔥 Vendor list warmed');
     } catch (error) {
       console.warn('Failed to warm vendor list:', error);
@@ -327,10 +337,20 @@ export class CacheWarmingService {
       const venueData = {
         venues,
         pagination: { page: 1, limit: 20, total: venues.length, pages: 1 },
-        filters: { type: null, location: null, capacity: null, sortBy: 'rating' }
+        filters: {
+          type: null,
+          location: null,
+          capacity: null,
+          sortBy: 'rating',
+        },
       };
 
-      await advancedCache.set('venues', 'venues:1:20:all:all:all:rating', venueData, { ttl: 300 });
+      await advancedCache.set(
+        'venues',
+        'venues:1:20:all:all:all:rating',
+        venueData,
+        { ttl: 300 }
+      );
       console.log('🔥 Venue list warmed');
     } catch (error) {
       console.warn('Failed to warm venue list:', error);
@@ -347,7 +367,9 @@ export class CacheWarmingService {
         .lean();
 
       for (const user of users) {
-        await advancedCache.set('user', `profile:${user._id}`, user, { ttl: 900 });
+        await advancedCache.set('user', `profile:${user._id}`, user, {
+          ttl: 900,
+        });
       }
 
       console.log(`🔥 ${users.length} user profiles warmed`);
@@ -365,7 +387,9 @@ export class CacheWarmingService {
         .limit(100)
         .lean();
 
-      await advancedCache.set('reviews', 'recent:verified', reviews, { ttl: 600 });
+      await advancedCache.set('reviews', 'recent:verified', reviews, {
+        ttl: 600,
+      });
       console.log('🔥 Reviews warmed');
     } catch (error) {
       console.warn('Failed to warm reviews:', error);
@@ -379,10 +403,12 @@ export class CacheWarmingService {
       const categories = await Vendor.aggregate([
         { $match: { isActive: true } },
         { $group: { _id: '$businessType', count: { $sum: 1 } } },
-        { $sort: { count: -1 } }
+        { $sort: { count: -1 } },
       ]);
 
-      await advancedCache.set('categories', 'business:types', categories, { ttl: 1800 });
+      await advancedCache.set('categories', 'business:types', categories, {
+        ttl: 1800,
+      });
       console.log('🔥 Categories warmed');
     } catch (error) {
       console.warn('Failed to warm categories:', error);
@@ -397,10 +423,12 @@ export class CacheWarmingService {
         { $match: { isActive: true, location: { $exists: true } } },
         { $group: { _id: '$location', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
-        { $limit: 50 }
+        { $limit: 50 },
       ]);
 
-      await advancedCache.set('locations', 'popular:locations', locations, { ttl: 1800 });
+      await advancedCache.set('locations', 'popular:locations', locations, {
+        ttl: 1800,
+      });
       console.log('🔥 Locations warmed');
     } catch (error) {
       console.warn('Failed to warm locations:', error);
@@ -413,10 +441,15 @@ export class CacheWarmingService {
       const analyticsData = {
         performance: { averageResponseTime: 0, cacheHitRate: 0 },
         usage: { totalRequests: 0, uniqueUsers: 0 },
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
 
-      await advancedCache.set('analytics', 'performance:overview', analyticsData, { ttl: 3600 });
+      await advancedCache.set(
+        'analytics',
+        'performance:overview',
+        analyticsData,
+        { ttl: 3600 }
+      );
       console.log('🔥 Analytics warmed');
     } catch (error) {
       console.warn('Failed to warm analytics:', error);
@@ -429,10 +462,12 @@ export class CacheWarmingService {
       const reportsData = {
         summary: { generated: 0, lastGenerated: null },
         types: ['performance', 'usage', 'errors'],
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
 
-      await advancedCache.set('reports', 'summary:overview', reportsData, { ttl: 3600 });
+      await advancedCache.set('reports', 'summary:overview', reportsData, {
+        ttl: 3600,
+      });
       console.log('🔥 Reports warmed');
     } catch (error) {
       console.warn('Failed to warm reports:', error);
@@ -443,7 +478,12 @@ export class CacheWarmingService {
   private async warmGenericData(dependencies: string[]) {
     for (const dependency of dependencies) {
       try {
-        await advancedCache.set(dependency, 'warmed:data', { warmed: true, timestamp: new Date().toISOString() }, { ttl: 300 });
+        await advancedCache.set(
+          dependency,
+          'warmed:data',
+          { warmed: true, timestamp: new Date().toISOString() },
+          { ttl: 300 }
+        );
       } catch (error) {
         console.warn(`Failed to warm generic data for ${dependency}:`, error);
       }
@@ -454,19 +494,23 @@ export class CacheWarmingService {
   getStats() {
     return {
       strategiesCount: this.strategies.size,
-      activeStrategies: Array.from(this.strategies.values()).filter(s => s.isActive).length,
+      activeStrategies: Array.from(this.strategies.values()).filter(
+        s => s.isActive
+      ).length,
       isRunning: this.isRunning,
       tasksCount: this.tasks.size,
       recentTasks: Array.from(this.tasks.values())
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
-        .slice(0, 10)
+        .slice(0, 10),
     };
   }
 
   // Manually trigger warming
   async triggerWarming(strategyName?: string) {
     if (strategyName) {
-      const strategy = Array.from(this.strategies.values()).find(s => s.name === strategyName);
+      const strategy = Array.from(this.strategies.values()).find(
+        s => s.name === strategyName
+      );
       if (strategy) {
         await this.runStrategy(strategy);
       }
@@ -478,4 +522,4 @@ export class CacheWarmingService {
 }
 
 // Export singleton instance
-export const cacheWarmingService = new CacheWarmingService(); 
+export const cacheWarmingService = new CacheWarmingService();

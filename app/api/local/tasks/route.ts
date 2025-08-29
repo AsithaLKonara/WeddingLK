@@ -5,7 +5,11 @@ import { localDb } from '@/lib/db-local';
 export async function GET(request: NextRequest) {
   try {
     const tasks = await localDb.find('tasks');
-    return NextResponse.json({ success: true, data: tasks, count: tasks.length });
+    return NextResponse.json({
+      success: true,
+      data: tasks,
+      count: tasks.length,
+    });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch tasks' },
@@ -27,4 +31,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

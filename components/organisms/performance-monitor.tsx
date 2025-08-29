@@ -3,16 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Activity, 
-  Zap, 
-  Clock, 
-  HardDrive, 
-  Network, 
+import {
+  Activity,
+  Zap,
+  Clock,
+  HardDrive,
+  Network,
   RefreshCw,
   TrendingUp,
   TrendingDown,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 
 interface PerformanceMetrics {
@@ -29,7 +29,9 @@ interface PerformanceMonitorProps {
   className?: string;
 }
 
-const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) => {
+const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
+  className,
+}) => {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     pageLoadTime: 0,
     apiResponseTime: 0,
@@ -46,20 +48,28 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) =>
   const collectMetrics = useCallback(async () => {
     try {
       // Page load time
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      const pageLoadTime = navigation ? navigation.loadEventEnd - navigation.loadEventStart : 0;
+      const navigation = performance.getEntriesByType(
+        'navigation'
+      )[0] as PerformanceNavigationTiming;
+      const pageLoadTime = navigation
+        ? navigation.loadEventEnd - navigation.loadEventStart
+        : 0;
 
       // API response time (average of recent requests)
-      const apiEntries = performance.getEntriesByType('resource').filter(
-        entry => entry.name.includes('/api/')
-      );
-      const apiResponseTime = apiEntries.length > 0 
-        ? apiEntries.reduce((sum, entry) => sum + entry.duration, 0) / apiEntries.length 
-        : 0;
+      const apiEntries = performance
+        .getEntriesByType('resource')
+        .filter(entry => entry.name.includes('/api/'));
+      const apiResponseTime =
+        apiEntries.length > 0
+          ? apiEntries.reduce((sum, entry) => sum + entry.duration, 0) /
+            apiEntries.length
+          : 0;
 
       // Memory usage (if available)
       const memory = (performance as any).memory;
-      const memoryUsage = memory ? (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100 : 0;
+      const memoryUsage = memory
+        ? (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100
+        : 0;
 
       // Network latency (simulated)
       const networkLatency = Math.random() * 100 + 20; // 20-120ms
@@ -104,7 +114,9 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) =>
     }
   }, [isMonitoring, collectMetrics]);
 
-  const calculateUserExperienceScore = (metrics: PerformanceMetrics): number => {
+  const calculateUserExperienceScore = (
+    metrics: PerformanceMetrics
+  ): number => {
     let score = 100;
 
     // Deduct points for poor performance
@@ -118,15 +130,33 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) =>
     return Math.max(0, score);
   };
 
-  const getPerformanceStatus = (score: number): { label: string; color: string; icon: React.ReactNode } => {
+  const getPerformanceStatus = (
+    score: number
+  ): { label: string; color: string; icon: React.ReactNode } => {
     if (score >= 90) {
-      return { label: 'Excellent', color: 'bg-green-100 text-green-800', icon: <TrendingUp className="h-4 w-4" /> };
+      return {
+        label: 'Excellent',
+        color: 'bg-green-100 text-green-800',
+        icon: <TrendingUp className='h-4 w-4' />,
+      };
     } else if (score >= 70) {
-      return { label: 'Good', color: 'bg-blue-100 text-blue-800', icon: <Activity className="h-4 w-4" /> };
+      return {
+        label: 'Good',
+        color: 'bg-blue-100 text-blue-800',
+        icon: <Activity className='h-4 w-4' />,
+      };
     } else if (score >= 50) {
-      return { label: 'Fair', color: 'bg-yellow-100 text-yellow-800', icon: <AlertTriangle className="h-4 w-4" /> };
+      return {
+        label: 'Fair',
+        color: 'bg-yellow-100 text-yellow-800',
+        icon: <AlertTriangle className='h-4 w-4' />,
+      };
     } else {
-      return { label: 'Poor', color: 'bg-red-100 text-red-800', icon: <TrendingDown className="h-4 w-4" /> };
+      return {
+        label: 'Poor',
+        color: 'bg-red-100 text-red-800',
+        icon: <TrendingDown className='h-4 w-4' />,
+      };
     }
   };
 
@@ -146,118 +176,152 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) =>
 
   return (
     <Card className={className}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Performance Monitor</CardTitle>
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className={performanceStatus.color}>
+      <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+        <CardTitle className='text-sm font-medium'>
+          Performance Monitor
+        </CardTitle>
+        <div className='flex items-center space-x-2'>
+          <Badge variant='outline' className={performanceStatus.color}>
             {performanceStatus.icon}
-            <span className="ml-1">{performanceStatus.label}</span>
+            <span className='ml-1'>{performanceStatus.label}</span>
           </Badge>
           <Button
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
             onClick={toggleMonitoring}
-            className="h-8 w-8 p-0"
+            className='h-8 w-8 p-0'
           >
-            <RefreshCw className={`h-4 w-4 ${isMonitoring ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${isMonitoring ? 'animate-spin' : ''}`}
+            />
           </Button>
         </div>
       </CardHeader>
-      
-      <CardContent className="space-y-4">
+
+      <CardContent className='space-y-4'>
         {/* User Experience Score */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">User Experience Score</span>
-            <span className="font-medium">{Math.round(metrics.userExperienceScore)}/100</span>
+        <div className='space-y-2'>
+          <div className='flex items-center justify-between text-sm'>
+            <span className='text-muted-foreground'>User Experience Score</span>
+            <span className='font-medium'>
+              {Math.round(metrics.userExperienceScore)}/100
+            </span>
           </div>
-          <Progress value={metrics.userExperienceScore} className="h-2" />
+          <Progress value={metrics.userExperienceScore} className='h-2' />
         </div>
 
         {/* Performance Metrics Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className='grid grid-cols-2 gap-4'>
           {/* Page Load Time */}
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-medium">Page Load</span>
+          <div className='space-y-2'>
+            <div className='flex items-center space-x-2'>
+              <Clock className='h-4 w-4 text-blue-500' />
+              <span className='text-sm font-medium'>Page Load</span>
             </div>
-            <div className="text-2xl font-bold">{formatTime(metrics.pageLoadTime)}</div>
-            <div className="text-xs text-muted-foreground">
-              {metrics.pageLoadTime < 1000 ? 'Fast' : metrics.pageLoadTime < 3000 ? 'Normal' : 'Slow'}
+            <div className='text-2xl font-bold'>
+              {formatTime(metrics.pageLoadTime)}
+            </div>
+            <div className='text-xs text-muted-foreground'>
+              {metrics.pageLoadTime < 1000
+                ? 'Fast'
+                : metrics.pageLoadTime < 3000
+                  ? 'Normal'
+                  : 'Slow'}
             </div>
           </div>
 
           {/* API Response Time */}
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Zap className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium">API Response</span>
+          <div className='space-y-2'>
+            <div className='flex items-center space-x-2'>
+              <Zap className='h-4 w-4 text-green-500' />
+              <span className='text-sm font-medium'>API Response</span>
             </div>
-            <div className="text-2xl font-bold">{formatTime(metrics.apiResponseTime)}</div>
-            <div className="text-xs text-muted-foreground">
-              {metrics.apiResponseTime < 500 ? 'Fast' : metrics.apiResponseTime < 1000 ? 'Normal' : 'Slow'}
+            <div className='text-2xl font-bold'>
+              {formatTime(metrics.apiResponseTime)}
+            </div>
+            <div className='text-xs text-muted-foreground'>
+              {metrics.apiResponseTime < 500
+                ? 'Fast'
+                : metrics.apiResponseTime < 1000
+                  ? 'Normal'
+                  : 'Slow'}
             </div>
           </div>
 
           {/* Memory Usage */}
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <HardDrive className="h-4 w-4 text-purple-500" />
-              <span className="text-sm font-medium">Memory</span>
+          <div className='space-y-2'>
+            <div className='flex items-center space-x-2'>
+              <HardDrive className='h-4 w-4 text-purple-500' />
+              <span className='text-sm font-medium'>Memory</span>
             </div>
-            <div className="text-2xl font-bold">{Math.round(metrics.memoryUsage)}%</div>
-            <div className="text-xs text-muted-foreground">
-              {metrics.memoryUsage < 50 ? 'Low' : metrics.memoryUsage < 80 ? 'Normal' : 'High'}
+            <div className='text-2xl font-bold'>
+              {Math.round(metrics.memoryUsage)}%
+            </div>
+            <div className='text-xs text-muted-foreground'>
+              {metrics.memoryUsage < 50
+                ? 'Low'
+                : metrics.memoryUsage < 80
+                  ? 'Normal'
+                  : 'High'}
             </div>
           </div>
 
           {/* Network Latency */}
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Network className="h-4 w-4 text-orange-500" />
-              <span className="text-sm font-medium">Network</span>
+          <div className='space-y-2'>
+            <div className='flex items-center space-x-2'>
+              <Network className='h-4 w-4 text-orange-500' />
+              <span className='text-sm font-medium'>Network</span>
             </div>
-            <div className="text-2xl font-bold">{Math.round(metrics.networkLatency)}ms</div>
-            <div className="text-xs text-muted-foreground">
-              {metrics.networkLatency < 50 ? 'Fast' : metrics.networkLatency < 100 ? 'Normal' : 'Slow'}
+            <div className='text-2xl font-bold'>
+              {Math.round(metrics.networkLatency)}ms
+            </div>
+            <div className='text-xs text-muted-foreground'>
+              {metrics.networkLatency < 50
+                ? 'Fast'
+                : metrics.networkLatency < 100
+                  ? 'Normal'
+                  : 'Slow'}
             </div>
           </div>
         </div>
 
         {/* Additional Metrics */}
-        <div className="grid grid-cols-2 gap-4 pt-2">
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">Cache Hit Rate</div>
-            <div className="text-lg font-semibold">{Math.round(metrics.cacheHitRate)}%</div>
+        <div className='grid grid-cols-2 gap-4 pt-2'>
+          <div className='space-y-1'>
+            <div className='text-sm text-muted-foreground'>Cache Hit Rate</div>
+            <div className='text-lg font-semibold'>
+              {Math.round(metrics.cacheHitRate)}%
+            </div>
           </div>
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">Error Rate</div>
-            <div className="text-lg font-semibold">{metrics.errorRate.toFixed(2)}%</div>
+          <div className='space-y-1'>
+            <div className='text-sm text-muted-foreground'>Error Rate</div>
+            <div className='text-lg font-semibold'>
+              {metrics.errorRate.toFixed(2)}%
+            </div>
           </div>
         </div>
 
         {/* Status and Actions */}
-        <div className="pt-2 border-t">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className='pt-2 border-t'>
+          <div className='flex items-center justify-between text-xs text-muted-foreground'>
             <span>Last updated: {lastUpdate.toLocaleTimeString()}</span>
             <span>Status: {isMonitoring ? 'Monitoring' : 'Stopped'}</span>
           </div>
-          
-          <div className="mt-3 flex space-x-2">
+
+          <div className='mt-3 flex space-x-2'>
             <Button
               variant={isMonitoring ? 'destructive' : 'default'}
-              size="sm"
+              size='sm'
               onClick={toggleMonitoring}
-              className="flex-1"
+              className='flex-1'
             >
               {isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
             </Button>
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onClick={collectMetrics}
-              className="flex-1"
+              className='flex-1'
             >
               Update Now
             </Button>
@@ -268,4 +332,4 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className }) =>
   );
 };
 
-export default PerformanceMonitor; 
+export default PerformanceMonitor;

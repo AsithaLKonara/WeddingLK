@@ -1,9 +1,9 @@
-"use client"
+'use client';
 
-import { SavedVenues } from "./saved-venues"
+import { SavedVenues } from './saved-venues';
 
 export function FavoriteVenues() {
-  return <SavedVenues />
-} 
+  return <SavedVenues />;
+}
 
-export default FavoriteVenues
+export default FavoriteVenues;

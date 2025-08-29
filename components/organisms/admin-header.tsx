@@ -5,13 +5,13 @@ import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Bell, Settings, User, LogOut, Shield, Crown } from 'lucide-react';
 
@@ -30,11 +30,11 @@ export function AdminHeader({ unreadNotifications = 0 }: AdminHeaderProps) {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin':
-        return <Crown className="w-4 h-4 text-yellow-600" />;
+        return <Crown className='w-4 h-4 text-yellow-600' />;
       case 'maintainer':
-        return <Shield className="w-4 h-4 text-blue-600" />;
+        return <Shield className='w-4 h-4 text-blue-600' />;
       default:
-        return <User className="w-4 h-4 text-gray-600" />;
+        return <User className='w-4 h-4 text-gray-600' />;
     }
   };
 
@@ -54,46 +54,50 @@ export function AdminHeader({ unreadNotifications = 0 }: AdminHeaderProps) {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <header className='bg-white border-b border-gray-200 px-6 py-4'>
+      <div className='flex items-center justify-between'>
         {/* Left Section - Brand and Title */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
+        <div className='flex items-center gap-4'>
+          <div className='flex items-center gap-3'>
+            <div className='w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center'>
+              <Shield className='w-6 h-6 text-white' />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">WeddingLK Admin</h1>
-              <p className="text-sm text-gray-500">Platform Management Console</p>
+              <h1 className='text-xl font-bold text-gray-900'>
+                WeddingLK Admin
+              </h1>
+              <p className='text-sm text-gray-500'>
+                Platform Management Console
+              </p>
             </div>
           </div>
         </div>
 
         {/* Center Section - Quick Stats */}
-        <div className="hidden md:flex items-center gap-6">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
+        <div className='hidden md:flex items-center gap-6'>
+          <div className='text-center'>
+            <div className='text-2xl font-bold text-gray-900'>
               {session.user.role === 'admin' ? 'Full Access' : 'Limited Access'}
             </div>
-            <div className="text-sm text-gray-500">Admin Privileges</div>
+            <div className='text-sm text-gray-500'>Admin Privileges</div>
           </div>
         </div>
 
         {/* Right Section - User Menu and Actions */}
-        <div className="flex items-center gap-4">
+        <div className='flex items-center gap-4'>
           {/* Notifications */}
-          <div className="relative">
+          <div className='relative'>
             <Button
-              variant="ghost"
-              size="sm"
-              className="relative p-2"
+              variant='ghost'
+              size='sm'
+              className='relative p-2'
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
             >
-              <Bell className="w-5 h-5" />
+              <Bell className='w-5 h-5' />
               {unreadNotifications > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                <Badge
+                  variant='destructive'
+                  className='absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center'
                 >
                   {unreadNotifications > 99 ? '99+' : unreadNotifications}
                 </Badge>
@@ -104,61 +108,70 @@ export function AdminHeader({ unreadNotifications = 0 }: AdminHeaderProps) {
           {/* User Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={session.user.image || ''} alt={session.user.name || ''} />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+              <Button
+                variant='ghost'
+                className='relative h-10 w-10 rounded-full'
+              >
+                <Avatar className='h-10 w-10'>
+                  <AvatarImage
+                    src={session.user.image || ''}
+                    alt={session.user.name || ''}
+                  />
+                  <AvatarFallback className='bg-gradient-to-br from-purple-600 to-pink-600 text-white'>
                     {session.user.name?.charAt(0).toUpperCase() || 'A'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
+            <DropdownMenuContent className='w-56' align='end' forceMount>
+              <DropdownMenuLabel className='font-normal'>
+                <div className='flex flex-col space-y-1'>
+                  <p className='text-sm font-medium leading-none'>
                     {session.user.name || 'Admin User'}
                   </p>
-                  <p className="text-xs leading-none text-muted-foreground">
+                  <p className='text-xs leading-none text-muted-foreground'>
                     {session.user.email || 'admin@weddinglk.com'}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              
+
               {/* Role Display */}
-              <div className="px-2 py-1.5">
-                <div className="flex items-center gap-2">
+              <div className='px-2 py-1.5'>
+                <div className='flex items-center gap-2'>
                   {getRoleIcon(session.user.role || 'admin')}
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant='outline'
                     className={`text-xs ${getRoleColor(session.user.role || 'admin')}`}
                   >
                     {session.user.role || 'admin'}
                   </Badge>
                 </div>
               </div>
-              
+
               <DropdownMenuSeparator />
-              
+
               <DropdownMenuItem asChild>
-                <a href="/dashboard/admin/profile" className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
+                <a href='/dashboard/admin/profile' className='cursor-pointer'>
+                  <User className='mr-2 h-4 w-4' />
                   <span>Profile</span>
                 </a>
               </DropdownMenuItem>
-              
+
               <DropdownMenuItem asChild>
-                <a href="/dashboard/admin/settings" className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
+                <a href='/dashboard/admin/settings' className='cursor-pointer'>
+                  <Settings className='mr-2 h-4 w-4' />
                   <span>Settings</span>
                 </a>
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator />
-              
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
+
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className='cursor-pointer'
+              >
+                <LogOut className='mr-2 h-4 w-4' />
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -167,18 +180,18 @@ export function AdminHeader({ unreadNotifications = 0 }: AdminHeaderProps) {
       </div>
 
       {/* Mobile Quick Stats */}
-      <div className="md:hidden mt-4 pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900">
+      <div className='md:hidden mt-4 pt-4 border-t border-gray-200'>
+        <div className='flex items-center justify-between'>
+          <div className='text-center'>
+            <div className='text-lg font-semibold text-gray-900'>
               {session.user.role === 'admin' ? 'Full Access' : 'Limited Access'}
             </div>
-            <div className="text-xs text-gray-500">Admin Privileges</div>
+            <div className='text-xs text-gray-500'>Admin Privileges</div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className='flex items-center gap-2'>
             {getRoleIcon(session.user.role || 'admin')}
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant='outline'
               className={`text-xs ${getRoleColor(session.user.role || 'admin')}`}
             >
               {session.user.role || 'admin'}
@@ -188,4 +201,4 @@ export function AdminHeader({ unreadNotifications = 0 }: AdminHeaderProps) {
       </div>
     </header>
   );
-} 
+}

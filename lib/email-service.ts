@@ -1,28 +1,28 @@
-import nodemailer from 'nodemailer'
-import { connectDB } from './db'
+import nodemailer from 'nodemailer';
+import { connectDB } from './db';
 
 interface EmailTemplate {
-  subject: string
-  html: string
-  text: string
+  subject: string;
+  html: string;
+  text: string;
 }
 
 interface EmailData {
-  to: string
-  template: string
-  data: Record<string, any>
+  to: string;
+  template: string;
+  data: Record<string, any>;
   attachments?: Array<{
-    filename: string
-    content: Buffer
-    contentType: string
-  }>
+    filename: string;
+    content: Buffer;
+    contentType: string;
+  }>;
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter | null = null
+  private transporter: nodemailer.Transporter | null = null;
 
   constructor() {
-    this.initializeTransporter()
+    this.initializeTransporter();
   }
 
   private initializeTransporter() {
@@ -33,42 +33,47 @@ class EmailService {
       secure: false,
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    })
+        pass: process.env.SMTP_PASS,
+      },
+    });
   }
 
   // Send email with template
   async sendEmail(emailData: EmailData): Promise<boolean> {
     try {
       if (!this.transporter) {
-        console.error('Email transporter not initialized')
-        return false
+        console.error('Email transporter not initialized');
+        return false;
       }
 
-      const template = await this.getEmailTemplate(emailData.template, emailData.data)
-      
+      const template = await this.getEmailTemplate(
+        emailData.template,
+        emailData.data
+      );
+
       const mailOptions = {
         from: process.env.SMTP_FROM || 'WeddingLK <noreply@weddinglk.com>',
         to: emailData.to,
         subject: template.subject,
         html: template.html,
         text: template.text,
-        attachments: emailData.attachments
-      }
+        attachments: emailData.attachments,
+      };
 
-      const result = await this.transporter.sendMail(mailOptions)
-      console.log('✅ Email sent successfully:', result.messageId)
-      return true
-
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Email sent successfully:', result.messageId);
+      return true;
     } catch (error) {
-      console.error('❌ Email sending failed:', error)
-      return false
+      console.error('❌ Email sending failed:', error);
+      return false;
     }
   }
 
   // Get email template
-  private async getEmailTemplate(templateName: string, data: Record<string, any>): Promise<EmailTemplate> {
+  private async getEmailTemplate(
+    templateName: string,
+    data: Record<string, any>
+  ): Promise<EmailTemplate> {
     const templates: Record<string, EmailTemplate> = {
       welcome: {
         subject: 'Welcome to WeddingLK! 🎉',
@@ -90,7 +95,7 @@ class EmailService {
             <p>Best regards,<br>The WeddingLK Team</p>
           </div>
         `,
-        text: `Welcome to WeddingLK! Hi ${data.name}, Welcome to WeddingLK - your complete wedding planning platform!`
+        text: `Welcome to WeddingLK! Hi ${data.name}, Welcome to WeddingLK - your complete wedding planning platform!`,
       },
 
       booking_confirmation: {
@@ -111,7 +116,7 @@ class EmailService {
             <p>Best regards,<br>The WeddingLK Team</p>
           </div>
         `,
-        text: `Booking Confirmation - Hi ${data.name}, Your booking has been confirmed!`
+        text: `Booking Confirmation - Hi ${data.name}, Your booking has been confirmed!`,
       },
 
       payment_receipt: {
@@ -132,7 +137,7 @@ class EmailService {
             <p>Best regards,<br>The WeddingLK Team</p>
           </div>
         `,
-        text: `Payment Receipt - Hi ${data.name}, Thank you for your payment!`
+        text: `Payment Receipt - Hi ${data.name}, Thank you for your payment!`,
       },
 
       wedding_reminder: {
@@ -155,7 +160,7 @@ class EmailService {
             <p>Best regards,<br>The WeddingLK Team</p>
           </div>
         `,
-        text: `Wedding Countdown - Hi ${data.name}, Only ${data.daysLeft} days until your big day!`
+        text: `Wedding Countdown - Hi ${data.name}, Only ${data.daysLeft} days until your big day!`,
       },
 
       vendor_inquiry: {
@@ -177,56 +182,55 @@ class EmailService {
             <p>Best regards,<br>The WeddingLK Team</p>
           </div>
         `,
-        text: `New Vendor Inquiry - Hi ${data.vendorName}, You have a new inquiry from ${data.customerName}!`
-      }
-    }
+        text: `New Vendor Inquiry - Hi ${data.vendorName}, You have a new inquiry from ${data.customerName}!`,
+      },
+    };
 
-    const template = templates[templateName]
+    const template = templates[templateName];
     if (!template) {
-      throw new Error(`Email template '${templateName}' not found`)
+      throw new Error(`Email template '${templateName}' not found`);
     }
 
-    return template
+    return template;
   }
 
   // Send welcome email
   async sendWelcomeEmail(userId: string): Promise<boolean> {
     try {
-      await connectDB()
-      
+      await connectDB();
+
       // Mock user data for now
-      const user = { email: 'test@example.com', name: 'Test User' }
-      
+      const user = { email: 'test@example.com', name: 'Test User' };
+
       return await this.sendEmail({
         to: user.email,
         template: 'welcome',
         data: {
           name: user.name,
-          email: user.email
-        }
-      })
-
+          email: user.email,
+        },
+      });
     } catch (error) {
-      console.error('Welcome email error:', error)
-      return false
+      console.error('Welcome email error:', error);
+      return false;
     }
   }
 
   // Send booking confirmation
   async sendBookingConfirmation(bookingId: string): Promise<boolean> {
     try {
-      await connectDB()
-      
+      await connectDB();
+
       // Mock booking data for now
-      const booking = { 
+      const booking = {
         userId: { email: 'test@example.com', name: 'Test User' },
         date: new Date(),
         totalAmount: 50000,
-        status: 'confirmed'
-      }
-      
-      const user = booking.userId as any
-      
+        status: 'confirmed',
+      };
+
+      const user = booking.userId as any;
+
       return await this.sendEmail({
         to: user.email,
         template: 'booking_confirmation',
@@ -235,32 +239,31 @@ class EmailService {
           service: 'Venue Booking',
           date: booking.date.toDateString(),
           amount: booking.totalAmount,
-          status: booking.status
-        }
-      })
-
+          status: booking.status,
+        },
+      });
     } catch (error) {
-      console.error('Booking confirmation email error:', error)
-      return false
+      console.error('Booking confirmation email error:', error);
+      return false;
     }
   }
 
   // Send payment receipt
   async sendPaymentReceipt(paymentId: string): Promise<boolean> {
     try {
-      await connectDB()
-      
+      await connectDB();
+
       // Mock payment data for now
-      const payment = { 
+      const payment = {
         userId: { email: 'test@example.com', name: 'Test User' },
         transactionId: 'txn_123456789',
         amount: 50000,
         method: 'card',
-        createdAt: new Date()
-      }
-      
-      const user = payment.userId as any
-      
+        createdAt: new Date(),
+      };
+
+      const user = payment.userId as any;
+
       return await this.sendEmail({
         to: user.email,
         template: 'payment_receipt',
@@ -269,48 +272,52 @@ class EmailService {
           transactionId: payment.transactionId,
           amount: payment.amount,
           method: payment.method,
-          date: payment.createdAt.toDateString()
-        }
-      })
-
+          date: payment.createdAt.toDateString(),
+        },
+      });
     } catch (error) {
-      console.error('Payment receipt email error:', error)
-      return false
+      console.error('Payment receipt email error:', error);
+      return false;
     }
   }
 
   // Send wedding reminder
-  async sendWeddingReminder(userId: string, daysLeft: number): Promise<boolean> {
+  async sendWeddingReminder(
+    userId: string,
+    daysLeft: number
+  ): Promise<boolean> {
     try {
-      await connectDB()
-      
+      await connectDB();
+
       // Mock user data for now
-      const user = { email: 'test@example.com', name: 'Test User' }
-      
+      const user = { email: 'test@example.com', name: 'Test User' };
+
       return await this.sendEmail({
         to: user.email,
         template: 'wedding_reminder',
         data: {
           name: user.name,
           daysLeft: daysLeft,
-          weddingDate: new Date().toDateString()
-        }
-      })
-
+          weddingDate: new Date().toDateString(),
+        },
+      });
     } catch (error) {
-      console.error('Wedding reminder email error:', error)
-      return false
+      console.error('Wedding reminder email error:', error);
+      return false;
     }
   }
 
   // Send vendor inquiry
-  async sendVendorInquiry(vendorId: string, inquiryData: any): Promise<boolean> {
+  async sendVendorInquiry(
+    vendorId: string,
+    inquiryData: any
+  ): Promise<boolean> {
     try {
-      await connectDB()
-      
+      await connectDB();
+
       // Mock vendor data for now
-      const vendor = { email: 'vendor@example.com', name: 'Test Vendor' }
-      
+      const vendor = { email: 'vendor@example.com', name: 'Test Vendor' };
+
       return await this.sendEmail({
         to: vendor.email,
         template: 'vendor_inquiry',
@@ -320,42 +327,46 @@ class EmailService {
           customerEmail: inquiryData.customerEmail,
           customerPhone: inquiryData.customerPhone,
           weddingDate: inquiryData.weddingDate,
-          message: inquiryData.message
-        }
-      })
-
+          message: inquiryData.message,
+        },
+      });
     } catch (error) {
-      console.error('Vendor inquiry email error:', error)
-      return false
+      console.error('Vendor inquiry email error:', error);
+      return false;
     }
   }
 
   // Send bulk emails
-  async sendBulkEmails(emails: EmailData[]): Promise<{ success: number; failed: number }> {
-    let success = 0
-    let failed = 0
+  async sendBulkEmails(
+    emails: EmailData[]
+  ): Promise<{ success: number; failed: number }> {
+    let success = 0;
+    let failed = 0;
 
     for (const email of emails) {
-      const result = await this.sendEmail(email)
+      const result = await this.sendEmail(email);
       if (result) {
-        success++
+        success++;
       } else {
-        failed++
+        failed++;
       }
     }
 
-    return { success, failed }
+    return { success, failed };
   }
 
   // Send newsletter
-  async sendNewsletter(subscribers: string[], newsletterData: any): Promise<{ success: number; failed: number }> {
+  async sendNewsletter(
+    subscribers: string[],
+    newsletterData: any
+  ): Promise<{ success: number; failed: number }> {
     const emails: EmailData[] = subscribers.map(email => ({
       to: email,
       template: 'newsletter',
-      data: newsletterData
-    }))
+      data: newsletterData,
+    }));
 
-    return await this.sendBulkEmails(emails)
+    return await this.sendBulkEmails(emails);
   }
 
   // Test email service
@@ -366,14 +377,14 @@ class EmailService {
         template: 'welcome',
         data: {
           name: 'Test User',
-          email: 'test@example.com'
-        }
-      })
+          email: 'test@example.com',
+        },
+      });
     } catch (error) {
-      console.error('Email service test failed:', error)
-      return false
+      console.error('Email service test failed:', error);
+      return false;
     }
   }
 }
 
-export default new EmailService() 
+export default new EmailService();

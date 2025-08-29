@@ -1,135 +1,135 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getDb } from '@/lib/db/mongodb'
-import { ObjectId } from 'mongodb'
+import { NextRequest, NextResponse } from 'next/server';
+import { getDb } from '@/lib/db/mongodb';
+import { ObjectId } from 'mongodb';
 
 interface WeddingPackage {
-  id: string
-  name: string
-  description: string
-  price: number
-  originalPrice?: number
-  currency: 'LKR'
-  category: 'basic' | 'premium' | 'luxury' | 'custom'
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  currency: 'LKR';
+  category: 'basic' | 'premium' | 'luxury' | 'custom';
   venue: {
-    id: string
-    name: string
-    location: string
-    image: string
-    rating: number
-  }
-  features: string[]
+    id: string;
+    name: string;
+    location: string;
+    image: string;
+    rating: number;
+  };
+  features: string[];
   guestCapacity: {
-    min: number
-    max: number
-  }
-  duration: string
-  includes: string[]
-  exclusions: string[]
-  availability: string[]
-  images: string[]
-  rating: number
-  reviewCount: number
-  isBoosted: boolean
-  boostType?: 'featured' | 'trending' | 'sponsored'
-  discount?: number
-  isPopular: boolean
-  isNew: boolean
+    min: number;
+    max: number;
+  };
+  duration: string;
+  includes: string[];
+  exclusions: string[];
+  availability: string[];
+  images: string[];
+  rating: number;
+  reviewCount: number;
+  isBoosted: boolean;
+  boostType?: 'featured' | 'trending' | 'sponsored';
+  discount?: number;
+  isPopular: boolean;
+  isNew: boolean;
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '12')
-    const search = searchParams.get('search') || ''
-    const category = searchParams.get('category') || ''
-    const minPrice = parseInt(searchParams.get('minPrice') || '0')
-    const maxPrice = parseInt(searchParams.get('maxPrice') || '1000000')
-    const minGuests = parseInt(searchParams.get('minGuests') || '0')
-    const maxGuests = parseInt(searchParams.get('maxGuests') || '1000')
-    const features = searchParams.get('features')?.split(',') || []
-    const sortBy = searchParams.get('sortBy') || 'recommended'
-    const location = searchParams.get('location') || ''
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '12');
+    const search = searchParams.get('search') || '';
+    const category = searchParams.get('category') || '';
+    const minPrice = parseInt(searchParams.get('minPrice') || '0');
+    const maxPrice = parseInt(searchParams.get('maxPrice') || '1000000');
+    const minGuests = parseInt(searchParams.get('minGuests') || '0');
+    const maxGuests = parseInt(searchParams.get('maxGuests') || '1000');
+    const features = searchParams.get('features')?.split(',') || [];
+    const sortBy = searchParams.get('sortBy') || 'recommended';
+    const location = searchParams.get('location') || '';
 
-    const db = await getDb()
-    const packagesCollection = db.collection('wedding_packages')
-    const venuesCollection = db.collection('venues')
+    const db = await getDb();
+    const packagesCollection = db.collection('wedding_packages');
+    const venuesCollection = db.collection('venues');
 
     // Build query
-    const query: any = { status: 'active' }
-    
+    const query: any = { status: 'active' };
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ]
+        { description: { $regex: search, $options: 'i' } },
+      ];
     }
-    
+
     if (category && category !== 'all') {
-      query.category = category
+      query.category = category;
     }
-    
+
     if (minPrice > 0 || maxPrice < 1000000) {
-      query.price = {}
-      if (minPrice > 0) query.price.$gte = minPrice
-      if (maxPrice < 1000000) query.price.$lte = maxPrice
+      query.price = {};
+      if (minPrice > 0) query.price.$gte = minPrice;
+      if (maxPrice < 1000000) query.price.$lte = maxPrice;
     }
-    
+
     if (minGuests > 0 || maxGuests < 1000) {
       query.$and = [
         { 'guestCapacity.max': { $gte: minGuests } },
-        { 'guestCapacity.min': { $lte: maxGuests } }
-      ]
+        { 'guestCapacity.min': { $lte: maxGuests } },
+      ];
     }
-    
+
     if (features.length > 0) {
-      query.features = { $all: features }
+      query.features = { $all: features };
     }
-    
+
     if (location) {
-      query['venue.location'] = { $regex: location, $options: 'i' }
+      query['venue.location'] = { $regex: location, $options: 'i' };
     }
 
     // Build sort
-    let sort: any = { createdAt: -1 }
-    
+    let sort: any = { createdAt: -1 };
+
     switch (sortBy) {
       case 'price-low':
-        sort = { price: 1 }
-        break
+        sort = { price: 1 };
+        break;
       case 'price-high':
-        sort = { price: -1 }
-        break
+        sort = { price: -1 };
+        break;
       case 'rating':
-        sort = { rating: -1 }
-        break
+        sort = { rating: -1 };
+        break;
       case 'popularity':
-        sort = { isPopular: -1, rating: -1 }
-        break
+        sort = { isPopular: -1, rating: -1 };
+        break;
       case 'newest':
-        sort = { createdAt: -1 }
-        break
+        sort = { createdAt: -1 };
+        break;
       default:
         // Recommended: boosted packages first, then by rating
-        sort = { isBoosted: -1, rating: -1, createdAt: -1 }
+        sort = { isBoosted: -1, rating: -1, createdAt: -1 };
     }
 
     // Get packages with pagination
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
     const packages = await packagesCollection
       .find(query)
       .sort(sort)
       .skip(skip)
       .limit(limit)
-      .toArray()
+      .toArray();
 
     // Enrich packages with venue information
     const enrichedPackages: WeddingPackage[] = await Promise.all(
-      packages.map(async (pkg) => {
+      packages.map(async pkg => {
         const venue = await venuesCollection.findOne(
           { _id: new ObjectId(pkg.venueId) },
           { projection: { name: 1, location: 1, images: 1, rating: 1 } }
-        )
+        );
 
         return {
           id: pkg._id.toString(),
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
             name: venue?.name || 'Unknown Venue',
             location: venue?.location?.city || 'Unknown Location',
             image: venue?.images?.[0] || '/venues/default.jpg',
-            rating: venue?.rating || 0
+            rating: venue?.rating || 0,
           },
           features: pkg.features || [],
           guestCapacity: pkg.guestCapacity || { min: 0, max: 0 },
@@ -159,19 +159,21 @@ export async function GET(request: NextRequest) {
           boostType: pkg.boostType,
           discount: pkg.discount,
           isPopular: pkg.isPopular || false,
-          isNew: pkg.isNew || false
-        }
+          isNew: pkg.isNew || false,
+        };
       })
-    )
+    );
 
     // Get total count for pagination
-    const totalPackages = await packagesCollection.countDocuments(query)
+    const totalPackages = await packagesCollection.countDocuments(query);
 
     // Get category counts for filters
-    const categoryCounts = await packagesCollection.aggregate([
-      { $match: { status: 'active' } },
-      { $group: { _id: '$category', count: { $sum: 1 } } }
-    ]).toArray()
+    const categoryCounts = await packagesCollection
+      .aggregate([
+        { $match: { status: 'active' } },
+        { $group: { _id: '$category', count: { $sum: 1 } } },
+      ])
+      .toArray();
 
     return NextResponse.json({
       success: true,
@@ -181,57 +183,56 @@ export async function GET(request: NextRequest) {
           page,
           limit,
           total: totalPackages,
-          totalPages: Math.ceil(totalPackages / limit)
+          totalPages: Math.ceil(totalPackages / limit),
         },
         filters: {
           categories: categoryCounts.map(cat => ({
             name: cat._id,
-            count: cat.count
-          }))
-        }
-      }
-    })
-
+            count: cat.count,
+          })),
+        },
+      },
+    });
   } catch (error) {
-    console.error('Error fetching packages:', error)
+    console.error('Error fetching packages:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch packages' 
+      {
+        success: false,
+        error: 'Failed to fetch packages',
       },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { 
-      name, 
-      description, 
-      price, 
-      category, 
-      venueId, 
-      features, 
+    const body = await request.json();
+    const {
+      name,
+      description,
+      price,
+      category,
+      venueId,
+      features,
       guestCapacity,
       duration,
       includes,
       exclusions,
       availability,
       images,
-      vendorId
-    } = body
+      vendorId,
+    } = body;
 
     if (!name || !description || !price || !category || !venueId || !vendorId) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
-      )
+      );
     }
 
-    const db = await getDb()
-    const packagesCollection = db.collection('wedding_packages')
+    const db = await getDb();
+    const packagesCollection = db.collection('wedding_packages');
 
     const newPackage = {
       name,
@@ -254,27 +255,26 @@ export async function POST(request: NextRequest) {
       isNew: true,
       status: 'active',
       createdAt: new Date(),
-      updatedAt: new Date()
-    }
+      updatedAt: new Date(),
+    };
 
-    const result = await packagesCollection.insertOne(newPackage)
+    const result = await packagesCollection.insertOne(newPackage);
 
     return NextResponse.json({
       success: true,
       data: {
         id: result.insertedId.toString(),
-        message: 'Package created successfully'
-      }
-    })
-
+        message: 'Package created successfully',
+      },
+    });
   } catch (error) {
-    console.error('Error creating package:', error)
+    console.error('Error creating package:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to create package' 
+      {
+        success: false,
+        error: 'Failed to create package',
       },
       { status: 500 }
-    )
+    );
   }
 }

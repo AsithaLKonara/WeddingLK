@@ -20,8 +20,8 @@ const mockDocuments: Array<{
     fileName: 'passport.pdf',
     filePath: '/uploads/passport.pdf',
     uploadDate: new Date(),
-    status: 'pending'
-  }
+    status: 'pending',
+  },
 ];
 
 export async function POST(request: NextRequest) {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       fileName,
       filePath,
       uploadDate: new Date(),
-      status: 'pending' as const
+      status: 'pending' as const,
     };
 
     // In real app, save to database
@@ -64,9 +64,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       document,
-      message: 'Document uploaded successfully'
+      message: 'Document uploaded successfully',
     });
-
   } catch (error) {
     console.error('Document upload error:', error);
     return NextResponse.json(
@@ -107,9 +106,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       documents,
-      total: documents.length
+      total: documents.length,
     });
-
   } catch (error) {
     console.error('Document retrieval error:', error);
     return NextResponse.json(
@@ -131,7 +129,10 @@ export async function PUT(request: NextRequest) {
     // Find document
     const documentIndex = mockDocuments.findIndex(doc => doc.id === documentId);
     if (documentIndex === -1) {
-      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Document not found' },
+        { status: 404 }
+      );
     }
 
     // Update document status
@@ -143,9 +144,8 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Document ${status} successfully`,
-      document: mockDocuments[documentIndex]
+      document: mockDocuments[documentIndex],
     });
-
   } catch (error) {
     console.error('Document update error:', error);
     return NextResponse.json(
@@ -166,13 +166,19 @@ export async function DELETE(request: NextRequest) {
     const documentId = searchParams.get('id');
 
     if (!documentId) {
-      return NextResponse.json({ error: 'Document ID required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Document ID required' },
+        { status: 400 }
+      );
     }
 
     // Find and delete document
     const documentIndex = mockDocuments.findIndex(doc => doc.id === documentId);
     if (documentIndex === -1) {
-      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Document not found' },
+        { status: 404 }
+      );
     }
 
     // Check if user owns the document or is admin
@@ -185,9 +191,8 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Document deleted successfully'
+      message: 'Document deleted successfully',
     });
-
   } catch (error) {
     console.error('Document deletion error:', error);
     return NextResponse.json(
@@ -195,4 +200,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

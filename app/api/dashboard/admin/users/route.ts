@@ -8,7 +8,7 @@ import { auth } from '@/lib/auth-config';
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     // Build query
     const query: any = {};
-    
+
     if (role) query.role = role;
     if (status) query.status = status;
     if (search) {
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     // Execute query with pagination
     const skip = (page - 1) * limit;
-    
+
     const [users, total] = await Promise.all([
       User.find(query)
         .select('-password')
@@ -60,7 +60,9 @@ export async function GET(request: NextRequest) {
     const vendorCount = await User.countDocuments({ role: 'vendor' });
     const plannerCount = await User.countDocuments({ role: 'wedding_planner' });
     const userCount = await User.countDocuments({ role: 'user' });
-    const adminCount = await User.countDocuments({ role: { $in: ['admin', 'maintainer'] } });
+    const adminCount = await User.countDocuments({
+      role: { $in: ['admin', 'maintainer'] },
+    });
 
     const totalPages = Math.ceil(total / limit);
 
@@ -83,7 +85,6 @@ export async function GET(request: NextRequest) {
         adminCount,
       },
     });
-
   } catch (error) {
     console.error('Error fetching users:', error);
     return NextResponse.json(
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
@@ -113,7 +114,10 @@ export async function POST(request: NextRequest) {
     // Validate role
     if (!['admin', 'maintainer'].includes(role)) {
       return NextResponse.json(
-        { error: 'Invalid role. Only admin and maintainer roles can be created.' },
+        {
+          error:
+            'Invalid role. Only admin and maintainer roles can be created.',
+        },
         { status: 400 }
       );
     }
@@ -172,7 +176,6 @@ export async function POST(request: NextRequest) {
         status: newUser.status,
       },
     });
-
   } catch (error) {
     console.error('Error creating admin user:', error);
     return NextResponse.json(
@@ -186,7 +189,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await auth();
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
@@ -209,10 +212,7 @@ export async function PUT(request: NextRequest) {
     // Find user
     const user = await User.findById(userId);
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Prevent admin from modifying other admins
@@ -225,34 +225,32 @@ export async function PUT(request: NextRequest) {
 
     // Update user
     const updateData: any = {};
-    
+
     if (updates.role && updates.role !== user.role) {
       updateData.role = updates.role;
       updateData.roleVerified = true;
       updateData.roleVerifiedBy = session.user.id;
       updateData.roleVerifiedAt = new Date();
     }
-    
+
     if (updates.status) {
       updateData.status = updates.status;
     }
-    
+
     if (updates.isEmailVerified !== undefined) {
       updateData.isEmailVerified = updates.isEmailVerified;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, runValidators: true }
-    ).select('-password');
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    }).select('-password');
 
     return NextResponse.json({
       success: true,
       message: 'User updated successfully',
       user: updatedUser,
     });
-
   } catch (error) {
     console.error('Error updating user:', error);
     return NextResponse.json(
@@ -266,7 +264,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
@@ -289,10 +287,7 @@ export async function DELETE(request: NextRequest) {
     // Find user
     const user = await User.findById(userId);
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Prevent admin from deleting themselves
@@ -321,7 +316,6 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'User suspended successfully',
     });
-
   } catch (error) {
     console.error('Error deleting user:', error);
     return NextResponse.json(
@@ -329,4 +323,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

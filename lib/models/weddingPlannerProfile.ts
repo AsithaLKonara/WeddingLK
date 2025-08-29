@@ -2,13 +2,13 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IWeddingPlannerProfile extends Document {
   userId: mongoose.Types.ObjectId;
-  
+
   // Professional Information
   professionalTitle: string;
   yearsOfExperience: number;
   specialization: string[];
   languages: string[];
-  
+
   // Education & Certifications
   education: {
     degree: string;
@@ -17,7 +17,7 @@ export interface IWeddingPlannerProfile extends Document {
     documentUrl?: string;
     verified: boolean;
   }[];
-  
+
   certifications: {
     name: string;
     issuingAuthority: string;
@@ -26,7 +26,7 @@ export interface IWeddingPlannerProfile extends Document {
     documentUrl: string;
     verified: boolean;
   }[];
-  
+
   // Professional Memberships
   memberships: {
     organization: string;
@@ -35,7 +35,7 @@ export interface IWeddingPlannerProfile extends Document {
     memberId: string;
     verified: boolean;
   }[];
-  
+
   // Portfolio
   portfolio: {
     title: string;
@@ -48,7 +48,7 @@ export interface IWeddingPlannerProfile extends Document {
     category: string[];
     featured: boolean;
   }[];
-  
+
   // Services Offered
   services: {
     name: string;
@@ -60,7 +60,7 @@ export interface IWeddingPlannerProfile extends Document {
     };
     isAvailable: boolean;
   }[];
-  
+
   // Service Areas
   serviceAreas: {
     city: string;
@@ -69,7 +69,7 @@ export interface IWeddingPlannerProfile extends Document {
     travelRadius: number;
     travelFee?: number;
   }[];
-  
+
   // Insurance & Liability
   professionalLiability: {
     provider: string;
@@ -79,13 +79,13 @@ export interface IWeddingPlannerProfile extends Document {
     documentUrl: string;
     verified: boolean;
   };
-  
+
   // Business Information
   businessName?: string;
   businessRegistrationNumber?: string;
   taxIdentificationNumber?: string;
   businessLicenseNumber?: string;
-  
+
   // Contact Information
   businessPhone?: string;
   businessEmail?: string;
@@ -96,7 +96,7 @@ export interface IWeddingPlannerProfile extends Document {
     country: string;
     zipCode: string;
   };
-  
+
   // Business Hours
   businessHours: {
     monday: { open: string; close: string; closed: boolean };
@@ -107,7 +107,7 @@ export interface IWeddingPlannerProfile extends Document {
     saturday: { open: string; close: string; closed: boolean };
     sunday: { open: string; close: string; closed: boolean };
   };
-  
+
   // Emergency Contact
   emergencyContact: {
     name: string;
@@ -115,14 +115,14 @@ export interface IWeddingPlannerProfile extends Document {
     phone: string;
     email?: string;
   };
-  
+
   // Verification Status
   verificationStatus: 'pending' | 'verified' | 'rejected' | 'under_review';
   verificationNotes?: string;
   verifiedBy?: mongoose.Types.ObjectId;
   verifiedAt?: Date;
   verificationDocuments: mongoose.Types.ObjectId[];
-  
+
   // Business Metrics
   rating: {
     average: number;
@@ -138,7 +138,7 @@ export interface IWeddingPlannerProfile extends Document {
   completedWeddings: number;
   averageWeddingBudget: number;
   totalRevenue: number;
-  
+
   // Social Media & Website
   socialMedia: {
     website?: string;
@@ -148,14 +148,14 @@ export interface IWeddingPlannerProfile extends Document {
     twitter?: string;
     pinterest?: string;
   };
-  
+
   // Payment & Billing
   paymentMethods: {
     type: 'bank_transfer' | 'credit_card' | 'paypal' | 'stripe' | 'cash';
     details: any;
     isDefault: boolean;
   }[];
-  
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -170,7 +170,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
       required: true,
       unique: true,
     },
-    
+
     // Professional Information
     professionalTitle: {
       type: String,
@@ -182,190 +182,210 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
       required: true,
       min: 0,
     },
-    specialization: [{
-      type: String,
-      required: true,
-    }],
-    languages: [{
-      type: String,
-      required: true,
-    }],
-    
+    specialization: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+    languages: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+
     // Education & Certifications
-    education: [{
-      degree: {
-        type: String,
-        required: true,
-      },
-      institution: {
-        type: String,
-        required: true,
-      },
-      year: {
-        type: Number,
-        required: true,
-        min: 1900,
-        max: new Date().getFullYear(),
-      },
-      documentUrl: {
-        type: String,
-      },
-      verified: {
-        type: Boolean,
-        default: false,
-      },
-    }],
-    
-    certifications: [{
-      name: {
-        type: String,
-        required: true,
-      },
-      issuingAuthority: {
-        type: String,
-        required: true,
-      },
-      issueDate: {
-        type: Date,
-        required: true,
-      },
-      expiryDate: {
-        type: Date,
-      },
-      documentUrl: {
-        type: String,
-        required: true,
-      },
-      verified: {
-        type: Boolean,
-        default: false,
-      },
-    }],
-    
-    // Professional Memberships
-    memberships: [{
-      organization: {
-        type: String,
-        required: true,
-      },
-      membershipType: {
-        type: String,
-        required: true,
-      },
-      memberSince: {
-        type: Date,
-        required: true,
-      },
-      memberId: {
-        type: String,
-        required: true,
-      },
-      verified: {
-        type: Boolean,
-        default: false,
-      },
-    }],
-    
-    // Portfolio
-    portfolio: [{
-      title: {
-        type: String,
-        required: true,
-        maxlength: 200,
-      },
-      description: {
-        type: String,
-        maxlength: 1000,
-      },
-      weddingDate: {
-        type: Date,
-        required: true,
-      },
-      guestCount: {
-        type: Number,
-        required: true,
-        min: 1,
-      },
-      budget: {
-        type: Number,
-        required: true,
-        min: 0,
-      },
-      images: [{
-        type: String,
-        required: true,
-      }],
-      clientTestimonial: {
-        type: String,
-        maxlength: 500,
-      },
-      category: [{
-        type: String,
-      }],
-      featured: {
-        type: Boolean,
-        default: false,
-      },
-    }],
-    
-    // Services Offered
-    services: [{
-      name: {
-        type: String,
-        required: true,
-      },
-      description: {
-        type: String,
-        maxlength: 500,
-      },
-      pricing: {
-        type: {
+    education: [
+      {
+        degree: {
           type: String,
-          enum: ['fixed', 'percentage', 'hourly'],
           required: true,
         },
-        amount: {
+        institution: {
+          type: String,
+          required: true,
+        },
+        year: {
+          type: Number,
+          required: true,
+          min: 1900,
+          max: new Date().getFullYear(),
+        },
+        documentUrl: {
+          type: String,
+        },
+        verified: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
+
+    certifications: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        issuingAuthority: {
+          type: String,
+          required: true,
+        },
+        issueDate: {
+          type: Date,
+          required: true,
+        },
+        expiryDate: {
+          type: Date,
+        },
+        documentUrl: {
+          type: String,
+          required: true,
+        },
+        verified: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
+
+    // Professional Memberships
+    memberships: [
+      {
+        organization: {
+          type: String,
+          required: true,
+        },
+        membershipType: {
+          type: String,
+          required: true,
+        },
+        memberSince: {
+          type: Date,
+          required: true,
+        },
+        memberId: {
+          type: String,
+          required: true,
+        },
+        verified: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
+
+    // Portfolio
+    portfolio: [
+      {
+        title: {
+          type: String,
+          required: true,
+          maxlength: 200,
+        },
+        description: {
+          type: String,
+          maxlength: 1000,
+        },
+        weddingDate: {
+          type: Date,
+          required: true,
+        },
+        guestCount: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+        budget: {
           type: Number,
           required: true,
           min: 0,
         },
-        currency: {
+        images: [
+          {
+            type: String,
+            required: true,
+          },
+        ],
+        clientTestimonial: {
           type: String,
-          default: 'USD',
+          maxlength: 500,
+        },
+        category: [
+          {
+            type: String,
+          },
+        ],
+        featured: {
+          type: Boolean,
+          default: false,
         },
       },
-      isAvailable: {
-        type: Boolean,
-        default: true,
+    ],
+
+    // Services Offered
+    services: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        description: {
+          type: String,
+          maxlength: 500,
+        },
+        pricing: {
+          type: {
+            type: String,
+            enum: ['fixed', 'percentage', 'hourly'],
+            required: true,
+          },
+          amount: {
+            type: Number,
+            required: true,
+            min: 0,
+          },
+          currency: {
+            type: String,
+            default: 'USD',
+          },
+        },
+        isAvailable: {
+          type: Boolean,
+          default: true,
+        },
       },
-    }],
-    
+    ],
+
     // Service Areas
-    serviceAreas: [{
-      city: {
-        type: String,
-        required: true,
+    serviceAreas: [
+      {
+        city: {
+          type: String,
+          required: true,
+        },
+        state: {
+          type: String,
+          required: true,
+        },
+        country: {
+          type: String,
+          required: true,
+        },
+        travelRadius: {
+          type: Number,
+          required: true,
+          min: 1,
+          max: 1000,
+        },
+        travelFee: {
+          type: Number,
+          min: 0,
+        },
       },
-      state: {
-        type: String,
-        required: true,
-      },
-      country: {
-        type: String,
-        required: true,
-      },
-      travelRadius: {
-        type: Number,
-        required: true,
-        min: 1,
-        max: 1000,
-      },
-      travelFee: {
-        type: Number,
-        min: 0,
-      },
-    }],
-    
+    ],
+
     // Insurance & Liability
     professionalLiability: {
       provider: {
@@ -394,7 +414,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
         default: false,
       },
     },
-    
+
     // Business Information
     businessName: {
       type: String,
@@ -412,7 +432,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
       type: String,
       trim: true,
     },
-    
+
     // Contact Information
     businessPhone: {
       type: String,
@@ -439,7 +459,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
         type: String,
       },
     },
-    
+
     // Business Hours
     businessHours: {
       monday: {
@@ -478,7 +498,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
         closed: { type: Boolean, default: true },
       },
     },
-    
+
     // Emergency Contact
     emergencyContact: {
       name: {
@@ -497,7 +517,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
         type: String,
       },
     },
-    
+
     // Verification Status
     verificationStatus: {
       type: String,
@@ -515,11 +535,13 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
     verifiedAt: {
       type: Date,
     },
-    verificationDocuments: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Document',
-    }],
-    
+    verificationDocuments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Document',
+      },
+    ],
+
     // Business Metrics
     rating: {
       average: {
@@ -556,7 +578,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
       default: 0,
       min: 0,
     },
-    
+
     // Social Media & Website
     socialMedia: {
       website: {
@@ -578,22 +600,24 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
         type: String,
       },
     },
-    
+
     // Payment & Billing
-    paymentMethods: [{
-      type: {
-        type: String,
-        enum: ['bank_transfer', 'credit_card', 'paypal', 'stripe', 'cash'],
-        required: true,
+    paymentMethods: [
+      {
+        type: {
+          type: String,
+          enum: ['bank_transfer', 'credit_card', 'paypal', 'stripe', 'cash'],
+          required: true,
+        },
+        details: {
+          type: Schema.Types.Mixed,
+        },
+        isDefault: {
+          type: Boolean,
+          default: false,
+        },
       },
-      details: {
-        type: Schema.Types.Mixed,
-      },
-      isDefault: {
-        type: Boolean,
-        default: false,
-      },
-    }],
+    ],
   },
   {
     timestamps: true,
@@ -604,57 +628,74 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
 WeddingPlannerProfileSchema.index({ userId: 1 });
 WeddingPlannerProfileSchema.index({ verificationStatus: 1 });
 WeddingPlannerProfileSchema.index({ 'services.name': 1 });
-WeddingPlannerProfileSchema.index({ 'serviceAreas.city': 1, 'serviceAreas.state': 1 });
+WeddingPlannerProfileSchema.index({
+  'serviceAreas.city': 1,
+  'serviceAreas.state': 1,
+});
 WeddingPlannerProfileSchema.index({ 'rating.average': -1 });
 WeddingPlannerProfileSchema.index({ yearsOfExperience: -1 });
 WeddingPlannerProfileSchema.index({ completedWeddings: -1 });
 
 // Instance methods
-WeddingPlannerProfileSchema.methods.updateRating = function(newRating: number) {
+WeddingPlannerProfileSchema.methods.updateRating = function (
+  newRating: number
+) {
   const oldAverage = this.rating.average;
   const oldCount = this.rating.count;
-  
+
   // Update total and count
-  const newTotal = (oldAverage * oldCount) + newRating;
+  const newTotal = oldAverage * oldCount + newRating;
   const newCount = oldCount + 1;
-  
+
   // Update average
   this.rating.average = newTotal / newCount;
   this.rating.count = newCount;
-  
+
   // Update breakdown (assuming newRating is 1-5)
   if (newRating >= 1 && newRating <= 5) {
     this.rating.breakdown[newRating as keyof typeof this.rating.breakdown]++;
   }
-  
+
   return this.save();
 };
 
-WeddingPlannerProfileSchema.methods.addPortfolioItem = function(item: any) {
+WeddingPlannerProfileSchema.methods.addPortfolioItem = function (item: any) {
   this.portfolio.push(item);
   return this.save();
 };
 
-WeddingPlannerProfileSchema.methods.updateVerificationStatus = function(status: string, notes?: string, verifiedBy?: mongoose.Types.ObjectId) {
+WeddingPlannerProfileSchema.methods.updateVerificationStatus = function (
+  status: string,
+  notes?: string,
+  verifiedBy?: mongoose.Types.ObjectId
+) {
   this.verificationStatus = status;
   this.verificationNotes = notes;
   this.verifiedBy = verifiedBy;
   this.verifiedAt = new Date();
   this.lastVerifiedAt = new Date();
-  
+
   return this.save();
 };
 
-WeddingPlannerProfileSchema.methods.calculateMetrics = function() {
+WeddingPlannerProfileSchema.methods.calculateMetrics = function () {
   if (this.portfolio.length > 0) {
     this.completedWeddings = this.portfolio.length;
-    
-    const totalBudget = this.portfolio.reduce((sum: number, item: any) => sum + item.budget, 0);
+
+    const totalBudget = this.portfolio.reduce(
+      (sum: number, item: any) => sum + item.budget,
+      0
+    );
     this.averageWeddingBudget = totalBudget / this.portfolio.length;
   }
-  
+
   return this.save();
 };
 
-export const WeddingPlannerProfile = mongoose.models.WeddingPlannerProfile || mongoose.model<IWeddingPlannerProfile>('WeddingPlannerProfile', WeddingPlannerProfileSchema);
-export default WeddingPlannerProfile; 
+export const WeddingPlannerProfile =
+  mongoose.models.WeddingPlannerProfile ||
+  mongoose.model<IWeddingPlannerProfile>(
+    'WeddingPlannerProfile',
+    WeddingPlannerProfileSchema
+  );
+export default WeddingPlannerProfile;

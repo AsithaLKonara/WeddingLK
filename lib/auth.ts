@@ -1,73 +1,74 @@
-import type { NextAuthConfig } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
+import type { NextAuthConfig } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 // Extend the built-in session types
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
-      id: string
-      name?: string | null
-      email?: string | null
-      image?: string | null
-      role?: string
-      twoFactorPending?: boolean
-    }
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      role?: string;
+      twoFactorPending?: boolean;
+    };
   }
-  
+
   interface User {
-    id: string
-    email: string
-    name?: string
-    role?: string
-    twoFactorPending?: boolean
+    id: string;
+    email: string;
+    name?: string;
+    role?: string;
+    twoFactorPending?: boolean;
   }
 }
 
 export const authOptions: NextAuthConfig = {
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         // For development, allow any email/password
         if (credentials?.email && credentials?.password) {
           return {
-            id: "1",
+            id: '1',
             email: credentials.email as string,
-            name: "Demo User",
-            role: "user",
-          }
+            name: 'Demo User',
+            role: 'user',
+          };
         }
-        return null
+        return null;
       },
     }),
   ],
   session: {
-    strategy: "jwt" as const,
+    strategy: 'jwt' as const,
   },
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   callbacks: {
     async jwt({ token, user }: { token: any; user: any }) {
-      if (user && "role" in user) {
-        token.role = user.role
+      if (user && 'role' in user) {
+        token.role = user.role;
       }
-      if (user && "twoFactorPending" in user) {
-        token.twoFactorPending = user.twoFactorPending
+      if (user && 'twoFactorPending' in user) {
+        token.twoFactorPending = user.twoFactorPending;
       }
-      return token
+      return token;
     },
     async session({ session, token }: { token: any; session: any }) {
       if (token && session.user) {
-        session.user.id = token.sub!
-        if (token.role) session.user.role = token.role as string
-        if (token.twoFactorPending) session.user.twoFactorPending = token.twoFactorPending
+        session.user.id = token.sub!;
+        if (token.role) session.user.role = token.role as string;
+        if (token.twoFactorPending)
+          session.user.twoFactorPending = token.twoFactorPending;
       }
-      return session
+      return session;
     },
   },
-}
+};

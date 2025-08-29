@@ -2,33 +2,45 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  AlertCircle,
   Loader2,
   Save,
   Upload,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react';
-import { 
-  DynamicFormFactory, 
-  FormValidator, 
-  type DynamicForm, 
-  type FormSection, 
-  type FormField 
+import {
+  DynamicFormFactory,
+  FormValidator,
+  type DynamicForm,
+  type FormSection,
+  type FormField,
 } from '@/lib/forms/dynamic-form-engine';
 
 interface EnhancedRegistrationFormProps {
@@ -45,10 +57,10 @@ interface FormErrors {
   [key: string]: string;
 }
 
-export function EnhancedRegistrationForm({ 
-  role, 
-  onSuccess, 
-  onError 
+export function EnhancedRegistrationForm({
+  role,
+  onSuccess,
+  onError,
 }: EnhancedRegistrationFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<DynamicForm | null>(null);
@@ -64,7 +76,7 @@ export function EnhancedRegistrationForm({
     // Initialize form based on role
     const dynamicForm = DynamicFormFactory.createForm(role);
     setForm(dynamicForm);
-    
+
     // Set default values
     const defaultData: FormData = {
       role,
@@ -75,45 +87,51 @@ export function EnhancedRegistrationForm({
         country: '',
         state: '',
         city: '',
-        zipCode: ''
-      }
+        zipCode: '',
+      },
     };
-    
+
     if (role === 'vendor') {
       defaultData.pricing = {
         currency: 'USD',
         basePrice: 0,
-        pricingModel: 'fixed'
+        pricingModel: 'fixed',
       };
       defaultData.contact = {
         phone: '',
         website: '',
-        socialMedia: {}
+        socialMedia: {},
       };
     }
-    
+
     if (role === 'wedding_planner') {
       defaultData.pricing = {
         currency: 'USD',
         consultationFee: 0,
-        packagePricing: 'fixed'
+        packagePricing: 'fixed',
       };
       defaultData.contact = {
         phone: '',
         website: '',
-        socialMedia: {}
+        socialMedia: {},
       };
     }
-    
+
     setFormData(defaultData);
   }, [role]);
 
   useEffect(() => {
     // Calculate progress
     if (form) {
-      const totalFields = form.sections.reduce((acc, section) => acc + section.fields.length, 0);
-      const completedFields = Object.keys(formData).filter(key => 
-        formData[key] !== undefined && formData[key] !== '' && formData[key] !== null
+      const totalFields = form.sections.reduce(
+        (acc, section) => acc + section.fields.length,
+        0
+      );
+      const completedFields = Object.keys(formData).filter(
+        key =>
+          formData[key] !== undefined &&
+          formData[key] !== '' &&
+          formData[key] !== null
       ).length;
       setProgress((completedFields / totalFields) * 100);
     }
@@ -122,14 +140,14 @@ export function EnhancedRegistrationForm({
   const handleInputChange = (fieldId: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      [fieldId]: value
+      [fieldId]: value,
     }));
 
     // Clear error for this field
     if (errors[fieldId]) {
       setErrors(prev => ({
         ...prev,
-        [fieldId]: ''
+        [fieldId]: '',
       }));
     }
   };
@@ -139,8 +157,8 @@ export function EnhancedRegistrationForm({
       ...prev,
       location: {
         ...prev.location,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -149,8 +167,8 @@ export function EnhancedRegistrationForm({
       ...prev,
       pricing: {
         ...prev.pricing,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -159,8 +177,8 @@ export function EnhancedRegistrationForm({
       ...prev,
       contact: {
         ...prev.contact,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -169,14 +187,17 @@ export function EnhancedRegistrationForm({
 
     const currentSection = form.sections[currentSectionIndex];
     const sectionData: FormData = {};
-    
+
     currentSection.fields.forEach(field => {
       sectionData[field.id] = formData[field.id];
     });
 
-    const validation = FormValidator.validateSection(currentSection, sectionData);
+    const validation = FormValidator.validateSection(
+      currentSection,
+      sectionData
+    );
     setErrors(validation.errors);
-    
+
     return validation.isValid;
   };
 
@@ -234,73 +255,81 @@ export function EnhancedRegistrationForm({
       case 'text':
       case 'email':
         return (
-          <div className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+          <div className='space-y-2'>
+            <Label htmlFor={field.id} className='text-sm font-medium'>
+              {field.label}{' '}
+              {field.required && <span className='text-red-500'>*</span>}
             </Label>
             <Input
               id={field.id}
               type={field.type}
               value={value}
-              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              onChange={e => handleInputChange(field.id, e.target.value)}
               placeholder={field.placeholder}
               className={error ? 'border-red-500' : ''}
             />
             {field.helpText && (
-              <p className="text-xs text-gray-500">{field.helpText}</p>
+              <p className='text-xs text-gray-500'>{field.helpText}</p>
             )}
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className='text-xs text-red-500'>{error}</p>}
           </div>
         );
 
       case 'password':
         return (
-          <div className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+          <div className='space-y-2'>
+            <Label htmlFor={field.id} className='text-sm font-medium'>
+              {field.label}{' '}
+              {field.required && <span className='text-red-500'>*</span>}
             </Label>
-            <div className="relative">
+            <div className='relative'>
               <Input
                 id={field.id}
                 type={showPassword ? 'text' : 'password'}
                 value={value}
-                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                onChange={e => handleInputChange(field.id, e.target.value)}
                 placeholder={field.placeholder}
                 className={error ? 'border-red-500 pr-10' : 'pr-10'}
               />
               <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                type='button'
+                variant='ghost'
+                size='sm'
+                className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className='h-4 w-4' />
+                ) : (
+                  <Eye className='h-4 w-4' />
+                )}
               </Button>
             </div>
             {field.helpText && (
-              <p className="text-xs text-gray-500">{field.helpText}</p>
+              <p className='text-xs text-gray-500'>{field.helpText}</p>
             )}
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className='text-xs text-red-500'>{error}</p>}
           </div>
         );
 
       case 'select':
         return (
-          <div className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+          <div className='space-y-2'>
+            <Label htmlFor={field.id} className='text-sm font-medium'>
+              {field.label}{' '}
+              {field.required && <span className='text-red-500'>*</span>}
             </Label>
-            <Select value={value} onValueChange={(val) => handleInputChange(field.id, val)}>
+            <Select
+              value={value}
+              onValueChange={val => handleInputChange(field.id, val)}
+            >
               <SelectTrigger className={error ? 'border-red-500' : ''}>
-                <SelectValue placeholder={field.placeholder || 'Select an option'} />
+                <SelectValue
+                  placeholder={field.placeholder || 'Select an option'}
+                />
               </SelectTrigger>
               <SelectContent>
-                {field.options?.map((option) => (
+                {field.options?.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -308,115 +337,122 @@ export function EnhancedRegistrationForm({
               </SelectContent>
             </Select>
             {field.helpText && (
-              <p className="text-xs text-gray-500">{field.helpText}</p>
+              <p className='text-xs text-gray-500'>{field.helpText}</p>
             )}
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className='text-xs text-red-500'>{error}</p>}
           </div>
         );
 
       case 'multiselect':
         return (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+          <div className='space-y-2'>
+            <Label className='text-sm font-medium'>
+              {field.label}{' '}
+              {field.required && <span className='text-red-500'>*</span>}
             </Label>
-            <div className="grid grid-cols-2 gap-2">
-              {field.options?.map((option) => (
-                <div key={option.value} className="flex items-center space-x-2">
+            <div className='grid grid-cols-2 gap-2'>
+              {field.options?.map(option => (
+                <div key={option.value} className='flex items-center space-x-2'>
                   <Checkbox
                     id={`${field.id}-${option.value}`}
-                    checked={Array.isArray(value) && value.includes(option.value)}
-                    onCheckedChange={(checked) => {
+                    checked={
+                      Array.isArray(value) && value.includes(option.value)
+                    }
+                    onCheckedChange={checked => {
                       const currentValues = Array.isArray(value) ? value : [];
                       if (checked) {
-                        handleInputChange(field.id, [...currentValues, option.value]);
+                        handleInputChange(field.id, [
+                          ...currentValues,
+                          option.value,
+                        ]);
                       } else {
-                        handleInputChange(field.id, currentValues.filter(v => v !== option.value));
+                        handleInputChange(
+                          field.id,
+                          currentValues.filter(v => v !== option.value)
+                        );
                       }
                     }}
                   />
-                  <Label htmlFor={`${field.id}-${option.value}`} className="text-sm">
+                  <Label
+                    htmlFor={`${field.id}-${option.value}`}
+                    className='text-sm'
+                  >
                     {option.label}
                   </Label>
                 </div>
               ))}
             </div>
             {field.helpText && (
-              <p className="text-xs text-gray-500">{field.helpText}</p>
+              <p className='text-xs text-gray-500'>{field.helpText}</p>
             )}
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className='text-xs text-red-500'>{error}</p>}
           </div>
         );
 
       case 'textarea':
         return (
-          <div className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+          <div className='space-y-2'>
+            <Label htmlFor={field.id} className='text-sm font-medium'>
+              {field.label}{' '}
+              {field.required && <span className='text-red-500'>*</span>}
             </Label>
             <Textarea
               id={field.id}
               value={value}
-              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              onChange={e => handleInputChange(field.id, e.target.value)}
               placeholder={field.placeholder}
               className={error ? 'border-red-500' : ''}
               rows={4}
             />
             {field.helpText && (
-              <p className="text-xs text-gray-500">{field.helpText}</p>
+              <p className='text-xs text-gray-500'>{field.helpText}</p>
             )}
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className='text-xs text-red-500'>{error}</p>}
           </div>
         );
 
       case 'number':
         return (
-          <div className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+          <div className='space-y-2'>
+            <Label htmlFor={field.id} className='text-sm font-medium'>
+              {field.label}{' '}
+              {field.required && <span className='text-red-500'>*</span>}
             </Label>
             <Input
               id={field.id}
-              type="number"
+              type='number'
               value={value}
-              onChange={(e) => handleInputChange(field.id, parseFloat(e.target.value) || 0)}
+              onChange={e =>
+                handleInputChange(field.id, parseFloat(e.target.value) || 0)
+              }
               placeholder={field.placeholder}
               className={error ? 'border-red-500' : ''}
             />
             {field.helpText && (
-              <p className="text-xs text-gray-500">{field.helpText}</p>
+              <p className='text-xs text-gray-500'>{field.helpText}</p>
             )}
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className='text-xs text-red-500'>{error}</p>}
           </div>
         );
 
       case 'date':
         return (
-          <div className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm font-medium">
-              {field.label} {field.required && <span className="text-red-500">*</span>}
+          <div className='space-y-2'>
+            <Label htmlFor={field.id} className='text-sm font-medium'>
+              {field.label}{' '}
+              {field.required && <span className='text-red-500'>*</span>}
             </Label>
             <Input
               id={field.id}
-              type="date"
+              type='date'
               value={value}
-              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              onChange={e => handleInputChange(field.id, e.target.value)}
               className={error ? 'border-red-500' : ''}
             />
             {field.helpText && (
-              <p className="text-xs text-gray-500">{field.helpText}</p>
+              <p className='text-xs text-gray-500'>{field.helpText}</p>
             )}
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
+            {error && <p className='text-xs text-red-500'>{error}</p>}
           </div>
         );
 
@@ -427,8 +463,8 @@ export function EnhancedRegistrationForm({
 
   if (!form) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className='flex items-center justify-center h-64'>
+        <Loader2 className='h-8 w-8 animate-spin' />
       </div>
     );
   }
@@ -438,30 +474,30 @@ export function EnhancedRegistrationForm({
   const isLastSection = currentSectionIndex === form.sections.length - 1;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className='max-w-4xl mx-auto space-y-6'>
       {/* Progress Bar */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
+      <div className='space-y-2'>
+        <div className='flex items-center justify-between text-sm'>
           <span>Registration Progress</span>
           <span>{Math.round(progress)}% Complete</span>
         </div>
-        <Progress value={progress} className="h-2" />
+        <Progress value={progress} className='h-2' />
       </div>
 
       {/* Section Navigation */}
-      <div className="flex items-center justify-center space-x-2">
+      <div className='flex items-center justify-center space-x-2'>
         {form.sections.map((section, index) => (
           <Button
             key={section.id}
-            variant={index === currentSectionIndex ? "default" : "outline"}
-            size="sm"
+            variant={index === currentSectionIndex ? 'default' : 'outline'}
+            size='sm'
             onClick={() => goToSection(index)}
-            className="flex items-center gap-2"
+            className='flex items-center gap-2'
           >
             {index < currentSectionIndex ? (
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className='h-4 w-4 text-green-500' />
             ) : (
-              <span className="w-4 h-4 rounded-full border-2 border-current flex items-center justify-center text-xs">
+              <span className='w-4 h-4 rounded-full border-2 border-current flex items-center justify-center text-xs'>
                 {index + 1}
               </span>
             )}
@@ -473,10 +509,10 @@ export function EnhancedRegistrationForm({
       {/* Current Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className='flex items-center gap-2'>
             {currentSection.title}
             {currentSection.description && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant='secondary' className='text-xs'>
                 {currentSectionIndex + 1} of {form.sections.length}
               </Badge>
             )}
@@ -485,41 +521,47 @@ export function EnhancedRegistrationForm({
             <CardDescription>{currentSection.description}</CardDescription>
           )}
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {currentSection.fields.map((field) => (
-              <div key={field.id} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
+        <CardContent className='space-y-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            {currentSection.fields.map(field => (
+              <div
+                key={field.id}
+                className={field.type === 'textarea' ? 'md:col-span-2' : ''}
+              >
                 {renderField(field)}
               </div>
             ))}
           </div>
 
           {/* Section Actions */}
-          <div className="flex items-center justify-between pt-6 border-t">
+          <div className='flex items-center justify-between pt-6 border-t'>
             <Button
-              variant="outline"
+              variant='outline'
               onClick={goToPreviousSection}
               disabled={isFirstSection}
-              className="flex items-center gap-2"
+              className='flex items-center gap-2'
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className='h-4 w-4' />
               Previous
             </Button>
 
-            <div className="flex items-center gap-2">
+            <div className='flex items-center gap-2'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => {
                   // Save progress
-                  localStorage.setItem(`registration_progress_${role}`, JSON.stringify({
-                    formData,
-                    currentSection: currentSectionIndex,
-                    timestamp: Date.now()
-                  }));
+                  localStorage.setItem(
+                    `registration_progress_${role}`,
+                    JSON.stringify({
+                      formData,
+                      currentSection: currentSectionIndex,
+                      timestamp: Date.now(),
+                    })
+                  );
                 }}
-                className="flex items-center gap-2"
+                className='flex items-center gap-2'
               >
-                <Save className="h-4 w-4" />
+                <Save className='h-4 w-4' />
                 Save Progress
               </Button>
 
@@ -527,22 +569,22 @@ export function EnhancedRegistrationForm({
                 <Button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="flex items-center gap-2"
+                  className='flex items-center gap-2'
                 >
                   {submitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className='h-4 w-4 animate-spin' />
                   ) : (
-                    <CheckCircle className="h-4 w-4" />
+                    <CheckCircle className='h-4 w-4' />
                   )}
                   Complete Registration
                 </Button>
               ) : (
                 <Button
                   onClick={goToNextSection}
-                  className="flex items-center gap-2"
+                  className='flex items-center gap-2'
                 >
                   Next
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className='h-4 w-4' />
                 </Button>
               )}
             </div>
@@ -552,21 +594,25 @@ export function EnhancedRegistrationForm({
 
       {/* Form Summary */}
       {isLastSection && (
-        <Card className="bg-gray-50">
+        <Card className='bg-gray-50'>
           <CardHeader>
-            <CardTitle className="text-lg">Registration Summary</CardTitle>
-            <CardDescription>Review your information before submitting</CardDescription>
+            <CardTitle className='text-lg'>Registration Summary</CardTitle>
+            <CardDescription>
+              Review your information before submitting
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
               {Object.entries(formData).map(([key, value]) => {
                 if (typeof value === 'object' && value !== null) return null;
                 if (value === undefined || value === '') return null;
-                
+
                 return (
-                  <div key={key} className="flex justify-between">
-                    <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span>
-                    <span className="text-gray-600">{String(value)}</span>
+                  <div key={key} className='flex justify-between'>
+                    <span className='font-medium capitalize'>
+                      {key.replace(/([A-Z])/g, ' $1')}:
+                    </span>
+                    <span className='text-gray-600'>{String(value)}</span>
                   </div>
                 );
               })}
@@ -576,4 +622,4 @@ export function EnhancedRegistrationForm({
       )}
     </div>
   );
-} 
+}

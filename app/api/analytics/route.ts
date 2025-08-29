@@ -19,66 +19,72 @@ export async function GET(request: NextRequest) {
   return PerformanceMonitor.trackAPIPerformance('analytics-fetch', async () => {
     try {
       // Security validation
-      const securityCheck = SecurityService.validateRequest(request)
+      const securityCheck = SecurityService.validateRequest(request);
       if (!securityCheck.isValid) {
-        return NextResponse.json({ 
-          error: 'Security validation failed', 
-          details: securityCheck.errors 
-        }, { status: 403 })
+        return NextResponse.json(
+          {
+            error: 'Security validation failed',
+            details: securityCheck.errors,
+          },
+          { status: 403 }
+        );
       }
 
-      await connectDB()
-      
-      const { searchParams } = new URL(request.url)
-      const type = searchParams.get('type') || 'overview'
-      const timeRange = searchParams.get('timeRange') || '7d'
-      const venueId = searchParams.get('venueId') || undefined
-      const vendorId = searchParams.get('vendorId') || undefined
+      await connectDB();
+
+      const { searchParams } = new URL(request.url);
+      const type = searchParams.get('type') || 'overview';
+      const timeRange = searchParams.get('timeRange') || '7d';
+      const venueId = searchParams.get('venueId') || undefined;
+      const vendorId = searchParams.get('vendorId') || undefined;
 
       // Build query object
-      const query: Record<string, unknown> = {}
+      const query: Record<string, unknown> = {};
       if (venueId) {
-        query.venue = venueId
+        query.venue = venueId;
       }
       if (vendorId) {
-        query.vendor = vendorId
+        query.vendor = vendorId;
       }
 
       // Get analytics based on type
-      let analyticsData: AnalyticsData = {}
+      let analyticsData: AnalyticsData = {};
 
       switch (type) {
         case 'overview': {
-          const overviewMetrics = await AnalyticsDashboard.getAnalyticsMetrics()
-          analyticsData = { ...overviewMetrics }
-          break
+          const overviewMetrics =
+            await AnalyticsDashboard.getAnalyticsMetrics();
+          analyticsData = { ...overviewMetrics };
+          break;
         }
         case 'charts': {
           const chartData = await AnalyticsDashboard.getChartData(
             timeRange === '7d' ? 7 : timeRange === '1h' ? 1 : 30
-          )
-          analyticsData = { ...chartData }
-          break
+          );
+          analyticsData = { ...chartData };
+          break;
         }
         case 'realtime': {
-          analyticsData = await AnalyticsDashboard.getRealTimeData()
-          break
+          analyticsData = await AnalyticsDashboard.getRealTimeData();
+          break;
         }
         case 'performance': {
           // Ensure timeRange is one of the allowed values
-          const validTimeRange = (timeRange === '1h' || timeRange === '24h' || timeRange === '7d') 
-            ? timeRange as '1h' | '24h' | '7d' 
-            : '24h'
-          analyticsData = await PerformanceMonitor.getPerformanceAnalytics(validTimeRange)
-          break
+          const validTimeRange =
+            timeRange === '1h' || timeRange === '24h' || timeRange === '7d'
+              ? (timeRange as '1h' | '24h' | '7d')
+              : '24h';
+          analyticsData =
+            await PerformanceMonitor.getPerformanceAnalytics(validTimeRange);
+          break;
         }
         case 'security': {
-          analyticsData = SecurityService.getSecurityStats()
-          break
+          analyticsData = SecurityService.getSecurityStats();
+          break;
         }
         default: {
-          const defaultMetrics = await AnalyticsDashboard.getAnalyticsMetrics()
-          analyticsData = { ...defaultMetrics }
+          const defaultMetrics = await AnalyticsDashboard.getAnalyticsMetrics();
+          analyticsData = { ...defaultMetrics };
         }
       }
 
@@ -87,21 +93,20 @@ export async function GET(request: NextRequest) {
         data: analyticsData,
         type,
         timeRange,
-        timestamp: new Date()
-      })
-
+        timestamp: new Date(),
+      });
     } catch (error) {
-      console.error('Analytics error:', error)
+      console.error('Analytics error:', error);
       return NextResponse.json(
         {
           success: false,
           error: 'Analytics failed',
-          message: 'Internal server error'
+          message: 'Internal server error',
         },
         { status: 500 }
-      )
+      );
     }
-  })
+  });
 }
 
 // POST /api/analytics - Track custom events
@@ -109,35 +114,44 @@ export async function POST(request: NextRequest) {
   return PerformanceMonitor.trackAPIPerformance('analytics-track', async () => {
     try {
       // Security validation
-      const securityCheck = SecurityService.validateRequest(request)
+      const securityCheck = SecurityService.validateRequest(request);
       if (!securityCheck.isValid) {
-        return NextResponse.json({ 
-          error: 'Security validation failed', 
-          details: securityCheck.errors 
-        }, { status: 403 })
+        return NextResponse.json(
+          {
+            error: 'Security validation failed',
+            details: securityCheck.errors,
+          },
+          { status: 403 }
+        );
       }
 
-      await connectDB()
-      
-      const body = await request.json()
-      const { event, userId, properties } = body
+      await connectDB();
+
+      const body = await request.json();
+      const { event, userId, properties } = body;
 
       if (!event) {
-        return NextResponse.json({ 
-          error: 'Event name is required' 
-        }, { status: 400 })
+        return NextResponse.json(
+          {
+            error: 'Event name is required',
+          },
+          { status: 400 }
+        );
       }
 
       // Input validation
       const validation = SecurityService.validateInput(body, {
-        preventXSS: true
-      })
+        preventXSS: true,
+      });
 
       if (!validation.isValid) {
-        return NextResponse.json({ 
-          error: 'Invalid input', 
-          details: validation.errors 
-        }, { status: 400 })
+        return NextResponse.json(
+          {
+            error: 'Invalid input',
+            details: validation.errors,
+          },
+          { status: 400 }
+        );
       }
 
       // Track the event (in a real implementation, this would save to database)
@@ -148,25 +162,24 @@ export async function POST(request: NextRequest) {
           userId,
           properties,
           timestamp: new Date(),
-          ip: SecurityService.getClientIP(request)
-        })
+          ip: SecurityService.getClientIP(request),
+        });
       }
 
       return NextResponse.json({
         success: true,
-        message: 'Event tracked successfully'
-      })
-
+        message: 'Event tracked successfully',
+      });
     } catch (error) {
-      console.error('Analytics tracking error:', error)
+      console.error('Analytics tracking error:', error);
       return NextResponse.json(
         {
           success: false,
           error: 'Event tracking failed',
-          message: 'Internal server error'
+          message: 'Internal server error',
         },
         { status: 500 }
-      )
+      );
     }
-  })
-} 
+  });
+}

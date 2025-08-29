@@ -30,16 +30,18 @@ export class AdvancedCacheService {
   constructor() {
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
-      throw new Error('REDIS_URL environment variable is required for Redis connection');
+      throw new Error(
+        'REDIS_URL environment variable is required for Redis connection'
+      );
     }
-    
+
     this.redis = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
       lazyConnect: true,
       keepAlive: 30000,
     });
 
-    this.redis.on('error', (err) => {
+    this.redis.on('error', err => {
       console.error('Redis connection error:', err);
     });
 
@@ -62,7 +64,7 @@ export class AdvancedCacheService {
   ): Promise<void> {
     const finalConfig = { ...this.defaultConfig, ...config };
     const cacheKey = this.generateKey(namespace, key);
-    
+
     const cacheData = {
       data,
       timestamp: Date.now(),
@@ -71,7 +73,11 @@ export class AdvancedCacheService {
     };
 
     try {
-      await this.redis.setex(cacheKey, finalConfig.ttl, JSON.stringify(cacheData));
+      await this.redis.setex(
+        cacheKey,
+        finalConfig.ttl,
+        JSON.stringify(cacheData)
+      );
       console.log(`💾 Cached: ${namespace}:${key} (TTL: ${finalConfig.ttl}s)`);
     } catch (error) {
       console.warn(`Failed to cache ${namespace}:${key}:`, error);
@@ -79,12 +85,9 @@ export class AdvancedCacheService {
   }
 
   // Get cache with stale-while-revalidate logic
-  async get<T>(
-    namespace: string,
-    key: string
-  ): Promise<CacheResult<T> | null> {
+  async get<T>(namespace: string, key: string): Promise<CacheResult<T> | null> {
     const cacheKey = this.generateKey(namespace, key);
-    
+
     try {
       const cached = await this.redis.get(cacheKey);
       if (!cached) return null;
@@ -92,11 +95,12 @@ export class AdvancedCacheService {
       const cacheData = JSON.parse(cached);
       const now = Date.now();
       const age = now - cacheData.timestamp;
-      
+
       // Check if data is fresh
-      const isFresh = age < (cacheData.ttl * 1000);
+      const isFresh = age < cacheData.ttl * 1000;
       // Check if data is stale but still usable
-      const isStale = age < ((cacheData.ttl + cacheData.staleWhileRevalidate) * 1000);
+      const isStale =
+        age < (cacheData.ttl + cacheData.staleWhileRevalidate) * 1000;
 
       if (!isStale) {
         // Data is too old, remove it
@@ -149,10 +153,10 @@ export class AdvancedCacheService {
     config: Partial<CacheConfig> = {}
   ): Promise<T> {
     const finalConfig = { ...this.defaultConfig, ...config };
-    
+
     // Try to get from cache first
     const cached = await this.get<T>(namespace, key);
-    
+
     if (cached && !cached.isStale) {
       // Return fresh data immediately
       return cached.data;
@@ -188,7 +192,10 @@ export class AdvancedCacheService {
         await this.set(namespace, key, data, config);
         console.log(`🔄 Background refresh completed: ${namespace}:${key}`);
       } catch (error) {
-        console.warn(`Background refresh failed for ${namespace}:${key}:`, error);
+        console.warn(
+          `Background refresh failed for ${namespace}:${key}:`,
+          error
+        );
       }
     }, 100); // Small delay to avoid blocking
   }
@@ -196,7 +203,7 @@ export class AdvancedCacheService {
   // Batch operations
   async mget<T>(namespace: string, keys: string[]): Promise<(T | null)[]> {
     const cacheKeys = keys.map(key => this.generateKey(namespace, key));
-    
+
     try {
       const results = await this.redis.mget(...cacheKeys);
       return results.map(result => {
@@ -249,11 +256,11 @@ export class AdvancedCacheService {
     try {
       const info = await this.redis.info('memory');
       const keys = await this.redis.dbsize();
-      
+
       // Parse memory info
       const memoryMatch = info.match(/used_memory_human:(\S+)/);
       const memoryUsage = memoryMatch ? memoryMatch[1] : 'Unknown';
-      
+
       return {
         totalKeys: keys,
         memoryUsage,
@@ -276,4 +283,4 @@ export class AdvancedCacheService {
 }
 
 // Export singleton instance
-export const advancedCache = new AdvancedCacheService(); 
+export const advancedCache = new AdvancedCacheService();

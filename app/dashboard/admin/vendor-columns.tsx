@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, CheckCircle, XCircle, Eye, Store } from "lucide-react"
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal, CheckCircle, XCircle, Eye, Store } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,193 +9,215 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 
 export type Vendor = {
-  _id: string
-  businessName: string
-  name: string
-  email: string
-  category: string
+  _id: string;
+  businessName: string;
+  name: string;
+  email: string;
+  category: string;
   location: {
-    city: string
-    province: string
-  }
-  isVerified: boolean
-  isActive: boolean
+    city: string;
+    province: string;
+  };
+  isVerified: boolean;
+  isActive: boolean;
   rating: {
-    average: number
-    count: number
-  }
-  createdAt: string
+    average: number;
+    count: number;
+  };
+  createdAt: string;
   owner: {
-    name: string
-    email: string
-  }
-}
+    name: string;
+    email: string;
+  };
+};
 
 export const columns: ColumnDef<Vendor>[] = [
   {
-    accessorKey: "businessName",
-    header: "Business",
+    accessorKey: 'businessName',
+    header: 'Business',
     cell: ({ row }) => {
-      const vendor = row.original
+      const vendor = row.original;
       return (
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-            <Store className="h-4 w-4 text-blue-600" />
+        <div className='flex items-center space-x-3'>
+          <div className='w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center'>
+            <Store className='h-4 w-4 text-blue-600' />
           </div>
           <div>
-            <div className="font-medium">{vendor.businessName}</div>
-            <div className="text-sm text-gray-500">{vendor.owner.name}</div>
+            <div className='font-medium'>{vendor.businessName}</div>
+            <div className='text-sm text-gray-500'>{vendor.owner.name}</div>
           </div>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "category",
-    header: "Category",
+    accessorKey: 'category',
+    header: 'Category',
     cell: ({ row }) => {
-      const category = row.getValue("category") as string
+      const category = row.getValue('category') as string;
       return (
-        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
+        <span className='px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs'>
           {category.charAt(0).toUpperCase() + category.slice(1)}
         </span>
-      )
+      );
     },
   },
   {
-    accessorKey: "location",
-    header: "Location",
+    accessorKey: 'location',
+    header: 'Location',
     cell: ({ row }) => {
-      const vendor = row.original
+      const vendor = row.original;
       return (
-        <div className="text-sm text-gray-600">
+        <div className='text-sm text-gray-600'>
           {vendor.location.city}, {vendor.location.province}
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "rating",
-    header: "Rating",
+    accessorKey: 'rating',
+    header: 'Rating',
     cell: ({ row }) => {
-      const vendor = row.original
+      const vendor = row.original;
       return (
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center">
-            <span className="font-medium">{vendor.rating.average}</span>
-            <span className="text-sm text-gray-500 ml-1">/5</span>
+        <div className='flex items-center space-x-2'>
+          <div className='flex items-center'>
+            <span className='font-medium'>{vendor.rating.average}</span>
+            <span className='text-sm text-gray-500 ml-1'>/5</span>
           </div>
-          <span className="text-sm text-gray-500">
+          <span className='text-sm text-gray-500'>
             ({vendor.rating.count} reviews)
           </span>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: 'status',
+    header: 'Status',
     cell: ({ row }) => {
-      const vendor = row.original
+      const vendor = row.original;
       return (
-        <div className="flex items-center space-x-2">
+        <div className='flex items-center space-x-2'>
           {vendor.isVerified ? (
-            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs flex items-center">
-              <CheckCircle className="h-3 w-3 mr-1" />
+            <span className='bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs flex items-center'>
+              <CheckCircle className='h-3 w-3 mr-1' />
               Verified
             </span>
           ) : (
-            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">
+            <span className='bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs'>
               Pending
             </span>
           )}
           {vendor.isActive ? (
-            <span className="text-green-600 px-2 py-1 rounded-full text-xs bg-green-50">
+            <span className='text-green-600 px-2 py-1 rounded-full text-xs bg-green-50'>
               Active
             </span>
           ) : (
-            <span className="text-red-600 px-2 py-1 rounded-full text-xs bg-red-50">
+            <span className='text-red-600 px-2 py-1 rounded-full text-xs bg-red-50'>
               Inactive
             </span>
           )}
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "createdAt",
-    header: "Applied",
+    accessorKey: 'createdAt',
+    header: 'Applied',
     cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"))
+      const date = new Date(row.getValue('createdAt'));
       return (
-        <div className="text-sm text-gray-500">
-          {date.toLocaleDateString()}
-        </div>
-      )
+        <div className='text-sm text-gray-500'>{date.toLocaleDateString()}</div>
+      );
     },
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: ({ row }) => {
-      const vendor = row.original
+      const vendor = row.original;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="h-8 w-8 p-0 hover:bg-gray-100 rounded">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <button className='h-8 w-8 p-0 hover:bg-gray-100 rounded'>
+              <span className='sr-only'>Open menu</span>
+              <MoreHorizontal className='h-4 w-4' />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem>
-              <Eye className="mr-2 h-4 w-4" />
+              <Eye className='mr-2 h-4 w-4' />
               View Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {!vendor.isVerified && (
-              <DropdownMenuItem 
-                onClick={() => window.dispatchEvent(new CustomEvent('vendorAction', { detail: { vendorId: vendor._id, action: 'approve' } }))}
-                className="text-green-600"
+              <DropdownMenuItem
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent('vendorAction', {
+                      detail: { vendorId: vendor._id, action: 'approve' },
+                    })
+                  )
+                }
+                className='text-green-600'
               >
-                <CheckCircle className="mr-2 h-4 w-4" />
+                <CheckCircle className='mr-2 h-4 w-4' />
                 Approve
               </DropdownMenuItem>
             )}
             {!vendor.isVerified && (
-              <DropdownMenuItem 
-                onClick={() => window.dispatchEvent(new CustomEvent('vendorAction', { detail: { vendorId: vendor._id, action: 'reject' } }))}
-                className="text-red-600"
+              <DropdownMenuItem
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent('vendorAction', {
+                      detail: { vendorId: vendor._id, action: 'reject' },
+                    })
+                  )
+                }
+                className='text-red-600'
               >
-                <XCircle className="mr-2 h-4 w-4" />
+                <XCircle className='mr-2 h-4 w-4' />
                 Reject
               </DropdownMenuItem>
             )}
             {vendor.isActive && vendor.isVerified && (
-              <DropdownMenuItem 
-                onClick={() => window.dispatchEvent(new CustomEvent('vendorAction', { detail: { vendorId: vendor._id, action: 'suspend' } }))}
-                className="text-orange-600"
+              <DropdownMenuItem
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent('vendorAction', {
+                      detail: { vendorId: vendor._id, action: 'suspend' },
+                    })
+                  )
+                }
+                className='text-orange-600'
               >
-                <XCircle className="mr-2 h-4 w-4" />
+                <XCircle className='mr-2 h-4 w-4' />
                 Suspend
               </DropdownMenuItem>
             )}
             {!vendor.isActive && vendor.isVerified && (
-              <DropdownMenuItem 
-                onClick={() => window.dispatchEvent(new CustomEvent('vendorAction', { detail: { vendorId: vendor._id, action: 'activate' } }))}
-                className="text-green-600"
+              <DropdownMenuItem
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent('vendorAction', {
+                      detail: { vendorId: vendor._id, action: 'activate' },
+                    })
+                  )
+                }
+                className='text-green-600'
               >
-                <CheckCircle className="mr-2 h-4 w-4" />
+                <CheckCircle className='mr-2 h-4 w-4' />
                 Activate
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-] 
+];

@@ -3,7 +3,16 @@
 
 import fs from 'fs';
 import path from 'path';
-import { User, Venue, Vendor, Booking, Payment, Review, Message, Task } from './types';
+import {
+  User,
+  Venue,
+  Vendor,
+  Booking,
+  Payment,
+  Review,
+  Message,
+  Task,
+} from './types';
 
 export interface DatabaseConfig {
   users: User[];
@@ -43,13 +52,13 @@ const initializeDatabase = (): DatabaseConfig => ({
 export const loadDatabase = (): DatabaseConfig => {
   try {
     ensureDataDirectory();
-    
+
     if (!fs.existsSync(DB_FILE_PATH)) {
       const initialDb = initializeDatabase();
       saveDatabase(initialDb);
       return initialDb;
     }
-    
+
     const data = fs.readFileSync(DB_FILE_PATH, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
@@ -91,9 +100,9 @@ export class LocalDatabase {
     collection: T,
     query: Partial<DatabaseConfig[T][0]> = {}
   ): Promise<DatabaseConfig[T][0][]> {
-    return this.data[collection].filter(item => 
-      Object.keys(query).every(key => 
-        (item as any)[key] === (query as any)[key]
+    return this.data[collection].filter(item =>
+      Object.keys(query).every(
+        key => (item as any)[key] === (query as any)[key]
       )
     ) as DatabaseConfig[T][0][];
   }
@@ -103,7 +112,7 @@ export class LocalDatabase {
     id: string
   ): Promise<DatabaseConfig[T][0] | null> {
     const item = this.data[collection].find((item: any) => item._id === id);
-    return item as DatabaseConfig[T][0] || null;
+    return (item as DatabaseConfig[T][0]) || null;
   }
 
   async update<T extends keyof DatabaseConfig>(
@@ -111,10 +120,15 @@ export class LocalDatabase {
     id: string,
     updates: Partial<DatabaseConfig[T][0]>
   ): Promise<DatabaseConfig[T][0] | null> {
-    const index = this.data[collection].findIndex((item: any) => item._id === id);
+    const index = this.data[collection].findIndex(
+      (item: any) => item._id === id
+    );
     if (index === -1) return null;
-    
-    this.data[collection][index] = { ...this.data[collection][index], ...updates } as any;
+
+    this.data[collection][index] = {
+      ...this.data[collection][index],
+      ...updates,
+    } as any;
     saveDatabase(this.data);
     return this.data[collection][index] as DatabaseConfig[T][0];
   }
@@ -123,9 +137,11 @@ export class LocalDatabase {
     collection: T,
     id: string
   ): Promise<boolean> {
-    const index = this.data[collection].findIndex((item: any) => item._id === id);
+    const index = this.data[collection].findIndex(
+      (item: any) => item._id === id
+    );
     if (index === -1) return false;
-    
+
     this.data[collection].splice(index, 1);
     saveDatabase(this.data);
     return true;
@@ -154,4 +170,3 @@ export class LocalDatabase {
 
 // Export singleton instance
 export const localDb = new LocalDatabase();
-

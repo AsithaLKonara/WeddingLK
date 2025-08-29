@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from 'mongoose';
 
 const VenueSchema = new mongoose.Schema(
   {
@@ -19,7 +19,7 @@ const VenueSchema = new mongoose.Schema(
     },
     pricing: {
       basePrice: { type: Number, required: true },
-      currency: { type: String, default: "LKR" },
+      currency: { type: String, default: 'LKR' },
       pricePerGuest: { type: Number },
     },
     amenities: [{ type: String }],
@@ -36,20 +36,25 @@ const VenueSchema = new mongoose.Schema(
     },
     reviews: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         rating: { type: Number, required: true },
         comment: { type: String },
         images: [{ type: String }],
         createdAt: { type: Date, default: Date.now },
       },
     ],
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     isActive: { type: Boolean, default: true },
     featured: { type: Boolean, default: false },
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
-export const Venue = mongoose.models.Venue || mongoose.model("Venue", VenueSchema)
+export const Venue =
+  mongoose.models.Venue || mongoose.model('Venue', VenueSchema);

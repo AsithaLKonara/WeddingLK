@@ -1,17 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
+import {
+  CheckCircle,
+  Clock,
+  AlertCircle,
   ChevronRight,
   Save,
-  Eye
+  Eye,
 } from 'lucide-react';
 
 interface RegistrationStep {
@@ -38,7 +44,7 @@ export function RegistrationProgress({
   onStepClick,
   onSaveProgress,
   totalProgress,
-  className = ''
+  className = '',
 }: RegistrationProgressProps) {
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -58,13 +64,13 @@ export function RegistrationProgress({
   const getStepIcon = (step: RegistrationStep) => {
     switch (step.status) {
       case 'completed':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className='w-5 h-5 text-green-600' />;
       case 'in_progress':
-        return <Clock className="w-5 h-5 text-blue-600" />;
+        return <Clock className='w-5 h-5 text-blue-600' />;
       case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-600" />;
+        return <AlertCircle className='w-5 h-5 text-red-600' />;
       default:
-        return <Clock className="w-5 h-5 text-gray-400" />;
+        return <Clock className='w-5 h-5 text-gray-400' />;
     }
   };
 
@@ -96,8 +102,11 @@ export function RegistrationProgress({
 
   const getEstimatedTime = (steps: RegistrationStep[]) => {
     const remainingSteps = steps.slice(currentStep);
-    const totalMinutes = remainingSteps.reduce((acc, step) => acc + step.estimatedTime, 0);
-    
+    const totalMinutes = remainingSteps.reduce(
+      (acc, step) => acc + step.estimatedTime,
+      0
+    );
+
     if (totalMinutes < 60) {
       return `${totalMinutes} minutes`;
     } else {
@@ -107,7 +116,9 @@ export function RegistrationProgress({
     }
   };
 
-  const completedSteps = steps.filter(step => step.status === 'completed').length;
+  const completedSteps = steps.filter(
+    step => step.status === 'completed'
+  ).length;
   const totalSteps = steps.length;
 
   return (
@@ -115,9 +126,9 @@ export function RegistrationProgress({
       {/* Progress Overview */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className='flex items-center justify-between'>
             <span>Registration Progress</span>
-            <Badge variant="outline" className="text-sm">
+            <Badge variant='outline' className='text-sm'>
               {completedSteps} of {totalSteps} completed
             </Badge>
           </CardTitle>
@@ -126,40 +137,40 @@ export function RegistrationProgress({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className='space-y-4'>
             {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
+            <div className='space-y-2'>
+              <div className='flex items-center justify-between text-sm'>
                 <span>Overall Progress</span>
                 <span>{Math.round(totalProgress)}%</span>
               </div>
-              <Progress value={totalProgress} className="h-3" />
+              <Progress value={totalProgress} className='h-3' />
             </div>
 
             {/* Time Estimate */}
-            <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className='flex items-center justify-between text-sm text-gray-600'>
               <span>Estimated time remaining:</span>
-              <span className="font-medium">{getEstimatedTime(steps)}</span>
+              <span className='font-medium'>{getEstimatedTime(steps)}</span>
             </div>
 
             {/* Save Progress Button */}
-            <div className="flex items-center justify-between">
+            <div className='flex items-center justify-between'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={handleSaveProgress}
                 disabled={saving}
-                className="flex items-center gap-2"
+                className='flex items-center gap-2'
               >
                 {saving ? (
-                  <Clock className="w-4 h-4 animate-spin" />
+                  <Clock className='w-4 h-4 animate-spin' />
                 ) : (
-                  <Save className="w-4 h-4" />
+                  <Save className='w-4 h-4' />
                 )}
                 {saving ? 'Saving...' : 'Save Progress'}
               </Button>
 
               {lastSaved && (
-                <span className="text-xs text-gray-500">
+                <span className='text-xs text-gray-500'>
                   Last saved: {lastSaved.toLocaleTimeString()}
                 </span>
               )}
@@ -172,35 +183,36 @@ export function RegistrationProgress({
       <Card>
         <CardHeader>
           <CardTitle>Registration Steps</CardTitle>
-          <CardDescription>
-            Click on any step to navigate to it
-          </CardDescription>
+          <CardDescription>Click on any step to navigate to it</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className='space-y-3'>
             {steps.map((step, index) => (
               <div
                 key={step.id}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
-                  getStepColor(step)
-                } ${index === currentStep ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${getStepColor(
+                  step
+                )} ${index === currentStep ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                 onClick={() => onStepClick(index)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
                     {getStepIcon(step)}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                    <div className='flex-1'>
+                      <div className='flex items-center gap-2'>
                         <h4 className={`font-medium ${getStepTextColor(step)}`}>
                           {step.title}
                         </h4>
                         {step.required && (
-                          <Badge variant="outline" className="text-xs text-red-600 border-red-300">
+                          <Badge
+                            variant='outline'
+                            className='text-xs text-red-600 border-red-300'
+                          >
                             Required
                           </Badge>
                         )}
                         {index === currentStep && (
-                          <Badge variant="default" className="text-xs">
+                          <Badge variant='default' className='text-xs'>
                             Current
                           </Badge>
                         )}
@@ -208,36 +220,36 @@ export function RegistrationProgress({
                       <p className={`text-sm mt-1 ${getStepTextColor(step)}`}>
                         {step.description}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className='text-xs text-gray-500 mt-1'>
                         Estimated time: {step.estimatedTime} minutes
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant="outline" 
+                  <div className='flex items-center gap-2'>
+                    <Badge
+                      variant='outline'
                       className={`text-xs ${getStepColor(step).replace('bg-', 'text-').replace('50', '700')}`}
                     >
                       {step.status.replace('_', ' ')}
                     </Badge>
-                    
+
                     {index === currentStep ? (
-                      <Eye className="w-4 h-4 text-primary" />
+                      <Eye className='w-4 h-4 text-primary' />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                      <ChevronRight className='w-4 h-4 text-gray-400' />
                     )}
                   </div>
                 </div>
 
                 {/* Step Progress */}
                 {step.status === 'in_progress' && (
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                  <div className='mt-3'>
+                    <div className='flex items-center justify-between text-xs text-gray-600 mb-1'>
                       <span>Step Progress</span>
                       <span>In Progress</span>
                     </div>
-                    <Progress value={75} className="h-2" />
+                    <Progress value={75} className='h-2' />
                   </div>
                 )}
               </div>
@@ -247,29 +259,33 @@ export function RegistrationProgress({
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-green-50 border-green-200">
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <Card className='bg-green-50 border-green-200'>
           <CardHeader>
-            <CardTitle className="text-sm text-green-800">What's Next?</CardTitle>
+            <CardTitle className='text-sm text-green-800'>
+              What's Next?
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-green-700">
-              Complete the current step to move forward. You can save your progress at any time and return later.
+            <p className='text-xs text-green-700'>
+              Complete the current step to move forward. You can save your
+              progress at any time and return later.
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className='bg-blue-50 border-blue-200'>
           <CardHeader>
-            <CardTitle className="text-sm text-blue-800">Need Help?</CardTitle>
+            <CardTitle className='text-sm text-blue-800'>Need Help?</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-blue-700">
-              If you encounter any issues, our support team is here to help. Contact us for assistance.
+            <p className='text-xs text-blue-700'>
+              If you encounter any issues, our support team is here to help.
+              Contact us for assistance.
             </p>
           </CardContent>
         </Card>
       </div>
     </div>
   );
-} 
+}

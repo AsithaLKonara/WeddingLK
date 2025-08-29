@@ -46,9 +46,10 @@ export const createPerformanceIndexes = async () => {
   try {
     // Performance indexes are defined in individual schema files
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     console.warn('⚠️ Index creation skipped:', errorMessage);
   }
 };
 
-  // All models registered successfully 
+// All models registered successfully

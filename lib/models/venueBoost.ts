@@ -56,178 +56,199 @@ export interface IVenueBoost extends Document {
   updatedAt: Date;
 }
 
-const VenueBoostSchema = new Schema<IVenueBoost>({
-  venue: {
-    type: Schema.Types.ObjectId,
-    ref: 'Venue',
-    required: true,
-  },
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  boostType: {
-    type: String,
-    enum: ['basic', 'premium', 'featured', 'trending'],
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'active', 'paused', 'completed', 'cancelled'],
-    default: 'pending',
-  },
-  budget: {
-    amount: {
-      type: Number,
-      required: true,
-      min: 1000,
-    },
-    spent: {
-      type: Number,
-      default: 0,
-    },
-    remaining: {
-      type: Number,
+const VenueBoostSchema = new Schema<IVenueBoost>(
+  {
+    venue: {
+      type: Schema.Types.ObjectId,
+      ref: 'Venue',
       required: true,
     },
-    currency: {
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    boostType: {
       type: String,
-      default: 'LKR',
-    },
-  },
-  duration: {
-    startDate: {
-      type: Date,
+      enum: ['basic', 'premium', 'featured', 'trending'],
       required: true,
     },
-    endDate: {
-      type: Date,
-      required: true,
-    },
-    days: {
-      type: Number,
-      required: true,
-    },
-  },
-  targeting: {
-    locations: [{
+    status: {
       type: String,
-      required: true,
-    }],
-    guestCount: {
-      min: {
+      enum: ['pending', 'active', 'paused', 'completed', 'cancelled'],
+      default: 'pending',
+    },
+    budget: {
+      amount: {
+        type: Number,
+        required: true,
+        min: 1000,
+      },
+      spent: {
         type: Number,
         default: 0,
       },
-      max: {
+      remaining: {
         type: Number,
-        default: 1000,
+        required: true,
+      },
+      currency: {
+        type: String,
+        default: 'LKR',
       },
     },
-    eventTypes: [{
-      type: String,
-      enum: ['wedding', 'reception', 'engagement', 'anniversary', 'other'],
-    }],
-    priceRange: {
-      min: {
+    duration: {
+      startDate: {
+        type: Date,
+        required: true,
+      },
+      endDate: {
+        type: Date,
+        required: true,
+      },
+      days: {
+        type: Number,
+        required: true,
+      },
+    },
+    targeting: {
+      locations: [
+        {
+          type: String,
+          required: true,
+        },
+      ],
+      guestCount: {
+        min: {
+          type: Number,
+          default: 0,
+        },
+        max: {
+          type: Number,
+          default: 1000,
+        },
+      },
+      eventTypes: [
+        {
+          type: String,
+          enum: ['wedding', 'reception', 'engagement', 'anniversary', 'other'],
+        },
+      ],
+      priceRange: {
+        min: {
+          type: Number,
+          default: 0,
+        },
+        max: {
+          type: Number,
+          default: 1000000,
+        },
+      },
+      seasons: [
+        {
+          type: String,
+          enum: ['spring', 'summer', 'autumn', 'winter', 'monsoon'],
+        },
+      ],
+      daysOfWeek: [
+        {
+          type: String,
+          enum: [
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+            'saturday',
+            'sunday',
+          ],
+        },
+      ],
+    },
+    performance: {
+      impressions: {
         type: Number,
         default: 0,
       },
-      max: {
+      clicks: {
         type: Number,
-        default: 1000000,
+        default: 0,
+      },
+      views: {
+        type: Number,
+        default: 0,
+      },
+      inquiries: {
+        type: Number,
+        default: 0,
+      },
+      bookings: {
+        type: Number,
+        default: 0,
+      },
+      ctr: {
+        type: Number,
+        default: 0,
+      },
+      cpc: {
+        type: Number,
+        default: 0,
+      },
+      cpm: {
+        type: Number,
+        default: 0,
+      },
+      roi: {
+        type: Number,
+        default: 0,
       },
     },
-    seasons: [{
-      type: String,
-      enum: ['spring', 'summer', 'autumn', 'winter', 'monsoon'],
-    }],
-    daysOfWeek: [{
-      type: String,
-      enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-    }],
-  },
-  performance: {
-    impressions: {
-      type: Number,
-      default: 0,
+    dailyStats: [
+      {
+        date: {
+          type: Date,
+          required: true,
+        },
+        impressions: {
+          type: Number,
+          default: 0,
+        },
+        clicks: {
+          type: Number,
+          default: 0,
+        },
+        views: {
+          type: Number,
+          default: 0,
+        },
+        inquiries: {
+          type: Number,
+          default: 0,
+        },
+        bookings: {
+          type: Number,
+          default: 0,
+        },
+        spend: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
+    autoRenew: {
+      type: Boolean,
+      default: false,
     },
-    clicks: {
+    bidAmount: {
       type: Number,
-      default: 0,
-    },
-    views: {
-      type: Number,
-      default: 0,
-    },
-    inquiries: {
-      type: Number,
-      default: 0,
-    },
-    bookings: {
-      type: Number,
-      default: 0,
-    },
-    ctr: {
-      type: Number,
-      default: 0,
-    },
-    cpc: {
-      type: Number,
-      default: 0,
-    },
-    cpm: {
-      type: Number,
-      default: 0,
-    },
-    roi: {
-      type: Number,
-      default: 0,
-    },
-  },
-  dailyStats: [{
-    date: {
-      type: Date,
       required: true,
+      min: 100,
     },
-    impressions: {
-      type: Number,
-      default: 0,
-    },
-    clicks: {
-      type: Number,
-      default: 0,
-    },
-    views: {
-      type: Number,
-      default: 0,
-    },
-    inquiries: {
-      type: Number,
-      default: 0,
-    },
-    bookings: {
-      type: Number,
-      default: 0,
-    },
-    spend: {
-      type: Number,
-      default: 0,
-    },
-  }],
-  autoRenew: {
-    type: Boolean,
-    default: false,
   },
-  bidAmount: {
-    type: Number,
-    required: true,
-    min: 100,
-  },
-}, {
-  timestamps: true,
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Indexes for performance
 VenueBoostSchema.index({ venue: 1, status: 1 });
@@ -237,7 +258,7 @@ VenueBoostSchema.index({ 'duration.startDate': 1, 'duration.endDate': 1 });
 VenueBoostSchema.index({ status: 1, createdAt: -1 });
 
 // Pre-save middleware to calculate remaining budget
-VenueBoostSchema.pre('save', function(next) {
+VenueBoostSchema.pre('save', function (next) {
   if (this.isModified('budget.spent')) {
     this.budget.remaining = this.budget.amount - this.budget.spent;
   }
@@ -245,28 +266,33 @@ VenueBoostSchema.pre('save', function(next) {
 });
 
 // Method to calculate performance metrics
-VenueBoostSchema.methods.calculateMetrics = function() {
+VenueBoostSchema.methods.calculateMetrics = function () {
   if (this.performance.impressions > 0) {
-    this.performance.ctr = (this.performance.clicks / this.performance.impressions) * 100;
+    this.performance.ctr =
+      (this.performance.clicks / this.performance.impressions) * 100;
     this.performance.cpc = this.budget.spent / this.performance.clicks;
-    this.performance.cpm = (this.budget.spent / this.performance.impressions) * 1000;
+    this.performance.cpm =
+      (this.budget.spent / this.performance.impressions) * 1000;
   }
-  
+
   if (this.budget.spent > 0 && this.performance.bookings > 0) {
     // Calculate ROI based on average booking value
     const avgBookingValue = 50000; // This should come from actual booking data
-    this.performance.roi = ((this.performance.bookings * avgBookingValue - this.budget.spent) / this.budget.spent) * 100;
+    this.performance.roi =
+      ((this.performance.bookings * avgBookingValue - this.budget.spent) /
+        this.budget.spent) *
+      100;
   }
-  
+
   return this;
 };
 
 // Method to add daily stats
-VenueBoostSchema.methods.addDailyStats = function(date: Date, stats: any) {
-  const existingStat = this.dailyStats.find((stat: any) => 
-    stat.date.toDateString() === date.toDateString()
+VenueBoostSchema.methods.addDailyStats = function (date: Date, stats: any) {
+  const existingStat = this.dailyStats.find(
+    (stat: any) => stat.date.toDateString() === date.toDateString()
   );
-  
+
   if (existingStat) {
     existingStat.impressions += stats.impressions || 0;
     existingStat.clicks += stats.clicks || 0;
@@ -285,25 +311,43 @@ VenueBoostSchema.methods.addDailyStats = function(date: Date, stats: any) {
       spend: stats.spend || 0,
     });
   }
-  
+
   return this;
 };
 
 // Method to update performance totals
-VenueBoostSchema.methods.updatePerformanceTotals = function() {
-  this.performance.impressions = this.dailyStats.reduce((sum: number, stat: any) => sum + stat.impressions, 0);
-  this.performance.clicks = this.dailyStats.reduce((sum: number, stat: any) => sum + stat.clicks, 0);
-  this.performance.views = this.dailyStats.reduce((sum: number, stat: any) => sum + stat.views, 0);
-  this.performance.inquiries = this.dailyStats.reduce((sum: number, stat: any) => sum + stat.inquiries, 0);
-  this.performance.bookings = this.dailyStats.reduce((sum: number, stat: any) => sum + stat.bookings, 0);
-  this.budget.spent = this.dailyStats.reduce((sum: number, stat: any) => sum + stat.spend, 0);
-  
+VenueBoostSchema.methods.updatePerformanceTotals = function () {
+  this.performance.impressions = this.dailyStats.reduce(
+    (sum: number, stat: any) => sum + stat.impressions,
+    0
+  );
+  this.performance.clicks = this.dailyStats.reduce(
+    (sum: number, stat: any) => sum + stat.clicks,
+    0
+  );
+  this.performance.views = this.dailyStats.reduce(
+    (sum: number, stat: any) => sum + stat.views,
+    0
+  );
+  this.performance.inquiries = this.dailyStats.reduce(
+    (sum: number, stat: any) => sum + stat.inquiries,
+    0
+  );
+  this.performance.bookings = this.dailyStats.reduce(
+    (sum: number, stat: any) => sum + stat.bookings,
+    0
+  );
+  this.budget.spent = this.dailyStats.reduce(
+    (sum: number, stat: any) => sum + stat.spend,
+    0
+  );
+
   this.calculateMetrics();
   return this;
 };
 
 // Static method to get active boosts
-VenueBoostSchema.statics.getActiveBoosts = function() {
+VenueBoostSchema.statics.getActiveBoosts = function () {
   return this.find({
     status: 'active',
     'duration.startDate': { $lte: new Date() },
@@ -313,13 +357,14 @@ VenueBoostSchema.statics.getActiveBoosts = function() {
 };
 
 // Static method to get boosts by venue
-VenueBoostSchema.statics.getBoostsByVenue = function(venueId: string) {
+VenueBoostSchema.statics.getBoostsByVenue = function (venueId: string) {
   return this.find({ venue: venueId }).sort({ createdAt: -1 });
 };
 
 // Static method to get boosts by owner
-VenueBoostSchema.statics.getBoostsByOwner = function(ownerId: string) {
+VenueBoostSchema.statics.getBoostsByOwner = function (ownerId: string) {
   return this.find({ owner: ownerId }).sort({ createdAt: -1 });
 };
 
-export default mongoose.models.VenueBoost || mongoose.model<IVenueBoost>('VenueBoost', VenueBoostSchema); 
+export default mongoose.models.VenueBoost ||
+  mongoose.model<IVenueBoost>('VenueBoost', VenueBoostSchema);

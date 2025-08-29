@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Simple in-memory cache for API responses
-const apiCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+const apiCache = new Map<
+  string,
+  { data: any; timestamp: number; ttl: number }
+>();
 
 export interface CacheOptions {
   ttl?: number; // Time to live in milliseconds
@@ -11,47 +14,47 @@ export interface CacheOptions {
 
 export function withCache(handler: Function, options: CacheOptions = {}) {
   const { ttl = 5 * 60 * 1000, tags = [] } = options; // Default 5 minutes
-  
+
   return async (request: NextRequest, ...args: any[]) => {
     // Generate cache key
     const url = request.url;
     const cacheKey = options.key || `${request.method}:${url}`;
-    
+
     // Check cache
     const cached = apiCache.get(cacheKey);
-    if (cached && (Date.now() - cached.timestamp) < cached.ttl) {
+    if (cached && Date.now() - cached.timestamp < cached.ttl) {
       console.log(`🚀 Cache hit for ${cacheKey}`);
       return NextResponse.json({
         ...cached.data,
         _cached: true,
-        _cacheTimestamp: cached.timestamp
+        _cacheTimestamp: cached.timestamp,
       });
     }
-    
+
     // Execute handler
     const startTime = Date.now();
     const result = await handler(request, ...args);
     const executionTime = Date.now() - startTime;
-    
+
     // Cache the result
     apiCache.set(cacheKey, {
       data: result,
       timestamp: Date.now(),
-      ttl
+      ttl,
     });
-    
+
     console.log(`💾 Cached result for ${cacheKey} (${executionTime}ms)`);
-    
+
     // Add cache metadata to response
     if (result && typeof result === 'object') {
       return {
         ...result,
         _cached: false,
         _executionTime: executionTime,
-        _cacheKey: cacheKey
+        _cacheKey: cacheKey,
       };
     }
-    
+
     return result;
   };
 }
@@ -81,22 +84,22 @@ export function getCacheStats() {
   let validEntries = 0;
   let expiredEntries = 0;
   let totalSize = 0;
-  
+
   Array.from(apiCache.entries()).forEach(([key, value]) => {
     totalSize += JSON.stringify(value.data).length;
-    if ((now - value.timestamp) < value.ttl) {
+    if (now - value.timestamp < value.ttl) {
       validEntries++;
     } else {
       expiredEntries++;
     }
   });
-  
+
   return {
     totalEntries: apiCache.size,
     validEntries,
     expiredEntries,
     totalSize: `${(totalSize / 1024).toFixed(2)} KB`,
-    cacheSize: apiCache.size
+    cacheSize: apiCache.size,
   };
 }
 
@@ -105,17 +108,19 @@ export function getCacheStats() {
  */
 export function invalidateCacheByPattern(pattern: string) {
   let clearedCount = 0;
-  
+
   Array.from(apiCache.keys()).forEach(key => {
     if (key.includes(pattern)) {
       apiCache.delete(key);
       clearedCount++;
     }
   });
-  
+
   if (clearedCount > 0) {
-    console.log(`🧹 Cleared ${clearedCount} cache entries matching pattern: ${pattern}`);
+    console.log(
+      `🧹 Cleared ${clearedCount} cache entries matching pattern: ${pattern}`
+    );
   }
-  
+
   return clearedCount;
-} 
+}

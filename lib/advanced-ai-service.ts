@@ -2,15 +2,15 @@
 // Provides intelligent AI-powered features for wedding planning
 
 import OpenAI from 'openai';
-import { 
-  AIRecommendation, 
-  ContentGenerationResult, 
+import {
+  AIRecommendation,
+  ContentGenerationResult,
   PredictiveInsights,
   User as UserType,
   Venue as VenueType,
   Vendor as VendorType,
   Booking as BookingType,
-  Payment as PaymentType
+  Payment as PaymentType,
 } from '@/lib/types';
 import { ReviewType } from '@/lib/types/review';
 import { connectDB } from './db';
@@ -18,11 +18,11 @@ import { User, Vendor, Venue, Booking, Review } from './models';
 import { advancedCache } from './advanced-cache-service';
 
 interface AIAnalysisResult {
-  sentiment: 'positive' | 'negative' | 'neutral'
-  confidence: number
-  keywords: string[]
-  summary: string
-  recommendations: string[]
+  sentiment: 'positive' | 'negative' | 'neutral';
+  confidence: number;
+  keywords: string[];
+  summary: string;
+  recommendations: string[];
 }
 
 export class AdvancedAIService {
@@ -41,38 +41,42 @@ export class AdvancedAIService {
   // Advanced Sentiment Analysis
   async analyzeSentiment(text: string): Promise<AIAnalysisResult> {
     if (!this.isConfigured || !this.openai) {
-      return this.fallbackSentimentAnalysis(text)
+      return this.fallbackSentimentAnalysis(text);
     }
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
+        model: 'gpt-4',
         messages: [
           {
-            role: "system",
-            content: "You are an expert sentiment analysis system. Analyze the given text and provide detailed insights."
+            role: 'system',
+            content:
+              'You are an expert sentiment analysis system. Analyze the given text and provide detailed insights.',
           },
           {
-            role: "user",
-            content: `Analyze the sentiment of this text: "${text}"`
-          }
+            role: 'user',
+            content: `Analyze the sentiment of this text: "${text}"`,
+          },
         ],
         temperature: 0.3,
-        max_tokens: 500
-      })
+        max_tokens: 500,
+      });
 
-      const analysis = response.choices[0]?.message?.content || ''
-      
+      const analysis = response.choices[0]?.message?.content || '';
+
       // Parse the AI response and extract structured data
-      return this.parseSentimentAnalysis(analysis)
+      return this.parseSentimentAnalysis(analysis);
     } catch (error) {
-      console.error('OpenAI sentiment analysis failed:', error)
-      return this.fallbackSentimentAnalysis(text)
+      console.error('OpenAI sentiment analysis failed:', error);
+      return this.fallbackSentimentAnalysis(text);
     }
   }
 
   // Advanced Content Generation
-  async generateContent(prompt: string, context: Record<string, unknown>): Promise<ContentGenerationResult> {
+  async generateContent(
+    prompt: string,
+    context: Record<string, unknown>
+  ): Promise<ContentGenerationResult> {
     if (!this.isConfigured || !this.openai) {
       return this.fallbackContentGeneration(prompt, context);
     }
@@ -83,7 +87,8 @@ export class AdvancedAIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a wedding planning AI assistant. Generate helpful, creative content based on the user\'s request.',
+            content:
+              "You are a wedding planning AI assistant. Generate helpful, creative content based on the user's request.",
           },
           {
             role: 'user',
@@ -95,7 +100,7 @@ export class AdvancedAIService {
       });
 
       const content = response.choices[0]?.message?.content || '';
-      
+
       return {
         content,
         type: this.detectContentType(prompt),
@@ -112,7 +117,10 @@ export class AdvancedAIService {
   }
 
   // Predictive Analytics
-  async generatePredictiveInsights(dataType: string, historicalData: Array<Record<string, unknown>>): Promise<PredictiveInsights> {
+  async generatePredictiveInsights(
+    dataType: string,
+    historicalData: Array<Record<string, unknown>>
+  ): Promise<PredictiveInsights> {
     if (!this.isConfigured || !this.openai) {
       return this.fallbackPredictiveInsights(dataType, historicalData);
     }
@@ -123,7 +131,8 @@ export class AdvancedAIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a data analyst specializing in wedding industry insights. Analyze the data and provide predictions.',
+            content:
+              'You are a data analyst specializing in wedding industry insights. Analyze the data and provide predictions.',
           },
           {
             role: 'user',
@@ -135,7 +144,7 @@ export class AdvancedAIService {
       });
 
       const analysis = response.choices[0]?.message?.content || '';
-      
+
       return {
         type: dataType,
         predictions: this.parsePredictions(analysis),
@@ -147,7 +156,10 @@ export class AdvancedAIService {
   }
 
   // Advanced Search with Semantic Understanding
-  async semanticSearch(query: string, context: string = ''): Promise<AIRecommendation[]> {
+  async semanticSearch(
+    query: string,
+    context: string = ''
+  ): Promise<AIRecommendation[]> {
     if (!this.isConfigured || !this.openai) {
       return this.fallbackSemanticSearch(query, context);
     }
@@ -158,7 +170,8 @@ export class AdvancedAIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a search assistant. Provide relevant search results based on the query.',
+            content:
+              'You are a search assistant. Provide relevant search results based on the query.',
           },
           {
             role: 'user',
@@ -178,7 +191,10 @@ export class AdvancedAIService {
   }
 
   // AI-Powered Recommendations
-  async generateRecommendations(userId: string, context: string): Promise<AIRecommendation[]> {
+  async generateRecommendations(
+    userId: string,
+    context: string
+  ): Promise<AIRecommendation[]> {
     if (!this.isConfigured || !this.openai) {
       return this.fallbackRecommendations({} as UserType, [], []);
     }
@@ -194,7 +210,8 @@ export class AdvancedAIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a wedding planning AI. Generate personalized recommendations based on user data.',
+            content:
+              'You are a wedding planning AI. Generate personalized recommendations based on user data.',
           },
           {
             role: 'user',
@@ -215,39 +232,56 @@ export class AdvancedAIService {
 
   // Fallback Methods
   private fallbackSentimentAnalysis(text: string): AIAnalysisResult {
-    const positiveWords = ['love', 'amazing', 'perfect', 'beautiful', 'wonderful', 'excellent']
-    const negativeWords = ['hate', 'terrible', 'awful', 'disappointing', 'bad', 'poor']
-    
-    const words = text.toLowerCase().split(' ')
-    let positiveCount = 0
-    let negativeCount = 0
-    
+    const positiveWords = [
+      'love',
+      'amazing',
+      'perfect',
+      'beautiful',
+      'wonderful',
+      'excellent',
+    ];
+    const negativeWords = [
+      'hate',
+      'terrible',
+      'awful',
+      'disappointing',
+      'bad',
+      'poor',
+    ];
+
+    const words = text.toLowerCase().split(' ');
+    let positiveCount = 0;
+    let negativeCount = 0;
+
     words.forEach(word => {
-      if (positiveWords.includes(word)) positiveCount++
-      if (negativeWords.includes(word)) negativeCount++
-    })
-    
-    let sentiment: 'positive' | 'negative' | 'neutral' = 'neutral'
-    let confidence = 0.5
-    
+      if (positiveWords.includes(word)) positiveCount++;
+      if (negativeWords.includes(word)) negativeCount++;
+    });
+
+    let sentiment: 'positive' | 'negative' | 'neutral' = 'neutral';
+    let confidence = 0.5;
+
     if (positiveCount > negativeCount) {
-      sentiment = 'positive'
-      confidence = Math.min(0.9, 0.5 + (positiveCount * 0.1))
+      sentiment = 'positive';
+      confidence = Math.min(0.9, 0.5 + positiveCount * 0.1);
     } else if (negativeCount > positiveCount) {
-      sentiment = 'negative'
-      confidence = Math.min(0.9, 0.5 + (negativeCount * 0.1))
+      sentiment = 'negative';
+      confidence = Math.min(0.9, 0.5 + negativeCount * 0.1);
     }
-    
+
     return {
       sentiment,
       confidence,
       keywords: this.extractKeywords(text),
       summary: this.generateSummary(text),
-      recommendations: this.generateRecommendationsFromSentiment(sentiment)
-    }
+      recommendations: this.generateRecommendationsFromSentiment(sentiment),
+    };
   }
 
-  private fallbackContentGeneration(prompt: string, context: Record<string, unknown>): ContentGenerationResult {
+  private fallbackContentGeneration(
+    prompt: string,
+    context: Record<string, unknown>
+  ): ContentGenerationResult {
     return {
       content: `Generated content for: ${prompt}`,
       type: this.detectContentType(prompt),
@@ -258,7 +292,10 @@ export class AdvancedAIService {
     };
   }
 
-  private fallbackPredictiveInsights(dataType: string, historicalData: Array<Record<string, unknown>>): PredictiveInsights {
+  private fallbackPredictiveInsights(
+    dataType: string,
+    historicalData: Array<Record<string, unknown>>
+  ): PredictiveInsights {
     return {
       type: dataType,
       predictions: [
@@ -272,7 +309,10 @@ export class AdvancedAIService {
     };
   }
 
-  private fallbackSemanticSearch(query: string, context: string): AIRecommendation[] {
+  private fallbackSemanticSearch(
+    query: string,
+    context: string
+  ): AIRecommendation[] {
     return [
       {
         id: 'fallback-1',
@@ -286,7 +326,11 @@ export class AdvancedAIService {
     ];
   }
 
-  private fallbackRecommendations(user: UserType, bookings: BookingType[], reviews: PaymentType[]): AIRecommendation[] {
+  private fallbackRecommendations(
+    user: UserType,
+    bookings: BookingType[],
+    reviews: PaymentType[]
+  ): AIRecommendation[] {
     return [
       {
         id: 'fallback-rec-1',
@@ -302,43 +346,78 @@ export class AdvancedAIService {
 
   // Helper Methods
   private extractKeywords(text: string): string[] {
-    const commonWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']
-    const words = text.toLowerCase().split(' ')
-    return words.filter(word => word.length > 3 && !commonWords.includes(word)).slice(0, 10)
+    const commonWords = [
+      'the',
+      'a',
+      'an',
+      'and',
+      'or',
+      'but',
+      'in',
+      'on',
+      'at',
+      'to',
+      'for',
+      'of',
+      'with',
+      'by',
+    ];
+    const words = text.toLowerCase().split(' ');
+    return words
+      .filter(word => word.length > 3 && !commonWords.includes(word))
+      .slice(0, 10);
   }
 
   private generateSummary(text: string): string {
-    return text.length > 100 ? text.substring(0, 100) + '...' : text
+    return text.length > 100 ? text.substring(0, 100) + '...' : text;
   }
 
   private generateRecommendationsFromSentiment(sentiment: string): string[] {
     const recommendations = {
-      positive: ['Maintain current approach', 'Share success stories', 'Encourage referrals'],
-      negative: ['Address concerns promptly', 'Improve service quality', 'Gather feedback'],
-      neutral: ['Enhance engagement', 'Provide more information', 'Follow up with users']
-    }
-    
-    return recommendations[sentiment as keyof typeof recommendations] || recommendations.neutral
+      positive: [
+        'Maintain current approach',
+        'Share success stories',
+        'Encourage referrals',
+      ],
+      negative: [
+        'Address concerns promptly',
+        'Improve service quality',
+        'Gather feedback',
+      ],
+      neutral: [
+        'Enhance engagement',
+        'Provide more information',
+        'Follow up with users',
+      ],
+    };
+
+    return (
+      recommendations[sentiment as keyof typeof recommendations] ||
+      recommendations.neutral
+    );
   }
 
   private analyzeTone(content: string): string {
-    if (content.includes('!')) return 'enthusiastic'
-    if (content.includes('?')) return 'inquisitive'
-    if (content.includes('professional') || content.includes('expert')) return 'professional'
-    return 'neutral'
+    if (content.includes('!')) return 'enthusiastic';
+    if (content.includes('?')) return 'inquisitive';
+    if (content.includes('professional') || content.includes('expert'))
+      return 'professional';
+    return 'neutral';
   }
 
   private checkSEOOptimization(content: string): boolean {
-    const seoFactors = ['keywords', 'meta', 'title', 'description']
-    return seoFactors.some(factor => content.toLowerCase().includes(factor))
+    const seoFactors = ['keywords', 'meta', 'title', 'description'];
+    return seoFactors.some(factor => content.toLowerCase().includes(factor));
   }
 
   private generateSuggestions(content: string): string[] {
-    const suggestions = []
-    if (content.length < 100) suggestions.push('Add more descriptive content')
-    if (!content.includes('wedding')) suggestions.push('Include wedding-related keywords')
-    if (!content.includes('service')) suggestions.push('Mention specific services offered')
-    return suggestions
+    const suggestions = [];
+    if (content.length < 100) suggestions.push('Add more descriptive content');
+    if (!content.includes('wedding'))
+      suggestions.push('Include wedding-related keywords');
+    if (!content.includes('service'))
+      suggestions.push('Mention specific services offered');
+    return suggestions;
   }
 
   private parseSentimentAnalysis(analysis: string): AIAnalysisResult {
@@ -348,8 +427,8 @@ export class AdvancedAIService {
       confidence: 0.8,
       keywords: ['wedding', 'beautiful', 'perfect'],
       summary: analysis.substring(0, 100),
-      recommendations: ['Continue current approach', 'Share positive feedback']
-    }
+      recommendations: ['Continue current approach', 'Share positive feedback'],
+    };
   }
 
   private parsePredictions(analysis: string): Array<{
@@ -384,7 +463,9 @@ export class AdvancedAIService {
     ];
   }
 
-  private async performDatabaseSearch(query: string): Promise<AIRecommendation[]> {
+  private async performDatabaseSearch(
+    query: string
+  ): Promise<AIRecommendation[]> {
     // Implement database search logic here
     return [
       {
@@ -399,11 +480,16 @@ export class AdvancedAIService {
     ];
   }
 
-  private detectContentType(prompt: string): 'email' | 'description' | 'proposal' {
+  private detectContentType(
+    prompt: string
+  ): 'email' | 'description' | 'proposal' {
     const lowerPrompt = prompt.toLowerCase();
     if (lowerPrompt.includes('email') || lowerPrompt.includes('mail')) {
       return 'email';
-    } else if (lowerPrompt.includes('proposal') || lowerPrompt.includes('quote')) {
+    } else if (
+      lowerPrompt.includes('proposal') ||
+      lowerPrompt.includes('quote')
+    ) {
       return 'proposal';
     } else {
       return 'description';
@@ -419,7 +505,9 @@ export class AdvancedAIService {
   }
 
   private async getUserBookings(userId: string): Promise<BookingType[]> {
-    const bookings = await Booking.find({ userId }).populate('vendorId venueId');
+    const bookings = await Booking.find({ userId }).populate(
+      'vendorId venueId'
+    );
     return bookings || [];
   }
 
@@ -429,4 +517,4 @@ export class AdvancedAIService {
   }
 }
 
-export const advancedAIService = new AdvancedAIService() 
+export const advancedAIService = new AdvancedAIService();

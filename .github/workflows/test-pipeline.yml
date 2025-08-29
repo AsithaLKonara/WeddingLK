@@ -2,9 +2,9 @@ name: WeddingLK Test Pipeline
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   schedule:
     # Run nightly tests at 2 AM UTC
     - cron: '0 2 * * *'
@@ -19,7 +19,7 @@ jobs:
     name: Quick Checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: quick-checks
     timeout-minutes: 15
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: quick-checks
     timeout-minutes: 20
-    
+
     services:
       mongodb:
         image: mongo:6
@@ -117,7 +117,7 @@ jobs:
     needs: [quick-checks, integration-tests]
     timeout-minutes: 30
     if: github.event_name == 'push' || github.event_name == 'schedule'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -171,7 +171,7 @@ jobs:
     needs: [quick-checks, integration-tests]
     timeout-minutes: 45
     if: github.event_name == 'push' || github.event_name == 'schedule'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -218,7 +218,7 @@ jobs:
     needs: [quick-checks, integration-tests]
     timeout-minutes: 20
     if: github.event_name == 'push' || github.event_name == 'schedule'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -249,7 +249,7 @@ jobs:
     needs: [quick-checks, integration-tests]
     timeout-minutes: 25
     if: github.event_name == 'push' || github.event_name == 'schedule'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -283,11 +283,20 @@ jobs:
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: [quick-checks, unit-tests, integration-tests, e2e-tests, performance-tests, security-tests, accessibility-tests]
+    needs:
+      [
+        quick-checks,
+        unit-tests,
+        integration-tests,
+        e2e-tests,
+        performance-tests,
+        security-tests,
+        accessibility-tests,
+      ]
     timeout-minutes: 30
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     environment: staging
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -324,11 +333,20 @@ jobs:
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [quick-checks, unit-tests, integration-tests, e2e-tests, performance-tests, security-tests, accessibility-tests]
+    needs:
+      [
+        quick-checks,
+        unit-tests,
+        integration-tests,
+        e2e-tests,
+        performance-tests,
+        security-tests,
+        accessibility-tests,
+      ]
     timeout-minutes: 45
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -370,9 +388,17 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
-    needs: [unit-tests, integration-tests, e2e-tests, performance-tests, security-tests, accessibility-tests]
+    needs:
+      [
+        unit-tests,
+        integration-tests,
+        e2e-tests,
+        performance-tests,
+        security-tests,
+        accessibility-tests,
+      ]
     if: always()
-    
+
     steps:
       - name: Generate test summary
         run: |
@@ -392,4 +418,4 @@ jobs:
         run: |
           # Add notification logic for test results
           # Example: Slack notification, email summary, etc.
-          echo "Test pipeline completed with status: ${{ needs.unit-tests.result }}" 
+          echo "Test pipeline completed with status: ${{ needs.unit-tests.result }}"

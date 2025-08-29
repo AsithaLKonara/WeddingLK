@@ -67,10 +67,10 @@ export class DatabasePoolManager {
   // Configure connection pool
   public configurePool(config: Partial<PoolConfig>): void {
     const finalConfig = { ...this.defaultConfig, ...config };
-    
+
     // Update mongoose connection options - only use valid options
     // Note: These options are set in the connection string, not via mongoose.set
-    
+
     this.poolStats.maxConnections = finalConfig.maxPoolSize;
     this.poolStats.minConnections = finalConfig.minPoolSize;
 
@@ -89,7 +89,7 @@ export class DatabasePoolManager {
       console.log('⚠️ Database disconnected - Pool stats updated');
     });
 
-    mongoose.connection.on('error', (error) => {
+    mongoose.connection.on('error', error => {
       console.error('❌ Database connection error:', error);
       this.updatePoolStats();
     });
@@ -121,7 +121,9 @@ export class DatabasePoolManager {
         this.poolStats.activeConnections = pool.size() - pool.available();
         this.poolStats.idleConnections = pool.available();
         this.poolStats.pendingConnections = pool.pending();
-        this.poolStats.connectionUtilization = (this.poolStats.activeConnections / this.poolStats.maxConnections) * 100;
+        this.poolStats.connectionUtilization =
+          (this.poolStats.activeConnections / this.poolStats.maxConnections) *
+          100;
       }
     } catch (error) {
       console.warn('Failed to update pool stats:', error);
@@ -137,14 +139,15 @@ export class DatabasePoolManager {
   // Record response time for monitoring
   public recordResponseTime(responseTime: number): void {
     this.responseTimes.push(responseTime);
-    
+
     // Keep only the last N response times
     if (this.responseTimes.length > this.maxResponseTimeHistory) {
       this.responseTimes.shift();
     }
-    
+
     // Calculate average response time
-    this.poolStats.averageResponseTime = this.responseTimes.reduce((a, b) => a + b, 0) / this.responseTimes.length;
+    this.poolStats.averageResponseTime =
+      this.responseTimes.reduce((a, b) => a + b, 0) / this.responseTimes.length;
   }
 
   // Get performance metrics
@@ -158,7 +161,8 @@ export class DatabasePoolManager {
       averageResponseTime: this.poolStats.averageResponseTime,
       responseTimeHistory: [...this.responseTimes],
       poolUtilization: this.poolStats.connectionUtilization,
-      connectionEfficiency: this.poolStats.idleConnections / this.poolStats.maxConnections,
+      connectionEfficiency:
+        this.poolStats.idleConnections / this.poolStats.maxConnections,
     };
   }
 
@@ -180,7 +184,9 @@ export class DatabasePoolManager {
     // Check pool utilization
     if (this.poolStats.connectionUtilization > 80) {
       issues.push('High pool utilization detected');
-      recommendations.push('Consider increasing maxPoolSize or optimizing queries');
+      recommendations.push(
+        'Consider increasing maxPoolSize or optimizing queries'
+      );
     }
 
     // Check response times
@@ -211,23 +217,31 @@ export class DatabasePoolManager {
     if (stats.connectionUtilization > 85 && stats.maxConnections < 50) {
       const newMaxSize = Math.min(stats.maxConnections + 5, 50);
       this.configurePool({ maxPoolSize: newMaxSize });
-      console.log(`🔧 Auto-increased pool size to ${newMaxSize} due to high utilization`);
+      console.log(
+        `🔧 Auto-increased pool size to ${newMaxSize} due to high utilization`
+      );
     }
 
     // Auto-adjust pool size if underutilized
     if (stats.connectionUtilization < 30 && stats.maxConnections > 10) {
       const newMaxSize = Math.max(stats.maxConnections - 2, 10);
       this.configurePool({ maxPoolSize: newMaxSize });
-      console.log(`🔧 Auto-decreased pool size to ${newMaxSize} due to low utilization`);
+      console.log(
+        `🔧 Auto-decreased pool size to ${newMaxSize} due to low utilization`
+      );
     }
 
     // Log optimization recommendations
     if (performance.averageResponseTime > 2000) {
-      console.log('💡 Performance recommendation: Consider adding database indexes');
+      console.log(
+        '💡 Performance recommendation: Consider adding database indexes'
+      );
     }
 
     if (stats.pendingConnections > 5) {
-      console.log('💡 Performance recommendation: Consider increasing maxConnecting');
+      console.log(
+        '💡 Performance recommendation: Consider increasing maxConnecting'
+      );
     }
   }
 
@@ -260,4 +274,4 @@ export class DatabasePoolManager {
 }
 
 // Export singleton instance
-export const dbPoolManager = DatabasePoolManager.getInstance(); 
+export const dbPoolManager = DatabasePoolManager.getInstance();

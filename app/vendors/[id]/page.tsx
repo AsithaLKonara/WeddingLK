@@ -1,129 +1,139 @@
-"use client"
+'use client';
 
-import React, { useState, useEffect, useCallback } from "react"
-import { useParams } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
-import { MapPin, Star, Phone, Mail, Globe, Clock, DollarSign, Award, Users } from "lucide-react"
-import { VendorProfile } from "@/components/organisms/vendor-profile"
-import { VendorPortfolio } from "@/components/organisms/vendor-portfolio"
-import { VendorReviews } from "@/components/organisms/vendor-reviews"
-import { VendorContact } from "@/components/organisms/vendor-contact"
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import {
+  MapPin,
+  Star,
+  Phone,
+  Mail,
+  Globe,
+  Clock,
+  DollarSign,
+  Award,
+  Users,
+} from 'lucide-react';
+import { VendorProfile } from '@/components/organisms/vendor-profile';
+import { VendorPortfolio } from '@/components/organisms/vendor-portfolio';
+import { VendorReviews } from '@/components/organisms/vendor-reviews';
+import { VendorContact } from '@/components/organisms/vendor-contact';
 
 interface Vendor {
-  _id: string
-  name: string
-  businessName: string
-  category: string
-  description: string
+  _id: string;
+  name: string;
+  businessName: string;
+  category: string;
+  description: string;
   location: {
-    address: string
-    city: string
-    province: string
+    address: string;
+    city: string;
+    province: string;
     coordinates?: {
-      lat: number
-      lng: number
-    }
-  }
+      lat: number;
+      lng: number;
+    };
+  };
   contact: {
-    phone: string
-    email: string
-    website?: string
-  }
+    phone: string;
+    email: string;
+    website?: string;
+  };
   services: Array<{
-    name: string
-    description: string
-    price: number
-  }>
-  portfolio: string[]
+    name: string;
+    description: string;
+    price: number;
+  }>;
+  portfolio: string[];
   pricing: {
-    startingPrice: number
-    currency: string
+    startingPrice: number;
+    currency: string;
     packages?: Array<{
-      name: string
-      description: string
-      price: number
-      includes: string[]
-    }>
-  }
+      name: string;
+      description: string;
+      price: number;
+      includes: string[];
+    }>;
+  };
   rating: {
-    average: number
-    count: number
-  }
+    average: number;
+    count: number;
+  };
   reviews: Array<{
-    _id: string
+    _id: string;
     user: {
-      firstName: string
-      lastName: string
-    }
-    rating: number
-    comment: string
-    createdAt: string
-  }>
+      firstName: string;
+      lastName: string;
+    };
+    rating: number;
+    comment: string;
+    createdAt: string;
+  }>;
   owner: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-  }
-  experience: number
-  awards: string[]
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  experience: number;
+  awards: string[];
   availability: {
-    isAvailable: boolean
-    nextAvailableDate?: string
-  }
-  createdAt: string
+    isAvailable: boolean;
+    nextAvailableDate?: string;
+  };
+  createdAt: string;
 }
 
 export default function VendorDetailPage() {
-  const params = useParams()
-  const vendorId = params.id as string
-  const [vendor, setVendor] = useState<Vendor | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { toast } = useToast()
+  const params = useParams();
+  const vendorId = params.id as string;
+  const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const loadVendor = useCallback(async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const response = await fetch(`/api/vendors?vendorId=${vendorId}`)
-      const data = await response.json()
+      const response = await fetch(`/api/vendors?vendorId=${vendorId}`);
+      const data = await response.json();
 
       if (data.success) {
-        setVendor(data.vendor)
+        setVendor(data.vendor);
       } else {
-        setError(data.error || 'Failed to load vendor')
+        setError(data.error || 'Failed to load vendor');
         toast({
-          title: "Error",
+          title: 'Error',
           description: data.error || 'Failed to load vendor',
-          type: "error",
-        })
+          type: 'error',
+        });
       }
     } catch (error) {
-      console.error('Error loading vendor:', error)
-      setError('Failed to load vendor')
+      console.error('Error loading vendor:', error);
+      setError('Failed to load vendor');
       toast({
-        title: "Error",
+        title: 'Error',
         description: 'Failed to load vendor',
-        type: "error",
-      })
+        type: 'error',
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [vendorId, toast])
+  }, [vendorId, toast]);
 
   useEffect(() => {
-    loadVendor()
-  }, [loadVendor])
+    loadVendor();
+  }, [loadVendor]);
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: currency || 'LKR',
       minimumFractionDigits: 0,
-    }).format(price)
-  }
+    }).format(price);
+  };
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
@@ -135,110 +145,122 @@ export default function VendorDetailPage() {
       makeup: 'bg-pink-100 text-pink-800',
       jewelry: 'bg-orange-100 text-orange-800',
       clothing: 'bg-indigo-100 text-indigo-800',
-    }
-    return colors[category.toLowerCase()] || 'bg-gray-100 text-gray-800'
-  }
+    };
+    return colors[category.toLowerCase()] || 'bg-gray-100 text-gray-800';
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="space-y-8">
+      <div className='min-h-screen bg-gray-50'>
+        <div className='container mx-auto px-4 py-8'>
+          <div className='space-y-8'>
             {/* Hero div */}
-            <div className="relative h-96 bg-gray-200 rounded-lg">
-              <div className="h-full w-full" />
+            <div className='relative h-96 bg-gray-200 rounded-lg'>
+              <div className='h-full w-full' />
             </div>
 
             {/* Content div */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
+            <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+              <div className='lg:col-span-2 space-y-6'>
                 <div>
-                  <divHeader>
-                    <div className="h-8 w-3/4" />
-                    <div className="h-4 w-1/2" />
-                  </divHeader>
-                  <divContent>
-                    <div className="h-4 w-full mb-2" />
-                    <div className="h-4 w-full mb-2" />
-                    <div className="h-4 w-2/3" />
-                  </divContent>
+                  <div>
+                    <div className='h-8 w-3/4' />
+                    <div className='h-4 w-1/2' />
+                  </div>
+                  <div>
+                    <div className='h-4 w-full mb-2' />
+                    <div className='h-4 w-full mb-2' />
+                    <div className='h-4 w-2/3' />
+                  </div>
                 </div>
 
                 <div>
-                  <divHeader>
-                    <div className="h-6 w-1/3" />
-                  </divHeader>
-                  <divContent>
-                    <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className='h-6 w-1/3' />
+                  </div>
+                  <div>
+                    <div className='grid grid-cols-2 gap-4'>
                       {Array.from({ length: 6 }).map((_, index) => (
-                        <div key={index} className="h-4 w-full" />
+                        <div key={index} className='h-4 w-full' />
                       ))}
                     </div>
-                  </divContent>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className='space-y-6'>
                 <div>
-                  <divHeader>
-                    <div className="h-6 w-1/2" />
-                  </divHeader>
-                  <divContent>
-                    <div className="h-12 w-full mb-4" />
-                    <div className="h-4 w-full mb-2" />
-                    <div className="h-4 w-2/3" />
-                  </divContent>
+                  <div>
+                    <div className='h-6 w-1/2' />
+                  </div>
+                  <div>
+                    <div className='h-12 w-full mb-4' />
+                    <div className='h-4 w-full mb-2' />
+                    <div className='h-4 w-2/3' />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !vendor) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Vendor Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || 'The vendor you are looking for does not exist.'}</p>
-          <button onClick={() => window.history.back()} variant="outline">
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <h1 className='text-2xl font-bold text-gray-900 mb-4'>
+            Vendor Not Found
+          </h1>
+          <p className='text-gray-600 mb-6'>
+            {error || 'The vendor you are looking for does not exist.'}
+          </p>
+          <button
+            onClick={() => window.history.back()}
+            className='px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800'
+          >
             Go Back
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className='min-h-screen bg-gray-50'>
       {/* Hero Section */}
-      <div className="relative h-96 bg-gradient-to-r from-purple-600 to-pink-600">
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative h-full flex items-center">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl">
+      <div className='relative h-96 bg-gradient-to-r from-purple-600 to-pink-600'>
+        <div className='absolute inset-0 bg-black/40'></div>
+        <div className='relative h-full flex items-center'>
+          <div className='container mx-auto px-4'>
+            <div className='max-w-4xl'>
               <span className={`mb-4 ${getCategoryColor(vendor.category)}`}>
                 {vendor.category}
               </span>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              <h1 className='text-4xl md:text-5xl font-bold text-white mb-4'>
                 {vendor.businessName}
               </h1>
-              <p className="text-xl text-white/90 mb-6 max-w-2xl">
+              <p className='text-xl text-white/90 mb-6 max-w-2xl'>
                 {vendor.description}
               </p>
-              <div className="flex items-center space-x-6 text-white">
-                <div className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-2" />
-                  <span>{vendor.location.city}, {vendor.location.province}</span>
+              <div className='flex items-center space-x-6 text-white'>
+                <div className='flex items-center'>
+                  <MapPin className='h-5 w-5 mr-2' />
+                  <span>
+                    {vendor.location.city}, {vendor.location.province}
+                  </span>
                 </div>
-                <div className="flex items-center">
-                  <Star className="h-5 w-5 mr-2 text-yellow-400" />
-                  <span>{vendor.rating.average.toFixed(1)} ({vendor.rating.count} reviews)</span>
+                <div className='flex items-center'>
+                  <Star className='h-5 w-5 mr-2 text-yellow-400' />
+                  <span>
+                    {vendor.rating.average.toFixed(1)} ({vendor.rating.count}{' '}
+                    reviews)
+                  </span>
                 </div>
-                <div className="flex items-center">
-                  <Award className="h-5 w-5 mr-2" />
+                <div className='flex items-center'>
+                  <Award className='h-5 w-5 mr-2' />
                   <span>{vendor.experience} years experience</span>
                 </div>
               </div>
@@ -247,157 +269,177 @@ export default function VendorDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className='container mx-auto px-4 py-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className='lg:col-span-2 space-y-8'>
             {/* Vendor Profile */}
             <VendorProfile vendor={vendor} />
 
             {/* Portfolio */}
-            <VendorPortfolio images={vendor.portfolio} vendorName={vendor.businessName} />
+            <VendorPortfolio
+              images={vendor.portfolio}
+              vendorName={vendor.businessName}
+            />
 
             {/* Services */}
             <div>
-              <divHeader>
-                <divTitle>Services & Pricing</divTitle>
-              </divHeader>
-              <divContent>
-                <div className="space-y-4">
+              <div>
+                <h3>Services & Pricing</h3>
+              </div>
+              <div>
+                <div className='space-y-4'>
                   {vendor.services.map((service, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold">{service.name}</h3>
-                        <span className="text-lg font-bold text-green-600">
+                    <div key={index} className='border rounded-lg p-4'>
+                      <div className='flex items-center justify-between mb-2'>
+                        <h3 className='font-semibold'>{service.name}</h3>
+                        <span className='text-lg font-bold text-green-600'>
                           {formatPrice(service.price, vendor.pricing.currency)}
                         </span>
                       </div>
-                      <p className="text-gray-600 text-sm">{service.description}</p>
+                      <p className='text-gray-600 text-sm'>
+                        {service.description}
+                      </p>
                     </div>
                   ))}
                 </div>
-              </divContent>
+              </div>
             </div>
 
             {/* Reviews */}
-            <VendorReviews 
-              reviews={vendor.reviews} 
-              rating={vendor.rating} 
+            <VendorReviews
+              reviews={vendor.reviews}
+              rating={vendor.rating}
               vendorId={vendor._id}
               vendorName={vendor.businessName}
             />
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className='space-y-6'>
             {/* Contact div */}
             <VendorContact vendor={vendor} />
 
             {/* Quick Info */}
             <div>
-              <divHeader>
-                <divTitle>Quick Info</divTitle>
-              </divHeader>
-              <divContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Category</span>
+              <div>
+                <h3>Quick Info</h3>
+              </div>
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-600'>Category</span>
                   <span className={getCategoryColor(vendor.category)}>
                     {vendor.category}
                   </span>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Starting Price</span>
-                  <span className="font-semibold text-green-600">
-                    {formatPrice(vendor.pricing.startingPrice, vendor.pricing.currency)}
+
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-600'>Starting Price</span>
+                  <span className='font-semibold text-green-600'>
+                    {formatPrice(
+                      vendor.pricing.startingPrice,
+                      vendor.pricing.currency
+                    )}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Rating</span>
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                    <span className="font-semibold">{vendor.rating.average.toFixed(1)}</span>
-                    <span className="text-sm text-gray-500 ml-1">({vendor.rating.count})</span>
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-600'>Rating</span>
+                  <div className='flex items-center'>
+                    <Star className='h-4 w-4 text-yellow-500 mr-1' />
+                    <span className='font-semibold'>
+                      {vendor.rating.average.toFixed(1)}
+                    </span>
+                    <span className='text-sm text-gray-500 ml-1'>
+                      ({vendor.rating.count})
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Experience</span>
-                  <span className="font-semibold">{vendor.experience} years</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Availability</span>
-                  <span variant={vendor.availability.isAvailable ? "default" : "secondary"}>
-                    {vendor.availability.isAvailable ? "Available" : "Busy"}
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-600'>Experience</span>
+                  <span className='font-semibold'>
+                    {vendor.experience} years
                   </span>
                 </div>
-              </divContent>
+
+                <div className='flex items-center justify-between'>
+                  <span className='text-sm text-gray-600'>Availability</span>
+                  <span
+                    variant={
+                      vendor.availability.isAvailable ? 'default' : 'secondary'
+                    }
+                  >
+                    {vendor.availability.isAvailable ? 'Available' : 'Busy'}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Awards */}
             {vendor.awards.length > 0 && (
               <div>
-                <divHeader>
-                  <divTitle className="flex items-center">
-                    <Award className="h-5 w-5 mr-2" />
+                <div>
+                  <h3 className='flex items-center'>
+                    <Award className='h-5 w-5 mr-2' />
                     Awards & Recognition
-                  </divTitle>
-                </divHeader>
-                <divContent>
-                  <div className="space-y-2">
+                  </h3>
+                </div>
+                <div>
+                  <div className='space-y-2'>
                     {vendor.awards.map((award, index) => (
-                      <div key={index} className="flex items-center text-sm">
-                        <Award className="h-4 w-4 text-yellow-500 mr-2" />
+                      <div key={index} className='flex items-center text-sm'>
+                        <Award className='h-4 w-4 text-yellow-500 mr-2' />
                         <span>{award}</span>
                       </div>
                     ))}
                   </div>
-                </divContent>
+                </div>
               </div>
             )}
 
             {/* Contact Information */}
             <div>
-              <divHeader>
-                <divTitle className="flex items-center">
-                  <Phone className="h-5 w-5 mr-2" />
+              <div>
+                <h3 className='flex items-center'>
+                  <Phone className='h-5 w-5 mr-2' />
                   Contact Information
-                </divTitle>
-              </divHeader>
-              <divContent className="space-y-4">
+                </h3>
+              </div>
+              <div className='space-y-4'>
                 <div>
-                  <p className="font-semibold">{vendor.owner.firstName} {vendor.owner.lastName}</p>
-                  <p className="text-sm text-gray-600">Business Owner</p>
+                  <p className='font-semibold'>
+                    {vendor.owner.firstName} {vendor.owner.lastName}
+                  </p>
+                  <p className='text-sm text-gray-600'>Business Owner</p>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm">
-                    <Phone className="h-4 w-4 mr-2 text-gray-500" />
+
+                <div className='space-y-2'>
+                  <div className='flex items-center text-sm'>
+                    <Phone className='h-4 w-4 mr-2 text-gray-500' />
                     <span>{vendor.contact.phone}</span>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <Mail className="h-4 w-4 mr-2 text-gray-500" />
+                  <div className='flex items-center text-sm'>
+                    <Mail className='h-4 w-4 mr-2 text-gray-500' />
                     <span>{vendor.contact.email}</span>
                   </div>
                   {vendor.contact.website && (
-                    <div className="flex items-center text-sm">
-                      <Globe className="h-4 w-4 mr-2 text-gray-500" />
+                    <div className='flex items-center text-sm'>
+                      <Globe className='h-4 w-4 mr-2 text-gray-500' />
                       <span>{vendor.contact.website}</span>
                     </div>
                   )}
                 </div>
 
-                <button className="w-full" variant="outline">
-                  <Mail className="h-4 w-4 mr-2" />
+                <button className='w-full'>
+                  <Mail className='h-4 w-4 mr-2' />
                   Send Message
                 </button>
-              </divContent>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

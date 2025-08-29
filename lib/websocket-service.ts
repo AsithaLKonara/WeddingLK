@@ -44,15 +44,15 @@ class WebSocketService {
     this.io = new SocketIOServer(server, {
       cors: {
         origin: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
-        methods: ['GET', 'POST']
-      }
+        methods: ['GET', 'POST'],
+      },
     });
 
     this.setupEventHandlers();
   }
 
   private setupEventHandlers(): void {
-    this.io.on('connection', (socket) => {
+    this.io.on('connection', socket => {
       console.log(`User connected: ${socket.id}`);
 
       // Handle user authentication
@@ -71,9 +71,12 @@ class WebSocketService {
       });
 
       // Handle message sending
-      socket.on('send-message', (data: { roomId: string; message: string; type?: string }) => {
-        this.sendMessage(socket, data);
-      });
+      socket.on(
+        'send-message',
+        (data: { roomId: string; message: string; type?: string }) => {
+          this.sendMessage(socket, data);
+        }
+      );
 
       // Handle typing indicators
       socket.on('typing-start', (data: { roomId: string }) => {
@@ -85,29 +88,53 @@ class WebSocketService {
       });
 
       // Handle notifications
-      socket.on('send-notification', (data: { userId: string; type: string; title: string; message: string }) => {
-        this.sendNotification(socket, data);
-      });
+      socket.on(
+        'send-notification',
+        (data: {
+          userId: string;
+          type: string;
+          title: string;
+          message: string;
+        }) => {
+          this.sendNotification(socket, data);
+        }
+      );
 
       // Handle notification read status
-      socket.on('mark-notification-read', (data: { notificationId: string }) => {
-        this.markNotificationRead(socket, data);
-      });
+      socket.on(
+        'mark-notification-read',
+        (data: { notificationId: string }) => {
+          this.markNotificationRead(socket, data);
+        }
+      );
 
       // Handle booking updates
-      socket.on('booking-update', (data: { bookingId: string; status: string; details?: Record<string, unknown> }) => {
-        this.handleBookingUpdate(socket, data);
-      });
+      socket.on(
+        'booking-update',
+        (data: {
+          bookingId: string;
+          status: string;
+          details?: Record<string, unknown>;
+        }) => {
+          this.handleBookingUpdate(socket, data);
+        }
+      );
 
       // Handle payment updates
-      socket.on('payment-update', (data: { paymentId: string; status: string; amount?: number }) => {
-        this.handlePaymentUpdate(socket, data);
-      });
+      socket.on(
+        'payment-update',
+        (data: { paymentId: string; status: string; amount?: number }) => {
+          this.handlePaymentUpdate(socket, data);
+        }
+      );
 
       // Handle system messages
-      socket.on('system-message', (data: { message: string; level: 'info' | 'warning' | 'error' }) => {
-        this.handleSystemMessage(socket, data);
-      });
+      socket.on(
+        'system-message',
+        (data: { message: string; level: 'info' | 'warning' | 'error' }) => {
+          this.handleSystemMessage(socket, data);
+        }
+      );
 
       // Handle disconnection
       socket.on('disconnect', () => {
@@ -121,15 +148,18 @@ class WebSocketService {
     });
   }
 
-  private authenticateUser(socket: any, data: { userId: string; token: string }): void {
+  private authenticateUser(
+    socket: any,
+    data: { userId: string; token: string }
+  ): void {
     try {
       // In a real application, you would validate the token here
       const user: WebSocketUser = {
         id: data.userId,
-      socketId: socket.id,
+        socketId: socket.id,
         room: '',
         isOnline: true,
-        lastSeen: new Date()
+        lastSeen: new Date(),
       };
 
       this.users.set(data.userId, user);
@@ -142,17 +172,16 @@ class WebSocketService {
       socket.emit('authenticated', {
         success: true,
         userId: data.userId,
-        message: 'Authentication successful'
+        message: 'Authentication successful',
       });
 
       // Update user's online status
       this.broadcastUserStatus(data.userId, true);
-
     } catch (error) {
       console.error('Authentication error:', error);
       socket.emit('authentication-error', {
         success: false,
-        error: 'Authentication failed'
+        error: 'Authentication failed',
       });
     }
   }
@@ -191,7 +220,7 @@ class WebSocketService {
           name: `Room ${data.roomId}`,
           users: [userId],
           messages: [],
-          createdAt: new Date()
+          createdAt: new Date(),
         };
         this.rooms.set(data.roomId, room);
       } else {
@@ -206,7 +235,7 @@ class WebSocketService {
       socket.to(data.roomId).emit('user-joined', {
         userId,
         roomId: data.roomId,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       // Send room info to user
@@ -214,9 +243,8 @@ class WebSocketService {
       socket.emit('room-joined', {
         roomId: data.roomId,
         roomInfo: room,
-        message: 'Successfully joined room'
+        message: 'Successfully joined room',
       });
-
     } catch (error) {
       console.error('Join room error:', error);
       socket.emit('error', { message: 'Failed to join room' });
@@ -229,9 +257,9 @@ class WebSocketService {
       if (!userId) {
         socket.emit('error', { message: 'User not authenticated' });
         return;
-  }
+      }
 
-  // Leave room
+      // Leave room
       socket.leave(data.roomId);
 
       // Update user's room
@@ -246,7 +274,7 @@ class WebSocketService {
       if (this.rooms.has(data.roomId)) {
         const room = this.rooms.get(data.roomId)!;
         room.users = room.users.filter(id => id !== userId);
-        
+
         if (room.users.length === 0) {
           // Delete empty room
           this.rooms.delete(data.roomId);
@@ -259,21 +287,23 @@ class WebSocketService {
       socket.to(data.roomId).emit('user-left', {
         userId,
         roomId: data.roomId,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       socket.emit('room-left', {
         roomId: data.roomId,
-        message: 'Successfully left room'
+        message: 'Successfully left room',
       });
-
     } catch (error) {
       console.error('Leave room error:', error);
       socket.emit('error', { message: 'Failed to leave room' });
     }
   }
 
-  private sendMessage(socket: any, data: { roomId: string; message: string; type?: string }): void {
+  private sendMessage(
+    socket: any,
+    data: { roomId: string; message: string; type?: string }
+  ): void {
     try {
       const userId = socket.userId;
       if (!userId) {
@@ -286,31 +316,30 @@ class WebSocketService {
         data: {
           content: data.message,
           sender: userId,
-          roomId: data.roomId
+          roomId: data.roomId,
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       // Store message in room
       if (this.rooms.has(data.roomId)) {
         const room = this.rooms.get(data.roomId)!;
         room.messages.push(message);
-        
+
         // Keep only last 100 messages
         if (room.messages.length > 100) {
           room.messages = room.messages.slice(-100);
         }
-        
-        this.rooms.set(data.roomId, room);
-    }
 
-    // Broadcast message to room
+        this.rooms.set(data.roomId, room);
+      }
+
+      // Broadcast message to room
       this.io.to(data.roomId).emit('new-message', {
         message,
         roomId: data.roomId,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
-
     } catch (error) {
       console.error('Send message error:', error);
       socket.emit('error', { message: 'Failed to send message' });
@@ -324,10 +353,9 @@ class WebSocketService {
 
       socket.to(data.roomId).emit('typing-start', {
         userId,
-      roomId: data.roomId,
-        timestamp: new Date()
+        roomId: data.roomId,
+        timestamp: new Date(),
       });
-
     } catch (error) {
       console.error('Typing start error:', error);
     }
@@ -340,25 +368,27 @@ class WebSocketService {
 
       socket.to(data.roomId).emit('typing-stop', {
         userId,
-      roomId: data.roomId,
-        timestamp: new Date()
+        roomId: data.roomId,
+        timestamp: new Date(),
       });
-
     } catch (error) {
       console.error('Typing stop error:', error);
     }
   }
 
-  private sendNotification(socket: any, data: { userId: string; type: string; title: string; message: string }): void {
+  private sendNotification(
+    socket: any,
+    data: { userId: string; type: string; title: string; message: string }
+  ): void {
     try {
       const notification: WebSocketNotification = {
         id: `notif_${Date.now()}`,
-      userId: data.userId,
+        userId: data.userId,
         type: data.type,
         title: data.title,
         message: data.message,
         read: false,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       // Store notification
@@ -367,23 +397,25 @@ class WebSocketService {
       // Send to specific user
       this.io.to(`user_${data.userId}`).emit('new-notification', {
         notification,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
 
       // Send confirmation to sender
       socket.emit('notification-sent', {
         success: true,
         notificationId: notification.id,
-        message: 'Notification sent successfully'
+        message: 'Notification sent successfully',
       });
-
     } catch (error) {
       console.error('Send notification error:', error);
       socket.emit('error', { message: 'Failed to send notification' });
     }
   }
 
-  private markNotificationRead(socket: any, data: { notificationId: string }): void {
+  private markNotificationRead(
+    socket: any,
+    data: { notificationId: string }
+  ): void {
     try {
       const userId = socket.userId;
       if (!userId) return;
@@ -396,17 +428,23 @@ class WebSocketService {
         socket.emit('notification-read', {
           success: true,
           notificationId: data.notificationId,
-          message: 'Notification marked as read'
+          message: 'Notification marked as read',
         });
       }
-
     } catch (error) {
       console.error('Mark notification read error:', error);
       socket.emit('error', { message: 'Failed to mark notification as read' });
     }
   }
 
-  private handleBookingUpdate(socket: any, data: { bookingId: string; status: string; details?: Record<string, unknown> }): void {
+  private handleBookingUpdate(
+    socket: any,
+    data: {
+      bookingId: string;
+      status: string;
+      details?: Record<string, unknown>;
+    }
+  ): void {
     try {
       const userId = socket.userId;
       if (!userId) return;
@@ -416,15 +454,17 @@ class WebSocketService {
         bookingId: data.bookingId,
         status: data.status,
         details: data.details,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
-
     } catch (error) {
       console.error('Booking update error:', error);
     }
   }
 
-  private handlePaymentUpdate(socket: any, data: { paymentId: string; status: string; amount?: number }): void {
+  private handlePaymentUpdate(
+    socket: any,
+    data: { paymentId: string; status: string; amount?: number }
+  ): void {
     try {
       const userId = socket.userId;
       if (!userId) return;
@@ -434,23 +474,24 @@ class WebSocketService {
         paymentId: data.paymentId,
         status: data.status,
         amount: data.amount,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
-
     } catch (error) {
       console.error('Payment update error:', error);
     }
   }
 
-  private handleSystemMessage(socket: any, data: { message: string; level: 'info' | 'warning' | 'error' }): void {
+  private handleSystemMessage(
+    _socket: any,
+    data: { message: string; level: 'info' | 'warning' | 'error' }
+  ): void {
     try {
       // Broadcast system message to all users
       this.io.emit('system-message', {
         message: data.message,
         level: data.level,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
-
     } catch (error) {
       console.error('System message error:', error);
     }
@@ -478,7 +519,7 @@ class WebSocketService {
             socket.to(user.room).emit('user-left', {
               userId,
               roomId: user.room,
-              timestamp: new Date()
+              timestamp: new Date(),
             });
           }
         }
@@ -494,7 +535,7 @@ class WebSocketService {
     console.error('WebSocket error:', error);
     socket.emit('error', {
       message: 'An error occurred',
-      error: error.message
+      error: error.message,
     });
   }
 
@@ -502,7 +543,7 @@ class WebSocketService {
     this.io.emit('user-status-change', {
       userId,
       isOnline,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   }
 
@@ -516,14 +557,24 @@ class WebSocketService {
   }
 
   public getNotifications(userId: string): WebSocketNotification[] {
-    return Array.from(this.notifications.values()).filter(n => n.userId === userId);
+    return Array.from(this.notifications.values()).filter(
+      n => n.userId === userId
+    );
   }
 
-  public broadcastToRoom(roomId: string, event: string, data: Record<string, unknown>): void {
+  public broadcastToRoom(
+    roomId: string,
+    event: string,
+    data: Record<string, unknown>
+  ): void {
     this.io.to(roomId).emit(event, data);
   }
 
-  public broadcastToUser(userId: string, event: string, data: Record<string, unknown>): void {
+  public broadcastToUser(
+    userId: string,
+    event: string,
+    data: Record<string, unknown>
+  ): void {
     this.io.to(`user_${userId}`).emit(event, data);
   }
 
@@ -532,4 +583,4 @@ class WebSocketService {
   }
 }
 
-export default WebSocketService; 
+export default WebSocketService;

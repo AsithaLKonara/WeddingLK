@@ -18,13 +18,15 @@ export interface SocialAuthResult {
   message: string;
 }
 
-export async function handleSocialLogin(profile: SocialProfile): Promise<SocialAuthResult> {
+export async function handleSocialLogin(
+  profile: SocialProfile
+): Promise<SocialAuthResult> {
   try {
     const { email, provider } = profile;
-    
+
     // Check if user exists by email
     const user = await User.findOne({ email });
-    
+
     if (user) {
       // Link social account to existing user
       await linkSocialAccount(user._id, provider, profile);
@@ -91,14 +93,18 @@ async function createUserFromSocialLogin(profile: SocialProfile) {
       },
     },
   };
-  
+
   const user = new User(userData);
   await user.save();
-  
+
   return user;
 }
 
-async function linkSocialAccount(userId: string, provider: string, profile: SocialProfile) {
+async function linkSocialAccount(
+  userId: string,
+  provider: string,
+  profile: SocialProfile
+) {
   const updateData = {
     [`socialAccounts.${provider}`]: {
       id: profile.id,
@@ -107,11 +113,14 @@ async function linkSocialAccount(userId: string, provider: string, profile: Soci
       picture: profile.picture,
     },
   };
-  
+
   await User.findByIdAndUpdate(userId, updateData);
 }
 
-export async function verifySocialToken(provider: string, token: string): Promise<SocialProfile | null> {
+export async function verifySocialToken(
+  provider: string,
+  token: string
+): Promise<SocialProfile | null> {
   try {
     switch (provider) {
       case 'google':
@@ -133,27 +142,32 @@ export async function verifySocialToken(provider: string, token: string): Promis
 
 async function verifyGoogleToken(token: string): Promise<SocialProfile | null> {
   try {
-    const response = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`);
-    
+    const response = await fetch(
+      `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`
+    );
+
     if (!response.ok) {
       throw new Error('Invalid Google token');
     }
-    
+
     const data = await response.json();
-    
+
     // Get user info from Google
-    const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    
+    const userResponse = await fetch(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     if (!userResponse.ok) {
       throw new Error('Failed to get Google user info');
     }
-    
+
     const userData = await userResponse.json();
-    
+
     return {
       id: userData.id,
       email: userData.email,
@@ -167,16 +181,20 @@ async function verifyGoogleToken(token: string): Promise<SocialProfile | null> {
   }
 }
 
-async function verifyFacebookToken(token: string): Promise<SocialProfile | null> {
+async function verifyFacebookToken(
+  token: string
+): Promise<SocialProfile | null> {
   try {
-    const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${token}`);
-    
+    const response = await fetch(
+      `https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${token}`
+    );
+
     if (!response.ok) {
       throw new Error('Invalid Facebook token');
     }
-    
+
     const data = await response.json();
-    
+
     return {
       id: data.id,
       email: data.email,
@@ -190,16 +208,20 @@ async function verifyFacebookToken(token: string): Promise<SocialProfile | null>
   }
 }
 
-async function verifyInstagramToken(token: string): Promise<SocialProfile | null> {
+async function verifyInstagramToken(
+  token: string
+): Promise<SocialProfile | null> {
   try {
-    const response = await fetch(`https://graph.instagram.com/me?fields=id,username,account_type&access_token=${token}`);
-    
+    const response = await fetch(
+      `https://graph.instagram.com/me?fields=id,username,account_type&access_token=${token}`
+    );
+
     if (!response.ok) {
       throw new Error('Invalid Instagram token');
     }
-    
+
     const data = await response.json();
-    
+
     // Instagram Basic Display API doesn't provide email, so we'll use username
     return {
       id: data.id,
@@ -214,27 +236,35 @@ async function verifyInstagramToken(token: string): Promise<SocialProfile | null
   }
 }
 
-async function verifyLinkedInToken(token: string): Promise<SocialProfile | null> {
+async function verifyLinkedInToken(
+  token: string
+): Promise<SocialProfile | null> {
   try {
-    const response = await fetch('https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture)', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    
+    const response = await fetch(
+      'https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture)',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     if (!response.ok) {
       throw new Error('Invalid LinkedIn token');
     }
-    
+
     const data = await response.json();
-    
+
     // Get email from LinkedIn
-    const emailResponse = await fetch('https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    
+    const emailResponse = await fetch(
+      'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     let email = 'unknown@linkedin.user';
     if (emailResponse.ok) {
       const emailData = await emailResponse.json();
@@ -242,12 +272,14 @@ async function verifyLinkedInToken(token: string): Promise<SocialProfile | null>
         email = emailData.elements[0]['handle~'].emailAddress;
       }
     }
-    
+
     return {
       id: data.id,
       email,
       name: `${data.firstName.localized.en_US} ${data.lastName.localized.en_US}`,
-      picture: data.profilePicture?.['displayImage~']?.elements?.[0]?.identifiers?.[0]?.identifier,
+      picture:
+        data.profilePicture?.['displayImage~']?.elements?.[0]?.identifiers?.[0]
+          ?.identifier,
       provider: 'linkedin',
     };
   } catch (error) {
@@ -256,12 +288,15 @@ async function verifyLinkedInToken(token: string): Promise<SocialProfile | null>
   }
 }
 
-export async function unlinkSocialAccount(userId: string, provider: string): Promise<boolean> {
+export async function unlinkSocialAccount(
+  userId: string,
+  provider: string
+): Promise<boolean> {
   try {
     const updateData = {
       $unset: { [`socialAccounts.${provider}`]: 1 },
     };
-    
+
     await User.findByIdAndUpdate(userId, updateData);
     return true;
   } catch (error) {
@@ -278,4 +313,4 @@ export async function getSocialAccounts(userId: string): Promise<any> {
     console.error('Error getting social accounts:', error);
     return {};
   }
-} 
+}

@@ -1,194 +1,174 @@
-"use client"
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, CheckCircle, XCircle, Clock, Eye } from "lucide-react"
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal, CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenulabel,
-  DropdownMenuhr,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export type Booking = {
-  _id: string
+  _id: string;
   client: {
-    name: string
-    email: string
-    phone: string
-  }
+    name: string;
+    email: string;
+    phone: string;
+  };
   venue?: {
-    name: string
-    location: string
-  }
-  date: string
-  startTime?: string
-  endTime?: string
-  totalAmount: number
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected'
-  createdAt: string
-}
+    name: string;
+    location: string;
+  };
+  date: string;
+  startTime?: string;
+  endTime?: string;
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected';
+  createdAt: string;
+};
 
 export const columns: ColumnDef<Booking>[] = [
   {
-    accessorKey: "client",
-    header: "Client",
+    accessorKey: 'client',
+    header: 'Client',
     cell: ({ row }) => {
-      const booking = row.original
+      const booking = row.original;
       return (
         <div>
-          <div className="font-medium">{booking.client.name}</div>
-          <div className="text-sm text-gray-500">{booking.client.email}</div>
+          <div className='font-medium'>{booking.client.name}</div>
+          <div className='text-sm text-gray-500'>{booking.client.email}</div>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "venue",
-    header: "Venue",
+    accessorKey: 'venue',
+    header: 'Venue',
     cell: ({ row }) => {
-      const booking = row.original
-      if (!booking.venue) return <span className="text-gray-400">-</span>
+      const booking = row.original;
+      if (!booking.venue) return <span className='text-gray-400'>-</span>;
       return (
         <div>
-          <div className="font-medium">{booking.venue.name}</div>
-          <div className="text-sm text-gray-500">{booking.venue.location}</div>
+          <div className='font-medium'>{booking.venue.name}</div>
+          <div className='text-sm text-gray-500'>{booking.venue.location}</div>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "date",
-    header: "Date & Time",
+    accessorKey: 'date',
+    header: 'Date & Time',
     cell: ({ row }) => {
-      const booking = row.original
-      const date = new Date(booking.date)
-      const dateText = date.toLocaleDateString()
-      
-      let timeText = ''
+      const booking = row.original;
+      const date = new Date(booking.date);
+      const dateText = date.toLocaleDateString();
+
+      let timeText = '';
       if (booking.startTime && booking.endTime) {
-        timeText = `${booking.startTime} - ${booking.endTime}`
+        timeText = `${booking.startTime} - ${booking.endTime}`;
       } else if (booking.startTime) {
-        timeText = booking.startTime
+        timeText = booking.startTime;
       }
-      
+
       return (
         <div>
-          <div className="font-medium">{dateText}</div>
-          {timeText && (
-            <div className="text-sm text-gray-500">{timeText}</div>
-          )}
+          <div className='font-medium'>{dateText}</div>
+          {timeText && <div className='text-sm text-gray-500'>{timeText}</div>}
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "totalAmount",
-    header: "Amount",
+    accessorKey: 'totalAmount',
+    header: 'Amount',
     cell: ({ row }) => {
-      const amount = row.getValue("totalAmount") as number
+      const amount = row.getValue('totalAmount') as number;
+      return <div className='font-medium'>LKR {amount.toLocaleString()}</div>;
+    },
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const status = row.getValue('status') as string;
+      const getStatusColor = (status: string) => {
+        switch (status) {
+          case 'confirmed':
+            return 'bg-green-100 text-green-800';
+          case 'pending':
+            return 'bg-yellow-100 text-yellow-800';
+          case 'completed':
+            return 'bg-blue-100 text-blue-800';
+          case 'cancelled':
+          case 'rejected':
+            return 'bg-red-100 text-red-800';
+          default:
+            return 'bg-gray-100 text-gray-800';
+        }
+      };
+
+      const getStatusIcon = (status: string) => {
+        switch (status) {
+          case 'confirmed':
+            return <CheckCircle className='h-4 w-4 text-green-600' />;
+          case 'pending':
+            return <Clock className='h-4 w-4 text-yellow-600' />;
+          case 'completed':
+            return <CheckCircle className='h-4 w-4 text-blue-600' />;
+          case 'cancelled':
+          case 'rejected':
+            return <XCircle className='h-4 w-4 text-red-600' />;
+          default:
+            return null;
+        }
+      };
+
       return (
-        <div className="font-medium">
-          LKR {amount.toLocaleString()}
+        <div className='flex items-center space-x-2'>
+          {getStatusIcon(status)}
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </span>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    id: 'actions',
+    header: 'Actions',
     cell: ({ row }) => {
-      const status = row.getValue("status") as string
-      const statusConfig = {
-        pending: { label: 'Pending', variant: 'secondary', icon: Clock },
-        confirmed: { label: 'Confirmed', variant: 'default', icon: CheckCircle },
-        completed: { label: 'Completed', variant: 'default', icon: CheckCircle },
-        cancelled: { label: 'Cancelled', variant: 'destructive', icon: XCircle },
-        rejected: { label: 'Rejected', variant: 'destructive', icon: XCircle }
-      }
-      
-      const config = statusConfig[status as keyof typeof statusConfig]
-      const Icon = config.icon
-      
-      return (
-        <span variant={config.variant as any}>
-          <Icon className="h-3 w-3 mr-1" />
-          {config.label}
-        </span>
-      )
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Booked",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"))
-      return (
-        <div className="text-sm text-gray-500">
-          {date.toLocaleDateString()}
-        </div>
-      )
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const booking = row.original
+      const booking = row.original;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <button className='h-8 w-8 p-0'>
+              <span className='sr-only'>Open menu</span>
+              <MoreHorizontal className='h-4 w-4' />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenulabel>Actions</DropdownMenulabel>
+          <DropdownMenuContent align='end'>
             <DropdownMenuItem>
-              <Eye className="mr-2 h-4 w-4" />
+              <Eye className='mr-2 h-4 w-4' />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuhr />
-            {booking.status === 'pending' && (
-              <>
-                <DropdownMenuItem 
-                  onClick={() => window.dispatchEvent(new CustomEvent('bookingAction', { detail: { bookingId: booking._id, action: 'confirm' } }))}
-                  className="text-green-600"
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Confirm
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => window.dispatchEvent(new CustomEvent('bookingAction', { detail: { bookingId: booking._id, action: 'reject' } }))}
-                  className="text-red-600"
-                >
-                  <XCircle className="mr-2 h-4 w-4" />
-                  Reject
-                </DropdownMenuItem>
-              </>
-            )}
-            {booking.status === 'confirmed' && (
-              <DropdownMenuItem 
-                onClick={() => window.dispatchEvent(new CustomEvent('bookingAction', { detail: { bookingId: booking._id, action: 'complete' } }))}
-                className="text-blue-600"
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Mark Complete
-              </DropdownMenuItem>
-            )}
-            {(booking.status === 'pending' || booking.status === 'confirmed') && (
-              <DropdownMenuItem 
-                onClick={() => window.dispatchEvent(new CustomEvent('bookingAction', { detail: { bookingId: booking._id, action: 'cancel' } }))}
-                className="text-orange-600"
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Cancel
-              </DropdownMenuItem>
-            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <CheckCircle className='mr-2 h-4 w-4' />
+              Confirm Booking
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <XCircle className='mr-2 h-4 w-4' />
+              Reject Booking
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-] 
+];

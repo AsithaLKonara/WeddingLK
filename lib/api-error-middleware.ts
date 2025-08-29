@@ -2,7 +2,18 @@
 // Provides consistent error responses and logging for all API routes
 
 import { NextRequest, NextResponse } from 'next/server';
-import { handleApiError, AppError, ValidationError, AuthenticationError, AuthorizationError, NotFoundError, ConflictError, RateLimitError, DatabaseError, ExternalServiceError } from './error-handler';
+import {
+  handleApiError,
+  AppError,
+  ValidationError,
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+  ConflictError,
+  RateLimitError,
+  DatabaseError,
+  ExternalServiceError,
+} from './error-handler';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -31,13 +42,14 @@ const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
 // Rate limiting middleware
 export function rateLimitMiddleware(request: NextRequest): NextResponse | null {
-  const ip = request.headers.get('x-forwarded-for') || 
-             request.headers.get('x-real-ip') || 
-             'unknown';
+  const ip =
+    request.headers.get('x-forwarded-for') ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
   const now = Date.now();
-  
+
   const requestData = requestCounts.get(ip);
-  
+
   if (!requestData || now > requestData.resetTime) {
     // Reset counter for new window
     requestCounts.set(ip, {
@@ -46,7 +58,7 @@ export function rateLimitMiddleware(request: NextRequest): NextResponse | null {
     });
     return null;
   }
-  
+
   if (requestData.count >= rateLimitConfig.maxRequests) {
     return NextResponse.json(
       {
@@ -61,7 +73,7 @@ export function rateLimitMiddleware(request: NextRequest): NextResponse | null {
       { status: 429 }
     );
   }
-  
+
   requestData.count++;
   return null;
 }
@@ -78,42 +90,44 @@ export function withErrorHandling<T = any>(
   return async (request: NextRequest): Promise<NextResponse> => {
     const requestId = generateRequestId();
     const startTime = Date.now();
-    
+
     try {
       // Add request ID to headers for tracking
       request.headers.set('x-request-id', requestId);
-      
+
       // Apply rate limiting
       const rateLimitResponse = rateLimitMiddleware(request);
       if (rateLimitResponse) {
         return rateLimitResponse;
       }
-      
+
       // Execute the handler
       const response = await handler(request);
-      
+
       // Add performance headers
       const duration = Date.now() - startTime;
       response.headers.set('x-response-time', `${duration}ms`);
       response.headers.set('x-request-id', requestId);
-      
+
       return response;
-      
     } catch (error: any) {
       // Handle the error
       const errorResponse = handleApiError(error);
-      
+
       // Log error with request details
       console.error('API Error:', {
         requestId,
         method: request.method,
         url: request.url,
-        ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+        ip:
+          request.headers.get('x-forwarded-for') ||
+          request.headers.get('x-real-ip') ||
+          'unknown',
         error: error.message || 'Unknown error',
         stack: error.stack,
         timestamp: new Date().toISOString(),
       });
-      
+
       // Return error response
       return NextResponse.json(errorResponse, {
         status: error instanceof AppError ? error.statusCode : 500,
@@ -133,7 +147,7 @@ export function validateRequest<T>(
 ) {
   return withErrorHandling(async (request: NextRequest) => {
     let body;
-    
+
     try {
       if (request.method !== 'GET') {
         body = await request.json();
@@ -141,7 +155,7 @@ export function validateRequest<T>(
     } catch {
       throw new ValidationError('Invalid JSON in request body');
     }
-    
+
     // Validate request data
     const validationResult = schema.safeParse(body);
     if (!validationResult.success) {
@@ -149,7 +163,7 @@ export function validateRequest<T>(
         errors: validationResult.error.errors,
       });
     }
-    
+
     return handler(request, validationResult.data);
   });
 }
@@ -160,13 +174,13 @@ export function requireAuth(
 ) {
   return withErrorHandling(async (request: NextRequest) => {
     const authHeader = request.headers.get('authorization');
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new AuthenticationError('Missing or invalid authorization header');
     }
-    
+
     const token = authHeader.substring(7);
-    
+
     try {
       // Verify JWT token (implement your JWT verification logic here)
       const userId = await verifyJWT(token);
@@ -185,11 +199,13 @@ export function requireRole(
   return requireAuth(async (request: NextRequest, userId: string) => {
     // Check user role (implement your role checking logic here)
     const userRole = await getUserRole(userId);
-    
+
     if (userRole !== requiredRole) {
-      throw new AuthorizationError(`Insufficient permissions. Required role: ${requiredRole}`);
+      throw new AuthorizationError(
+        `Insufficient permissions. Required role: ${requiredRole}`
+      );
     }
-    
+
     return handler(request, userId);
   });
 }
@@ -202,8 +218,15 @@ export function withDatabaseOperation<T>(
     operation()
       .then(resolve)
       .catch((error: any) => {
-        if (error.name === 'MongoServerError' || error.name === 'MongooseError') {
-          reject(new DatabaseError('Database operation failed', { originalError: error.message }));
+        if (
+          error.name === 'MongoServerError' ||
+          error.name === 'MongooseError'
+        ) {
+          reject(
+            new DatabaseError('Database operation failed', {
+              originalError: error.message,
+            })
+          );
         } else {
           reject(error);
         }
@@ -220,7 +243,11 @@ export function withExternalService<T>(
     operation()
       .then(resolve)
       .catch((error: any) => {
-        reject(new ExternalServiceError(serviceName, error.message, { originalError: error }));
+        reject(
+          new ExternalServiceError(serviceName, error.message, {
+            originalError: error,
+          })
+        );
       });
   });
 }
@@ -250,7 +277,7 @@ export function createApiResponse<T>(
     timestamp: new Date().toISOString(),
     requestId: generateRequestId(),
   };
-  
+
   return NextResponse.json(response, { status });
 }
 
@@ -271,6 +298,6 @@ export function createErrorResponse(
     timestamp: new Date().toISOString(),
     requestId: requestId || generateRequestId(),
   };
-  
+
   return NextResponse.json(response, { status: error.statusCode });
-} 
+}

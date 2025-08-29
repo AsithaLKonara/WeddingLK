@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 import {
   Sparkles,
@@ -21,261 +21,245 @@ import {
   Target,
   CheckCircle2,
   ArrowRight,
-} from "lucide-react"
-
-// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// divHeader will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// divTitle will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// button will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// span will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// div will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// divContent will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// divList will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
-
-// divTrigger will be imported above => <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-32 rounded-lg" /> })
+} from 'lucide-react';
 
 export default function RoadmapPage() {
-  const [selectedPhase, setselectedPhase] = useState("immediate")
+  const [selectedPhase, setselectedPhase] = useState('immediate');
 
   const roadmapPhases = {
     immediate: {
-      title: "Phase 1: Immediate Enhancements (1-2 months)",
-      description: "Quick wins to boost user engagement and platform value",
-      priority: "high",
+      title: 'Phase 1: Immediate Enhancements (1-2 months)',
+      description: 'Quick wins to boost user engagement and platform value',
+      priority: 'high',
       features: [
         {
-          category: "AI & Personalization",
+          category: 'AI & Personalization',
           icon: Brain,
           items: [
-            "AI Wedding Style Matcher - Analyze user preferences and suggest perfect themes",
-            "Smart Budget Optimizer - AI-powered budget allocation recommendations",
-            "Personalized Vendor Recommendations - ML-based vendor matching",
-            "AI Photo Style Generator - Generate wedding mood boards from descriptions",
+            'AI Wedding Style Matcher - Analyze user preferences and suggest perfect themes',
+            'Smart Budget Optimizer - AI-powered budget allocation recommendations',
+            'Personalized Vendor Recommendations - ML-based vendor matching',
+            'AI Photo Style Generator - Generate wedding mood boards from descriptions',
           ],
         },
         {
-          category: "Enhanced User Experience",
+          category: 'Enhanced User Experience',
           icon: Heart,
           items: [
-            "Interactive 3D Venue Tours - Virtual reality venue exploration",
-            "Real-time Chat System - Instant messaging with vendors",
-            "Advanced div Integration - Google/Outlook calendar sync",
-            "Mobile App (React Native) - Native iOS/Android experience",
+            'Interactive 3D Venue Tours - Virtual reality venue exploration',
+            'Real-time Chat System - Instant messaging with vendors',
+            'Advanced div Integration - Google/Outlook calendar sync',
+            'Mobile App (React Native) - Native iOS/Android experience',
           ],
         },
         {
-          category: "Social Features",
+          category: 'Social Features',
           icon: Users,
           items: [
-            "Wedding Stories & Reviews - User-generated content platform",
+            'Wedding Stories & Reviews - User-generated content platform',
             "Couple's Wedding Website Builder - Drag-and-drop website creation",
-            "Guest RSVP Management - Advanced guest tracking system",
-            "Social Media Integration - Auto-post to Instagram/Facebook",
+            'Guest RSVP Management - Advanced guest tracking system',
+            'Social Media Integration - Auto-post to Instagram/Facebook',
           ],
         },
       ],
     },
     growth: {
-      title: "Phase 2: Growth & Expansion (3-6 months)",
-      description: "Scale the platform and add advanced business features",
-      priority: "medium",
+      title: 'Phase 2: Growth & Expansion (3-6 months)',
+      description: 'Scale the platform and add advanced business features',
+      priority: 'medium',
       features: [
         {
-          category: "Advanced Business Tools",
+          category: 'Advanced Business Tools',
           icon: BarChart3,
           items: [
-            "Vendor CRM System - Complete customer relationship management",
-            "Advanced Analytics Dashboard - Business intelligence for vendors",
-            "Multi-vendor Marketplace - Complex vendor ecosystem",
-            "Subscription Management - Tiered vendor subscriptions",
+            'Vendor CRM System - Complete customer relationship management',
+            'Advanced Analytics Dashboard - Business intelligence for vendors',
+            'Multi-vendor Marketplace - Complex vendor ecosystem',
+            'Subscription Management - Tiered vendor subscriptions',
           ],
         },
         {
-          category: "Payment & Financial",
+          category: 'Payment & Financial',
           icon: CreditCard,
           items: [
-            "Escrow Payment System - Secure payment holding",
-            "Installment Payment Plans - Flexible payment options",
-            "Multi-currency Support - International expansion ready",
-            "Automated Invoicing - Smart billing system",
+            'Escrow Payment System - Secure payment holding',
+            'Installment Payment Plans - Flexible payment options',
+            'Multi-currency Support - International expansion ready',
+            'Automated Invoicing - Smart billing system',
           ],
         },
         {
-          category: "Content & Media",
+          category: 'Content & Media',
           icon: Camera,
           items: [
-            "Professional Photo/Video Galleries - High-quality media management",
-            "Live Streaming Integration - Stream ceremonies online",
-            "Drone Photography Booking - Aerial photography services",
-            "AI Photo Enhancement - Automatic photo improvement",
+            'Professional Photo/Video Galleries - High-quality media management',
+            'Live Streaming Integration - Stream ceremonies online',
+            'Drone Photography Booking - Aerial photography services',
+            'AI Photo Enhancement - Automatic photo improvement',
           ],
         },
       ],
     },
     advanced: {
-      title: "Phase 3: Advanced Features (6-12 months)",
-      description: "Cutting-edge technology and market leadership",
-      priority: "future",
+      title: 'Phase 3: Advanced Features (6-12 months)',
+      description: 'Cutting-edge technology and market leadership',
+      priority: 'future',
       features: [
         {
-          category: "Emerging Technology",
+          category: 'Emerging Technology',
           icon: Rocket,
           items: [
-            "AR/VR Wedding Planning - Augmented reality venue decoration",
-            "Blockchain Certificates - Immutable wedding certificates",
-            "IoT Integration - Smart venue management",
-            "Voice Assistant Integration - Alexa/Google Assistant support",
+            'AR/VR Wedding Planning - Augmented reality venue decoration',
+            'Blockchain Certificates - Immutable wedding certificates',
+            'IoT Integration - Smart venue management',
+            'Voice Assistant Integration - Alexa/Google Assistant support',
           ],
         },
         {
-          category: "Global Expansion",
+          category: 'Global Expansion',
           icon: Globe,
           items: [
-            "Multi-language Support - 10+ languages",
-            "Cultural Wedding Traditions - Global wedding customs",
-            "International Vendor Network - Worldwide vendor partnerships",
-            "Cross-border Payment Solutions - Global payment processing",
+            'Multi-language Support - 10+ languages',
+            'Cultural Wedding Traditions - Global wedding customs',
+            'International Vendor Network - Worldwide vendor partnerships',
+            'Cross-border Payment Solutions - Global payment processing',
           ],
         },
         {
-          category: "Enterprise Features",
+          category: 'Enterprise Features',
           icon: Shield,
           items: [
-            "White-label Solutions - Platform licensing",
-            "API Marketplace - Third-party integrations",
-            "Advanced Security - Enterprise-grade security",
-            "Compliance Management - GDPR, PCI DSS compliance",
+            'White-label Solutions - Platform licensing',
+            'API Marketplace - Third-party integrations',
+            'Advanced Security - Enterprise-grade security',
+            'Compliance Management - GDPR, PCI DSS compliance',
           ],
         },
       ],
     },
-  }
+  };
 
   const quickWins = [
     {
-      title: "AI-Powered Search Enhancement",
-      description: "Upgrade search with natural language processing and image recognition",
-      impact: "High",
-      effort: "Medium",
-      timeline: "2 weeks",
+      title: 'AI-Powered Search Enhancement',
+      description:
+        'Upgrade search with natural language processing and image recognition',
+      impact: 'High',
+      effort: 'Medium',
+      timeline: '2 weeks',
       icon: Brain,
     },
     {
-      title: "Real-time Notifications",
-      description: "Push notifications for bookings, messages, and updates",
-      impact: "High",
-      effort: "Low",
-      timeline: "1 week",
+      title: 'Real-time Notifications',
+      description: 'Push notifications for bookings, messages, and updates',
+      impact: 'High',
+      effort: 'Low',
+      timeline: '1 week',
       icon: MessageCircle,
     },
     {
-      title: "Advanced Filtering System",
-      description: "Multi-dimensional filters with saved searches",
-      impact: "Medium",
-      effort: "Low",
-      timeline: "1 week",
+      title: 'Advanced Filtering System',
+      description: 'Multi-dimensional filters with saved searches',
+      impact: 'Medium',
+      effort: 'Low',
+      timeline: '1 week',
       icon: Target,
     },
     {
-      title: "Vendor Portfolio Builder",
-      description: "Drag-and-drop portfolio creation for vendors",
-      impact: "High",
-      effort: "Medium",
-      timeline: "3 weeks",
+      title: 'Vendor Portfolio Builder',
+      description: 'Drag-and-drop portfolio creation for vendors',
+      impact: 'High',
+      effort: 'Medium',
+      timeline: '3 weeks',
       icon: Camera,
     },
-  ]
+  ];
 
   const marketOpportunities = [
     {
-      title: "Wedding Insurance Integration",
-      description: "Partner with insurance companies for wedding protection",
-      revenue: "Commission-based",
-      market: "₹50M+ annually in Sri Lanka",
+      title: 'Wedding Insurance Integration',
+      description: 'Partner with insurance companies for wedding protection',
+      revenue: 'Commission-based',
+      market: '₹50M+ annually in Sri Lanka',
     },
     {
-      title: "Honeymoon Planning",
-      description: "Expand to honeymoon destination and travel booking",
-      revenue: "Booking fees + partnerships",
-      market: "₹100M+ travel market",
+      title: 'Honeymoon Planning',
+      description: 'Expand to honeymoon destination and travel booking',
+      revenue: 'Booking fees + partnerships',
+      market: '₹100M+ travel market',
     },
     {
-      title: "Wedding Financing",
-      description: "Offer wedding loans and payment plans",
-      revenue: "Interest + fees",
-      market: "₹200M+ lending opportunity",
+      title: 'Wedding Financing',
+      description: 'Offer wedding loans and payment plans',
+      revenue: 'Interest + fees',
+      market: '₹200M+ lending opportunity',
     },
     {
-      title: "Corporate Events",
-      description: "Expand platform for corporate event planning",
-      revenue: "Premium subscriptions",
-      market: "₹300M+ corporate events",
+      title: 'Corporate Events',
+      description: 'Expand platform for corporate event planning',
+      revenue: 'Premium subscriptions',
+      market: '₹300M+ corporate events',
     },
-  ]
+  ];
 
   const technicalImprovements = [
     {
-      category: "Performance",
+      category: 'Performance',
       items: [
-        "Implement Redis caching for 50% faster load times",
-        "Add CDN for global image delivery",
-        "Optimize database queries with indexing",
-        "Implement lazy loading for better UX",
+        'Implement Redis caching for 50% faster load times',
+        'Add CDN for global image delivery',
+        'Optimize database queries with indexing',
+        'Implement lazy loading for better UX',
       ],
     },
     {
-      category: "Security",
+      category: 'Security',
       items: [
-        "Add two-factor authentication",
-        "Implement rate limiting",
-        "Add data encryption at rest",
-        "Security audit and penetration testing",
+        'Add two-factor authentication',
+        'Implement rate limiting',
+        'Add data encryption at rest',
+        'Security audit and penetration testing',
       ],
     },
     {
-      category: "Scalability",
+      category: 'Scalability',
       items: [
-        "Microservices architecture migration",
-        "Kubernetes deployment",
-        "Auto-scaling infrastructure",
-        "Load balancing implementation",
+        'Microservices architecture migration',
+        'Kubernetes deployment',
+        'Auto-scaling infrastructure',
+        'Load balancing implementation',
       ],
     },
-  ]
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-purple-900/20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className='min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-purple-900/20'>
+      <div className='container mx-auto px-4 sm:px-6 lg:px-8 py-12'>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12"
+          className='text-center mb-12'
         >
-          <div className="inline-flex items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-6 py-3 mb-6">
-            <Sparkles className="h-5 w-5 text-purple-500 mr-2" />
-            <span className="font-medium text-gray-700 dark:text-gray-300">Platform Enhancement Roadmap</span>
+          <div className='inline-flex items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-6 py-3 mb-6'>
+            <Sparkles className='h-5 w-5 text-purple-500 mr-2' />
+            <span className='font-medium text-gray-700 dark:text-gray-300'>
+              Platform Enhancement Roadmap
+            </span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+          <h1 className='text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6'>
             Transform Your
-            <span className="block bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 bg-clip-text text-transparent">
+            <span className='block bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 bg-clip-text text-transparent'>
               Wedding Platform
             </span>
           </h1>
 
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Comprehensive roadmap to build the most advanced wedding platform in South Asia
+          <p className='text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto'>
+            Comprehensive roadmap to build the most advanced wedding platform in
+            South Asia
           </p>
         </motion.div>
 
@@ -284,19 +268,19 @@ export default function RoadmapPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-12"
+          className='mb-12'
         >
-          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <divHeader>
-              <divTitle className="flex items-center text-2xl">
-                <Zap className="h-6 w-6 text-yellow-500 mr-3" />
+          <div className='border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md'>
+            <div>
+              <h3 className='flex items-center text-2xl'>
+                <Zap className='h-6 w-6 text-yellow-500 mr-3' />
                 Quick Wins (Implement This Week)
-              </divTitle>
-            </divHeader>
-            <divContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              </h3>
+            </div>
+            <div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 {quickWins.map((win, index) => {
-                  const IconComponent = win.icon
+                  const IconComponent = win.icon;
                   return (
                     <motion.div
                       key={index}
@@ -304,29 +288,39 @@ export default function RoadmapPage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                     >
-                      <div className="h-full border-l-4 border-l-purple-500">
-                        <divContent className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                              <IconComponent className="h-5 w-5 text-purple-600" />
+                      <div className='h-full border-l-4 border-l-purple-500'>
+                        <div className='p-4'>
+                          <div className='flex items-start gap-3'>
+                            <div className='p-2 bg-purple-100 dark:bg-purple-900 rounded-lg'>
+                              <IconComponent className='h-5 w-5 text-purple-600' />
                             </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-lg mb-2">{win.title}</h3>
-                              <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{win.description}</p>
-                              <div className="flex items-center gap-2 text-xs">
-                                <span variant="outline">Impact: {win.impact}</span>
-                                <span variant="outline">Effort: {win.effort}</span>
-                                <span className="bg-green-100 text-green-800">{win.timeline}</span>
+                            <div className='flex-1'>
+                              <h3 className='font-semibold text-lg mb-2'>
+                                {win.title}
+                              </h3>
+                              <p className='text-gray-600 dark:text-gray-400 text-sm mb-3'>
+                                {win.description}
+                              </p>
+                              <div className='flex items-center gap-2 text-xs'>
+                                <span className='px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
+                                  Impact: {win.impact}
+                                </span>
+                                <span className='px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800'>
+                                  Effort: {win.effort}
+                                </span>
+                                <span className='bg-green-100 text-green-800'>
+                                  {win.timeline}
+                                </span>
                               </div>
                             </div>
                           </div>
-                        </divContent>
+                        </div>
                       </div>
                     </motion.div>
-                  )
+                  );
                 })}
               </div>
-            </divContent>
+            </div>
           </div>
         </motion.div>
 
@@ -335,77 +329,93 @@ export default function RoadmapPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mb-12"
+          className='mb-12'
         >
-          <div value={selectedPhase} onValueChange={setselectedPhase} className="w-full">
-            <divList className="grid w-full grid-cols-3 mb-8">
-              <divTrigger value="immediate" className="text-sm">
+          <div
+            value={selectedPhase}
+            onValueChange={setselectedPhase}
+            className='w-full'
+          >
+            <div className='grid w-full grid-cols-3 mb-8'>
+              <button value='immediate' className='text-sm'>
                 Phase 1: Immediate
-              </divTrigger>
-              <divTrigger value="growth" className="text-sm">
+              </button>
+              <button value='growth' className='text-sm'>
                 Phase 2: Growth
-              </divTrigger>
-              <divTrigger value="advanced" className="text-sm">
+              </button>
+              <button value='advanced' className='text-sm'>
                 Phase 3: Advanced
-              </divTrigger>
-            </divList>
+              </button>
+            </div>
 
             {Object.entries(roadmapPhases).map(([phase, data]) => (
-              <divContent key={phase} value={phase}>
-                <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-                  <divHeader>
-                    <div className="flex items-center justify-between">
+              <div key={phase} value={phase}>
+                <div className='border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md'>
+                  <div>
+                    <div className='flex items-center justify-between'>
                       <div>
-                        <divTitle className="text-2xl mb-2">{data.title}</divTitle>
-                        <p className="text-gray-600 dark:text-gray-400">{data.description}</p>
+                        <h3 className='text-2xl mb-2'>{data.title}</h3>
+                        <p className='text-gray-600 dark:text-gray-400'>
+                          {data.description}
+                        </p>
                       </div>
                       <span
                         className={
-                          data.priority === "high"
-                            ? "bg-red-100 text-red-800"
-                            : data.priority === "medium"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-blue-100 text-blue-800"
+                          data.priority === 'high'
+                            ? 'bg-red-100 text-red-800'
+                            : data.priority === 'medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-blue-100 text-blue-800'
                         }
                       >
                         {data.priority} priority
                       </span>
                     </div>
-                  </divHeader>
-                  <divContent>
-                    <div className="space-y-8">
+                  </div>
+                  <div>
+                    <div className='space-y-8'>
                       {data.features.map((category, categoryIndex) => {
-                        const IconComponent = category.icon
+                        const IconComponent = category.icon;
                         return (
                           <motion.div
                             key={categoryIndex}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: categoryIndex * 0.1 }}
+                            transition={{
+                              duration: 0.4,
+                              delay: categoryIndex * 0.1,
+                            }}
                           >
-                            <div className="border rounded-lg p-6">
-                              <div className="flex items-center mb-4">
-                                <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mr-3">
-                                  <IconComponent className="h-5 w-5 text-white" />
+                            <div className='border rounded-lg p-6'>
+                              <div className='flex items-center mb-4'>
+                                <div className='p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mr-3'>
+                                  <IconComponent className='h-5 w-5 text-white' />
                                 </div>
-                                <h3 className="text-xl font-semibold">{category.category}</h3>
+                                <h3 className='text-xl font-semibold'>
+                                  {category.category}
+                                </h3>
                               </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
                                 {category.items.map((item, itemIndex) => (
-                                  <div key={itemIndex} className="flex items-start gap-2">
-                                    <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
-                                    <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                                  <div
+                                    key={itemIndex}
+                                    className='flex items-start gap-2'
+                                  >
+                                    <CheckCircle2 className='h-4 w-4 text-green-500 mt-1 flex-shrink-0' />
+                                    <span className='text-sm text-gray-700 dark:text-gray-300'>
+                                      {item}
+                                    </span>
                                   </div>
                                 ))}
                               </div>
                             </div>
                           </motion.div>
-                        )
+                        );
                       })}
                     </div>
-                  </divContent>
+                  </div>
                 </div>
-              </divContent>
+              </div>
             ))}
           </div>
         </motion.div>
@@ -415,17 +425,17 @@ export default function RoadmapPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mb-12"
+          className='mb-12'
         >
-          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <divHeader>
-              <divTitle className="flex items-center text-2xl">
-                <Trophy className="h-6 w-6 text-gold-500 mr-3" />
+          <div className='border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md'>
+            <div>
+              <h3 className='flex items-center text-2xl'>
+                <Trophy className='h-6 w-6 text-gold-500 mr-3' />
                 Revenue Expansion Opportunities
-              </divTitle>
-            </divHeader>
-            <divContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              </h3>
+            </div>
+            <div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 {marketOpportunities.map((opportunity, index) => (
                   <motion.div
                     key={index}
@@ -433,26 +443,36 @@ export default function RoadmapPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <div className="h-full border-l-4 border-l-green-500">
-                      <divContent className="p-4">
-                        <h3 className="font-semibold text-lg mb-2">{opportunity.title}</h3>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{opportunity.description}</p>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">Revenue Model:</span>
-                            <span className="font-medium">{opportunity.revenue}</span>
+                    <div className='h-full border-l-4 border-l-green-500'>
+                      <div className='p-4'>
+                        <h3 className='font-semibold text-lg mb-2'>
+                          {opportunity.title}
+                        </h3>
+                        <p className='text-gray-600 dark:text-gray-400 text-sm mb-3'>
+                          {opportunity.description}
+                        </p>
+                        <div className='space-y-2'>
+                          <div className='flex justify-between text-sm'>
+                            <span className='text-gray-500'>
+                              Revenue Model:
+                            </span>
+                            <span className='font-medium'>
+                              {opportunity.revenue}
+                            </span>
                           </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">Market Size:</span>
-                            <span className="font-medium text-green-600">{opportunity.market}</span>
+                          <div className='flex justify-between text-sm'>
+                            <span className='text-gray-500'>Market Size:</span>
+                            <span className='font-medium text-green-600'>
+                              {opportunity.market}
+                            </span>
                           </div>
                         </div>
-                      </divContent>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
-            </divContent>
+            </div>
           </div>
         </motion.div>
 
@@ -462,15 +482,15 @@ export default function RoadmapPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
         >
-          <div className="border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md">
-            <divHeader>
-              <divTitle className="flex items-center text-2xl">
-                <Rocket className="h-6 w-6 text-blue-500 mr-3" />
+          <div className='border-0 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md'>
+            <div>
+              <h3 className='flex items-center text-2xl'>
+                <Rocket className='h-6 w-6 text-blue-500 mr-3' />
                 Technical Infrastructure Upgrades
-              </divTitle>
-            </divHeader>
-            <divContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              </h3>
+            </div>
+            <div>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
                 {technicalImprovements.map((category, index) => (
                   <motion.div
                     key={index}
@@ -478,25 +498,30 @@ export default function RoadmapPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <div className="h-full">
-                      <divHeader>
-                        <divTitle className="text-lg">{category.category}</divTitle>
-                      </divHeader>
-                      <divContent>
-                        <div className="space-y-2">
+                    <div className='h-full'>
+                      <div>
+                        <h3 className='text-lg'>{category.category}</h3>
+                      </div>
+                      <div>
+                        <div className='space-y-2'>
                           {category.items.map((item, itemIndex) => (
-                            <div key={itemIndex} className="flex items-start gap-2">
-                              <ArrowRight className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                            <div
+                              key={itemIndex}
+                              className='flex items-start gap-2'
+                            >
+                              <ArrowRight className='h-4 w-4 text-blue-500 mt-1 flex-shrink-0' />
+                              <span className='text-sm text-gray-700 dark:text-gray-300'>
+                                {item}
+                              </span>
                             </div>
                           ))}
                         </div>
-                      </divContent>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
-            </divContent>
+            </div>
           </div>
         </motion.div>
 
@@ -505,32 +530,31 @@ export default function RoadmapPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.0 }}
-          className="mt-12 text-center"
+          className='mt-12 text-center'
         >
-          <div className="border-0 shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-            <divContent className="p-8">
-              <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Platform?</h2>
-              <p className="text-lg mb-6 opacity-90">
-                Start with Phase 1 quick wins and build the most advanced wedding platform in South Asia
+          <div className='border-0 shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white'>
+            <div className='p-8'>
+              <h2 className='text-3xl font-bold mb-4'>
+                Ready to Transform Your Platform?
+              </h2>
+              <p className='text-lg mb-6 opacity-90'>
+                Start with Phase 1 quick wins and build the most advanced
+                wedding platform in South Asia
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button size="lg" variant="secondary" className="text-purple-600">
-                  <Rocket className="mr-2 h-5 w-5" />
+              <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+                <button className='px-6 py-3 text-lg'>
+                  <Rocket className='mr-2 h-5 w-5' />
                   Start Implementation
                 </button>
-                <button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-purple-600"
-                >
-                  <div className="mr-2 h-5 w-5" />
+                <button className='px-6 py-3 text-lg border-white text-white hover:bg-white hover:text-purple-600'>
+                  <div className='mr-2 h-5 w-5' />
                   Schedule Planning Session
                 </button>
               </div>
-            </divContent>
+            </div>
           </div>
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

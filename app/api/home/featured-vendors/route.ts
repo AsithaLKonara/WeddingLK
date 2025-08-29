@@ -1,20 +1,22 @@
-import { NextRequest, NextResponse } from "next/server"
-import { connectDB } from "@/lib/db"
-import { Vendor } from "@/lib/models/vendor"
+import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '@/lib/db';
+import { Vendor } from '@/lib/models/vendor';
 
 export async function GET(request: NextRequest) {
   try {
-    await connectDB()
+    await connectDB();
 
     // Get featured vendors with basic info
-    const vendors = await Vendor.find({ 
-      featured: true, 
-      isActive: true, 
-      isVerified: true 
+    const vendors = await Vendor.find({
+      featured: true,
+      isActive: true,
+      isVerified: true,
     })
-    .select('name businessName category description location contact rating portfolio')
-    .limit(6)
-    .sort({ 'rating.average': -1, createdAt: -1 })
+      .select(
+        'name businessName category description location contact rating portfolio'
+      )
+      .limit(6)
+      .sort({ 'rating.average': -1, createdAt: -1 });
 
     // If no vendors found, return mock data
     if (!vendors || vendors.length === 0) {
@@ -31,7 +33,7 @@ export async function GET(request: NextRequest) {
           portfolio: [],
           isVerified: true,
           isActive: true,
-          featured: true
+          featured: true,
         },
         {
           _id: 'mock2',
@@ -45,17 +47,16 @@ export async function GET(request: NextRequest) {
           portfolio: [],
           isVerified: true,
           isActive: true,
-          featured: true
-        }
-      ]
-      return NextResponse.json({ vendors: mockVendors })
+          featured: true,
+        },
+      ];
+      return NextResponse.json({ vendors: mockVendors });
     }
 
-    return NextResponse.json({ vendors })
-
+    return NextResponse.json({ vendors });
   } catch (error) {
-    console.error("Error fetching featured vendors:", error)
-    
+    console.error('Error fetching featured vendors:', error);
+
     // Return mock data on error
     const mockVendors = [
       {
@@ -70,7 +71,7 @@ export async function GET(request: NextRequest) {
         portfolio: [],
         isVerified: true,
         isActive: true,
-        featured: true
+        featured: true,
       },
       {
         _id: 'mock2',
@@ -84,9 +85,9 @@ export async function GET(request: NextRequest) {
         portfolio: [],
         isVerified: true,
         isActive: true,
-        featured: true
-      }
-    ]
-    return NextResponse.json({ vendors: mockVendors })
+        featured: true,
+      },
+    ];
+    return NextResponse.json({ vendors: mockVendors });
   }
-} 
+}

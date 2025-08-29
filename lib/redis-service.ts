@@ -5,7 +5,9 @@ const REDIS_URL = process.env.REDIS_URL;
 const REDIS_TTL = parseInt(process.env.CACHE_TTL || '300'); // 5 minutes default
 
 if (!REDIS_URL) {
-  throw new Error('REDIS_URL environment variable is required for Redis connection');
+  throw new Error(
+    'REDIS_URL environment variable is required for Redis connection'
+  );
 }
 
 // Redis client with production optimizations
@@ -13,10 +15,10 @@ export const redis = new Redis(REDIS_URL, {
   // Connection settings
   maxRetriesPerRequest: 3,
   lazyConnect: true,
-  
+
   // Performance optimizations
   enableOfflineQueue: false,
-  
+
   // Cluster settings (if using Redis cluster)
   enableReadyCheck: true,
 });
@@ -103,11 +105,11 @@ export class CacheService {
     try {
       const info = await this.redis.info();
       const keyspace = await this.redis.info('keyspace');
-      
+
       return {
         info: this.parseRedisInfo(info),
         keyspace: this.parseRedisInfo(keyspace),
-        keys: await this.redis.dbsize()
+        keys: await this.redis.dbsize(),
       };
     } catch (error) {
       console.error('❌ Cache stats error:', error);
@@ -121,7 +123,9 @@ export class CacheService {
       const keys = await this.redis.keys(pattern);
       if (keys.length > 0) {
         await this.redis.del(...keys);
-        console.log(`🗑️ Invalidated ${keys.length} cache keys matching pattern: ${pattern}`);
+        console.log(
+          `🗑️ Invalidated ${keys.length} cache keys matching pattern: ${pattern}`
+        );
       }
     } catch (error) {
       console.error('❌ Cache pattern invalidation error:', error);
@@ -130,8 +134,8 @@ export class CacheService {
 
   // Cache with fallback function
   async cacheWithFallback<T>(
-    key: string, 
-    fallback: () => Promise<T>, 
+    key: string,
+    fallback: () => Promise<T>,
     ttl: number = REDIS_TTL
   ): Promise<T> {
     try {
@@ -143,10 +147,10 @@ export class CacheService {
 
       // Execute fallback function
       const result = await fallback();
-      
+
       // Cache the result
       await this.set(key, result, ttl);
-      
+
       return result;
     } catch (error) {
       console.error('❌ Cache with fallback error:', error);
@@ -156,21 +160,25 @@ export class CacheService {
   }
 
   // Health check
-  async healthCheck(): Promise<{ status: string; responseTime: number; error?: string }> {
+  async healthCheck(): Promise<{
+    status: string;
+    responseTime: number;
+    error?: string;
+  }> {
     try {
       const start = Date.now();
       await this.redis.ping();
       const responseTime = Date.now() - start;
-      
+
       return {
         status: 'healthy',
-        responseTime
+        responseTime,
       };
     } catch (error) {
       return {
         status: 'unhealthy',
         responseTime: 0,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -179,7 +187,7 @@ export class CacheService {
   private parseRedisInfo(info: string): Record<string, any> {
     const lines = info.split('\r\n');
     const result: Record<string, any> = {};
-    
+
     for (const line of lines) {
       if (line.includes(':')) {
         const [key, value] = line.split(':');
@@ -188,7 +196,7 @@ export class CacheService {
         }
       }
     }
-    
+
     return result;
   }
 }
@@ -198,28 +206,28 @@ export const cacheService = CacheService.getInstance();
 
 // Utility functions for common caching patterns
 export async function cacheJson<T>(
-  key: string, 
-  ttlSec: number, 
+  key: string,
+  ttlSec: number,
   fn: () => Promise<T>
 ): Promise<T> {
   return cacheService.cacheWithFallback(key, fn, ttlSec);
 }
 
 export async function cacheStats(
-  key: string, 
-  ttlSec: number, 
+  key: string,
+  ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec);
 }
 
 export async function cacheSearch(
-  key: string, 
-  ttlSec: number, 
+  key: string,
+  ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec);
 }
 
 // Export for use in other modules
-export default cacheService; 
+export default cacheService;

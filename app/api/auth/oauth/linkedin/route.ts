@@ -48,9 +48,9 @@ export async function GET(request: NextRequest) {
       'https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams))',
       {
         headers: {
-          'Authorization': `Bearer ${tokenData.access_token}`,
-          'X-Restli-Protocol-Version': '2.0.0'
-        }
+          Authorization: `Bearer ${tokenData.access_token}`,
+          'X-Restli-Protocol-Version': '2.0.0',
+        },
       }
     );
 
@@ -65,9 +65,9 @@ export async function GET(request: NextRequest) {
       'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))',
       {
         headers: {
-          'Authorization': `Bearer ${tokenData.access_token}`,
-          'X-Restli-Protocol-Version': '2.0.0'
-        }
+          Authorization: `Bearer ${tokenData.access_token}`,
+          'X-Restli-Protocol-Version': '2.0.0',
+        },
       }
     );
 
@@ -79,7 +79,11 @@ export async function GET(request: NextRequest) {
 
     // Extract profile picture
     let profilePicture = '';
-    if (userData.profilePicture && userData.profilePicture['displayImage~'] && userData.profilePicture['displayImage~'].elements) {
+    if (
+      userData.profilePicture &&
+      userData.profilePicture['displayImage~'] &&
+      userData.profilePicture['displayImage~'].elements
+    ) {
       const imageElements = userData.profilePicture['displayImage~'].elements;
       const largestImage = imageElements[imageElements.length - 1];
       profilePicture = largestImage?.identifiers?.[0]?.identifier || '';
@@ -93,12 +97,14 @@ export async function GET(request: NextRequest) {
       picture: profilePicture,
       provider: 'linkedin',
       accessToken: tokenData.access_token,
-      expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
+      expiresAt: tokenData.expires_in
+        ? Date.now() + tokenData.expires_in * 1000
+        : undefined,
       additionalData: {
         firstName: userData.firstName?.localized?.en_US,
         lastName: userData.lastName?.localized?.en_US,
-        profilePicture: userData.profilePicture
-      }
+        profilePicture: userData.profilePicture,
+      },
     });
 
     if (authResult.success && authResult.token) {
@@ -117,4 +123,4 @@ export async function GET(request: NextRequest) {
       `${process.env.NEXTAUTH_URL}/login?error=${encodeURIComponent('Authentication failed')}`
     );
   }
-} 
+}

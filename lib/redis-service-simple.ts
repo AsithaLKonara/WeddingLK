@@ -3,14 +3,15 @@
 
 // In-memory cache implementation
 class InMemoryCache {
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+  private cache: Map<string, { data: any; timestamp: number; ttl: number }> =
+    new Map();
   private readonly defaultTTL: number = 300000; // 5 minutes in milliseconds
 
   // Set cache with TTL
   set(key: string, value: any, ttl: number = this.defaultTTL): void {
     const timestamp = Date.now();
     this.cache.set(key, { data: value, timestamp, ttl });
-    
+
     // Clean up expired entries
     this.cleanup();
   }
@@ -46,7 +47,7 @@ class InMemoryCache {
     let validEntries = 0;
     let expiredEntries = 0;
 
-    for (const [key, item] of Array.from(this.cache.entries())) {
+    for (const [, item] of Array.from(this.cache.entries())) {
       if (now - item.timestamp > item.ttl) {
         expiredEntries++;
       } else {
@@ -58,7 +59,7 @@ class InMemoryCache {
       total: this.cache.size,
       valid: validEntries,
       expired: expiredEntries,
-      memory: this.estimateMemoryUsage()
+      memory: this.estimateMemoryUsage(),
     };
   }
 
@@ -75,14 +76,16 @@ class InMemoryCache {
     }
 
     if (deletedCount > 0) {
-      console.log(`🗑️ Invalidated ${deletedCount} cache keys matching pattern: ${pattern}`);
+      console.log(
+        `🗑️ Invalidated ${deletedCount} cache keys matching pattern: ${pattern}`
+      );
     }
   }
 
   // Cache with fallback function
   async cacheWithFallback<T>(
-    key: string, 
-    fallback: () => Promise<T>, 
+    key: string,
+    fallback: () => Promise<T>,
     ttl: number = this.defaultTTL
   ): Promise<T> {
     try {
@@ -94,10 +97,10 @@ class InMemoryCache {
 
       // Execute fallback function
       const result = await fallback();
-      
+
       // Cache the result
       this.set(key, result, ttl);
-      
+
       return result;
     } catch (error) {
       console.error('❌ Cache with fallback error:', error);
@@ -109,30 +112,30 @@ class InMemoryCache {
   // Health check
   healthCheck(): { status: string; responseTime: number; error?: string } {
     const start = Date.now();
-    
+
     try {
       // Simple operation to test cache functionality
       this.set('health-check', 'ok', 1000);
       const result = this.get('health-check');
-      
+
       if (result === 'ok') {
         const responseTime = Date.now() - start;
         return {
           status: 'healthy',
-          responseTime
+          responseTime,
         };
       } else {
         return {
           status: 'unhealthy',
           responseTime: 0,
-          error: 'Cache read/write test failed'
+          error: 'Cache read/write test failed',
         };
       }
     } catch (error) {
       return {
         status: 'error',
         responseTime: 0,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -170,9 +173,10 @@ class InMemoryCache {
   private estimateMemoryUsage(): string {
     const size = this.cache.size;
     const estimatedBytes = size * 1000; // Rough estimate: 1KB per cache entry
-    
+
     if (estimatedBytes < 1024) return `${estimatedBytes} B`;
-    if (estimatedBytes < 1024 * 1024) return `${(estimatedBytes / 1024).toFixed(2)} KB`;
+    if (estimatedBytes < 1024 * 1024)
+      return `${(estimatedBytes / 1024).toFixed(2)} KB`;
     return `${(estimatedBytes / (1024 * 1024)).toFixed(2)} MB`;
   }
 
@@ -187,28 +191,28 @@ export const cacheService = new InMemoryCache();
 
 // Utility functions for common caching patterns
 export async function cacheJson<T>(
-  key: string, 
-  ttlSec: number, 
+  key: string,
+  ttlSec: number,
   fn: () => Promise<T>
 ): Promise<T> {
   return cacheService.cacheWithFallback(key, fn, ttlSec * 1000);
 }
 
 export async function cacheStats(
-  key: string, 
-  ttlSec: number, 
+  key: string,
+  ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec * 1000);
 }
 
 export async function cacheSearch(
-  key: string, 
-  ttlSec: number, 
+  key: string,
+  ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec * 1000);
 }
 
 // Export for use in other modules
-export default cacheService; 
+export default cacheService;
