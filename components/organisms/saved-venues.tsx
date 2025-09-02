@@ -92,23 +92,23 @@ export function SavedVenues() {
     }).format(_amount);
   };
 
-  const handleViewVenue = async (_venue: SavedVenue) => {
-    setIsLoading(_venue.id);
+  const handleViewVenue = async (venue: SavedVenue) => {
+    setIsLoading(venue.id);
     try {
       // Simulate navigation delay
       await new Promise(resolve => setTimeout(resolve, 500));
 
       toast({
         title: 'Opening Venue',
-        description: `Taking you to ${_venue.name}`,
+        description: `Taking you to ${venue.name}`,
       });
 
       // Here you would typically use Next.js router to navigate
-      // router.push(`/venues/${_venue.id}`)
+      // router.push(`/venues/${venue.id}`)
     } catch (error) {
       toast({
         title: 'Navigation Error',
-        description: 'Failed to open _venue. Please try again.',
+        description: 'Failed to open venue. Please try again.',
         type: 'error',
       });
     } finally {
@@ -116,13 +116,13 @@ export function SavedVenues() {
     }
   };
 
-  const handleRemoveVenue = async (_venueId: string, _venueName: string) => {
-    setIsLoading(_venueId);
+  const handleRemoveVenue = async (venueId: string, venueName: string) => {
+    setIsLoading(venueId);
     try {
-      setSavedVenues(prev => prev.filter(venue => venue.id !== _venueId));
+      setSavedVenues(prev => prev.filter(venue => venue.id !== venueId));
       toast({
         title: 'Venue Removed',
-        description: `&ldquo;${_venueName}&rdquo; has been removed from your saved venues.`,
+        description: `&ldquo;${venueName}&rdquo; has been removed from your saved venues.`,
       });
     } catch (error) {
       toast({
@@ -136,19 +136,19 @@ export function SavedVenues() {
     }
   };
 
-  const handleBookVenue = async (_venue: SavedVenue) => {
-    setIsLoading(_venue.id);
+  const handleBookVenue = async (venue: SavedVenue) => {
+    setIsLoading(venue.id);
     try {
       // Simulate booking process
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
         title: 'Booking Initiated',
-        description: `Starting booking process for ${_venue.name}`,
+        description: `Starting booking process for ${venue.name}`,
       });
 
       // Here you would typically navigate to booking page
-      // router.push(`/venues/${_venue.id}/book`)
+      // router.push(`/venues/${venue.id}/book`)
     } catch (error) {
       toast({
         title: 'Booking Error',
@@ -160,13 +160,13 @@ export function SavedVenues() {
     }
   };
 
-  const handleShareVenue = async (_venue: SavedVenue) => {
+  const handleShareVenue = async (venue: SavedVenue) => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: _venue.name,
-          text: `Check out this amazing venue: ${_venue.name}`,
-          url: `/venues/${_venue.id}`,
+          title: venue.name,
+          text: `Check out this amazing venue: ${venue.name}`,
+          url: `/venues/${venue.id}`,
         });
         toast({
           title: 'Venue shared successfully!',
@@ -175,7 +175,7 @@ export function SavedVenues() {
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(
-          `${_venue.name}: /venues/${_venue.id}`
+          `${venue.name}: /venues/${venue.id}`
         );
         toast({
           title: 'Venue link copied to clipboard!',
@@ -185,7 +185,7 @@ export function SavedVenues() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to share _venue. Please try again.',
+        description: 'Failed to share venue. Please try again.',
         type: 'error',
       });
     }
@@ -215,22 +215,22 @@ export function SavedVenues() {
             </Button>
           </div>
         ) : (
-          savedVenues.map((_venue: any) => (
+          savedVenues.map((venue: any) => (
             <div
-              key={_venue.id}
+              key={venue.id}
               className='flex items-center space-x-4 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group'
               role='listitem'
-              aria-label={`Saved venue: ${_venue.name} in ${_venue.location}, rated ${_venue.rating} stars, ${formatCurrency(_venue.price)}`}
+              aria-label={`Saved venue: ${venue.name} in ${venue.location}, rated ${venue.rating} stars, ${formatCurrency(venue.price)}`}
             >
               <div className='relative'>
                 <Image
-                  src={_venue.image || '/placeholder.svg'}
-                  alt={_venue.name}
+                  src={venue.image || '/placeholder.svg'}
+                  alt={venue.name}
                   width={60}
                   height={60}
                   className='rounded-lg object-cover'
                 />
-                {isLoading === _venue.id && (
+                {isLoading === venue.id && (
                   <div className='absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg'>
                     <Loader2 className='h-4 w-4 animate-spin' />
                   </div>
@@ -240,21 +240,21 @@ export function SavedVenues() {
               <div className='flex-1 min-w-0'>
                 <div className='flex items-center gap-2'>
                   <div className='font-medium text-gray-900 dark:text-white truncate'>
-                    {_venue.name}
+                    {venue.name}
                   </div>
                   <Badge variant='outline' className='text-xs'>
-                    Saved {_venue.savedDate}
+                    Saved {venue.savedDate}
                   </Badge>
                 </div>
 
                 <div className='flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1'>
                   <MapPin className='h-3 w-3 mr-1' aria-hidden='true' />
-                  {_venue.location}
-                  {_venue.capacity && (
+                  {venue.location}
+                  {venue.capacity && (
                     <>
                       <span className='mx-2'>•</span>
                       <Users className='h-3 w-3 mr-1' aria-hidden='true' />
-                      {_venue.capacity} guests
+                      {venue.capacity} guests
                     </>
                   )}
                 </div>
@@ -265,25 +265,25 @@ export function SavedVenues() {
                       className='h-3 w-3 text-yellow-400 fill-current mr-1'
                       aria-hidden='true'
                     />
-                    <span className='text-sm font-medium'>{_venue.rating}</span>
+                    <span className='text-sm font-medium'>{venue.rating}</span>
                     <span className='text-xs text-gray-500 ml-1'>
                       (
-                      {_venue.rating >= 4.5
+                      {venue.rating >= 4.5
                         ? 'Excellent'
-                        : _venue.rating >= 4.0
+                        : venue.rating >= 4.0
                           ? 'Very Good'
                           : 'Good'}
                       )
                     </span>
                   </div>
                   <div className='text-sm font-medium text-green-600'>
-                    {formatCurrency(_venue.price)}
+                    {formatCurrency(venue.price)}
                   </div>
                 </div>
 
-                {_venue.amenities && _venue.amenities.length > 0 && (
+                {venue.amenities && venue.amenities.length > 0 && (
                   <div className='flex flex-wrap gap-1 mt-2'>
-                    {_venue.amenities.slice(0, 2).map((amenity, index) => (
+                    {venue.amenities.slice(0, 2).map((amenity, index) => (
                       <Badge
                         key={index}
                         variant='secondary'
@@ -292,9 +292,9 @@ export function SavedVenues() {
                         {amenity}
                       </Badge>
                     ))}
-                    {_venue.amenities.length > 2 && (
+                    {venue.amenities.length > 2 && (
                       <Badge variant='secondary' className='text-xs'>
-                        +{_venue.amenities.length - 2} more
+                        +{venue.amenities.length - 2} more
                       </Badge>
                     )}
                   </div>
@@ -307,7 +307,7 @@ export function SavedVenues() {
                   variant='ghost'
                   onClick={() => handleViewVenue(venue)}
                   disabled={isLoading !== null}
-                  aria-label={`View ${_venue.name} details`}
+                  aria-label={`View ${venue.name} details`}
                 >
                   <Eye className='h-4 w-4' />
                 </Button>
@@ -316,7 +316,7 @@ export function SavedVenues() {
                   variant='ghost'
                   onClick={() => handleBookVenue(venue)}
                   disabled={isLoading !== null}
-                  aria-label={`Book ${_venue.name}`}
+                  aria-label={`Book ${venue.name}`}
                 >
                   <Calendar className='h-4 w-4' />
                 </Button>
@@ -325,7 +325,7 @@ export function SavedVenues() {
                     <Button
                       size='sm'
                       variant='ghost'
-                      aria-label={`Remove ${_venue.name} from saved venues`}
+                      aria-label={`Remove ${venue.name} from saved venues`}
                     >
                       <Trash2 className='h-4 w-4' />
                     </Button>
@@ -334,17 +334,17 @@ export function SavedVenues() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Remove Saved Venue</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to remove "{_venue.name}" from your
+                        Are you sure you want to remove "{venue.name}" from your
                         saved venues? This action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
-                        onClick={() => handleRemoveVenue(_venue.id, _venue.name)}
+                        onClick={() => handleRemoveVenue(venue.id, venue.name)}
                         disabled={isLoading !== null}
                       >
-                        {isLoading === _venue.id ? (
+                        {isLoading === venue.id ? (
                           <Loader2 className='h-4 w-4 animate-spin' />
                         ) : (
                           'Remove'
