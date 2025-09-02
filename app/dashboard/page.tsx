@@ -37,7 +37,7 @@ import {
   LayoutDashboard,
 } from 'lucide-react';
 import { DashboardOverview } from './components/dashboard-overview';
-import { usePerformanceMonitor } from '@/hooks/use-performance-monitor';
+// import { usePerformanceMonitor } from '@/hooks/use-performance-monitor';
 
 // Lazy load heavy components
 const BookingsTab = lazy(() => import('./components/bookings-tab'));
@@ -61,7 +61,7 @@ function DashboardContent() {
   const [payments, setPayments] = useState([]);
 
   // Performance monitoring
-  usePerformanceMonitor();
+  // usePerformanceMonitor();
 
   useEffect(() => {
     const tab = searchParams.get('tab') || 'overview';
