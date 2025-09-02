@@ -292,7 +292,7 @@ export function VendorGrid({
     <div
       className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}
     >
-      {vendors.map((_vendor: any) => {
+      {vendors.map((vendor: any) => {
         const isFavorited = favorites.includes(vendor._id);
 
         return (
