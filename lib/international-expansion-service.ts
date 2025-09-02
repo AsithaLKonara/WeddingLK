@@ -1,72 +1,72 @@
-import { connectDB } from './db';
-import { User, Vendor, Venue, Booking, Payment } from './models';
+// import { connectDB } from './db';
+// import { User, Vendor, Venue, Booking, Payment } from './models';
 
 interface LocalizationConfig {
-  language: string;
-  currency: string;
-  timezone: string;
-  dateFormat: string;
-  numberFormat: string;
-  addressFormat: string;
-  phoneFormat: string;
+  _language: string;
+  _currency: string;
+  _timezone: string;
+  _dateFormat: string;
+  _numberFormat: string;
+  _addressFormat: string;
+  _phoneFormat: string;
 }
 
 interface SupportedRegion {
-  code: string;
-  name: string;
-  languages: string[];
-  currencies: string[];
-  timezones: string[];
-  dateFormats: string[];
-  numberFormats: string[];
-  addressFormats: string[];
-  phoneFormats: string[];
-  culturalPreferences: CulturalPreferences;
-  legalRequirements: LegalRequirements;
-  marketData: MarketData;
+  _code: string;
+  _name: string;
+  _languages: string[];
+  _currencies: string[];
+  _timezones: string[];
+  _dateFormats: string[];
+  _numberFormats: string[];
+  _addressFormats: string[];
+  _phoneFormats: string[];
+  _culturalPreferences: CulturalPreferences;
+  _legalRequirements: LegalRequirements;
+  _marketData: MarketData;
 }
 
 interface CulturalPreferences {
-  weddingTraditions: string[];
-  colorPreferences: string[];
-  giftPreferences: string[];
-  celebrationStyles: string[];
-  dietaryRestrictions: string[];
-  religiousConsiderations: string[];
-  seasonalPreferences: string[];
+  _weddingTraditions: string[];
+  _colorPreferences: string[];
+  _giftPreferences: string[];
+  _celebrationStyles: string[];
+  _dietaryRestrictions: string[];
+  _religiousConsiderations: string[];
+  _seasonalPreferences: string[];
 }
 
 interface LegalRequirements {
-  marriageLaws: string[];
-  vendorLicensing: string[];
-  taxRequirements: string[];
-  dataProtection: string[];
-  importRestrictions: string[];
-  businessRegistration: string[];
+  _marriageLaws: string[];
+  _vendorLicensing: string[];
+  _taxRequirements: string[];
+  _dataProtection: string[];
+  _importRestrictions: string[];
+  _businessRegistration: string[];
 }
 
 interface MarketData {
-  population: number;
-  weddingMarketSize: number;
-  averageWeddingCost: number;
-  popularVenues: string[];
-  trendingServices: string[];
-  competition: string[];
-  opportunities: string[];
+  _population: number;
+  _weddingMarketSize: number;
+  _averageWeddingCost: number;
+  _popularVenues: string[];
+  _trendingServices: string[];
+  _competition: string[];
+  _opportunities: string[];
 }
 
 interface CurrencyExchange {
-  fromCurrency: string;
-  toCurrency: string;
-  rate: number;
+  _fromCurrency: string;
+  _toCurrency: string;
+  _rate: number;
   lastUpdated: Date;
-  source: string;
+  _source: string;
 }
 
 interface TranslationCache {
-  key: string;
-  language: string;
-  translation: string;
+  _key: string;
+  _language: string;
+  _translation: string;
   lastUpdated: Date;
 }
 
@@ -554,13 +554,13 @@ class InternationalExpansionService {
 
   // Localization Management
   async getLocalizationConfig(
-    userId: string,
-    regionCode: string
+    _userId: string,
+    _regionCode: string
   ): Promise<LocalizationConfig> {
     try {
       await connectDB();
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -592,14 +592,14 @@ class InternationalExpansionService {
   }
 
   async updateLocalizationConfig(
-    userId: string,
-    regionCode: string,
-    config: Partial<LocalizationConfig>
+    _userId: string,
+    _regionCode: string,
+    _config: Partial<$2>
   ): Promise<void> {
     try {
       await connectDB();
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -619,7 +619,7 @@ class InternationalExpansionService {
         ...validatedConfig,
       };
 
-      await User.findByIdAndUpdate(userId, {
+      await (User as any).findByIdAndUpdate(userId, {
         localizationPreferences: currentPreferences,
       });
     } catch (error) {
@@ -630,8 +630,8 @@ class InternationalExpansionService {
 
   // Currency Management
   async getExchangeRate(
-    fromCurrency: string,
-    toCurrency: string
+    _fromCurrency: string,
+    _toCurrency: string
   ): Promise<number> {
     try {
       const cacheKey = `${fromCurrency}_${toCurrency}`;
@@ -667,9 +667,9 @@ class InternationalExpansionService {
   }
 
   async convertCurrency(
-    amount: number,
-    fromCurrency: string,
-    toCurrency: string
+    _amount: number,
+    _fromCurrency: string,
+    _toCurrency: string
   ): Promise<number> {
     try {
       if (fromCurrency === toCurrency) {
@@ -696,9 +696,9 @@ class InternationalExpansionService {
 
   // Language and Translation
   async translateText(
-    text: string,
-    fromLanguage: string,
-    toLanguage: string
+    _text: string,
+    _fromLanguage: string,
+    _toLanguage: string
   ): Promise<string> {
     try {
       if (fromLanguage === toLanguage) {
@@ -750,8 +750,8 @@ class InternationalExpansionService {
 
   // Regional Adaptations
   async adaptContentForRegion(
-    content: string,
-    regionCode: string,
+    _content: string,
+    _regionCode: string,
     contentType: 'wedding' | 'vendor' | 'venue' | 'general'
   ): Promise<string> {
     try {
@@ -791,7 +791,7 @@ class InternationalExpansionService {
   }
 
   async getRegionalRecommendations(
-    regionCode: string,
+    _regionCode: string,
     category: 'venue' | 'vendor' | 'service'
   ): Promise<string[]> {
     try {
@@ -817,7 +817,7 @@ class InternationalExpansionService {
   }
 
   // Market Analysis
-  async getMarketAnalysis(regionCode: string): Promise<MarketData> {
+  async getMarketAnalysis(_regionCode: string): Promise<MarketData> {
     try {
       const region = this.supportedRegions.get(regionCode);
       if (!region) {
@@ -832,7 +832,7 @@ class InternationalExpansionService {
   }
 
   async compareMarkets(
-    regionCodes: string[]
+    _regionCodes: string[]
   ): Promise<Record<string, MarketData>> {
     try {
       const comparison: Record<string, MarketData> = {};
@@ -853,8 +853,8 @@ class InternationalExpansionService {
 
   // Business Expansion Support
   async getExpansionRecommendations(
-    currentRegion: string,
-    targetRegions: string[]
+    _currentRegion: string,
+    _targetRegions: string[]
   ): Promise<Record<string, any>> {
     try {
       const recommendations: Record<string, any> = {};
@@ -889,7 +889,7 @@ class InternationalExpansionService {
 
   // Utility Methods
   private validateConfiguration(
-    config: Partial<LocalizationConfig>,
+    _config: Partial<$2>,
     region: SupportedRegion
   ): Partial<LocalizationConfig> {
     const validated: Partial<LocalizationConfig> = {};
@@ -935,8 +935,8 @@ class InternationalExpansionService {
   }
 
   private async fetchExchangeRate(
-    fromCurrency: string,
-    toCurrency: string
+    _fromCurrency: string,
+    _toCurrency: string
   ): Promise<number> {
     try {
       // This would integrate with a real exchange rate API
@@ -961,9 +961,9 @@ class InternationalExpansionService {
   }
 
   private async translateWithService(
-    text: string,
-    fromLanguage: string,
-    toLanguage: string
+    _text: string,
+    _fromLanguage: string,
+    _toLanguage: string
   ): Promise<string> {
     try {
       // This would integrate with a real translation service
@@ -986,9 +986,9 @@ class InternationalExpansionService {
   }
 
   private adaptCulturalContent(
-    content: string,
-    preferences: CulturalPreferences,
-    contentType: string
+    _content: string,
+    _preferences: CulturalPreferences,
+    _contentType: string
   ): string {
     let adapted = content;
 
@@ -1002,9 +1002,9 @@ class InternationalExpansionService {
   }
 
   private adaptLegalContent(
-    content: string,
-    requirements: LegalRequirements,
-    contentType: string
+    _content: string,
+    _requirements: LegalRequirements,
+    _contentType: string
   ): string {
     let adapted = content;
 
@@ -1018,9 +1018,9 @@ class InternationalExpansionService {
   }
 
   private adaptMarketContent(
-    content: string,
-    marketData: MarketData,
-    contentType: string
+    _content: string,
+    _marketData: MarketData,
+    _contentType: string
   ): string {
     let adapted = content;
 
@@ -1038,25 +1038,25 @@ class InternationalExpansionService {
     return Array.from(this.supportedRegions.keys());
   }
 
-  public getRegionInfo(regionCode: string): SupportedRegion | null {
+  public getRegionInfo(_regionCode: string): SupportedRegion | null {
     return this.supportedRegions.get(regionCode) || null;
   }
 
-  public isRegionSupported(regionCode: string): boolean {
+  public isRegionSupported(_regionCode: string): boolean {
     return this.supportedRegions.has(regionCode);
   }
 
-  public getRegionLanguages(regionCode: string): string[] {
+  public getRegionLanguages(_regionCode: string): string[] {
     const region = this.supportedRegions.get(regionCode);
     return region ? region.languages : [];
   }
 
-  public getRegionCurrencies(regionCode: string): string[] {
+  public getRegionCurrencies(_regionCode: string): string[] {
     const region = this.supportedRegions.get(regionCode);
     return region ? region.currencies : [];
   }
 
-  public getRegionTimezones(regionCode: string): string[] {
+  public getRegionTimezones(_regionCode: string): string[] {
     const region = this.supportedRegions.get(regionCode);
     return region ? region.timezones : [];
   }

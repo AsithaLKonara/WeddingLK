@@ -3,16 +3,16 @@ import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   // Basic Information
-  email: string;
+  _email: string;
   password?: string;
-  name: string;
+  _name: string;
   phone?: string;
   dateOfBirth?: Date;
   gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
 
   // Role Management
   role: 'user' | 'vendor' | 'wedding_planner' | 'admin' | 'maintainer';
-  roleVerified: boolean;
+  _roleVerified: boolean;
   roleVerifiedAt?: Date;
   roleVerifiedBy?: mongoose.Types.ObjectId;
 
@@ -20,71 +20,71 @@ export interface IUser extends Document {
   avatar?: string;
   bio?: string;
   location: {
-    country: string;
-    state: string;
-    city: string;
+    _country: string;
+    _state: string;
+    _city: string;
     zipCode?: string;
     coordinates?: {
-      latitude: number;
-      longitude: number;
+      _latitude: number;
+      _longitude: number;
     };
   };
 
   // Preferences
   preferences: {
-    language: string;
-    currency: string;
-    timezone: string;
+    _language: string;
+    _currency: string;
+    _timezone: string;
     notifications: {
-      email: boolean;
-      sms: boolean;
-      push: boolean;
+      _email: boolean;
+      _sms: boolean;
+      _push: boolean;
     };
     marketing: {
-      email: boolean;
-      sms: boolean;
-      push: boolean;
+      _email: boolean;
+      _sms: boolean;
+      _push: boolean;
     };
   };
 
   // Social Authentication
   socialAccounts: {
     google?: {
-      id: string;
-      email: string;
-      name: string;
+      _id: string;
+      _email: string;
+      _name: string;
       picture?: string;
     };
     facebook?: {
-      id: string;
-      email: string;
-      name: string;
+      _id: string;
+      _email: string;
+      _name: string;
       picture?: string;
     };
     instagram?: {
-      id: string;
-      username: string;
-      fullName: string;
+      _id: string;
+      _username: string;
+      _fullName: string;
       picture?: string;
     };
     linkedin?: {
-      id: string;
-      email: string;
-      name: string;
+      _id: string;
+      _email: string;
+      _name: string;
       picture?: string;
     };
   };
 
   // Verification Status
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  isIdentityVerified: boolean;
+  _isEmailVerified: boolean;
+  _isPhoneVerified: boolean;
+  _isIdentityVerified: boolean;
   verificationDocuments: mongoose.Types.ObjectId[];
 
   // Account Status
   status: 'active' | 'inactive' | 'suspended' | 'pending_verification';
   lastLoginAt?: Date;
-  loginAttempts: number;
+  _loginAttempts: number;
   lockedUntil?: Date;
 
   // Timestamps
@@ -93,11 +93,11 @@ export interface IUser extends Document {
   lastActiveAt: Date;
 
   // Methods
-  comparePassword(candidatePassword: string): Promise<boolean>;
+  comparePassword(_candidatePassword: string): Promise<boolean>;
   updateLastActive(): Promise<void>;
   incrementLoginAttempts(): Promise<void>;
   resetLoginAttempts(): Promise<void>;
-  lockAccount(durationMinutes: number): Promise<void>;
+  lockAccount(_durationMinutes: number): Promise<void>;
   unlockAccount(): Promise<void>;
 }
 
@@ -111,7 +111,7 @@ const UserSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: function (this: any) {
+      required: function (_this: any) {
         // Password is required only if no social accounts
         return (
           !this.socialAccounts || Object.keys(this.socialAccounts).length === 0
@@ -336,7 +336,7 @@ UserSchema.pre('save', async function (next) {
 
 // Instance methods
 UserSchema.methods.comparePassword = async function (
-  candidatePassword: string
+  _candidatePassword: string
 ): Promise<boolean> {
   if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
@@ -362,7 +362,7 @@ UserSchema.methods.resetLoginAttempts = async function (): Promise<void> {
 };
 
 UserSchema.methods.lockAccount = async function (
-  durationMinutes: number
+  _durationMinutes: number
 ): Promise<void> {
   this.lockedUntil = new Date(Date.now() + durationMinutes * 60 * 1000);
   this.status = 'suspended';
@@ -378,13 +378,13 @@ UserSchema.methods.unlockAccount = async function (): Promise<void> {
 
 // Static methods
 UserSchema.statics.findBySocialAccount = function (
-  provider: string,
-  socialId: string
+  _provider: string,
+  _socialId: string
 ) {
   return this.findOne({ [`socialAccounts.${provider}.id`]: socialId });
 };
 
-UserSchema.statics.findByEmail = function (email: string) {
+UserSchema.statics.findByEmail = function (_email: string) {
   return this.findOne({ email: email.toLowerCase() });
 };
 

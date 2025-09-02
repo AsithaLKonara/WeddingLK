@@ -45,56 +45,56 @@ import { SimilarVenues } from '@/components/organisms/similar-venues';
 
 interface Venue {
   _id: string;
-  name: string;
-  description: string;
+  _name: string;
+  _description: string;
   location: {
-    address: string;
-    city: string;
-    province: string;
+    _address: string;
+    _city: string;
+    _province: string;
     coordinates?: {
-      lat: number;
-      lng: number;
+      _lat: number;
+      _lng: number;
     };
   };
   capacity: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
   pricing: {
-    basePrice: number;
-    currency: string;
+    _basePrice: number;
+    _currency: string;
     packages?: Array<{
-      name: string;
-      description: string;
-      price: number;
-      includes: string[];
+      _name: string;
+      _description: string;
+      _price: number;
+      _includes: string[];
     }>;
   };
-  amenities: string[];
-  images: string[];
+  _amenities: string[];
+  _images: string[];
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
   reviews: Array<{
     _id: string;
     user: {
-      firstName: string;
-      lastName: string;
+      _firstName: string;
+      _lastName: string;
     };
-    rating: number;
-    comment: string;
-    createdAt: string;
+    _rating: number;
+    _comment: string;
+    _createdAt: string;
   }>;
   owner: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
+    _firstName: string;
+    _lastName: string;
+    _email: string;
+    _phone: string;
   };
-  featured: boolean;
-  isActive: boolean;
-  createdAt: string;
+  _featured: boolean;
+  _isActive: boolean;
+  _createdAt: string;
 }
 
 export default function VenueDetailPage() {
@@ -140,7 +140,7 @@ export default function VenueDetailPage() {
     loadVenue();
   }, [loadVenue]);
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (_price: number, _currency: string) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: currency || 'LKR',

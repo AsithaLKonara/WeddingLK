@@ -39,58 +39,58 @@ import {
 
 interface AnalyticsData {
   overview: {
-    totalBookings: number;
-    totalRevenue: number;
-    totalUsers: number;
-    totalVenues: number;
-    totalVendors: number;
-    averageRating: number;
-    conversionRate: number;
-    growthRate: number;
+    _totalBookings: number;
+    _totalRevenue: number;
+    _totalUsers: number;
+    _totalVenues: number;
+    _totalVendors: number;
+    _averageRating: number;
+    _conversionRate: number;
+    _growthRate: number;
   };
   bookings: {
-    total: number;
-    pending: number;
-    confirmed: number;
-    completed: number;
-    cancelled: number;
-    monthlyData: Array<{ month: string; count: number; revenue: number }>;
+    _total: number;
+    _pending: number;
+    _confirmed: number;
+    _completed: number;
+    _cancelled: number;
+    monthlyData: Array<{ _month: string; _count: number; revenue: number }>;
   };
   revenue: {
-    total: number;
-    monthly: number;
-    average: number;
-    growth: number;
+    _total: number;
+    _monthly: number;
+    _average: number;
+    _growth: number;
     breakdown: {
-      venueBookings: number;
-      vendorServices: number;
-      subscriptions: number;
-      commissions: number;
+      _venueBookings: number;
+      _vendorServices: number;
+      _subscriptions: number;
+      _commissions: number;
     };
   };
   users: {
-    total: number;
-    active: number;
-    new: number;
-    returning: number;
+    _total: number;
+    _active: number;
+    _new: number;
+    _returning: number;
     demographics: {
-      ageGroups: Array<{ group: string; count: number }>;
-      locations: Array<{ location: string; count: number }>;
+      ageGroups: Array<{ _group: string; count: number }>;
+      locations: Array<{ _location: string; count: number }>;
     };
   };
   performance: {
-    pageViews: number;
-    uniqueVisitors: number;
-    bounceRate: number;
-    averageSessionDuration: number;
-    topPages: Array<{ page: string; views: number }>;
+    _pageViews: number;
+    _uniqueVisitors: number;
+    _bounceRate: number;
+    _averageSessionDuration: number;
+    topPages: Array<{ _page: string; views: number }>;
   };
   engagement: {
-    totalReviews: number;
-    averageRating: number;
-    responseRate: number;
-    socialShares: number;
-    favorites: number;
+    _totalReviews: number;
+    _averageRating: number;
+    _responseRate: number;
+    _socialShares: number;
+    _favorites: number;
   };
 }
 
@@ -158,7 +158,7 @@ export function AnalyticsDashboard({
     );
   }
 
-  const getMetricIcon = (metric: string) => {
+  const getMetricIcon = (_metric: string) => {
     switch (metric) {
       case 'bookings':
         return <Calendar className='h-4 w-4' />;
@@ -173,7 +173,7 @@ export function AnalyticsDashboard({
     }
   };
 
-  const getTrendIcon = (value: number) => {
+  const getTrendIcon = (_value: number) => {
     return value >= 0 ? (
       <TrendingUp className='h-4 w-4 text-green-500' />
     ) : (
@@ -181,7 +181,7 @@ export function AnalyticsDashboard({
     );
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: 'LKR',
@@ -190,11 +190,11 @@ export function AnalyticsDashboard({
     }).format(amount);
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (_num: number) => {
     return new Intl.NumberFormat('en-LK').format(num);
   };
 
-  const formatPercentage = (value: number) => {
+  const formatPercentage = (_value: number) => {
     return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
@@ -214,7 +214,7 @@ export function AnalyticsDashboard({
         <div className='flex items-center gap-2'>
           <Select
             value={selectedTimeRange}
-            onValueChange={(value: string) =>
+            onValueChange={(_value: string) =>
               setSelectedTimeRange(value as '7d' | '30d' | '90d' | '1y')
             }
           >

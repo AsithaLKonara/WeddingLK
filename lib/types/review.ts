@@ -1,8 +1,8 @@
 export interface ReviewType {
-  id: string;
-  rating: number;
-  comment: string;
-  userId: string;
+  _id: string;
+  _rating: number;
+  _comment: string;
+  _userId: string;
   vendorId?: string;
   venueId?: string;
   createdAt: Date;
@@ -10,9 +10,9 @@ export interface ReviewType {
 }
 
 export interface ReviewCreateInput {
-  rating: number;
-  comment: string;
-  userId: string;
+  _rating: number;
+  _comment: string;
+  _userId: string;
   vendorId?: string;
   venueId?: string;
 }

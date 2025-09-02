@@ -2,54 +2,54 @@
 // Calculates pricing for venue bookings with various factors
 
 export interface BasePricing {
-  basePrice: number;
-  perGuestPrice: number;
-  minimumGuests: number;
-  maximumGuests: number;
+  _basePrice: number;
+  _perGuestPrice: number;
+  _minimumGuests: number;
+  _maximumGuests: number;
 }
 
 export interface PricingFactors {
-  date: string;
-  guestCount: number;
-  duration: number; // hours
+  _date: string;
+  _guestCount: number;
+  _duration: number; // hours
   dayOfWeek: 'weekday' | 'weekend' | 'holiday';
   season: 'peak' | 'offPeak' | 'shoulder';
-  services: string[];
-  addOns: string[];
+  _services: string[];
+  _addOns: string[];
 }
 
 export interface PricingBreakdown {
-  baseCost: number;
-  guestCost: number;
-  durationCost: number;
-  seasonalAdjustment: number;
-  serviceCosts: number;
-  addOnCosts: number;
-  taxes: number;
-  totalCost: number;
+  _baseCost: number;
+  _guestCost: number;
+  _durationCost: number;
+  _seasonalAdjustment: number;
+  _serviceCosts: number;
+  _addOnCosts: number;
+  _taxes: number;
+  _totalCost: number;
   breakdown: {
-    base: number;
-    guests: number;
-    duration: number;
-    seasonal: number;
-    services: number;
-    addOns: number;
-    taxes: number;
+    _base: number;
+    _guests: number;
+    _duration: number;
+    _seasonal: number;
+    _services: number;
+    _addOns: number;
+    _taxes: number;
   };
 }
 
 export interface SeasonalRates {
-  peak: number; // multiplier
-  offPeak: number; // multiplier
-  shoulder: number; // multiplier
+  _peak: number; // multiplier
+  _offPeak: number; // multiplier
+  _shoulder: number; // multiplier
 }
 
 export interface ServicePricing {
-  [key: string]: number;
+  [_key: string]: number;
 }
 
 export interface AddOnPricing {
-  [key: string]: number;
+  [_key: string]: number;
 }
 
 const DEFAULT_SEASONAL_RATES: SeasonalRates = {
@@ -171,7 +171,7 @@ export function calculateVenuePricing(
 }
 
 // Helper function to determine season based on date
-export function determineSeason(date: string): 'peak' | 'offPeak' | 'shoulder' {
+export function determineSeason(_date: string): 'peak' | 'offPeak' | 'shoulder' {
   const month = new Date(date).getMonth() + 1;
 
   // Peak season: December, January, February, June, July, August
@@ -190,7 +190,7 @@ export function determineSeason(date: string): 'peak' | 'offPeak' | 'shoulder' {
 
 // Helper function to determine day type
 export function determineDayType(
-  date: string
+  _date: string
 ): 'weekday' | 'weekend' | 'holiday' {
   const dayOfWeek = new Date(date).getDay();
 
@@ -218,8 +218,8 @@ export function determineDayType(
 
 // Calculate discount for early booking
 export function calculateEarlyBookingDiscount(
-  eventDate: string,
-  bookingDate: string,
+  _eventDate: string,
+  _bookingDate: string,
   baseDiscount: number = 0.05 // 5% base discount
 ): number {
   const event = new Date(eventDate);
@@ -242,7 +242,7 @@ export function calculateEarlyBookingDiscount(
 export function calculatePackagePricing(
   basePricing: BasePricing,
   packageType: 'basic' | 'standard' | 'premium' | 'luxury',
-  guestCount: number
+  _guestCount: number
 ): number {
   const packageMultipliers = {
     basic: 1.0,

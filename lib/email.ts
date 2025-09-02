@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmail = async (to: string, subject: string, html: string) => {
+export const sendEmail = async (_to: string, _subject: string, _html: string) => {
   try {
     const info = await transporter.sendMail({
       from: process.env.SMTP_USER,
@@ -28,7 +28,7 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
 };
 
 // Add missing sendVerificationEmail function
-export const sendVerificationEmail = async (to: string, token: string) => {
+export const sendVerificationEmail = async (_to: string, _token: string) => {
   const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
 
   const html = `

@@ -6,8 +6,8 @@ import type { LucideIcon } from 'lucide-react';
 
 interface FeatureCardProps {
   icon: LucideIcon;
-  title: string;
-  description: string;
+  _title: string;
+  _description: string;
   className?: string;
 }
 

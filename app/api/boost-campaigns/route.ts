@@ -3,29 +3,29 @@ import { getDb } from '@/lib/db/mongodb';
 import { ObjectId } from 'mongodb';
 
 interface BoostCampaign {
-  id: string;
-  packageId: string;
-  packageName: string;
+  _id: string;
+  _packageId: string;
+  _packageName: string;
   status: 'active' | 'paused' | 'completed' | 'draft';
-  budget: number;
-  spent: number;
-  duration: number;
+  _budget: number;
+  _spent: number;
+  _duration: number;
   targetAudience: {
     ageRange: [number, number];
-    location: string[];
-    interests: string[];
+    _location: string[];
+    _interests: string[];
     budget: [number, number];
     guestCount: [number, number];
-    weddingType: string[];
+    _weddingType: string[];
   };
   performance: {
-    impressions: number;
-    clicks: number;
-    conversions: number;
-    ctr: number;
-    cpc: number;
-    cpm: number;
-    roas: number;
+    _impressions: number;
+    _clicks: number;
+    _conversions: number;
+    _ctr: number;
+    _cpc: number;
+    _cpm: number;
+    _roas: number;
   };
   startDate: Date;
   endDate: Date;
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     const enrichedCampaigns: BoostCampaign[] = await Promise.all(
       campaigns.map(async campaign => {
         const packageInfo = await packagesCollection.findOne(
-          { _id: new ObjectId(campaign.packageId) },
+          { id: new ObjectId(campaign.packageId) },
           { projection: { name: 1, price: 1 } }
         );
 
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
         { $match: query },
         {
           $group: {
-            _id: null,
+            id: null,
             totalBudget: { $sum: '$budget' },
             totalSpent: { $sum: '$spent' },
             totalImpressions: { $sum: '$performance.impressions' },
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
     // Validate package exists
     const packageExists = await db
       .collection('wedding_packages')
-      .findOne({ _id: new ObjectId(packageId) });
+      .findOne({ id: new ObjectId(packageId) });
 
     if (!packageExists) {
       return NextResponse.json(
@@ -287,7 +287,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const result = await campaignsCollection.updateOne(
-      { _id: new ObjectId(campaignId) },
+      { id: new ObjectId(campaignId) },
       { $set: updateData }
     );
 
@@ -332,7 +332,7 @@ export async function DELETE(request: NextRequest) {
     const campaignsCollection = db.collection('boost_campaigns');
 
     const result = await campaignsCollection.deleteOne({
-      _id: new ObjectId(campaignId),
+      id: new ObjectId(campaignId),
     });
 
     if (result.deletedCount === 0) {

@@ -34,24 +34,24 @@ import {
 } from 'lucide-react';
 
 interface BoostCampaign {
-  id: string;
-  packageId: string;
-  packageName: string;
-  budget: number;
-  duration: number;
+  _id: string;
+  _packageId: string;
+  _packageName: string;
+  _budget: number;
+  _duration: number;
   targetAudience: {
-    ageRange: number[];
-    location: string;
-    interests: string[];
-    budgetRange: number[];
+    _ageRange: number[];
+    _location: string;
+    _interests: string[];
+    _budgetRange: number[];
   };
   status: 'active' | 'paused' | 'completed';
   performance: {
-    impressions: number;
-    clicks: number;
-    conversions: number;
-    ctr: number;
-    cpc: number;
+    _impressions: number;
+    _clicks: number;
+    _conversions: number;
+    _ctr: number;
+    _cpc: number;
   };
   createdAt: Date;
   endDate: Date;
@@ -178,7 +178,7 @@ const PackageBoosting: React.FC = () => {
     });
   };
 
-  const handleInterestToggle = (interest: string) => {
+  const handleInterestToggle = (_interest: string) => {
     setTargetInterests(prev =>
       prev.includes(interest)
         ? prev.filter(i => i !== interest)

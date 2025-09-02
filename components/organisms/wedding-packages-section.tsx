@@ -9,43 +9,43 @@ import { useEffect, useState } from 'react';
 
 interface Venue {
   _id: string;
-  name: string;
-  rating: { average: number; count: number };
-  images: string[];
+  _name: string;
+  rating: { _average: number; count: number };
+  _images: string[];
 }
 
 interface Vendor {
   _id: string;
-  name: string;
-  businessName: string;
-  category: string;
-  rating: { average: number; count: number };
+  _name: string;
+  _businessName: string;
+  _category: string;
+  rating: { _average: number; count: number };
 }
 
 interface WeddingPackage {
-  id: number;
-  title: string;
-  subtitle: string;
-  price: number;
-  originalPrice: number;
-  rating: number;
-  reviewCount: number;
-  badge: string;
-  badgeColor: string;
-  icon: any;
-  features: string[];
+  _id: number;
+  _title: string;
+  _subtitle: string;
+  _price: number;
+  _originalPrice: number;
+  _rating: number;
+  _reviewCount: number;
+  _badge: string;
+  _badgeColor: string;
+  _icon: any;
+  _features: string[];
   venues: Array<{
     _id: string;
-    name: string;
-    rating: number;
-    image: string;
+    _name: string;
+    _rating: number;
+    _image: string;
   }>;
   vendors: Array<{
     _id: string;
-    name: string;
-    businessName: string;
-    category: string;
-    rating: any;
+    _name: string;
+    _businessName: string;
+    _category: string;
+    _rating: any;
   }>;
 }
 
@@ -93,14 +93,14 @@ export default function WeddingPackagesSection() {
                 'Transportation for couple',
                 'Honeymoon package included',
               ],
-              venues: featuredVenues.slice(0, 3).map((venue: any) => ({
-                _id: venue._id,
+              venues: featuredVenues.slice(0, 3).map((_venue: any) => ({
+                id: venue._id,
                 name: venue.name,
                 rating: venue.rating?.average || 0,
                 image: venue.images?.[0] || '/placeholder.jpg',
               })),
-              vendors: featuredVendors.slice(0, 3).map((vendor: any) => ({
-                _id: vendor._id,
+              vendors: featuredVendors.slice(0, 3).map((_vendor: any) => ({
+                id: vendor._id,
                 name: vendor.name,
                 businessName: vendor.businessName,
                 category: vendor.category,
@@ -128,14 +128,14 @@ export default function WeddingPackagesSection() {
                 'Bridal makeup included',
                 'Guest accommodation discount',
               ],
-              venues: featuredVenues.slice(3, 6).map((venue: any) => ({
-                _id: venue._id,
+              venues: featuredVenues.slice(3, 6).map((_venue: any) => ({
+                id: venue._id,
                 name: venue.name,
                 rating: venue.rating?.average || 0,
                 image: venue.images?.[0] || '/placeholder.jpg',
               })),
-              vendors: featuredVendors.slice(3, 6).map((vendor: any) => ({
-                _id: vendor._id,
+              vendors: featuredVendors.slice(3, 6).map((_vendor: any) => ({
+                id: vendor._id,
                 name: vendor.name,
                 businessName: vendor.businessName,
                 category: vendor.category,
@@ -163,14 +163,14 @@ export default function WeddingPackagesSection() {
                 'Digital photo album',
                 'Wedding cake included',
               ],
-              venues: featuredVenues.slice(6, 9).map((venue: any) => ({
-                _id: venue._id,
+              venues: featuredVenues.slice(6, 9).map((_venue: any) => ({
+                id: venue._id,
                 name: venue.name,
                 rating: venue.rating?.average || 0,
                 image: venue.images?.[0] || '/placeholder.jpg',
               })),
-              vendors: featuredVendors.slice(6, 9).map((vendor: any) => ({
-                _id: vendor._id,
+              vendors: featuredVendors.slice(6, 9).map((_vendor: any) => ({
+                id: vendor._id,
                 name: vendor.name,
                 businessName: vendor.businessName,
                 category: vendor.category,

@@ -1,20 +1,20 @@
 import nodemailer from 'nodemailer';
-import { connectDB } from './db';
+// import { connectDB } from './db';
 
 interface EmailTemplate {
-  subject: string;
-  html: string;
-  text: string;
+  _subject: string;
+  _html: string;
+  _text: string;
 }
 
 interface EmailData {
-  to: string;
-  template: string;
+  _to: string;
+  _template: string;
   data: Record<string, any>;
   attachments?: Array<{
-    filename: string;
+    _filename: string;
     content: Buffer;
-    contentType: string;
+    _contentType: string;
   }>;
 }
 
@@ -71,7 +71,7 @@ class EmailService {
 
   // Get email template
   private async getEmailTemplate(
-    templateName: string,
+    _templateName: string,
     data: Record<string, any>
   ): Promise<EmailTemplate> {
     const templates: Record<string, EmailTemplate> = {
@@ -195,7 +195,7 @@ class EmailService {
   }
 
   // Send welcome email
-  async sendWelcomeEmail(userId: string): Promise<boolean> {
+  async sendWelcomeEmail(_userId: string): Promise<boolean> {
     try {
       await connectDB();
 
@@ -217,7 +217,7 @@ class EmailService {
   }
 
   // Send booking confirmation
-  async sendBookingConfirmation(bookingId: string): Promise<boolean> {
+  async sendBookingConfirmation(_bookingId: string): Promise<boolean> {
     try {
       await connectDB();
 
@@ -249,7 +249,7 @@ class EmailService {
   }
 
   // Send payment receipt
-  async sendPaymentReceipt(paymentId: string): Promise<boolean> {
+  async sendPaymentReceipt(_paymentId: string): Promise<boolean> {
     try {
       await connectDB();
 
@@ -283,8 +283,8 @@ class EmailService {
 
   // Send wedding reminder
   async sendWeddingReminder(
-    userId: string,
-    daysLeft: number
+    _userId: string,
+    _daysLeft: number
   ): Promise<boolean> {
     try {
       await connectDB();
@@ -309,8 +309,8 @@ class EmailService {
 
   // Send vendor inquiry
   async sendVendorInquiry(
-    vendorId: string,
-    inquiryData: any
+    _vendorId: string,
+    _inquiryData: any
   ): Promise<boolean> {
     try {
       await connectDB();
@@ -357,8 +357,8 @@ class EmailService {
 
   // Send newsletter
   async sendNewsletter(
-    subscribers: string[],
-    newsletterData: any
+    _subscribers: string[],
+    _newsletterData: any
   ): Promise<{ success: number; failed: number }> {
     const emails: EmailData[] = subscribers.map(email => ({
       to: email,

@@ -1,35 +1,35 @@
 export interface AIRecommendation {
-  id: string;
-  name: string;
+  _id: string;
+  _name: string;
   score: number;
   type: 'venue' | 'vendor' | 'timeline' | 'budget';
-  title: string;
-  description: string;
-  confidence: number;
+  _title: string;
+  _description: string;
+  _confidence: number;
   data: Record<string, any>;
-  [key: string]: any;
+  [_key: string]: any;
 }
 
 export interface AIAnalysisResult {
   sentiment: 'positive' | 'negative' | 'neutral';
-  confidence: number;
-  keywords: string[];
-  summary: string;
-  recommendations: string[];
+  _confidence: number;
+  _keywords: string[];
+  _summary: string;
+  _recommendations: string[];
 }
 
 export interface ContentGenerationResult {
-  content: string;
+  _content: string;
   type: 'email' | 'description' | 'proposal';
   metadata: Record<string, any>;
 }
 
 export interface PredictiveInsights {
-  type: string;
+  _type: string;
   predictions: Array<{
-    metric: string;
-    value: number;
-    confidence: number;
+    _metric: string;
+    _value: number;
+    _confidence: number;
     trend: 'increasing' | 'decreasing' | 'stable';
   }>;
 }

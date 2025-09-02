@@ -2,38 +2,38 @@
 // This service provides comprehensive analytics and reporting
 
 export interface AnalyticsEvent {
-  id: string;
-  userId: string;
-  event: string;
-  category: string;
+  _id: string;
+  _userId: string;
+  _event: string;
+  _category: string;
   properties: Record<string, any>;
   timestamp: Date;
 }
 
 export interface UserMetrics {
-  userId: string;
-  totalSessions: number;
-  pagesViewed: string[];
-  timeSpent: number;
-  conversions: number;
+  _userId: string;
+  _totalSessions: number;
+  _pagesViewed: string[];
+  _timeSpent: number;
+  _conversions: number;
   lastActive: Date;
 }
 
 export interface PerformanceMetrics {
-  pageLoadTime: number;
-  serverResponseTime: number;
-  memoryUsage: number;
-  cpuUsage: number;
-  errorRate: number;
+  _pageLoadTime: number;
+  _serverResponseTime: number;
+  _memoryUsage: number;
+  _cpuUsage: number;
+  _errorRate: number;
 }
 
 export interface BusinessMetrics {
-  totalUsers: number;
-  activeUsers: number;
-  revenue: number;
-  bookings: number;
-  conversions: number;
-  averageOrderValue: number;
+  _totalUsers: number;
+  _activeUsers: number;
+  _revenue: number;
+  _bookings: number;
+  _conversions: number;
+  _averageOrderValue: number;
 }
 
 export class AnalyticsService {
@@ -42,9 +42,9 @@ export class AnalyticsService {
 
   // Track user event
   static async trackEvent(
-    userId: string,
-    event: string,
-    category: string,
+    _userId: string,
+    _event: string,
+    _category: string,
     properties: Record<string, any> = {}
   ): Promise<void> {
     try {
@@ -66,8 +66,8 @@ export class AnalyticsService {
 
   // Track page view
   static async trackPageView(
-    userId: string,
-    page: string,
+    _userId: string,
+    _page: string,
     duration: number = 0
   ): Promise<void> {
     await this.trackEvent(userId, 'page_view', 'navigation', {
@@ -79,9 +79,9 @@ export class AnalyticsService {
 
   // Track user interaction
   static async trackInteraction(
-    userId: string,
-    element: string,
-    action: string,
+    _userId: string,
+    _element: string,
+    _action: string,
     properties: Record<string, any> = {}
   ): Promise<void> {
     await this.trackEvent(userId, 'interaction', 'user_behavior', {
@@ -93,8 +93,8 @@ export class AnalyticsService {
 
   // Track conversion
   static async trackConversion(
-    userId: string,
-    conversionType: string,
+    _userId: string,
+    _conversionType: string,
     value: number = 0
   ): Promise<void> {
     await this.trackEvent(userId, 'conversion', 'business', {
@@ -105,7 +105,7 @@ export class AnalyticsService {
   }
 
   // Get user metrics
-  static async getUserMetrics(userId: string): Promise<UserMetrics | null> {
+  static async getUserMetrics(_userId: string): Promise<UserMetrics | null> {
     try {
       const userEvents = this.events.filter(event => event.userId === userId);
 
@@ -178,7 +178,7 @@ export class AnalyticsService {
 
   // Get popular pages
   static async getPopularPages(): Promise<
-    Array<{ page: string; count: number }>
+    Array<{ _page: string; count: number }>
   > {
     try {
       const pageViews = this.events

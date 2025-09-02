@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Task } from '@/lib/models/task';
 import { User } from '@/lib/models/user';
 import { auth } from '@/lib/auth-config';
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Validate assigned user if provided
     if (assignedTo) {
-      const assignedUser = await User.findById(assignedTo);
+      const assignedUser = await (User as any).findById(assignedTo);
       if (!assignedUser) {
         return NextResponse.json(
           { error: 'Assigned user not found' },
@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
       { $match: query },
       {
         $group: {
-          _id: '$status',
+          id: '$status',
           count: { $sum: 1 },
         },
       },
@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
       { $match: query },
       {
         $group: {
-          _id: '$priority',
+          id: '$priority',
           count: { $sum: 1 },
         },
       },
@@ -270,7 +270,7 @@ export async function PUT(request: NextRequest) {
 
     // Validate assigned user if provided
     if (assignedTo) {
-      const assignedUser = await User.findById(assignedTo);
+      const assignedUser = await (User as any).findById(assignedTo);
       if (!assignedUser) {
         return NextResponse.json(
           { error: 'Assigned user not found' },

@@ -1,16 +1,16 @@
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 
 interface MLModelConfig {
   modelType: 'recommendation' | 'pricing' | 'demand' | 'sentiment';
   parameters: Record<string, number | string | boolean>;
-  trainingDataSize: number;
+  _trainingDataSize: number;
 }
 
 interface TrainingResult {
   success: boolean;
-  accuracy: number;
-  modelVersion: string;
-  trainingTime: number;
+  _accuracy: number;
+  _modelVersion: string;
+  _trainingTime: number;
 }
 
 interface PredictionInput {
@@ -25,41 +25,41 @@ interface PredictionInput {
 }
 
 interface PredictionOutput {
-  confidence: number;
+  _confidence: number;
   recommendations: Array<{
-    id: string;
+    _id: string;
     type: 'venue' | 'vendor' | 'package';
     score: number;
-    reasoning: string;
+    _reasoning: string;
   }>;
   insights: Array<{
-    type: string;
-    value: string;
+    _type: string;
+    _value: string;
     impact: 'positive' | 'negative' | 'neutral';
   }>;
 }
 
 interface UserBehavior {
-  userId: string;
+  _userId: string;
   actions: Array<{
-    type: string;
+    _type: string;
     timestamp: Date;
-    metadata: Record<string, unknown>;
+    _metadata: Record<string, unknown>;
   }>;
-  preferences: Record<string, unknown>;
+  _preferences: Record<string, unknown>;
   engagement: {
-    totalActions: number;
+    _totalActions: number;
     lastActive: Date;
-    favoriteCategories: string[];
+    _favoriteCategories: string[];
   };
 }
 
 interface MarketTrends {
-  category: string;
+  _category: string;
   demandTrend: 'increasing' | 'decreasing' | 'stable';
   priceTrend: 'increasing' | 'decreasing' | 'stable';
   seasonality: Record<string, number>;
-  recommendations: string[];
+  _recommendations: string[];
 }
 
 export class MachineLearningService {
@@ -120,7 +120,7 @@ export class MachineLearningService {
   }
 
   async predictRecommendations(
-    input: PredictionInput
+    _input: PredictionInput
   ): Promise<PredictionOutput> {
     try {
       // TODO: Implement actual ML prediction
@@ -154,7 +154,7 @@ export class MachineLearningService {
     }
   }
 
-  async analyzeUserBehavior(userId: string): Promise<UserBehavior> {
+  async analyzeUserBehavior(_userId: string): Promise<UserBehavior> {
     try {
       // TODO: Implement actual behavior analysis
       return {
@@ -173,7 +173,7 @@ export class MachineLearningService {
     }
   }
 
-  async analyzeMarketTrends(category: string): Promise<MarketTrends> {
+  async analyzeMarketTrends(_category: string): Promise<MarketTrends> {
     try {
       // TODO: Implement actual market analysis
       return {
@@ -190,12 +190,12 @@ export class MachineLearningService {
   }
 
   async optimizePricing(
-    venueId: string,
+    _venueId: string,
     marketData: unknown
   ): Promise<{
-    currentPrice: number;
-    recommendedPrice: number;
-    reasoning: string;
+    _currentPrice: number;
+    _recommendedPrice: number;
+    _reasoning: string;
   }> {
     try {
       // TODO: Implement actual pricing optimization
@@ -211,12 +211,12 @@ export class MachineLearningService {
   }
 
   async generatePersonalizedContent(
-    userId: string,
-    contentType: string
+    _userId: string,
+    _contentType: string
   ): Promise<{
-    content: string;
-    personalizationScore: number;
-    metadata: Record<string, unknown>;
+    _content: string;
+    _personalizationScore: number;
+    _metadata: Record<string, unknown>;
   }> {
     try {
       // TODO: Implement actual content generation
@@ -232,7 +232,7 @@ export class MachineLearningService {
   }
 
   async updateModel(
-    modelType: string,
+    _modelType: string,
     newData: unknown[]
   ): Promise<TrainingResult> {
     try {
@@ -252,21 +252,21 @@ export class MachineLearningService {
   getModelStatus(): Record<
     string,
     {
-      version: string;
+      _version: string;
       lastUpdated: Date;
-      performance: number;
+      _performance: number;
     }
   > {
     const status: Record<
       string,
       {
-        version: string;
+        _version: string;
         lastUpdated: Date;
-        performance: number;
+        _performance: number;
       }
     > = {};
 
-    for (const [modelType, config] of this.modelConfigs) {
+    for (const [modelType, _config] of this.modelConfigs) {
       status[modelType] = {
         version: 'v1.0.0',
         lastUpdated: new Date(),

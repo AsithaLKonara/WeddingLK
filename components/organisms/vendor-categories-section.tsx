@@ -8,12 +8,12 @@ import { useEffect, useState } from 'react';
 
 interface VendorCategory {
   _id: string;
-  name: string;
-  description: string;
-  icon: string;
-  vendorCount: number;
-  averageRating: number;
-  popularServices: string[];
+  _name: string;
+  _description: string;
+  _icon: string;
+  _vendorCount: number;
+  _averageRating: number;
+  _popularServices: string[];
 }
 
 export default function VendorCategoriesSection() {
@@ -43,7 +43,7 @@ export default function VendorCategoriesSection() {
 
   const getDefaultCategories = (): VendorCategory[] => [
     {
-      _id: 'photographer',
+      id: 'photographer',
       name: 'Photography',
       description:
         'Capture your special moments with professional photographers',
@@ -57,7 +57,7 @@ export default function VendorCategoriesSection() {
       ],
     },
     {
-      _id: 'decorator',
+      id: 'decorator',
       name: 'Decoration',
       description:
         'Transform venues with stunning floral and decor arrangements',
@@ -71,7 +71,7 @@ export default function VendorCategoriesSection() {
       ],
     },
     {
-      _id: 'catering',
+      id: 'catering',
       name: 'Catering',
       description: 'Delight your guests with exquisite culinary experiences',
       icon: '🍽️',
@@ -80,7 +80,7 @@ export default function VendorCategoriesSection() {
       popularServices: ['Wedding Buffet', 'Plated Dinners', 'Wedding Cakes'],
     },
     {
-      _id: 'music',
+      id: 'music',
       name: 'Entertainment',
       description: 'Set the perfect mood with live music and DJ services',
       icon: '🎵',
@@ -89,7 +89,7 @@ export default function VendorCategoriesSection() {
       popularServices: ['Live Bands', 'DJ Services', 'String Quartets'],
     },
     {
-      _id: 'makeup',
+      id: 'makeup',
       name: 'Beauty',
       description: 'Look your best with professional makeup and styling',
       icon: '💄',
@@ -98,7 +98,7 @@ export default function VendorCategoriesSection() {
       popularServices: ['Bridal Makeup', 'Hair Styling', 'Bridal Party'],
     },
     {
-      _id: 'transport',
+      id: 'transport',
       name: 'Transportation',
       description: 'Arrive in style with luxury wedding transportation',
       icon: '🚗',

@@ -30,46 +30,46 @@ import Link from 'next/link';
 interface SearchResult {
   _id: string;
   type: 'venue' | 'vendor';
-  name: string;
+  _name: string;
   businessName?: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
   pricing: {
     basePrice?: number;
     startingPrice?: number;
-    currency: string;
+    _currency: string;
   };
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
   capacity?: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
   category?: string;
-  images: string[];
+  _images: string[];
   amenities?: string[];
   services?: Array<{
-    name: string;
-    description: string;
-    price: number;
+    _name: string;
+    _description: string;
+    _price: number;
   }>;
 }
 
 interface SearchFilters {
-  location: string;
-  date: string;
-  guestCount: number;
+  _location: string;
+  _date: string;
+  _guestCount: number;
   budget: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
   type: 'venue' | 'vendor' | 'all';
-  category: string;
-  rating: number;
+  _category: string;
+  _rating: number;
 }
 
 export function AdvancedSearch() {
@@ -120,8 +120,8 @@ export function AdvancedSearch() {
         const venueResponse = await fetch(`/api/venues?${params}`);
         const venueData = await venueResponse.json();
         if (venueData.success) {
-          venueResults = venueData.venues.map((venue: any) => ({
-            _id: venue._id,
+          venueResults = venueData.venues.map((_venue: any) => ({
+            id: venue._id,
             type: 'venue' as const,
             name: venue.name,
             location: venue.location,
@@ -140,8 +140,8 @@ export function AdvancedSearch() {
         const vendorResponse = await fetch(`/api/vendors?${params}`);
         const vendorData = await vendorResponse.json();
         if (vendorData.success) {
-          vendorResults = vendorData.vendors.map((vendor: any) => ({
-            _id: vendor._id,
+          vendorResults = vendorData.vendors.map((_vendor: any) => ({
+            id: vendor._id,
             type: 'vendor' as const,
             name: vendor.name,
             businessName: vendor.businessName,
@@ -190,11 +190,11 @@ export function AdvancedSearch() {
     }
   }, [filters, toast]);
 
-  const handleFilterChange = (key: keyof SearchFilters, value: any) => {
+  const handleFilterChange = (key: keyof SearchFilters, _value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleBudgetChange = (type: 'min' | 'max', value: number) => {
+  const handleBudgetChange = (type: 'min' | 'max', _value: number) => {
     setFilters(prev => ({
       ...prev,
       budget: { ...prev.budget, [type]: value },
@@ -213,7 +213,7 @@ export function AdvancedSearch() {
     });
   };
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (_price: number, _currency: string) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: currency || 'LKR',

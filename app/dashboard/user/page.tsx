@@ -16,46 +16,46 @@ import {
 import { DashboardLayout } from '@/components/templates/dashboard-layout';
 
 interface UserStats {
-  totalBookings: number;
-  upcomingEvents: number;
-  completedEvents: number;
-  totalSpent: number;
-  savedVenues: number;
-  savedVendors: number;
-  daysUntilWedding: number;
-  planningdiv: number;
+  _totalBookings: number;
+  _upcomingEvents: number;
+  _completedEvents: number;
+  _totalSpent: number;
+  _savedVenues: number;
+  _savedVendors: number;
+  _daysUntilWedding: number;
+  _planningdiv: number;
 }
 
 interface Booking {
-  id: string;
+  _id: string;
   type: 'venue' | 'vendor' | 'package';
-  name: string;
+  _name: string;
   date: Date;
   status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
-  amount: number;
-  location: string;
-  description: string;
+  _amount: number;
+  _location: string;
+  _description: string;
 }
 
 interface SavedItem {
-  id: string;
+  _id: string;
   type: 'venue' | 'vendor';
-  name: string;
-  image: string;
-  location: string;
-  rating: number;
-  price: string;
-  description: string;
+  _name: string;
+  _image: string;
+  _location: string;
+  _rating: number;
+  _price: string;
+  _description: string;
 }
 
 interface Task {
-  id: string;
-  title: string;
-  description: string;
+  _id: string;
+  _title: string;
+  _description: string;
   dueDate: Date;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed';
-  category: string;
+  _category: string;
 }
 
 export default function UserDashboard() {
@@ -189,7 +189,7 @@ export default function UserDashboard() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('si-LK', {
       style: 'currency',
       currency: 'LKR',
@@ -198,7 +198,7 @@ export default function UserDashboard() {
     }).format(amount);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (_status: string) => {
     switch (status) {
       case 'confirmed':
         return 'bg-green-500';
@@ -213,7 +213,7 @@ export default function UserDashboard() {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (_status: string) => {
     switch (status) {
       case 'confirmed':
         return 'Confirmed';
@@ -228,7 +228,7 @@ export default function UserDashboard() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (_priority: string) => {
     switch (priority) {
       case 'urgent':
         return 'bg-red-500';

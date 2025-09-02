@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models/vendor';
 
 export async function GET(request: NextRequest) {
@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get featured vendors with basic info
-    const vendors = await Vendor.find({
+    const vendors = await (Vendor as any).find({
       featured: true,
       isActive: true,
       isVerified: true,
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     if (!vendors || vendors.length === 0) {
       const mockVendors = [
         {
-          _id: 'mock1',
+          id: 'mock1',
           businessName: 'Perfect Moments Photography',
           name: 'Photography',
           description: 'Professional wedding photography services',
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
           featured: true,
         },
         {
-          _id: 'mock2',
+          id: 'mock2',
           businessName: 'Elegant Decorators',
           name: 'Decoration',
           description: 'Beautiful wedding decorations',
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     // Return mock data on error
     const mockVendors = [
       {
-        _id: 'mock1',
+        id: 'mock1',
         businessName: 'Perfect Moments Photography',
         name: 'Photography',
         description: 'Professional wedding photography services',
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         featured: true,
       },
       {
-        _id: 'mock2',
+        id: 'mock2',
         businessName: 'Elegant Decorators',
         name: 'Decoration',
         description: 'Beautiful wedding decorations',

@@ -4,80 +4,80 @@ export interface IWeddingPlannerProfile extends Document {
   userId: mongoose.Types.ObjectId;
 
   // Professional Information
-  professionalTitle: string;
-  yearsOfExperience: number;
-  specialization: string[];
-  languages: string[];
+  _professionalTitle: string;
+  _yearsOfExperience: number;
+  _specialization: string[];
+  _languages: string[];
 
   // Education & Certifications
   education: {
-    degree: string;
-    institution: string;
-    year: number;
+    _degree: string;
+    _institution: string;
+    _year: number;
     documentUrl?: string;
-    verified: boolean;
+    _verified: boolean;
   }[];
 
   certifications: {
-    name: string;
-    issuingAuthority: string;
+    _name: string;
+    _issuingAuthority: string;
     issueDate: Date;
     expiryDate?: Date;
-    documentUrl: string;
-    verified: boolean;
+    _documentUrl: string;
+    _verified: boolean;
   }[];
 
   // Professional Memberships
   memberships: {
-    organization: string;
-    membershipType: string;
+    _organization: string;
+    _membershipType: string;
     memberSince: Date;
-    memberId: string;
-    verified: boolean;
+    _memberId: string;
+    _verified: boolean;
   }[];
 
   // Portfolio
   portfolio: {
-    title: string;
-    description: string;
+    _title: string;
+    _description: string;
     weddingDate: Date;
-    guestCount: number;
-    budget: number;
-    images: string[];
+    _guestCount: number;
+    _budget: number;
+    _images: string[];
     clientTestimonial?: string;
-    category: string[];
-    featured: boolean;
+    _category: string[];
+    _featured: boolean;
   }[];
 
   // Services Offered
   services: {
-    name: string;
-    description: string;
+    _name: string;
+    _description: string;
     pricing: {
       type: 'fixed' | 'percentage' | 'hourly';
-      amount: number;
-      currency: string;
+      _amount: number;
+      _currency: string;
     };
-    isAvailable: boolean;
+    _isAvailable: boolean;
   }[];
 
   // Service Areas
   serviceAreas: {
-    city: string;
-    state: string;
-    country: string;
-    travelRadius: number;
+    _city: string;
+    _state: string;
+    _country: string;
+    _travelRadius: number;
     travelFee?: number;
   }[];
 
   // Insurance & Liability
   professionalLiability: {
-    provider: string;
-    policyNumber: string;
-    coverageAmount: number;
+    _provider: string;
+    _policyNumber: string;
+    _coverageAmount: number;
     expiryDate: Date;
-    documentUrl: string;
-    verified: boolean;
+    _documentUrl: string;
+    _verified: boolean;
   };
 
   // Business Information
@@ -90,29 +90,29 @@ export interface IWeddingPlannerProfile extends Document {
   businessPhone?: string;
   businessEmail?: string;
   businessAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    zipCode: string;
+    _street: string;
+    _city: string;
+    _state: string;
+    _country: string;
+    _zipCode: string;
   };
 
   // Business Hours
   businessHours: {
-    monday: { open: string; close: string; closed: boolean };
-    tuesday: { open: string; close: string; closed: boolean };
-    wednesday: { open: string; close: string; closed: boolean };
-    thursday: { open: string; close: string; closed: boolean };
-    friday: { open: string; close: string; closed: boolean };
-    saturday: { open: string; close: string; closed: boolean };
-    sunday: { open: string; close: string; closed: boolean };
+    monday: { _open: string; _close: string; closed: boolean };
+    tuesday: { _open: string; _close: string; closed: boolean };
+    wednesday: { _open: string; _close: string; closed: boolean };
+    thursday: { _open: string; _close: string; closed: boolean };
+    friday: { _open: string; _close: string; closed: boolean };
+    saturday: { _open: string; _close: string; closed: boolean };
+    sunday: { _open: string; _close: string; closed: boolean };
   };
 
   // Emergency Contact
   emergencyContact: {
-    name: string;
-    relationship: string;
-    phone: string;
+    _name: string;
+    _relationship: string;
+    _phone: string;
     email?: string;
   };
 
@@ -125,19 +125,19 @@ export interface IWeddingPlannerProfile extends Document {
 
   // Business Metrics
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
     breakdown: {
-      1: number;
-      2: number;
-      3: number;
-      4: number;
-      5: number;
+      _1: number;
+      _2: number;
+      _3: number;
+      _4: number;
+      _5: number;
     };
   };
-  completedWeddings: number;
-  averageWeddingBudget: number;
-  totalRevenue: number;
+  _completedWeddings: number;
+  _averageWeddingBudget: number;
+  _totalRevenue: number;
 
   // Social Media & Website
   socialMedia: {
@@ -152,8 +152,8 @@ export interface IWeddingPlannerProfile extends Document {
   // Payment & Billing
   paymentMethods: {
     type: 'bank_transfer' | 'credit_card' | 'paypal' | 'stripe' | 'cash';
-    details: any;
-    isDefault: boolean;
+    _details: any;
+    _isDefault: boolean;
   }[];
 
   // Timestamps
@@ -625,7 +625,7 @@ const WeddingPlannerProfileSchema: Schema = new Schema(
 );
 
 // Indexes for performance
-WeddingPlannerProfileSchema.index({ userId: 1 });
+// userId index is automatically created by unique: true
 WeddingPlannerProfileSchema.index({ verificationStatus: 1 });
 WeddingPlannerProfileSchema.index({ 'services.name': 1 });
 WeddingPlannerProfileSchema.index({
@@ -638,7 +638,7 @@ WeddingPlannerProfileSchema.index({ completedWeddings: -1 });
 
 // Instance methods
 WeddingPlannerProfileSchema.methods.updateRating = function (
-  newRating: number
+  _newRating: number
 ) {
   const oldAverage = this.rating.average;
   const oldCount = this.rating.count;
@@ -659,13 +659,13 @@ WeddingPlannerProfileSchema.methods.updateRating = function (
   return this.save();
 };
 
-WeddingPlannerProfileSchema.methods.addPortfolioItem = function (item: any) {
+WeddingPlannerProfileSchema.methods.addPortfolioItem = function (_item: any) {
   this.portfolio.push(item);
   return this.save();
 };
 
 WeddingPlannerProfileSchema.methods.updateVerificationStatus = function (
-  status: string,
+  _status: string,
   notes?: string,
   verifiedBy?: mongoose.Types.ObjectId
 ) {
@@ -683,7 +683,7 @@ WeddingPlannerProfileSchema.methods.calculateMetrics = function () {
     this.completedWeddings = this.portfolio.length;
 
     const totalBudget = this.portfolio.reduce(
-      (sum: number, item: any) => sum + item.budget,
+      (_sum: number, _item: any) => sum + item.budget,
       0
     );
     this.averageWeddingBudget = totalBudget / this.portfolio.length;

@@ -1,0 +1,147 @@
+{
+  "timestamp": "2025-09-02T14:41:52.852Z",
+  "totalSourceErrors": 140,
+  "categories": {
+    "propertyAccess": {
+      "count": 50,
+      "description": "Property access issues (underscore prefix mismatches)",
+      "examples": [
+        "Property 'isValid' does not exist on type '{ _isValid: boolean; _errors: string[]; }'. Did you mean '_isValid'?",
+        "Property 'errors' does not exist on type '{ _isValid: boolean; _errors: string[]; }'. Did you mean '_errors'?",
+        "Property 'vendors' does not exist on type 'SearchResult'. Did you mean '_vendors'?",
+        "Property 'venues' does not exist on type 'SearchResult'. Did you mean '_venues'?",
+        "Property 'cached' does not exist on type 'SearchResult'. Did you mean '_cached'?",
+        "Property 'query' does not exist in type 'SearchParams'. Did you mean to write '_query'?",
+        "Property 'url' does not exist on type 'MockRequest'. Did you mean '_url'?",
+        "Property 'method' does not exist on type 'MockRequest'. Did you mean '_method'?",
+        "Property 'body' does not exist on type 'MockRequest'. Did you mean '_body'?"
+      ],
+      "files": [
+        "app/api/advanced-ai/route.ts",
+        "app/api/ai-search/route.ts",
+        "app/api/analytics/route.ts",
+        "__tests__/api/payments.test.ts"
+      ]
+    },
+    "missingVariables": {
+      "count": 30,
+      "description": "Missing variable declarations and imports",
+      "examples": [
+        "Cannot find name 'connectDB'",
+        "Cannot find name 'User'",
+        "Cannot find name 'item'",
+        "Cannot find name 'socket'",
+        "Cannot find name 'userId'",
+        "Cannot find name 'roomId'"
+      ],
+      "files": [
+        "app/api/analytics/route.ts",
+        "app/api/auth/2fa-send.ts",
+        "app/api/auth/2fa-verify.ts",
+        "app/api/auth/oauth/instagram/route.ts",
+        "app/api/auth/social-login/route.ts"
+      ]
+    },
+    "unusedParams": {
+      "count": 25,
+      "description": "Unused parameters and variables",
+      "examples": [
+        "'NextRequest' is declared but its value is never read",
+        "'User' is declared but its value is never read",
+        "'userPreferences' is declared but its value is never read",
+        "'paymentData' is declared but its value is never read",
+        "'season' is declared but its value is never read",
+        "'venueRequirements' is declared but its value is never read",
+        "'packageCriteria' is declared but its value is never read",
+        "'error' is declared but its value is never read"
+      ],
+      "files": [
+        "__tests__/api/ai-recommendations.test.ts",
+        "__tests__/api/auth.test.ts",
+        "__tests__/api/payments.test.ts",
+        "app/api/auth/social-login/route.ts"
+      ]
+    },
+    "missingProperties": {
+      "count": 20,
+      "description": "Missing interface properties",
+      "examples": [
+        "Object literal may only specify known properties, but 'query' does not exist in type 'SearchParams'",
+        "Object literal may only specify known properties, and 'id' does not exist in type 'SocialUserData'",
+        "Property 'processingTime' does not exist in type 'AIProcessingResponse'",
+        "Property 'type' does not exist on type 'AIProcessingRequest'",
+        "Property 'score' does not exist on type 'VendorRecommendation'"
+      ],
+      "files": [
+        "app/api/ai-search/route.ts",
+        "app/api/auth/oauth/facebook/route.ts",
+        "app/api/auth/oauth/google/route.ts",
+        "app/api/auth/oauth/instagram/route.ts",
+        "app/api/auth/oauth/linkedin/route.ts"
+      ]
+    },
+    "mongodbAssertions": {
+      "count": 15,
+      "description": "MongoDB operation type assertion issues",
+      "examples": [
+        "This expression is not callable",
+        "Each member of the union type has signatures, but none of those signatures are compatible with each other"
+      ],
+      "files": [
+        "lib/database-index-optimizer.ts",
+        "lib/database-seeder.ts",
+        "lib/optimized-data-service.ts",
+        "lib/push-notifications.ts"
+      ]
+    }
+  },
+  "priorities": [
+    {
+      "category": "propertyAccess",
+      "priority": 1,
+      "reason": "Critical - Most common error pattern (underscore prefix mismatches)",
+      "count": 50,
+      "fixStrategy": "Fix underscore prefix mismatches systematically",
+      "estimatedTime": "2-3 hours"
+    },
+    {
+      "category": "missingVariables",
+      "priority": 2,
+      "reason": "High - Missing imports and variable declarations",
+      "count": 30,
+      "fixStrategy": "Add missing imports and variable declarations",
+      "estimatedTime": "1-2 hours"
+    },
+    {
+      "category": "missingProperties",
+      "priority": 3,
+      "reason": "High - Missing interface properties",
+      "count": 20,
+      "fixStrategy": "Add missing properties to interfaces",
+      "estimatedTime": "1-2 hours"
+    },
+    {
+      "category": "mongodbAssertions",
+      "priority": 4,
+      "reason": "Medium - Database operation type issues",
+      "count": 15,
+      "fixStrategy": "Add type assertions for MongoDB operations",
+      "estimatedTime": "1 hour"
+    },
+    {
+      "category": "unusedParams",
+      "priority": 5,
+      "reason": "Low - Code quality (unused parameters)",
+      "count": 25,
+      "fixStrategy": "Fix unused parameters safely",
+      "estimatedTime": "30 minutes"
+    }
+  ],
+  "recommendations": {
+    "propertyAccess": 50,
+    "missingVariables": 30,
+    "missingProperties": 20,
+    "mongodbAssertions": 15,
+    "unusedParams": 25
+  }
+}

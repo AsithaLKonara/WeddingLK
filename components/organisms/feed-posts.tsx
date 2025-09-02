@@ -4,8 +4,8 @@ import VenueSocialFeed from '@/components/organisms/venue-social-feed-enhanced';
 import { Filter, TrendingUp, Clock, Heart } from 'lucide-react';
 
 interface FeedPostsProps {
-  activeFilter: string;
-  onFilterChange: (filter: string) => void;
+  _activeFilter: string;
+  onFilterChange: (_filter: string) => void;
 }
 
 export function FeedPosts({ activeFilter, onFilterChange }: FeedPostsProps) {

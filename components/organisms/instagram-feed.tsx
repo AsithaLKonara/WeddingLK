@@ -22,35 +22,35 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
 interface FeedPost {
-  id: string;
+  _id: string;
   user: {
-    id: string;
-    name: string;
-    avatar: string;
-    verified: boolean;
+    _id: string;
+    _name: string;
+    _avatar: string;
+    _verified: boolean;
     location?: string;
   };
-  content: string;
-  images: string[];
+  _content: string;
+  _images: string[];
   location?: string;
   date: Date;
-  likes: number;
-  comments: number;
-  shares: number;
-  isLiked: boolean;
-  isBookmarked: boolean;
-  tags: string[];
+  _likes: number;
+  _comments: number;
+  _shares: number;
+  _isLiked: boolean;
+  _isBookmarked: boolean;
+  _tags: string[];
   type: 'wedding' | 'engagement' | 'planning' | 'inspiration';
 }
 
 interface Comment {
-  id: string;
+  _id: string;
   user: {
-    name: string;
-    avatar: string;
+    _name: string;
+    _avatar: string;
   };
-  text: string;
-  timestamp: string;
+  _text: string;
+  _timestamp: string;
 }
 
 export default function InstagramFeed() {
@@ -147,7 +147,7 @@ export default function InstagramFeed() {
     fetchPosts();
   }, []);
 
-  const handleLike = (postId: string) => {
+  const handleLike = (_postId: string) => {
     setPosts(prev =>
       prev.map(post =>
         post.id === postId
@@ -161,7 +161,7 @@ export default function InstagramFeed() {
     );
   };
 
-  const handleComment = (postId: string) => {
+  const handleComment = (_postId: string) => {
     if (!commentText.trim()) return;
 
     // TODO: Implement real comment submission
@@ -173,7 +173,7 @@ export default function InstagramFeed() {
     setCommentText('');
   };
 
-  const handleShare = (postId: string) => {
+  const handleShare = (_postId: string) => {
     // TODO: Implement real sharing functionality
     toast({
       title: 'Post shared',
@@ -181,7 +181,7 @@ export default function InstagramFeed() {
     });
   };
 
-  const handleBookmark = (postId: string) => {
+  const handleBookmark = (_postId: string) => {
     setPosts(prev =>
       prev.map(post =>
         post.id === postId
@@ -236,7 +236,7 @@ export default function InstagramFeed() {
                   <AvatarFallback>
                     {post.user.name
                       .split(' ')
-                      .map(n => n[0])
+                      .map((_n: any) => n[0])
                       .join('&')}
                   </AvatarFallback>
                 </Avatar>

@@ -29,7 +29,7 @@ class CacheManager {
     });
   }
 
-  async get(key: string): Promise<any> {
+  async get(_key: string): Promise<any> {
     if (!this.isConnected) return null;
 
     try {
@@ -41,7 +41,7 @@ class CacheManager {
     }
   }
 
-  async set(key: string, value: any, ttl: number = 300): Promise<void> {
+  async set(_key: string, _value: any, ttl: number = 300): Promise<void> {
     if (!this.isConnected) return;
 
     try {
@@ -51,7 +51,7 @@ class CacheManager {
     }
   }
 
-  async del(key: string): Promise<void> {
+  async del(_key: string): Promise<void> {
     if (!this.isConnected) return;
 
     try {
@@ -73,7 +73,7 @@ class CacheManager {
   }
 
   // Cache key generators
-  static generateKey(prefix: string, params: Record<string, any>): string {
+  static generateKey(_prefix: string, params: Record<string, any>): string {
     const sortedParams = Object.keys(params)
       .sort()
       .map(key => `${key}:${params[key]}`)
@@ -98,13 +98,13 @@ export const cacheManager = new CacheManager();
 // Cache decorator for functions
 export function Cache(ttl: number = 300, keyPrefix?: string) {
   return function (
-    target: any,
-    propertyName: string,
+    _target: any,
+    _propertyName: string,
     descriptor: PropertyDescriptor
   ) {
     const method = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (..._args: any[]) {
       const cacheKey = keyPrefix
         ? CacheManager.generateKey(keyPrefix, { args: JSON.stringify(args) })
         : `${target.constructor.name}:${propertyName}:${JSON.stringify(args)}`;

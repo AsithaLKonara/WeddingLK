@@ -1,15 +1,15 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITask extends Document {
-  title: string;
+  _title: string;
   description?: string;
-  category: string;
+  _category: string;
   priority: 'low' | 'medium' | 'high';
   status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
   dueDate: Date;
   assignedTo?: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
-  isActive: boolean;
+  _isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -36,10 +36,10 @@ import {
 
 interface DashboardOverviewProps {
   stats: {
-    totalBookings: number;
-    totalFavorites: number;
-    totalMessages: number;
-    totalPayments: number;
+    _totalBookings: number;
+    _totalFavorites: number;
+    _totalMessages: number;
+    _totalPayments: number;
   };
 }
 

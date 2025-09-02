@@ -26,49 +26,49 @@ import {
 } from 'lucide-react';
 
 interface PerformanceMetrics {
-  timestamp: number;
+  _timestamp: number;
   cpu: {
-    usage: number;
-    load: number;
-    temperature: number;
+    _usage: number;
+    _load: number;
+    _temperature: number;
   };
   memory: {
-    used: number;
-    total: number;
-    percentage: number;
+    _used: number;
+    _total: number;
+    _percentage: number;
   };
   database: {
-    connections: number;
-    queries: number;
-    responseTime: number;
-    cacheHitRate: number;
+    _connections: number;
+    _queries: number;
+    _responseTime: number;
+    _cacheHitRate: number;
   };
   network: {
-    requests: number;
-    responseTime: number;
-    errorRate: number;
-    throughput: number;
+    _requests: number;
+    _responseTime: number;
+    _errorRate: number;
+    _throughput: number;
   };
   frontend: {
-    bundleSize: number;
-    loadTime: number;
-    renderTime: number;
-    lighthouseScore: number;
+    _bundleSize: number;
+    _loadTime: number;
+    _renderTime: number;
+    _lighthouseScore: number;
   };
   redis: {
-    memory: number;
-    keys: number;
-    hitRate: number;
-    connections: number;
+    _memory: number;
+    _keys: number;
+    _hitRate: number;
+    _connections: number;
   };
 }
 
 interface Alert {
-  id: string;
+  _id: string;
   type: 'warning' | 'error' | 'info';
-  message: string;
-  timestamp: number;
-  resolved: boolean;
+  _message: string;
+  _timestamp: number;
+  _resolved: boolean;
 }
 
 const PerformanceMonitor: React.FC = () => {
@@ -183,8 +183,8 @@ const PerformanceMonitor: React.FC = () => {
   };
 
   const getStatusColor = (
-    value: number,
-    thresholds: { warning: number; error: number }
+    _value: number,
+    thresholds: { _warning: number; error: number }
   ) => {
     if (value >= thresholds.error) return 'text-red-500';
     if (value >= thresholds.warning) return 'text-yellow-500';
@@ -192,8 +192,8 @@ const PerformanceMonitor: React.FC = () => {
   };
 
   const getStatusIcon = (
-    value: number,
-    thresholds: { warning: number; error: number }
+    _value: number,
+    thresholds: { _warning: number; error: number }
   ) => {
     if (value >= thresholds.error)
       return <AlertTriangle className='h-4 w-4 text-red-500' />;
@@ -211,7 +211,7 @@ const PerformanceMonitor: React.FC = () => {
     setIsMonitoring(false);
   };
 
-  const resolveAlert = (alertId: string) => {
+  const resolveAlert = (_alertId: string) => {
     setAlerts(prev =>
       prev.map(alert =>
         alert.id === alertId ? { ...alert, resolved: true } : alert

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models/vendor';
 import { auth } from '@/lib/auth-config';
 export async function GET(request: NextRequest) {
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       query.category = category;
     }
 
-    const vendors = await Vendor.find(query)
+    const vendors = await (Vendor as any).find(query)
       .select(
         'name businessName email category status isActive isVerified createdAt'
       )
@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const vendor = await Vendor.findByIdAndUpdate(id, updateData, {
+    const vendor = await (Vendor as any).findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
@@ -175,7 +175,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const vendor = await Vendor.findByIdAndDelete(id);
+    const vendor = await (Vendor as any).findByIdAndDelete(id);
 
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });

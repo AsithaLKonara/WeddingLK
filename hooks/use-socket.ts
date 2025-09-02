@@ -3,19 +3,19 @@ import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 
 interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  content: string;
+  _id: string;
+  _senderId: string;
+  _receiverId: string;
+  _content: string;
   timestamp: Date;
   type: 'text' | 'image' | 'file';
 }
 
 interface Notification {
-  id: string;
-  userId: string;
-  title: string;
-  message: string;
+  _id: string;
+  _userId: string;
+  _title: string;
+  _message: string;
   type:
     | 'info'
     | 'success'
@@ -31,19 +31,19 @@ interface Notification {
     | 'vendor_approved'
     | 'vendor_rejected';
   timestamp: Date;
-  read: boolean;
+  _read: boolean;
   data?: any;
 }
 
 interface TypingIndicator {
-  senderId: string;
-  isTyping: boolean;
+  _senderId: string;
+  _isTyping: boolean;
 }
 
 interface SocketState {
-  isConnected: boolean;
-  isAuthenticated: boolean;
-  error: string | null;
+  _isConnected: boolean;
+  _isAuthenticated: boolean;
+  _error: string | null;
 }
 
 export const useSocket = () => {
@@ -143,7 +143,7 @@ export const useSocket = () => {
     });
 
     // Read receipts
-    socket.on('read-receipt', (data: { messageId: string; readBy: string }) => {
+    socket.on('read-receipt', (data: { _messageId: string; readBy: string }) => {
       console.log('📖 Read receipt:', data);
       // Update message read status if needed
     });
@@ -172,7 +172,7 @@ export const useSocket = () => {
 
   // Join vendor room
   const joinVendorRoom = useCallback(
-    (vendorId: string) => {
+    (_vendorId: string) => {
       if (socketRef.current && socketState.isAuthenticated) {
         socketRef.current.emit('join-vendor-room', vendorId);
         console.log(`🏢 Joined vendor room: ${vendorId}`);
@@ -183,7 +183,7 @@ export const useSocket = () => {
 
   // Join venue room
   const joinVenueRoom = useCallback(
-    (venueId: string) => {
+    (_venueId: string) => {
       if (socketRef.current && socketState.isAuthenticated) {
         socketRef.current.emit('join-venue-room', venueId);
         console.log(`🏛️ Joined venue room: ${venueId}`);
@@ -211,7 +211,7 @@ export const useSocket = () => {
 
   // Send typing indicator
   const sendTypingIndicator = useCallback(
-    (receiverId: string, isTyping: boolean) => {
+    (_receiverId: string, _isTyping: boolean) => {
       if (socketRef.current && socketState.isAuthenticated) {
         socketRef.current.emit(isTyping ? 'typing-start' : 'typing-stop', {
           receiverId,
@@ -224,7 +224,7 @@ export const useSocket = () => {
 
   // Mark message as read
   const markMessageAsRead = useCallback(
-    (messageId: string) => {
+    (_messageId: string) => {
       if (socketRef.current && socketState.isAuthenticated) {
         socketRef.current.emit('mark-read', messageId);
       }
@@ -234,7 +234,7 @@ export const useSocket = () => {
 
   // Mark notification as read
   const markNotificationAsRead = useCallback(
-    (notificationId: string) => {
+    (_notificationId: string) => {
       if (socketRef.current && socketState.isAuthenticated) {
         socketRef.current.emit('notification-read', notificationId);
       }

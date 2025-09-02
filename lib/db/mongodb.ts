@@ -45,8 +45,8 @@ export async function closeConnection(): Promise<void> {
 // Health check function
 export async function checkDatabaseHealth(): Promise<{
   status: 'healthy' | 'unhealthy';
-  message: string;
-  responseTime: number;
+  _message: string;
+  _responseTime: number;
 }> {
   const startTime = Date.now();
 
@@ -75,9 +75,9 @@ export async function checkDatabaseHealth(): Promise<{
 
 // Connection pool monitoring
 export async function getConnectionStats(): Promise<{
-  activeConnections: number;
-  availableConnections: number;
-  pendingConnections: number;
+  _activeConnections: number;
+  _availableConnections: number;
+  _pendingConnections: number;
 }> {
   try {
     const client = await clientPromise;

@@ -8,22 +8,22 @@ import Image from 'next/image';
 interface VenueHeroProps {
   venue: {
     _id: string;
-    name: string;
+    _name: string;
     location: {
-      address: string;
-      city: string;
-      province: string;
-      coordinates?: { lat: number; lng: number };
+      _address: string;
+      _city: string;
+      _province: string;
+      coordinates?: { _lat: number; lng: number };
     };
-    capacity: { min: number; max: number };
-    pricing?: { basePrice: number; currency: string };
-    rating?: { average: number; count: number };
+    capacity: { _min: number; max: number };
+    pricing?: { _basePrice: number; currency: string };
+    rating?: { _average: number; count: number };
     images?: string[];
     amenities?: string[];
-    description: string;
+    _description: string;
     contact?: {
-      phone: string;
-      email: string;
+      _phone: string;
+      _email: string;
       website?: string;
     };
   };

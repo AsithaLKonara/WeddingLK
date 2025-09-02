@@ -18,19 +18,19 @@ interface VenueReviewsProps {
   reviews: {
     _id: string;
     user: {
-      firstName: string;
-      lastName: string;
+      _firstName: string;
+      _lastName: string;
     };
-    rating: number;
-    comment: string;
-    createdAt: string;
+    _rating: number;
+    _comment: string;
+    _createdAt: string;
   }[];
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
-  venueId: string;
-  venueName: string;
+  _venueId: string;
+  _venueName: string;
 }
 
 export function VenueReviews({
@@ -57,7 +57,7 @@ export function VenueReviews({
     return distribution;
   };
 
-  const handleHelpfulClick = async (reviewId: string) => {
+  const handleHelpfulClick = async (_reviewId: string) => {
     if (helpfulReviews.has(reviewId)) {
       setHelpfulReviews(prev => {
         const newSet = new Set(prev);
@@ -86,8 +86,8 @@ export function VenueReviews({
   };
 
   const handleReportReview = async (
-    reviewId: string,
-    reviewComment: string
+    _reviewId: string,
+    _reviewComment: string
   ) => {
     try {
       setIsLoading(true);

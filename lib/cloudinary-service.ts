@@ -25,16 +25,16 @@ export interface UploadOptions {
 // Upload result interface
 export interface UploadResult {
   success: boolean;
-  public_id: string;
-  url: string;
-  secure_url: string;
-  width: number;
-  height: number;
-  format: string;
-  bytes: number;
-  resource_type: string;
-  created_at: string;
-  tags: string[];
+  _publicid: string;
+  _url: string;
+  _secure_url: string;
+  _width: number;
+  _height: number;
+  _format: string;
+  _bytes: number;
+  _resource_type: string;
+  _created_at: string;
+  _tags: string[];
   context?: Record<string, string>;
   error?: string;
 }
@@ -49,7 +49,7 @@ export class CloudinaryService {
     try {
       const uploadOptions = {
         folder: options.folder || 'weddinglk',
-        public_id: options.public_id,
+        publicid: options.public_id,
         transformation: options.transformation,
         tags: options.tags || [],
         context: options.context,
@@ -69,7 +69,7 @@ export class CloudinaryService {
             } else if (result) {
               resolve({
                 success: true,
-                public_id: result.public_id,
+                publicid: result.public_id,
                 url: result.url,
                 secure_url: result.secure_url,
                 width: result.width,
@@ -92,7 +92,7 @@ export class CloudinaryService {
     } catch (error) {
       return {
         success: false,
-        public_id: '',
+        publicid: '',
         url: '',
         secure_url: '',
         width: 0,
@@ -109,13 +109,13 @@ export class CloudinaryService {
 
   // Upload file from URL
   static async uploadUrl(
-    url: string,
+    _url: string,
     options: UploadOptions = {}
   ): Promise<UploadResult> {
     try {
       const uploadOptions = {
         folder: options.folder || 'weddinglk',
-        public_id: options.public_id,
+        publicid: options.public_id,
         transformation: options.transformation,
         tags: options.tags || [],
         context: options.context,
@@ -131,7 +131,7 @@ export class CloudinaryService {
 
       return {
         success: true,
-        public_id: result.public_id,
+        publicid: result.public_id,
         url: result.url,
         secure_url: result.secure_url,
         width: result.width,
@@ -146,7 +146,7 @@ export class CloudinaryService {
     } catch (error) {
       return {
         success: false,
-        public_id: '',
+        publicid: '',
         url: '',
         secure_url: '',
         width: 0,
@@ -163,7 +163,7 @@ export class CloudinaryService {
 
   // Delete file
   static async deleteFile(
-    publicId: string
+    _publicId: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const result = await cloudinary.uploader.destroy(publicId);
@@ -178,7 +178,7 @@ export class CloudinaryService {
 
   // Generate image URL with transformations
   static generateUrl(
-    publicId: string,
+    _publicId: string,
     options: {
       width?: number;
       height?: number;
@@ -205,7 +205,7 @@ export class CloudinaryService {
 
   // Generate thumbnail URL
   static generateThumbnailUrl(
-    publicId: string,
+    _publicId: string,
     width: number = 300,
     height: number = 200
   ): string {
@@ -219,7 +219,7 @@ export class CloudinaryService {
 
   // Generate optimized URL for web
   static generateOptimizedUrl(
-    publicId: string,
+    _publicId: string,
     width?: number,
     height?: number
   ): string {
@@ -233,7 +233,7 @@ export class CloudinaryService {
   }
 
   // Get file information
-  static async getFileInfo(publicId: string): Promise<{
+  static async getFileInfo(_publicId: string): Promise<{
     success: boolean;
     info?: any;
     error?: string;
@@ -288,7 +288,7 @@ export class CloudinaryService {
 
   // Create folder
   static async createFolder(
-    folderName: string
+    _folderName: string
   ): Promise<{ success: boolean; error?: string }> {
     // Cloudinary doesn't have a direct API to create folders
     // Folders are created automatically when files are uploaded
@@ -296,7 +296,7 @@ export class CloudinaryService {
   }
 
   // Get folder contents
-  static async getFolderContents(folderName: string): Promise<{
+  static async getFolderContents(_folderName: string): Promise<{
     success: boolean;
     resources?: any[];
     error?: string;
@@ -325,7 +325,7 @@ export class CloudinaryService {
 
   // Generate upload signature for client-side uploads
   static generateUploadSignature(params: {
-    timestamp: number;
+    _timestamp: number;
     folder?: string;
     public_id?: string;
     tags?: string[];
@@ -333,7 +333,7 @@ export class CloudinaryService {
     const signatureParams = {
       timestamp: params.timestamp,
       folder: params.folder || 'weddinglk',
-      ...(params.public_id && { public_id: params.public_id }),
+      ...(params.public_id && { publicid: params.public_id }),
       ...(params.tags && { tags: params.tags.join(',') }),
     };
 

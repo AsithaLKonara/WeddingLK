@@ -6,20 +6,20 @@ import { Users, Car, Wifi, Music, Utensils } from 'lucide-react';
 
 interface VenueDetailsProps {
   venue: {
-    name: string;
-    description: string;
+    _name: string;
+    _description: string;
     amenities?: string[];
-    capacity: { min: number; max: number };
+    capacity: { _min: number; max: number };
     location: {
-      address: string;
-      city: string;
-      province: string;
+      _address: string;
+      _city: string;
+      _province: string;
     };
   };
 }
 
 export function VenueDetails({ venue }: VenueDetailsProps) {
-  const getAmenityIcon = (amenity: string) => {
+  const getAmenityIcon = (_amenity: string) => {
     switch (amenity.toLowerCase()) {
       case 'parking':
         return Car;

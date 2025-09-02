@@ -44,12 +44,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface Task {
-  id: string;
-  title: string;
-  dueDate: string;
+  _id: string;
+  _title: string;
+  _dueDate: string;
   priority: 'high' | 'medium' | 'low';
   status: 'pending' | 'completed';
-  category: string;
+  _category: string;
   description?: string;
 }
 
@@ -60,11 +60,11 @@ export function UpcomingTasks() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const [taskForm, setTaskForm] = useState<{
-    title: string;
-    dueDate: string;
+    _title: string;
+    _dueDate: string;
     priority: 'high' | 'medium' | 'low';
-    category: string;
-    description: string;
+    _category: string;
+    _description: string;
   }>({
     title: '',
     dueDate: '',
@@ -108,7 +108,7 @@ export function UpcomingTasks() {
     },
   ]);
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (_priority: string) => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
@@ -121,7 +121,7 @@ export function UpcomingTasks() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (_dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -133,11 +133,11 @@ export function UpcomingTasks() {
     }
   };
 
-  const isOverdue = (dueDate: string) => {
+  const isOverdue = (_dueDate: string) => {
     return new Date(dueDate) < new Date();
   };
 
-  const handleCompleteTask = async (taskId: string, taskTitle: string) => {
+  const handleCompleteTask = async (_taskId: string, _taskTitle: string) => {
     setIsLoading(true);
     try {
       setTasks(prev =>
@@ -266,7 +266,7 @@ export function UpcomingTasks() {
     }
   };
 
-  const handleDeleteTask = async (taskId: string, taskTitle: string) => {
+  const handleDeleteTask = async (_taskId: string, _taskTitle: string) => {
     setIsLoading(true);
     try {
       setTasks(prev => prev.filter(task => task.id !== taskId));

@@ -13,10 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 interface VenueBookingProps {
   venue: {
     _id: string;
-    name: string;
+    _name: string;
     pricing?: {
-      basePrice: number;
-      currency: string;
+      _basePrice: number;
+      _currency: string;
     };
   };
 }

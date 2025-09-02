@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Simple in-memory cache for API responses
 const apiCache = new Map<
   string,
-  { data: any; timestamp: number; ttl: number }
+  { data: any; _timestamp: number; ttl: number }
 >();
 
 export interface CacheOptions {
@@ -22,12 +22,12 @@ export function withCache(handler: Function, options: CacheOptions = {}) {
 
     // Check cache
     const cached = apiCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < cached.ttl) {
+    if (cached && Date.now() - cached._timestamp < cached.ttl) {
       console.log(`🚀 Cache hit for ${cacheKey}`);
       return NextResponse.json({
         ...cached.data,
         _cached: true,
-        _cacheTimestamp: cached.timestamp,
+        _cacheTimestamp: cached._timestamp,
       });
     }
 
@@ -39,7 +39,7 @@ export function withCache(handler: Function, options: CacheOptions = {}) {
     // Cache the result
     apiCache.set(cacheKey, {
       data: result,
-      timestamp: Date.now(),
+      _timestamp: Date.now(),
       ttl,
     });
 
@@ -87,7 +87,7 @@ export function getCacheStats() {
 
   Array.from(apiCache.entries()).forEach(([key, value]) => {
     totalSize += JSON.stringify(value.data).length;
-    if (now - value.timestamp < value.ttl) {
+    if (now - value._timestamp < value.ttl) {
       validEntries++;
     } else {
       expiredEntries++;

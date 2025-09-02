@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
           { $match: { status: { $ne: 'deleted' } } },
           {
             $group: {
-              _id: null,
+              id: null,
               total: { $sum: 1 },
               active: {
                 $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] },
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
           { $match: { status: 'active' } },
           {
             $group: {
-              _id: null,
+              id: null,
               total: { $sum: 1 },
               verified: { $sum: { $cond: ['$isVerified', 1, 0] } },
               pending: {
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
           { $match: { status: 'active' } },
           {
             $group: {
-              _id: null,
+              id: null,
               total: { $sum: 1 },
               verified: { $sum: { $cond: ['$isVerified', 1, 0] } },
               pending: {
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         .aggregate([
           {
             $group: {
-              _id: null,
+              id: null,
               total: { $sum: 1 },
               confirmed: {
                 $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
           { $match: { status: 'completed' } },
           {
             $group: {
-              _id: null,
+              id: null,
               total: { $sum: '$amount' },
               thisMonth: {
                 $sum: {
@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
           },
           {
             $project: {
-              _id: 1,
+              id: 1,
               type: 1,
               description: 1,
               createdAt: 1,
@@ -321,8 +321,8 @@ export async function GET(request: NextRequest) {
 
 async function checkSystemHealth(): Promise<{
   status: 'healthy' | 'warning' | 'critical';
-  message: string;
-  responseTime: number;
+  _message: string;
+  _responseTime: number;
 }> {
   const startTime = Date.now();
 

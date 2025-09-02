@@ -60,11 +60,11 @@ export const Message =
 export interface IMessage extends mongoose.Document {
   sender: mongoose.Types.ObjectId;
   receiver: mongoose.Types.ObjectId;
-  conversationId: string;
-  content: string;
+  _conversationId: string;
+  _content: string;
   messageType: 'text' | 'image' | 'file' | 'audio';
-  isRead: boolean;
-  isDeleted: boolean;
+  _isRead: boolean;
+  _isDeleted: boolean;
   attachments?: string[];
   replyTo?: mongoose.Types.ObjectId;
   createdAt: Date;

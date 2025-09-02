@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models/vendor';
 import { Booking } from '@/lib/models/booking';
 import { Review } from '@/lib/models/review';
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const vendorId = vendor._id;
 
     // Get vendor stats
-    const vendorProfile = await Vendor.findById(vendorId);
+    const vendorProfile = await (Vendor as any).findById(vendorId);
     if (!vendorProfile) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
@@ -34,11 +34,11 @@ export async function GET(request: NextRequest) {
     const totalBookings = await Booking.countDocuments({ vendor: vendorId });
     const totalRevenue = await Booking.aggregate([
       { $match: { vendor: vendorId, status: 'completed' } },
-      { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      { $group: { id: null, total: { $sum: '$totalAmount' } } },
     ]).then(result => result[0]?.total || 0);
 
     // Get review stats
-    const reviews = await Review.find({ vendor: vendorId });
+    const reviews = await (Review as any).find({ vendor: vendorId });
     const averageRating =
       reviews.length > 0
         ? reviews.reduce((sum, review) => sum + review.rating, 0) /

@@ -28,27 +28,30 @@ import {
   Lock,
   EyeOff,
   XCircle,
+  MapPin,
   Clock,
   Play,
   Database,
   User,
   Search,
+  Building2,
+  RefreshCw,
 } from 'lucide-react';
 
 interface DatabaseStatus {
   counts: {
-    users: number;
-    venues: number;
-    vendors: number;
-    bookings: number;
-    payments: number;
-    reviews: number;
-    messages: number;
-    tasks: number;
+    _users: number;
+    _venues: number;
+    _vendors: number;
+    _bookings: number;
+    _payments: number;
+    _reviews: number;
+    _messages: number;
+    _tasks: number;
   };
-  totalRecords: number;
-  isSeeded: boolean;
-  timestamp: string;
+  _totalRecords: number;
+  _isSeeded: boolean;
+  _timestamp: string;
 }
 
 export default function DatabasePage() {
@@ -56,11 +59,14 @@ export default function DatabasePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
-    text: string;
+    _text: string;
   } | null>(null);
 
   const fetchStatus = async () => {
     try {
+      // Only fetch in browser environment
+      if (typeof window === 'undefined') return;
+      
       const response = await fetch('/api/local/status');
       const data = await response.json();
       if (data.success) {
@@ -80,20 +86,23 @@ export default function DatabasePage() {
     setMessage(null);
 
     try {
+      // Only fetch in browser environment
+      if (typeof window === 'undefined') return;
+      
       const response = await fetch('/api/local/seed', { method: 'POST' });
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Database seeded successfully!' });
+        setMessage({ type: 'success', _text: 'Database seeded successfully!' });
         fetchStatus();
       } else {
         setMessage({
           type: 'error',
-          text: data.error || 'Failed to seed database',
+          _text: data.error || 'Failed to seed database',
         });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to seed database' });
+      setMessage({ type: 'error', _text: 'Failed to seed database' });
     } finally {
       setLoading(false);
     }
@@ -112,26 +121,29 @@ export default function DatabasePage() {
     setMessage(null);
 
     try {
+      // Only fetch in browser environment
+      if (typeof window === 'undefined') return;
+      
       const response = await fetch('/api/local/reset', { method: 'POST' });
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Database reset successfully!' });
+        setMessage({ type: 'success', _text: 'Database reset successfully!' });
         fetchStatus();
       } else {
         setMessage({
           type: 'error',
-          text: data.error || 'Failed to reset database',
+          _text: data.error || 'Failed to reset database',
         });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to reset database' });
+      setMessage({ type: 'error', _text: 'Failed to reset database' });
     } finally {
       setLoading(false);
     }
   };
 
-  const Statdiv = ({
+  const StatCard = ({
     title,
     count,
     icon: Icon,
@@ -142,211 +154,159 @@ export default function DatabasePage() {
     icon: any;
     color: string;
   }) => (
-    <div>
-      <div className='flex flex-row items-center justify-between space-y-0 pb-2'>
-        <h3 className='text-sm font-medium'>{title}</h3>
-        <Icon className={`h-4 w-4 ${color}`} />
-      </div>
-      <div>
-        <div className='text-2xl font-bold'>{count}</div>
-        <p className='text-xs text-muted-foreground'>
-          {count === 0
-            ? 'No records'
-            : `${count} record${count !== 1 ? 's' : ''}`}
-        </p>
+    <div className="bg-white p-6 rounded-lg shadow-md border">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-2xl font-bold text-gray-900">{count}</p>
+        </div>
+        <Icon className={`h-8 w-8 ${color}`} />
       </div>
     </div>
   );
 
   return (
-    <div className='container mx-auto p-6 space-y-6'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold'>Database Management</h1>
-          <p className='text-muted-foreground'>
-            Manage your local database and sample data
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Database Management
+          </h1>
+          <p className="text-gray-600">
+            Manage your WeddingLK database, seed data, and monitor status.
           </p>
         </div>
-        <div className='flex gap-2'>
-          <button
-            onClick={seedDatabase}
-            disabled={loading}
-            className='bg-green-600 hover:bg-green-700'
-          >
-            {loading ? (
-              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <Database className='mr-2 h-4 w-4' />
-            )}
-            Seed Database
-          </button>
-          <button
-            onClick={resetDatabase}
-            disabled={loading}
-            className='px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800'
-          >
-            {loading ? (
-              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-            ) : (
-              <Database className='mr-2 h-4 w-4' />
-            )}
-            Reset Database
-          </button>
-        </div>
-      </div>
 
-      {message && (
-        <div
-          className={
-            message.type === 'success'
-              ? 'border-green-200 bg-green-50'
-              : 'border-red-200 bg-red-50'
-          }
-        >
-          <p
-            className={
-              message.type === 'success' ? 'text-green-800' : 'text-red-800'
-            }
+        {message && (
+          <div
+            className={`mb-6 p-4 rounded-md ${
+              message.type === 'success'
+                ? 'bg-green-50 text-green-800 border border-green-200'
+                : 'bg-red-50 text-red-800 border border-red-200'
+            }`}
           >
-            {message.text}
-          </p>
-        </div>
-      )}
+            {message._text}
+          </div>
+        )}
 
-      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-        <Statdiv
-          title='Users'
-          count={status?.counts.users || 0}
-          icon={Users}
-          color='text-blue-600'
-        />
-        <Statdiv
-          title='Venues'
-          count={status?.counts.venues || 0}
-          icon={MapPin}
-          color='text-green-600'
-        />
-        <Statdiv
-          title='Vendors'
-          count={status?.counts.vendors || 0}
-          icon={Building2}
-          color='text-purple-600'
-        />
-        <Statdiv
-          title='Bookings'
-          count={status?.counts.bookings || 0}
-          icon={div}
-          color='text-orange-600'
-        />
-        <Statdiv
-          title='Payments'
-          count={status?.counts.payments || 0}
-          icon={CreditCard}
-          color='text-emerald-600'
-        />
-        <Statdiv
-          title='Reviews'
-          count={status?.counts.reviews || 0}
-          icon={Star}
-          color='text-yellow-600'
-        />
-        <Statdiv
-          title='Messages'
-          count={status?.counts.messages || 0}
-          icon={MessageSquare}
-          color='text-indigo-600'
-        />
-        <Statdiv
-          title='Tasks'
-          count={status?.counts.tasks || 0}
-          icon={CheckSquare}
-          color='text-red-600'
-        />
-      </div>
-
-      <div>
-        <div>
-          <h3>Database Status</h3>
-          <p>Current status and information about your local database</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            title="Users"
+            count={status?.counts._users || 0}
+            icon={Users}
+            color="text-blue-600"
+          />
+          <StatCard
+            title="Venues"
+            count={status?.counts._venues || 0}
+            icon={MapPin}
+            color="text-green-600"
+          />
+          <StatCard
+            title="Vendors"
+            count={status?.counts._vendors || 0}
+            icon={Building2}
+            color="text-purple-600"
+          />
+          <StatCard
+            title="Bookings"
+            count={status?.counts._bookings || 0}
+            icon={Calendar}
+            color="text-orange-600"
+          />
+          <StatCard
+            title="Payments"
+            count={status?.counts._payments || 0}
+            icon={CreditCard}
+            color="text-green-600"
+          />
+          <StatCard
+            title="Reviews"
+            count={status?.counts._reviews || 0}
+            icon={Star}
+            color="text-yellow-600"
+          />
+          <StatCard
+            title="Messages"
+            count={status?.counts._messages || 0}
+            icon={MessageSquare}
+            color="text-blue-600"
+          />
+          <StatCard
+            title="Tasks"
+            count={status?.counts._tasks || 0}
+            icon={CheckSquare}
+            color="text-indigo-600"
+          />
         </div>
-        <div className='space-y-4'>
-          <div className='flex items-center justify-between'>
-            <span className='text-sm font-medium'>Total Records:</span>
-            <span
-              variant={status?.totalRecords === 0 ? 'secondary' : 'default'}
+
+        <div className="bg-white p-6 rounded-lg shadow-md border">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Database Actions
+          </h2>
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={seedDatabase}
+              disabled={loading}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {status?.totalRecords || 0}
-            </span>
-          </div>
-
-          <div className='flex items-center justify-between'>
-            <span className='text-sm font-medium'>Database Status:</span>
-            <span variant={status?.isSeeded ? 'default' : 'secondary'}>
-              {status?.isSeeded ? 'Seeded' : 'Empty'}
-            </span>
-          </div>
-
-          <div className='flex items-center justify-between'>
-            <span className='text-sm font-medium'>Last Updated:</span>
-            <span className='text-sm text-muted-foreground'>
-              {status?.timestamp
-                ? new Date(status.timestamp).toLocaleString()
-                : 'Never'}
-            </span>
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Database className="h-4 w-4 mr-2" />
+              )}
+              Seed Database
+            </button>
+            <button
+              onClick={resetDatabase}
+              disabled={loading}
+              className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <XCircle className="h-4 w-4 mr-2" />
+              )}
+              Reset Database
+            </button>
+            <button
+              onClick={fetchStatus}
+              disabled={loading}
+              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Status
+            </button>
           </div>
         </div>
-      </div>
 
-      <div>
-        <div>
-          <h3>API Endpoints</h3>
-          <p>Available endpoints for managing your local database</p>
-        </div>
-        <div className='space-y-2'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div className='space-y-2'>
-              <h4 className='font-medium'>Data Endpoints</h4>
-              <div className='text-sm space-y-1'>
-                <div>
-                  <code className='bg-gray-100 px-2 py-1 rounded'>
-                    GET /api/local/users
-                  </code>
-                </div>
-                <div>
-                  <code className='bg-gray-100 px-2 py-1 rounded'>
-                    GET /api/local/venues
-                  </code>
-                </div>
-                <div>
-                  <code className='bg-gray-100 px-2 py-1 rounded'>
-                    GET /api/local/vendors
-                  </code>
-                </div>
+        {status && (
+          <div className="mt-8 bg-white p-6 rounded-lg shadow-md border">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Database Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Records</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {status._totalRecords}
+                </p>
               </div>
-            </div>
-
-            <div className='space-y-2'>
-              <h4 className='font-medium'>Management Endpoints</h4>
-              <div className='text-sm space-y-1'>
-                <div>
-                  <code className='bg-gray-100 px-2 py-1 rounded'>
-                    POST /api/local/seed
-                  </code>
-                </div>
-                <div>
-                  <code className='bg-gray-100 px-2 py-1 rounded'>
-                    POST /api/local/reset
-                  </code>
-                </div>
-                <div>
-                  <code className='bg-gray-100 px-2 py-1 rounded'>
-                    GET /api/local/status
-                  </code>
-                </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Is Seeded</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {status._isSeeded ? 'Yes' : 'No'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Last Updated</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {new Date(status._timestamp).toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

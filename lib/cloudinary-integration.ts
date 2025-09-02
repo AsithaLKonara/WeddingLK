@@ -1,9 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary';
 
 interface CloudinaryConfig {
-  cloudName: string;
-  apiKey: string;
-  apiSecret: string;
+  _cloudName: string;
+  _apiKey: string;
+  _apiSecret: string;
 }
 
 interface UploadOptions {
@@ -15,25 +15,25 @@ interface UploadOptions {
 }
 
 interface UploadResult {
-  publicId: string;
-  url: string;
-  secureUrl: string;
-  width: number;
-  height: number;
-  format: string;
-  size: number;
-  tags: string[];
+  _publicId: string;
+  _url: string;
+  _secureUrl: string;
+  _width: number;
+  _height: number;
+  _format: string;
+  _size: number;
+  _tags: string[];
   context: Record<string, string>;
 }
 
 interface GalleryItem {
-  id: string;
-  url: string;
-  thumbnail: string;
-  title: string;
+  _id: string;
+  _url: string;
+  _thumbnail: string;
+  _title: string;
   description?: string;
-  category: string;
-  tags: string[];
+  _category: string;
+  _tags: string[];
   uploadedAt: Date;
 }
 
@@ -66,12 +66,12 @@ export class CloudinaryIntegration {
           quality: 'auto',
           fetch_format: 'auto',
         },
-        public_id: options.publicId,
+        publicid: options.publicId,
         tags: options.tags || [],
         context: options.context || {},
       };
 
-      let uploadResult: any;
+      let _uploadResult: any;
       if (typeof file === 'string') {
         // Upload from URL
         uploadResult = await cloudinary.uploader.upload(file, uploadOptions);
@@ -133,12 +133,12 @@ export class CloudinaryIntegration {
 
   // Upload venue gallery images
   async uploadVenueGallery(
-    venueId: string,
+    _venueId: string,
     images: File[],
     metadata: {
-      venueName: string;
-      location: string;
-      category: string;
+      _venueName: string;
+      _location: string;
+      _category: string;
     }
   ): Promise<GalleryItem[]> {
     const uploadPromises = images.map(async (image, index) => {
@@ -146,7 +146,7 @@ export class CloudinaryIntegration {
         folder: `venues/${venueId}/gallery`,
         tags: ['venue', 'gallery', metadata.category, metadata.location],
         context: {
-          venue_id: venueId,
+          venueid: venueId,
           venue_name: metadata.venueName,
           location: metadata.location,
           category: metadata.category,
@@ -171,12 +171,12 @@ export class CloudinaryIntegration {
 
   // Upload vendor portfolio images
   async uploadVendorPortfolio(
-    vendorId: string,
+    _vendorId: string,
     images: File[],
     metadata: {
-      vendorName: string;
-      category: string;
-      location: string;
+      _vendorName: string;
+      _category: string;
+      _location: string;
     }
   ): Promise<GalleryItem[]> {
     const uploadPromises = images.map(async (image, index) => {
@@ -184,7 +184,7 @@ export class CloudinaryIntegration {
         folder: `vendors/${vendorId}/portfolio`,
         tags: ['vendor', 'portfolio', metadata.category, metadata.location],
         context: {
-          vendor_id: vendorId,
+          vendorid: vendorId,
           vendor_name: metadata.vendorName,
           category: metadata.category,
           location: metadata.location,
@@ -209,13 +209,13 @@ export class CloudinaryIntegration {
 
   // Upload wedding event photos
   async uploadEventPhotos(
-    eventId: string,
+    _eventId: string,
     images: File[],
     metadata: {
-      eventName: string;
-      date: string;
-      location: string;
-      photographer: string;
+      _eventName: string;
+      _date: string;
+      _location: string;
+      _photographer: string;
     }
   ): Promise<GalleryItem[]> {
     const uploadPromises = images.map(async (image, index) => {
@@ -223,7 +223,7 @@ export class CloudinaryIntegration {
         folder: `events/${eventId}/photos`,
         tags: ['event', 'wedding', 'photography', metadata.location],
         context: {
-          event_id: eventId,
+          eventid: eventId,
           event_name: metadata.eventName,
           event_date: metadata.date,
           location: metadata.location,
@@ -249,7 +249,7 @@ export class CloudinaryIntegration {
 
   // Generate optimized image URLs
   generateOptimizedUrl(
-    publicId: string,
+    _publicId: string,
     options: {
       width?: number;
       height?: number;
@@ -273,7 +273,7 @@ export class CloudinaryIntegration {
   }
 
   // Generate thumbnail URL
-  generateThumbnailUrl(publicId: string, size: number = 300): string {
+  generateThumbnailUrl(_publicId: string, size: number = 300): string {
     return this.generateOptimizedUrl(publicId, {
       width: size,
       height: size,
@@ -283,12 +283,12 @@ export class CloudinaryIntegration {
   }
 
   // Generate responsive image URLs
-  generateResponsiveUrls(publicId: string): {
-    xs: string;
-    sm: string;
-    md: string;
-    lg: string;
-    xl: string;
+  generateResponsiveUrls(_publicId: string): {
+    _xs: string;
+    _sm: string;
+    _md: string;
+    _lg: string;
+    _xl: string;
   } {
     return {
       xs: this.generateOptimizedUrl(publicId, { width: 320 }),
@@ -300,7 +300,7 @@ export class CloudinaryIntegration {
   }
 
   // Delete image
-  async deleteImage(publicId: string): Promise<boolean> {
+  async deleteImage(_publicId: string): Promise<boolean> {
     try {
       const result = await cloudinary.uploader.destroy(publicId);
       return result.result === 'ok';
@@ -311,16 +311,16 @@ export class CloudinaryIntegration {
   }
 
   // Delete multiple images
-  async deleteMultipleImages(publicIds: string[]): Promise<{
+  async deleteMultipleImages(_publicIds: string[]): Promise<{
     success: string[];
-    failed: string[];
+    _failed: string[];
   }> {
     const results = await Promise.allSettled(
       publicIds.map(id => this.deleteImage(id))
     );
 
     const success: string[] = [];
-    const failed: string[] = [];
+    const _failed: string[] = [];
 
     results.forEach((result, index) => {
       if (result.status === 'fulfilled' && result.value) {
@@ -334,7 +334,7 @@ export class CloudinaryIntegration {
   }
 
   // Get image information
-  async getImageInfo(publicId: string): Promise<any> {
+  async getImageInfo(_publicId: string): Promise<any> {
     try {
       const result = await cloudinary.api.resource(publicId);
       return result;
@@ -346,7 +346,7 @@ export class CloudinaryIntegration {
 
   // Search images by tags
   async searchImagesByTags(
-    tags: string[],
+    _tags: string[],
     options: {
       maxResults?: number;
       folder?: string;
@@ -359,7 +359,7 @@ export class CloudinaryIntegration {
         .max_results(options.maxResults || 50)
         .execute();
 
-      return result.resources.map((resource: any) => ({
+      return result.resources.map((_resource: any) => ({
         id: resource.public_id,
         url: resource.secure_url,
         thumbnail: this.generateThumbnailUrl(resource.public_id),
@@ -377,12 +377,12 @@ export class CloudinaryIntegration {
 
   // Create image collage
   async createCollage(
-    publicIds: string[],
+    _publicIds: string[],
     options: {
-      width: number;
-      height: number;
-      columns: number;
-      rows: number;
+      _width: number;
+      _height: number;
+      _columns: number;
+      _rows: number;
     }
   ): Promise<string> {
     try {

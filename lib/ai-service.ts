@@ -52,15 +52,15 @@ class AIService {
     try {
       await connectDB();
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user) throw new Error('User not found');
 
       const { preferences } = user;
       if (!preferences) throw new Error('User preferences not found');
 
       // Get all venues and vendors
-      const venues = await Venue.find({ isActive: true });
-      const vendors = await Vendor.find({ isActive: true });
+      const venues = await (Venue as any).find({ isActive: true });
+      const vendors = await (Vendor as any).find({ isActive: true });
 
       // If OpenAI is not available, return basic recommendations
       if (!openai) {
@@ -154,7 +154,7 @@ class AIService {
     try {
       await connectDB();
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user?.preferences?.weddingDate)
         throw new Error('Wedding date not found');
 
@@ -349,8 +349,8 @@ class AIService {
         venueQuery.capacity = { $gte: extractedParams.guestCount };
       }
 
-      const venues = await Venue.find(venueQuery).limit(10);
-      const vendors = await Vendor.find(vendorQuery).limit(10);
+      const venues = await (Venue as any).find(venueQuery).limit(10);
+      const vendors = await (Vendor as any).find(vendorQuery).limit(10);
 
       return { venues, vendors, extractedParams };
     } catch (error) {
@@ -381,8 +381,8 @@ class AIService {
         venueQuery.capacity = { $gte: filters.guestCount };
       }
 
-      const venues = await Venue.find(venueQuery).limit(10);
-      const vendors = await Vendor.find(vendorQuery).limit(10);
+      const venues = await (Venue as any).find(venueQuery).limit(10);
+      const vendors = await (Vendor as any).find(vendorQuery).limit(10);
 
       return { venues, vendors, extractedParams: filters };
     } catch (error) {
@@ -439,9 +439,9 @@ class AIService {
     try {
       await connectDB();
 
-      const user = await User.findById(userId);
-      const bookings = await Booking.find({ userId });
-      const payments = await Payment.find({ userId });
+      const user = await (User as any).findById(userId);
+      const bookings = await (Booking as any).find({ userId });
+      const payments = await (Payment as any).find({ userId });
 
       const analysis: {
         preferences: any;
@@ -495,7 +495,7 @@ class AIService {
   private extractFavoriteCategories(bookings: any[]): string[] {
     // Extract favorite vendor categories from bookings
     const categories = bookings
-      .map(b => b.services || b.vendorCategory || [])
+      .map((b: any) => b.services || b.vendorCategory || [])
       .flat()
       .filter(Boolean);
     return Array.from(new Set(categories));

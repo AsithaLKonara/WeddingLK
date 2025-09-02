@@ -9,9 +9,9 @@ export enum LogLevel {
 }
 
 export interface LogEntry {
-  timestamp: string;
+  _timestamp: string;
   level: LogLevel;
-  message: string;
+  _message: string;
   context?: Record<string, unknown>;
   error?: Error;
   requestId?: string;
@@ -19,7 +19,7 @@ export interface LogEntry {
 
 class Logger {
   private logLevel: LogLevel;
-  private isProduction: boolean;
+  private _isProduction: boolean;
 
   constructor() {
     this.isProduction = process.env.NODE_ENV === 'production';
@@ -48,7 +48,7 @@ class Logger {
 
   private log(
     level: LogLevel,
-    message: string,
+    _message: string,
     context?: Record<string, unknown>,
     error?: Error,
     requestId?: string
@@ -93,7 +93,7 @@ class Logger {
   }
 
   error(
-    message: string,
+    _message: string,
     context?: Record<string, unknown>,
     error?: Error,
     requestId?: string
@@ -101,16 +101,16 @@ class Logger {
     this.log(LogLevel.ERROR, message, context, error, requestId);
   }
 
-  warn(message: string, context?: Record<string, unknown>, requestId?: string) {
+  warn(_message: string, context?: Record<string, unknown>, requestId?: string) {
     this.log(LogLevel.WARN, message, context, undefined, requestId);
   }
 
-  info(message: string, context?: Record<string, unknown>, requestId?: string) {
+  info(_message: string, context?: Record<string, unknown>, requestId?: string) {
     this.log(LogLevel.INFO, message, context, undefined, requestId);
   }
 
   debug(
-    message: string,
+    _message: string,
     context?: Record<string, unknown>,
     requestId?: string
   ) {
@@ -119,19 +119,19 @@ class Logger {
 
   // Convenience methods for common logging patterns
   apiRequest(
-    method: string,
-    url: string,
-    requestId: string,
+    _method: string,
+    _url: string,
+    _requestId: string,
     context?: Record<string, unknown>
   ) {
     this.info(`API ${method} ${url}`, { method, url, ...context }, requestId);
   }
 
   apiResponse(
-    status: number,
-    url: string,
-    responseTime: number,
-    requestId: string
+    _status: number,
+    _url: string,
+    _responseTime: number,
+    _requestId: string
   ) {
     this.info(
       `API Response ${status} ${url}`,
@@ -141,9 +141,9 @@ class Logger {
   }
 
   databaseOperation(
-    operation: string,
-    collection: string,
-    duration: number,
+    _operation: string,
+    _collection: string,
+    _duration: number,
     context?: Record<string, unknown>
   ) {
     this.info(`DB ${operation} on ${collection}`, {
@@ -155,21 +155,21 @@ class Logger {
   }
 
   userAction(
-    action: string,
-    userId: string,
+    _action: string,
+    _userId: string,
     context?: Record<string, unknown>
   ) {
     this.info(`User Action: ${action}`, { action, userId, ...context });
   }
 
-  systemEvent(event: string, context?: Record<string, unknown>) {
+  systemEvent(_event: string, context?: Record<string, unknown>) {
     this.info(`System Event: ${event}`, { event, ...context });
   }
 
   performance(
-    metric: string,
-    value: number,
-    unit: string,
+    _metric: string,
+    _value: number,
+    _unit: string,
     context?: Record<string, unknown>
   ) {
     this.info(`Performance: ${metric}`, { metric, value, unit, ...context });
@@ -181,26 +181,26 @@ export const logger = new Logger();
 
 // Export convenience functions
 export const logError = (
-  message: string,
+  _message: string,
   context?: Record<string, unknown>,
   error?: Error,
   requestId?: string
 ) => logger.error(message, context, error, requestId);
 
 export const logWarn = (
-  message: string,
+  _message: string,
   context?: Record<string, unknown>,
   requestId?: string
 ) => logger.warn(message, context, requestId);
 
 export const logInfo = (
-  message: string,
+  _message: string,
   context?: Record<string, unknown>,
   requestId?: string
 ) => logger.info(message, context, requestId);
 
 export const logDebug = (
-  message: string,
+  _message: string,
   context?: Record<string, unknown>,
   requestId?: string
 ) => logger.debug(message, context, requestId);

@@ -2,34 +2,34 @@
 // Validates booking requests against business rules
 
 export interface BookingRequest {
-  venueId: string;
-  userId: string;
-  date: string;
-  guestCount: number;
-  startTime: string;
-  endTime: string;
+  _venueId: string;
+  _userId: string;
+  _date: string;
+  _guestCount: number;
+  _startTime: string;
+  _endTime: string;
   specialRequirements?: string;
 }
 
 export interface Venue {
-  id: string;
-  name: string;
-  capacity: number;
-  availableDates: string[];
-  minimumNotice: number; // days
-  maximumAdvanceBooking: number; // days
+  _id: string;
+  _name: string;
+  _capacity: number;
+  _availableDates: string[];
+  _minimumNotice: number; // days
+  _maximumAdvanceBooking: number; // days
 }
 
 export interface User {
-  id: string;
-  email: string;
-  verified: boolean;
-  hasCompletedProfile: boolean;
+  _id: string;
+  _email: string;
+  _verified: boolean;
+  _hasCompletedProfile: boolean;
 }
 
 export interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
+  _isValid: boolean;
+  _errors: string[];
   warnings?: string[];
 }
 
@@ -38,8 +38,8 @@ export function validateBookingRequest(
   venue: Venue,
   user: User
 ): ValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+  const _errors: string[] = [];
+  const _warnings: string[] = [];
 
   // Basic validation
   if (!request.venueId || !request.userId || !request.date) {
@@ -126,12 +126,12 @@ export function validateBookingRequest(
 
 // Additional validation functions
 export function validateBookingModification(
-  originalBooking: any,
-  modifications: Partial<BookingRequest>,
+  _originalBooking: any,
+  _modifications: Partial<$2>,
   venue: Venue
 ): ValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+  const _errors: string[] = [];
+  const _warnings: string[] = [];
 
   // Check if modification is within allowed timeframe
   const eventDate = new Date(originalBooking.date);
@@ -170,11 +170,11 @@ export function validateBookingModification(
 }
 
 export function validateCancellation(
-  booking: any,
+  _booking: any,
   cancellationReason?: string
 ): ValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+  const _errors: string[] = [];
+  const _warnings: string[] = [];
 
   const eventDate = new Date(booking.date);
   const today = new Date();

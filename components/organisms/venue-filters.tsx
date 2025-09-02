@@ -9,8 +9,8 @@ import { Slider } from '@/components/ui/slider';
 import { MapPin, Users, Star, Filter } from 'lucide-react';
 
 interface VenueFiltersProps {
-  filters: any;
-  onFiltersChange: (filters: any) => void;
+  _filters: any;
+  onFiltersChange: (_filters: any) => void;
 }
 
 export function VenueFilters({ filters, onFiltersChange }: VenueFiltersProps) {
@@ -138,7 +138,7 @@ export function VenueFilters({ filters, onFiltersChange }: VenueFiltersProps) {
                   onCheckedChange={checked => {
                     const newAmenities = checked
                       ? [...filters.amenities, amenity]
-                      : filters.amenities.filter((a: string) => a !== amenity);
+                      : filters.amenities.filter((_a: string) => a !== amenity);
                     onFiltersChange({ ...filters, amenities: newAmenities });
                   }}
                 />

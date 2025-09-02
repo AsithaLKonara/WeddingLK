@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // Base form field types
 export interface FormField {
-  id: string;
+  _id: string;
   type:
     | 'text'
     | 'email'
@@ -15,14 +15,14 @@ export interface FormField {
     | 'file'
     | 'checkbox'
     | 'radio';
-  label: string;
+  _label: string;
   placeholder?: string;
-  required: boolean;
+  _required: boolean;
   validation?: z.ZodType<any>;
-  options?: Array<{ value: string; label: string }>;
+  options?: Array<{ _value: string; label: string }>;
   conditional?: {
-    field: string;
-    value: any;
+    _field: string;
+    _value: any;
     operator:
       | 'equals'
       | 'not_equals'
@@ -36,13 +36,13 @@ export interface FormField {
 
 // Form section
 export interface FormSection {
-  id: string;
-  title: string;
+  _id: string;
+  _title: string;
   description?: string;
   fields: FormField[];
   conditional?: {
-    field: string;
-    value: any;
+    _field: string;
+    _value: any;
     operator:
       | 'equals'
       | 'not_equals'
@@ -54,9 +54,9 @@ export interface FormSection {
 
 // Complete form schema
 export interface DynamicForm {
-  id: string;
-  title: string;
-  description: string;
+  _id: string;
+  _title: string;
+  _description: string;
   sections: FormSection[];
   validationSchema: z.ZodType<any>;
   submitHandler: (data: any) => Promise<any>;
@@ -477,7 +477,7 @@ export const weddingPlannerSections: FormSection[] = [
 
 // Dynamic form factory
 export class DynamicFormFactory {
-  static createForm(role: string): DynamicForm {
+  static createForm(_role: string): DynamicForm {
     switch (role) {
       case 'vendor':
         return {
@@ -534,8 +534,8 @@ export class DynamicFormFactory {
 export class FormValidator {
   static validateField(
     field: FormField,
-    value: any
-  ): { isValid: boolean; error?: string } {
+    _value: any
+  ): { _isValid: boolean; error?: string } {
     if (field.required && (!value || value === '')) {
       return { isValid: false, error: `${field.label} is required` };
     }
@@ -561,7 +561,7 @@ export class FormValidator {
   static validateSection(
     section: FormSection,
     data: Record<string, any>
-  ): { isValid: boolean; errors: Record<string, string> } {
+  ): { _isValid: boolean; errors: Record<string, string> } {
     const errors: Record<string, string> = {};
     let isValid = true;
 
@@ -579,14 +579,14 @@ export class FormValidator {
   static validateForm(
     form: DynamicForm,
     data: Record<string, any>
-  ): { isValid: boolean; errors: Record<string, string> } {
+  ): { _isValid: boolean; errors: Record<string, string> } {
     try {
       form.validationSchema.parse(data);
       return { isValid: true, errors: {} };
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        (error as any).errors?.forEach((err: any) => {
+        (error as any).errors?.forEach((_err: any) => {
           if (err.path.length > 0) {
             errors[err.path[0] as string] = err.message;
           }

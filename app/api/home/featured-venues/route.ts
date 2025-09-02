@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Venue } from '@/lib/models/venue';
 
 export async function GET(request: NextRequest) {
@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get featured venues without populate to avoid User model issues
-    let venues = await Venue.find({
+    let venues = await (Venue as any).find({
       featured: true,
       isActive: true,
     })
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // If not enough featured venues, get top-rated active venues
     if (venues.length < 6) {
-      const additionalVenues = await Venue.find({
+      const additionalVenues = await (Venue as any).find({
         isActive: true,
         featured: { $ne: true },
       })
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // If still no venues, get any active venues
     if (venues.length === 0) {
-      venues = await Venue.find({ isActive: true })
+      venues = await (Venue as any).find({ isActive: true })
         .select(
           'name description location capacity pricing rating images amenities'
         )
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     if (venues.length === 0) {
       const mockVenues = [
         {
-          _id: 'mock1',
+          id: 'mock1',
           name: 'Grand Ballroom Hotel',
           description: 'Luxurious wedding venue with stunning architecture',
           location: { city: 'Colombo', province: 'Western' },
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           amenities: ['parking', 'catering', 'decoration'],
         },
         {
-          _id: 'mock2',
+          id: 'mock2',
           name: 'Garden Paradise',
           description: 'Beautiful outdoor garden venue',
           location: { city: 'Kandy', province: 'Central' },
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     // Return mock data on error
     const mockVenues = [
       {
-        _id: 'mock1',
+        id: 'mock1',
         name: 'Grand Ballroom Hotel',
         description: 'Luxurious wedding venue with stunning architecture',
         location: { city: 'Colombo', province: 'Western' },
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
         amenities: ['parking', 'catering', 'decoration'],
       },
       {
-        _id: 'mock2',
+        id: 'mock2',
         name: 'Garden Paradise',
         description: 'Beautiful outdoor garden venue',
         location: { city: 'Kandy', province: 'Central' },

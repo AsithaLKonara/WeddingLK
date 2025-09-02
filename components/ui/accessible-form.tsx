@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 export interface AccessibleInputProps
   extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+  _label: string;
   error?: string;
   helperText?: string;
   required?: boolean;
@@ -18,7 +18,7 @@ export interface AccessibleInputProps
 
 export interface AccessibleTextareaProps
   extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label: string;
+  _label: string;
   error?: string;
   helperText?: string;
   required?: boolean;
@@ -28,8 +28,8 @@ export interface AccessibleTextareaProps
 
 export interface AccessibleSelectProps
   extends SelectHTMLAttributes<HTMLSelectElement> {
-  label: string;
-  options: Array<{ value: string; label: string; disabled?: boolean }>;
+  _label: string;
+  options: Array<{ _value: string; _label: string; disabled?: boolean }>;
   error?: string;
   helperText?: string;
   required?: boolean;
@@ -284,7 +284,7 @@ export const AccessibleSelect = forwardRef<
 
 // Accessible Fieldset Component
 export interface AccessibleFieldsetProps {
-  legend: string;
+  _legend: string;
   children: React.ReactNode;
   className?: string;
   required?: boolean;
@@ -326,7 +326,7 @@ export const AccessibleFieldset: React.FC<AccessibleFieldsetProps> = ({
 // Accessible Checkbox Component
 export interface AccessibleCheckboxProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label: string;
+  _label: string;
   error?: string;
   helperText?: string;
   required?: boolean;
@@ -397,11 +397,11 @@ export const AccessibleCheckbox = forwardRef<
 
 // Accessible Radio Group Component
 export interface AccessibleRadioGroupProps {
-  name: string;
-  label: string;
-  options: Array<{ value: string; label: string; disabled?: boolean }>;
+  _name: string;
+  _label: string;
+  options: Array<{ _value: string; _label: string; disabled?: boolean }>;
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: (_value: string) => void;
   error?: string;
   helperText?: string;
   required?: boolean;

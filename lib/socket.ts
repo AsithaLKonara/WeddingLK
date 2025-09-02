@@ -3,26 +3,26 @@ import { Server as HTTPServer } from 'http';
 // import { NextApiRequest, NextApiResponse } from 'next';
 
 interface SocketUser {
-  userId: string;
-  email: string;
-  role: string;
-  socketId: string;
+  _userId: string;
+  _email: string;
+  _role: string;
+  _socketId: string;
 }
 
 interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  content: string;
+  _id: string;
+  _senderId: string;
+  _receiverId: string;
+  _content: string;
   timestamp: Date;
   type: 'text' | 'image' | 'file';
 }
 
 interface Notification {
-  id: string;
-  userId: string;
-  title: string;
-  message: string;
+  _id: string;
+  _userId: string;
+  _title: string;
+  _message: string;
   type:
     | 'info'
     | 'success'
@@ -38,7 +38,7 @@ interface Notification {
     | 'vendor_approved'
     | 'vendor_rejected';
   timestamp: Date;
-  read: boolean;
+  _read: boolean;
   data?: any;
 }
 
@@ -69,25 +69,25 @@ class SocketService {
       // User authentication
       socket.on(
         'authenticate',
-        (data: { userId: string; email: string; role: string }) => {
+        (data: { _userId: string; _email: string; role: string }) => {
           this.handleAuthentication(socket, data);
         }
       );
 
       // Join user to their personal room
-      socket.on('join-user-room', (userId: string) => {
+      socket.on('join-user-room', (_userId: string) => {
         socket.join(`user:${userId}`);
         console.log(`👤 User ${userId} joined personal room`);
       });
 
       // Join vendor/venue room
-      socket.on('join-vendor-room', (vendorId: string) => {
+      socket.on('join-vendor-room', (_vendorId: string) => {
         socket.join(`vendor:${vendorId}`);
         console.log(`🏢 Vendor ${vendorId} room joined`);
       });
 
       // Join venue room
-      socket.on('join-venue-room', (venueId: string) => {
+      socket.on('join-venue-room', (_venueId: string) => {
         socket.join(`venue:${venueId}`);
         console.log(`🏛️ Venue ${venueId} room joined`);
       });
@@ -100,25 +100,25 @@ class SocketService {
       // Handle typing indicators
       socket.on(
         'typing-start',
-        (data: { receiverId: string; senderId: string }) => {
+        (data: { _receiverId: string; senderId: string }) => {
           this.handleTypingIndicator(socket, data, true);
         }
       );
 
       socket.on(
         'typing-stop',
-        (data: { receiverId: string; senderId: string }) => {
+        (data: { _receiverId: string; senderId: string }) => {
           this.handleTypingIndicator(socket, data, false);
         }
       );
 
       // Handle read receipts
-      socket.on('mark-read', (messageId: string) => {
+      socket.on('mark-read', (_messageId: string) => {
         this.handleReadReceipt(socket, messageId);
       });
 
       // Handle notifications
-      socket.on('notification-read', (notificationId: string) => {
+      socket.on('notification-read', (_notificationId: string) => {
         this.handleNotificationRead(socket, notificationId);
       });
 
@@ -130,8 +130,8 @@ class SocketService {
   }
 
   private handleAuthentication(
-    socket: any,
-    data: { userId: string; email: string; role: string }
+    _socket: any,
+    data: { _userId: string; _email: string; role: string }
   ) {
     const user: SocketUser = {
       userId: data.userId,
@@ -151,7 +151,7 @@ class SocketService {
     console.log(`✅ User authenticated: ${data.email} (${data.role})`);
   }
 
-  private handlePrivateMessage(socket: any, message: Message) {
+  private handlePrivateMessage(_socket: any, message: Message) {
     const sender = this.connectedUsers.get(socket.id);
     if (!sender) {
       socket.emit('error', { message: 'User not authenticated' });
@@ -182,9 +182,9 @@ class SocketService {
   }
 
   private handleTypingIndicator(
-    socket: any,
-    data: { receiverId: string; senderId: string },
-    isTyping: boolean
+    _socket: any,
+    data: { _receiverId: string; senderId: string },
+    _isTyping: boolean
   ) {
     const sender = this.connectedUsers.get(socket.id);
     if (!sender) return;
@@ -200,7 +200,7 @@ class SocketService {
     }
   }
 
-  private handleReadReceipt(socket: any, messageId: string) {
+  private handleReadReceipt(_socket: any, _messageId: string) {
     const user = this.connectedUsers.get(socket.id);
     if (!user) return;
 
@@ -208,7 +208,7 @@ class SocketService {
     socket.emit('read-receipt', { messageId, readBy: user.userId });
   }
 
-  private handleNotificationRead(socket: any, notificationId: string) {
+  private handleNotificationRead(_socket: any, _notificationId: string) {
     const user = this.connectedUsers.get(socket.id);
     if (!user) return;
 
@@ -218,7 +218,7 @@ class SocketService {
     );
   }
 
-  private handleDisconnection(socket: any) {
+  private handleDisconnection(_socket: any) {
     const user = this.connectedUsers.get(socket.id);
     if (user) {
       // Remove from connected users
@@ -241,7 +241,7 @@ class SocketService {
 
   // Public methods for sending notifications and updates
 
-  sendNotification(userId: string, notification: Notification) {
+  sendNotification(_userId: string, notification: Notification) {
     const userSockets = this.userSockets.get(userId);
     if (userSockets) {
       userSockets.forEach(socketId => {
@@ -250,7 +250,7 @@ class SocketService {
     }
   }
 
-  sendToUser(userId: string, event: string, data: any) {
+  sendToUser(_userId: string, _event: string, data: any) {
     const userSockets = this.userSockets.get(userId);
     if (userSockets) {
       userSockets.forEach(socketId => {
@@ -259,15 +259,15 @@ class SocketService {
     }
   }
 
-  sendToVendor(vendorId: string, event: string, data: any) {
+  sendToVendor(_vendorId: string, _event: string, data: any) {
     this.io?.to(`vendor:${vendorId}`).emit(event, data);
   }
 
-  sendToVenue(venueId: string, event: string, data: any) {
+  sendToVenue(_venueId: string, _event: string, data: any) {
     this.io?.to(`venue:${venueId}`).emit(event, data);
   }
 
-  broadcastToAll(event: string, data: any) {
+  broadcastToAll(_event: string, data: any) {
     this.io?.emit(event, data);
   }
 
@@ -275,7 +275,7 @@ class SocketService {
     return this.connectedUsers.size;
   }
 
-  isUserOnline(userId: string): boolean {
+  isUserOnline(_userId: string): boolean {
     return this.userSockets.has(userId);
   }
 

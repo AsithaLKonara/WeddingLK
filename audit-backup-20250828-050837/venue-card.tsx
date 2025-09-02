@@ -8,14 +8,14 @@ import { Star, MapPin, Users, Heart } from 'lucide-react';
 import Link from 'next/link';
 
 interface VenueCardProps {
-  id: number;
-  name: string;
-  location: string;
-  capacity: number;
-  price: number;
-  rating: number;
-  image: string;
-  amenities: string[];
+  _id: number;
+  _name: string;
+  _location: string;
+  _capacity: number;
+  _price: number;
+  _rating: number;
+  _image: string;
+  _amenities: string[];
   className?: string;
 }
 

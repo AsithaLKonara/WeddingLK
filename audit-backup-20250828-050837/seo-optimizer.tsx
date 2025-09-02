@@ -18,16 +18,16 @@ import {
 
 interface SEOAnalysis {
   score: number;
-  title: string;
-  description: string;
-  keywords: string[];
-  headings: { level: number; text: string; score: number }[];
-  images: { alt: string; score: number }[];
-  links: { url: string; text: string; score: number }[];
+  _title: string;
+  _description: string;
+  _keywords: string[];
+  headings: { _level: number; _text: string; score: number }[];
+  images: { _alt: string; score: number }[];
+  links: { _url: string; _text: string; score: number }[];
   performance: {
-    pageSpeed: number;
-    mobileFriendly: boolean;
-    accessibility: number;
+    _pageSpeed: number;
+    _mobileFriendly: boolean;
+    _accessibility: number;
   };
   suggestions: string[];
 }

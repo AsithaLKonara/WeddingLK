@@ -6,52 +6,52 @@ export interface IVenueBoost extends Document {
   boostType: 'basic' | 'premium' | 'featured' | 'trending';
   status: 'pending' | 'active' | 'paused' | 'completed' | 'cancelled';
   budget: {
-    amount: number;
-    spent: number;
-    remaining: number;
-    currency: string;
+    _amount: number;
+    _spent: number;
+    _remaining: number;
+    _currency: string;
   };
   duration: {
     startDate: Date;
     endDate: Date;
-    days: number;
+    _days: number;
   };
   targeting: {
-    locations: string[];
+    _locations: string[];
     guestCount: {
-      min: number;
-      max: number;
+      _min: number;
+      _max: number;
     };
-    eventTypes: string[];
+    _eventTypes: string[];
     priceRange: {
-      min: number;
-      max: number;
+      _min: number;
+      _max: number;
     };
-    seasons: string[];
-    daysOfWeek: string[];
+    _seasons: string[];
+    _daysOfWeek: string[];
   };
   performance: {
-    impressions: number;
-    clicks: number;
-    views: number;
-    inquiries: number;
-    bookings: number;
-    ctr: number;
-    cpc: number;
-    cpm: number;
-    roi: number;
+    _impressions: number;
+    _clicks: number;
+    _views: number;
+    _inquiries: number;
+    _bookings: number;
+    _ctr: number;
+    _cpc: number;
+    _cpm: number;
+    _roi: number;
   };
   dailyStats: Array<{
     date: Date;
-    impressions: number;
-    clicks: number;
-    views: number;
-    inquiries: number;
-    bookings: number;
-    spend: number;
+    _impressions: number;
+    _clicks: number;
+    _views: number;
+    _inquiries: number;
+    _bookings: number;
+    _spend: number;
   }>;
-  autoRenew: boolean;
-  bidAmount: number;
+  _autoRenew: boolean;
+  _bidAmount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -288,9 +288,9 @@ VenueBoostSchema.methods.calculateMetrics = function () {
 };
 
 // Method to add daily stats
-VenueBoostSchema.methods.addDailyStats = function (date: Date, stats: any) {
+VenueBoostSchema.methods.addDailyStats = function (date: Date, _stats: any) {
   const existingStat = this.dailyStats.find(
-    (stat: any) => stat.date.toDateString() === date.toDateString()
+    (_stat: any) => stat.date.toDateString() === date.toDateString()
   );
 
   if (existingStat) {
@@ -318,27 +318,27 @@ VenueBoostSchema.methods.addDailyStats = function (date: Date, stats: any) {
 // Method to update performance totals
 VenueBoostSchema.methods.updatePerformanceTotals = function () {
   this.performance.impressions = this.dailyStats.reduce(
-    (sum: number, stat: any) => sum + stat.impressions,
+    (_sum: number, _stat: any) => sum + stat.impressions,
     0
   );
   this.performance.clicks = this.dailyStats.reduce(
-    (sum: number, stat: any) => sum + stat.clicks,
+    (_sum: number, _stat: any) => sum + stat.clicks,
     0
   );
   this.performance.views = this.dailyStats.reduce(
-    (sum: number, stat: any) => sum + stat.views,
+    (_sum: number, _stat: any) => sum + stat.views,
     0
   );
   this.performance.inquiries = this.dailyStats.reduce(
-    (sum: number, stat: any) => sum + stat.inquiries,
+    (_sum: number, _stat: any) => sum + stat.inquiries,
     0
   );
   this.performance.bookings = this.dailyStats.reduce(
-    (sum: number, stat: any) => sum + stat.bookings,
+    (_sum: number, _stat: any) => sum + stat.bookings,
     0
   );
   this.budget.spent = this.dailyStats.reduce(
-    (sum: number, stat: any) => sum + stat.spend,
+    (_sum: number, _stat: any) => sum + stat.spend,
     0
   );
 
@@ -357,12 +357,12 @@ VenueBoostSchema.statics.getActiveBoosts = function () {
 };
 
 // Static method to get boosts by venue
-VenueBoostSchema.statics.getBoostsByVenue = function (venueId: string) {
+VenueBoostSchema.statics.getBoostsByVenue = function (_venueId: string) {
   return this.find({ venue: venueId }).sort({ createdAt: -1 });
 };
 
 // Static method to get boosts by owner
-VenueBoostSchema.statics.getBoostsByOwner = function (ownerId: string) {
+VenueBoostSchema.statics.getBoostsByOwner = function (_ownerId: string) {
   return this.find({ owner: ownerId }).sort({ createdAt: -1 });
 };
 

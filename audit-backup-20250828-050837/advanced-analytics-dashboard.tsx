@@ -38,29 +38,29 @@ import { cacheManager } from '@/lib/cache-manager';
 
 interface AnalyticsData {
   users: {
-    total: number;
-    active: number;
-    new: number;
-    growth: number;
+    _total: number;
+    _active: number;
+    _new: number;
+    _growth: number;
   };
   bookings: {
-    total: number;
-    pending: number;
-    completed: number;
-    revenue: number;
-    growth: number;
+    _total: number;
+    _pending: number;
+    _completed: number;
+    _revenue: number;
+    _growth: number;
   };
   performance: {
-    pageLoadTime: number;
-    apiResponseTime: number;
-    cacheHitRate: number;
-    memoryUsage: number;
+    _pageLoadTime: number;
+    _apiResponseTime: number;
+    _cacheHitRate: number;
+    _memoryUsage: number;
   };
   engagement: {
-    pageViews: number;
-    sessions: number;
-    bounceRate: number;
-    avgSessionTime: number;
+    _pageViews: number;
+    _sessions: number;
+    _bounceRate: number;
+    _avgSessionTime: number;
   };
 }
 
@@ -130,7 +130,7 @@ export function AdvancedAnalyticsDashboard() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('si-LK', {
       style: 'currency',
       currency: 'LKR',
@@ -138,15 +138,15 @@ export function AdvancedAnalyticsDashboard() {
     }).format(amount);
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (_num: number) => {
     return new Intl.NumberFormat('en-US').format(num);
   };
 
-  const getGrowthColor = (growth: number) => {
+  const getGrowthColor = (_growth: number) => {
     return growth >= 0 ? 'text-green-600' : 'text-red-600';
   };
 
-  const getGrowthIcon = (growth: number) => {
+  const getGrowthIcon = (_growth: number) => {
     return growth >= 0 ? (
       <TrendingUp className='h-4 w-4' />
     ) : (

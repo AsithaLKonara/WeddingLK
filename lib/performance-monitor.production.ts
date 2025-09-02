@@ -53,9 +53,9 @@ export class ProductionPerformanceMonitor {
 
   // Track API request performance
   trackRequest(
-    endpoint: string,
-    method: string,
-    startTime: number,
+    _endpoint: string,
+    _method: string,
+    _startTime: number,
     success: boolean
   ) {
     const duration = Date.now() - startTime;
@@ -93,7 +93,7 @@ export class ProductionPerformanceMonitor {
   }
 
   // Track cache performance
-  trackCache(hit: boolean) {
+  trackCache(_hit: boolean) {
     const cache = this.metrics.get('cache');
     if (hit) {
       cache.hits++;
@@ -104,7 +104,7 @@ export class ProductionPerformanceMonitor {
   }
 
   // Track database performance
-  trackDatabaseQuery(duration: number, isSlow: boolean = false) {
+  trackDatabaseQuery(_duration: number, isSlow: boolean = false) {
     const db = this.metrics.get('database');
     db.queries++;
     if (isSlow) {
@@ -126,7 +126,7 @@ export class ProductionPerformanceMonitor {
   }
 
   // Update response time percentiles
-  private updateResponseTimeMetrics(duration: number) {
+  private updateResponseTimeMetrics(_duration: number) {
     const responseTimes = this.metrics.get('responseTimes');
     responseTimes.samples.push(duration);
 
@@ -141,13 +141,13 @@ export class ProductionPerformanceMonitor {
 
     // Calculate average
     responseTimes.avg =
-      responseTimes.samples.reduce((a: number, b: number) => a + b, 0) /
+      responseTimes.samples.reduce((_a: number, _b: number) => a + b, 0) /
       responseTimes.samples.length;
 
     // Calculate percentiles
     if (responseTimes.samples.length > 0) {
       const sorted = [...responseTimes.samples].sort(
-        (a: number, b: number) => a - b
+        (_a: number, _b: number) => a - b
       );
       responseTimes.p95 = sorted[Math.floor(sorted.length * 0.95)];
       responseTimes.p99 = sorted[Math.floor(sorted.length * 0.99)];
@@ -228,7 +228,7 @@ export class ProductionPerformanceMonitor {
   }
 
   // Determine performance status
-  private getPerformanceStatus(metrics: any): string {
+  private getPerformanceStatus(_metrics: any): string {
     const { responseTimes, cache, memory } = metrics;
 
     if (
@@ -251,8 +251,8 @@ export class ProductionPerformanceMonitor {
   }
 
   // Get performance recommendations
-  private getRecommendations(metrics: any): string[] {
-    const recommendations: string[] = [];
+  private getRecommendations(_metrics: any): string[] {
+    const _recommendations: string[] = [];
     const { responseTimes, cache, memory } = metrics;
 
     if (responseTimes.p95 > 2000) {
@@ -287,8 +287,8 @@ export class ProductionPerformanceMonitor {
   }
 
   // Get performance alerts
-  private getAlerts(metrics: any): any[] {
-    const alerts: any[] = [];
+  private getAlerts(_metrics: any): any[] {
+    const _alerts: any[] = [];
     const { responseTimes, cache, database, memory } = metrics;
 
     if (responseTimes.p95 > 10000) {
@@ -322,7 +322,7 @@ export class ProductionPerformanceMonitor {
   }
 
   // Format uptime
-  private formatUptime(ms: number): string {
+  private formatUptime(_ms: number): string {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -335,7 +335,7 @@ export class ProductionPerformanceMonitor {
   }
 
   // Format bytes
-  private formatBytes(bytes: number): string {
+  private formatBytes(_bytes: number): string {
     if (bytes === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];

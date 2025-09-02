@@ -38,36 +38,36 @@ import Link from 'next/link';
 
 interface DashboardStats {
   overview: {
-    totalBookings: number;
-    totalTasks: number;
-    totalVendors: number;
-    totalVenues: number;
+    _totalBookings: number;
+    _totalTasks: number;
+    _totalVendors: number;
+    _totalVenues: number;
   };
   tasks: {
-    total: number;
-    completed: number;
-    pending: number;
-    overdue: number;
+    _total: number;
+    _completed: number;
+    _pending: number;
+    _overdue: number;
   };
   bookings: {
-    total: number;
-    confirmed: number;
-    pending: number;
-    completed: number;
+    _total: number;
+    _confirmed: number;
+    _pending: number;
+    _completed: number;
   };
   budget: {
-    total: number;
-    spent: number;
-    remaining: number;
+    _total: number;
+    _spent: number;
+    _remaining: number;
   };
 }
 
 interface RecentActivity {
-  id: string;
+  _id: string;
   type: 'booking' | 'task';
-  title: string;
-  status: string;
-  date: string;
+  _title: string;
+  _status: string;
+  _date: string;
   amount?: number;
   priority?: string;
 }

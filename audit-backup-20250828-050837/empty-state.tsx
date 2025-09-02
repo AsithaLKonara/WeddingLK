@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
-  title: string;
+  _title: string;
   description?: string;
   icon?: React.ReactNode;
   action?: React.ReactNode;

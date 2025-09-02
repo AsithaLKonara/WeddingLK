@@ -6,9 +6,9 @@ import { Message } from '@/lib/models/message';
 import { Notification } from '@/lib/models/notification';
 
 interface AuthenticatedSocket {
-  userId: string;
-  userRole: string;
-  userEmail: string;
+  _userId: string;
+  _userRole: string;
+  _userEmail: string;
 }
 
 class WebSocketServer {
@@ -46,9 +46,9 @@ class WebSocketServer {
 
           if (user) {
             const userData: AuthenticatedSocket = {
-              userId: user._id.toString(),
-              userRole: user.role,
-              userEmail: user.email,
+              _userId: user._id.toString(),
+              _userRole: user.role,
+              _userEmail: user.email,
             };
 
             this.connectedUsers.set(socket.id, userData);
@@ -95,7 +95,7 @@ class WebSocketServer {
 
             // Save message to database
             const message = new Message({
-              senderId: userData.userId,
+              senderId: userData._userId,
               recipientId: data.recipientId,
               content: data.content,
               type: data.type,
@@ -109,8 +109,8 @@ class WebSocketServer {
             if (recipientSocket) {
               this.io!.to(recipientSocket).emit('new_message', {
                 messageId: message._id,
-                senderId: userData.userId,
-                senderEmail: userData.userEmail,
+                senderId: userData._userId,
+                senderEmail: userData._userEmail,
                 content: data.content,
                 type: data.type,
                 timestamp: new Date(),
@@ -134,7 +134,7 @@ class WebSocketServer {
         const recipientSocket = this.findSocketByUserId(data.recipientId);
         if (recipientSocket) {
           this.io!.to(recipientSocket).emit('user_typing', {
-            userId: this.connectedUsers.get(socket.id)?.userId,
+            userId: this.connectedUsers.get(socket.id)?._userId,
             isTyping: true,
           });
         }
@@ -144,7 +144,7 @@ class WebSocketServer {
         const recipientSocket = this.findSocketByUserId(data.recipientId);
         if (recipientSocket) {
           this.io!.to(recipientSocket).emit('user_typing', {
-            userId: this.connectedUsers.get(socket.id)?.userId,
+            userId: this.connectedUsers.get(socket.id)?._userId,
             isTyping: false,
           });
         }
@@ -191,11 +191,11 @@ class WebSocketServer {
 
           // Notify others that user is offline
           socket.broadcast.emit('user_offline', {
-            userId: userData.userId,
-            userEmail: userData.userEmail,
+            userId: userData._userId,
+            userEmail: userData._userEmail,
           });
 
-          console.log(`🔌 User disconnected: ${userData.userEmail}`);
+          console.log(`🔌 User disconnected: ${userData._userEmail}`);
         }
       });
     });
@@ -205,7 +205,7 @@ class WebSocketServer {
     for (const [socketId, userData] of Array.from(
       this.connectedUsers.entries()
     )) {
-      if (userData.userId === userId) {
+      if (userData._userId === userId) {
         return socketId;
       }
     }

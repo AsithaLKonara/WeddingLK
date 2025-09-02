@@ -7,10 +7,10 @@ import { logger } from '@/lib/logger';
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: {
-    id: string;
-    email: string;
-    role: string;
-    isVerified: boolean;
+    _id: string;
+    _email: string;
+    _role: string;
+    _isVerified: boolean;
   };
   ip?: string;
 }
@@ -22,7 +22,7 @@ const RATE_LIMIT_WINDOW = parseInt(
 const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100');
 
 // In-memory rate limiting store (use Redis in production)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const rateLimitStore = new Map<string, { _count: number; resetTime: number }>();
 
 export function withRateLimit(
   handler: (req: AuthenticatedRequest) => Promise<NextResponse>
@@ -70,7 +70,7 @@ export function withAuthentication(
     try {
       const token = await getToken({
         req,
-        secret: process.env.NEXTAUTH_SECRET,
+        secret: process.env.NEXTAUTH_SECRET || "fallback-secret",
       });
 
       if (!token) {
@@ -83,15 +83,15 @@ export function withAuthentication(
 
       // Add user info to request
       req.user = {
-        id: token.sub!,
-        email: token.email!,
-        role: token.role as string,
-        isVerified: token.isVerified as boolean,
+        _id: token.sub!,
+        _email: token.email!,
+        _role: token.role as string,
+        _isVerified: token.isVerified as boolean,
       };
 
       logger.info('User authenticated', {
-        userId: req.user.id,
-        email: req.user.email,
+        userId: req.user._id,
+        email: req.user._email,
       });
       return handler(req);
     } catch (error) {
@@ -118,14 +118,14 @@ export function withAuthorization(requiredRole: string | string[]) {
         );
       }
 
-      const userRole = req.user.role;
+      const userRole = req.user._role;
       const requiredRoles = Array.isArray(requiredRole)
         ? requiredRole
         : [requiredRole];
 
       if (!requiredRoles.includes(userRole)) {
         logger.warn('Insufficient permissions', {
-          userId: req.user.id,
+          userId: req.user._id,
           userRole,
           requiredRoles,
           url: req.url,
@@ -137,7 +137,7 @@ export function withAuthorization(requiredRole: string | string[]) {
       }
 
       logger.info('Authorization granted', {
-        userId: req.user.id,
+        userId: req.user._id,
         userRole,
         requiredRoles,
       });
@@ -157,8 +157,8 @@ export function withVerification(
       );
     }
 
-    if (!req.user.isVerified) {
-      logger.warn('Account verification required', { userId: req.user.id });
+    if (!req.user._isVerified) {
+      logger.warn('Account verification required', { userId: req.user._id });
       return NextResponse.json(
         {
           error:

@@ -26,8 +26,8 @@ type CarouselContextProps = {
   api: ReturnType<typeof useEmblaCarousel>[1];
   scrollPrev: () => void;
   scrollNext: () => void;
-  canScrollPrev: boolean;
-  canScrollNext: boolean;
+  _canScrollPrev: boolean;
+  _canScrollNext: boolean;
 } & CarouselProps;
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);

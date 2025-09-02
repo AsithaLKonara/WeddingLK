@@ -48,14 +48,14 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 
 interface TimelineEvent {
-  id: string;
-  time: string;
-  title: string;
-  description: string;
-  location: string;
-  duration: string;
+  _id: string;
+  _time: string;
+  _title: string;
+  _description: string;
+  _location: string;
+  _duration: string;
   type: 'ceremony' | 'reception' | 'photo' | 'preparation' | 'other';
-  participants: string[];
+  _participants: string[];
 }
 
 export function WeddingTimeline() {
@@ -316,7 +316,7 @@ export function WeddingTimeline() {
     }
   };
 
-  const handleDeleteEvent = async (eventId: string, eventTitle: string) => {
+  const handleDeleteEvent = async (_eventId: string, _eventTitle: string) => {
     setIsLoading(true);
     try {
       setTimelineEvents(prev => prev.filter(event => event.id !== eventId));

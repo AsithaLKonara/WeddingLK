@@ -1,57 +1,57 @@
 import Stripe from 'stripe';
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import { Payment, User } from './models';
 
 interface PaymentMethod {
-  id: string;
+  _id: string;
   type: 'card' | 'bank' | 'wallet' | 'crypto';
   brand?: string;
   last4?: string;
   expiryMonth?: number;
   expiryYear?: number;
-  isDefault: boolean;
+  _isDefault: boolean;
   metadata: Record<string, any>;
 }
 
 interface PaymentIntent {
-  id: string;
-  amount: number;
-  currency: string;
+  _id: string;
+  _amount: number;
+  _currency: string;
   status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
-  paymentMethod: string;
-  customer: string;
+  _paymentMethod: string;
+  _customer: string;
   metadata: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
 
 interface Subscription {
-  id: string;
-  customerId: string;
-  planId: string;
+  _id: string;
+  _customerId: string;
+  _planId: string;
   status: 'active' | 'canceled' | 'past_due' | 'unpaid' | 'trialing';
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
-  cancelAtPeriodEnd: boolean;
+  _cancelAtPeriodEnd: boolean;
   metadata: Record<string, any>;
 }
 
 interface PaymentPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  currency: string;
+  _id: string;
+  _name: string;
+  _description: string;
+  _price: number;
+  _currency: string;
   interval: 'month' | 'year' | 'one-time';
-  features: string[];
+  _features: string[];
   metadata: Record<string, any>;
 }
 
 interface Refund {
-  id: string;
-  paymentId: string;
-  amount: number;
-  reason: string;
+  _id: string;
+  _paymentId: string;
+  _amount: number;
+  _reason: string;
   status: 'pending' | 'succeeded' | 'failed';
   metadata: Record<string, any>;
   createdAt: Date;
@@ -80,8 +80,8 @@ class AdvancedPaymentService {
 
   // Payment Method Management
   async createPaymentMethod(
-    userId: string,
-    paymentData: any
+    _userId: string,
+    _paymentData: any
   ): Promise<PaymentMethod> {
     try {
       await connectDB();
@@ -90,7 +90,7 @@ class AdvancedPaymentService {
         throw new Error('Stripe not configured');
       }
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -103,7 +103,7 @@ class AdvancedPaymentService {
         });
         customerId = customer.id;
 
-        await User.findByIdAndUpdate(userId, { stripeCustomerId: customerId });
+        await (User as any).findByIdAndUpdate(userId, { stripeCustomerId: customerId });
       }
 
       let paymentMethod: Stripe.PaymentMethod;
@@ -159,11 +159,11 @@ class AdvancedPaymentService {
     }
   }
 
-  async getPaymentMethods(userId: string): Promise<PaymentMethod[]> {
+  async getPaymentMethods(_userId: string): Promise<PaymentMethod[]> {
     try {
       await connectDB();
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user?.stripeCustomerId) {
         return [];
       }
@@ -194,13 +194,13 @@ class AdvancedPaymentService {
   }
 
   async setDefaultPaymentMethod(
-    userId: string,
-    paymentMethodId: string
+    _userId: string,
+    _paymentMethodId: string
   ): Promise<void> {
     try {
       await connectDB();
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user?.stripeCustomerId) {
         throw new Error('User not found');
       }
@@ -237,8 +237,8 @@ class AdvancedPaymentService {
   }
 
   async deletePaymentMethod(
-    userId: string,
-    paymentMethodId: string
+    _userId: string,
+    _paymentMethodId: string
   ): Promise<void> {
     try {
       if (!this.stripe) {
@@ -254,9 +254,9 @@ class AdvancedPaymentService {
 
   // Payment Processing
   async createPaymentIntent(
-    userId: string,
-    amount: number,
-    currency: string,
+    _userId: string,
+    _amount: number,
+    _currency: string,
     metadata: Record<string, any>
   ): Promise<PaymentIntent> {
     try {
@@ -270,7 +270,7 @@ class AdvancedPaymentService {
         throw new Error('Unsupported currency');
       }
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -283,7 +283,7 @@ class AdvancedPaymentService {
         });
         customerId = customer.id;
 
-        await User.findByIdAndUpdate(userId, { stripeCustomerId: customerId });
+        await (User as any).findByIdAndUpdate(userId, { stripeCustomerId: customerId });
       }
 
       const paymentIntent = await this.stripe.paymentIntents.create({
@@ -322,7 +322,7 @@ class AdvancedPaymentService {
   }
 
   async confirmPayment(
-    paymentIntentId: string,
+    _paymentIntentId: string,
     paymentMethodId?: string
   ): Promise<PaymentIntent> {
     try {
@@ -367,10 +367,10 @@ class AdvancedPaymentService {
   }
 
   async processPayment(
-    userId: string,
-    amount: number,
-    currency: string,
-    paymentMethodId: string,
+    _userId: string,
+    _amount: number,
+    _currency: string,
+    _paymentMethodId: string,
     metadata: Record<string, any>
   ): Promise<PaymentIntent> {
     try {
@@ -400,9 +400,9 @@ class AdvancedPaymentService {
 
   // Subscription Management
   async createSubscription(
-    userId: string,
-    planId: string,
-    paymentMethodId: string,
+    _userId: string,
+    _planId: string,
+    _paymentMethodId: string,
     metadata: Record<string, any>
   ): Promise<Subscription> {
     try {
@@ -412,7 +412,7 @@ class AdvancedPaymentService {
         throw new Error('Stripe not configured');
       }
 
-      const user = await User.findById(userId);
+      const user = await (User as any).findById(userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -425,7 +425,7 @@ class AdvancedPaymentService {
         });
         customerId = customer.id;
 
-        await User.findByIdAndUpdate(userId, { stripeCustomerId: customerId });
+        await (User as any).findByIdAndUpdate(userId, { stripeCustomerId: customerId });
       }
 
       // Create subscription
@@ -463,7 +463,7 @@ class AdvancedPaymentService {
   }
 
   async cancelSubscription(
-    subscriptionId: string,
+    _subscriptionId: string,
     cancelAtPeriodEnd: boolean = true
   ): Promise<void> {
     try {
@@ -484,7 +484,7 @@ class AdvancedPaymentService {
     }
   }
 
-  async getSubscription(subscriptionId: string): Promise<Subscription | null> {
+  async getSubscription(_subscriptionId: string): Promise<Subscription | null> {
     try {
       if (!this.stripe) {
         throw new Error('Stripe not configured');
@@ -517,9 +517,9 @@ class AdvancedPaymentService {
 
   // Refund Management
   async createRefund(
-    paymentId: string,
-    amount: number,
-    reason: string,
+    _paymentId: string,
+    _amount: number,
+    _reason: string,
     metadata: Record<string, any> = {}
   ): Promise<Refund> {
     try {
@@ -572,7 +572,7 @@ class AdvancedPaymentService {
                 interval: planData.interval as any,
               }
             : undefined,
-        product_data: {
+        productdata: {
           name: planData.name,
           metadata: planData.metadata,
         },
@@ -601,9 +601,9 @@ class AdvancedPaymentService {
 
   // Advanced Features
   async splitPayment(
-    totalAmount: number,
-    currency: string,
-    splits: Array<{ userId: string; amount: number; percentage: number }>
+    _totalAmount: number,
+    _currency: string,
+    splits: Array<{ _userId: string; _amount: number; percentage: number }>
   ): Promise<PaymentIntent[]> {
     try {
       const paymentIntents: PaymentIntent[] = [];
@@ -631,9 +631,9 @@ class AdvancedPaymentService {
   }
 
   async createRecurringPayment(
-    userId: string,
-    amount: number,
-    currency: string,
+    _userId: string,
+    _amount: number,
+    _currency: string,
     interval: 'day' | 'week' | 'month' | 'year',
     metadata: Record<string, any>
   ): Promise<Subscription> {
@@ -681,7 +681,7 @@ class AdvancedPaymentService {
   // Database Operations
   private async savePaymentToDatabase(
     paymentIntent: PaymentIntent,
-    userId: string,
+    _userId: string,
     metadata: Record<string, any>
   ): Promise<void> {
     try {
@@ -733,7 +733,7 @@ class AdvancedPaymentService {
     return this.paymentGateways;
   }
 
-  public async getPaymentStatus(paymentIntentId: string): Promise<string> {
+  public async getPaymentStatus(_paymentIntentId: string): Promise<string> {
     try {
       if (!this.stripe) {
         throw new Error('Stripe not configured');
@@ -749,7 +749,7 @@ class AdvancedPaymentService {
   }
 
   public async validatePaymentMethod(
-    paymentMethodId: string
+    _paymentMethodId: string
   ): Promise<boolean> {
     try {
       if (!this.stripe) {

@@ -79,7 +79,7 @@ const boostPackages = [
 ];
 
 interface BoostPricingProps {
-  onSelectPackage: (packageId: string) => void;
+  onSelectPackage: (_packageId: string) => void;
   selectedVenue?: string;
 }
 

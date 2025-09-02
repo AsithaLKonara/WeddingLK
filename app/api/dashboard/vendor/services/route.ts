@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models/vendor';
 import { Service } from '@/lib/models/service';
 import { auth } from '@/lib/auth-config';
@@ -149,7 +149,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Verify service belongs to vendor
-    const service = await Service.findOne({ _id: serviceId, vendor: vendorId });
+    const service = await Service.findOne({ id: serviceId, vendor: vendorId });
     if (!service) {
       return NextResponse.json(
         { error: 'Service not found or access denied' },
@@ -204,7 +204,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verify service belongs to vendor
-    const service = await Service.findOne({ _id: serviceId, vendor: vendorId });
+    const service = await Service.findOne({ id: serviceId, vendor: vendorId });
     if (!service) {
       return NextResponse.json(
         { error: 'Service not found or access denied' },

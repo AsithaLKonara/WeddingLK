@@ -1,6 +1,6 @@
 // Enhanced AI Search with performance optimization
 export interface SearchQuery {
-  query: string;
+  _query: string;
   filters: {
     location?: string;
     priceRange?: [number, number];
@@ -16,16 +16,16 @@ export interface SearchQuery {
 }
 
 export interface SearchResult {
-  id: string;
+  _id: string;
   type: 'venue' | 'vendor';
-  name: string;
-  description: string;
-  location: string;
-  price: number;
-  rating: number;
-  relevance: number;
-  features: string[];
-  images: string[];
+  _name: string;
+  _description: string;
+  _location: string;
+  _price: number;
+  _rating: number;
+  _relevance: number;
+  _features: string[];
+  _images: string[];
 }
 
 export class AISearchEnhancement {
@@ -148,7 +148,7 @@ export class AISearchEnhancement {
     return personalizedResults.sort((a, b) => b.relevance - a.relevance);
   }
 
-  private updateSearchHistory(query: string): void {
+  private updateSearchHistory(_query: string): void {
     const normalizedQuery = query.toLowerCase();
     const currentCount = this.searchHistory.get(normalizedQuery) || 0;
     this.searchHistory.set(normalizedQuery, currentCount + 1);
@@ -159,7 +159,7 @@ export class AISearchEnhancement {
   }
 
   // Get search suggestions based on user behavior
-  getSearchSuggestions(partialQuery: string): string[] {
+  getSearchSuggestions(_partialQuery: string): string[] {
     const suggestions: string[] = [];
 
     // Add from search history
@@ -189,7 +189,7 @@ export class AISearchEnhancement {
   }
 
   // Update user preferences
-  updateUserPreferences(userId: string, preferences: any): void {
+  updateUserPreferences(_userId: string, _preferences: any): void {
     this.userPreferences.set(userId, preferences);
   }
 

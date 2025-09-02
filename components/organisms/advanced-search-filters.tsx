@@ -32,24 +32,24 @@ import { useToast } from '@/hooks/use-toast';
 import { aiSearch, SearchQuery } from '@/lib/ai-search-enhancement';
 
 interface SearchFilters {
-  query: string;
-  location: string;
+  _query: string;
+  _location: string;
   priceRange: [number, number];
-  date: string;
-  guestCount: number;
-  category: string;
-  rating: number;
-  amenities: string[];
-  style: string;
-  budget: number;
+  _date: string;
+  _guestCount: number;
+  _category: string;
+  _rating: number;
+  _amenities: string[];
+  _style: string;
+  _budget: number;
   priority: 'price' | 'quality' | 'location';
 }
 
 interface AdvancedSearchFiltersProps {
   onSearch: (filters: SearchFilters) => void;
-  onSaveFilters?: (name: string, filters: SearchFilters) => void;
-  onLoadFilters?: (name: string) => void;
-  savedFilters?: { name: string; filters: SearchFilters }[];
+  onSaveFilters?: (_name: string, filters: SearchFilters) => void;
+  onLoadFilters?: (_name: string) => void;
+  savedFilters?: { _name: string; filters: SearchFilters }[];
 }
 
 export function AdvancedSearchFilters({
@@ -214,7 +214,7 @@ export function AdvancedSearchFilters({
     }
   };
 
-  const handleLoadFilters = (name: string) => {
+  const handleLoadFilters = (_name: string) => {
     if (onLoadFilters) {
       onLoadFilters(name);
       toast({
@@ -243,11 +243,11 @@ export function AdvancedSearchFilters({
     setAiSuggestions([]);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = (_suggestion: string) => {
     setFilters(prev => ({ ...prev, query: suggestion }));
   };
 
-  const handleAmenityToggle = (amenity: string) => {
+  const handleAmenityToggle = (_amenity: string) => {
     setFilters(prev => ({
       ...prev,
       amenities: prev.amenities.includes(amenity)
@@ -256,7 +256,7 @@ export function AdvancedSearchFilters({
     }));
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('si-LK', {
       style: 'currency',
       currency: 'LKR',

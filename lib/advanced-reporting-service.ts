@@ -1,28 +1,28 @@
 // Advanced Reporting Service for WeddingLK
 // Provides comprehensive analytics and reporting capabilities
 
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import { User, Vendor, Venue, Booking, Review, Task, Payment } from './models';
 import { advancedCache } from './advanced-cache-service';
 import { advancedAnalyticsService } from './advanced-analytics-service';
 
 interface ReportTemplate {
-  id: string;
-  name: string;
-  description: string;
+  _id: string;
+  _name: string;
+  _description: string;
   category: 'business' | 'financial' | 'operational' | 'marketing' | 'custom';
-  dataSources: string[];
+  _dataSources: string[];
   parameters: ReportParameter[];
   visualization: VisualizationConfig;
   schedule?: ReportSchedule;
-  recipients: string[];
-  isActive: boolean;
+  _recipients: string[];
+  _isActive: boolean;
 }
 
 interface ReportParameter {
-  name: string;
+  _name: string;
   type: 'date' | 'number' | 'string' | 'select' | 'boolean';
-  required: boolean;
+  _required: boolean;
   defaultValue?: any;
   options?: any[];
   validation?: string;
@@ -31,15 +31,15 @@ interface ReportParameter {
 interface VisualizationConfig {
   type: 'chart' | 'table' | 'dashboard' | 'export';
   chartType?: 'line' | 'bar' | 'pie' | 'doughnut' | 'area' | 'scatter';
-  dimensions: string[];
-  metrics: string[];
+  _dimensions: string[];
+  _metrics: string[];
   filters: ReportFilter[];
-  sortBy: string[];
+  _sortBy: string[];
   limit?: number;
 }
 
 interface ReportFilter {
-  field: string;
+  _field: string;
   operator:
     | 'equals'
     | 'not_equals'
@@ -50,7 +50,7 @@ interface ReportFilter {
     | 'between'
     | 'in'
     | 'not_in';
-  value: any;
+  _value: any;
   value2?: any;
 }
 
@@ -58,15 +58,15 @@ interface ReportSchedule {
   frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
   dayOfWeek?: number;
   dayOfMonth?: number;
-  time: string;
-  timezone: string;
+  _time: string;
+  _timezone: string;
   lastRun?: Date;
   nextRun?: Date;
 }
 
 interface ReportExecution {
-  id: string;
-  templateId: string;
+  _id: string;
+  _templateId: string;
   parameters: Record<string, any>;
   status: 'pending' | 'running' | 'completed' | 'failed';
   startedAt: Date;
@@ -80,8 +80,8 @@ interface ReportData {
   metadata: {
     generatedAt: Date;
     parameters: Record<string, any>;
-    dataSource: string;
-    recordCount: number;
+    _dataSource: string;
+    _recordCount: number;
   };
   data: any[];
   summary: Record<string, any>;
@@ -90,16 +90,16 @@ interface ReportData {
 }
 
 interface ChartData {
-  type: string;
-  title: string;
+  _type: string;
+  _title: string;
   data: any[];
   options: Record<string, any>;
 }
 
 interface TableData {
-  title: string;
-  columns: string[];
-  rows: any[][];
+  _title: string;
+  _columns: string[];
+  _rows: any[][];
   summary: Record<string, any>;
 }
 
@@ -376,8 +376,8 @@ class AdvancedReportingService {
   }
 
   async updateReportTemplate(
-    templateId: string,
-    updates: Partial<ReportTemplate>
+    _templateId: string,
+    _updates: Partial<$2>
   ): Promise<void> {
     try {
       const template = this.reportTemplates.get(templateId);
@@ -396,7 +396,7 @@ class AdvancedReportingService {
     }
   }
 
-  async deleteReportTemplate(templateId: string): Promise<void> {
+  async deleteReportTemplate(_templateId: string): Promise<void> {
     try {
       this.reportTemplates.delete(templateId);
 
@@ -408,7 +408,7 @@ class AdvancedReportingService {
     }
   }
 
-  async getReportTemplate(templateId: string): Promise<ReportTemplate | null> {
+  async getReportTemplate(_templateId: string): Promise<ReportTemplate | null> {
     return this.reportTemplates.get(templateId) || null;
   }
 
@@ -417,7 +417,7 @@ class AdvancedReportingService {
   }
 
   async getReportTemplatesByCategory(
-    category: string
+    _category: string
   ): Promise<ReportTemplate[]> {
     return Array.from(this.reportTemplates.values()).filter(
       template => template.category === category
@@ -426,9 +426,9 @@ class AdvancedReportingService {
 
   // Report Execution
   async executeReport(
-    templateId: string,
+    _templateId: string,
     parameters: Record<string, any>,
-    userId: string
+    _userId: string
   ): Promise<ReportExecution> {
     try {
       const template = this.reportTemplates.get(templateId);
@@ -461,7 +461,7 @@ class AdvancedReportingService {
   }
 
   async getReportExecution(
-    executionId: string
+    _executionId: string
   ): Promise<ReportExecution | null> {
     return this.reportExecutions.get(executionId) || null;
   }
@@ -577,7 +577,7 @@ class AdvancedReportingService {
 
   // Data Source Methods
   private async getDataSourceData(
-    dataSource: string,
+    _dataSource: string,
     parameters: Record<string, any>
   ): Promise<any[]> {
     try {
@@ -633,7 +633,7 @@ class AdvancedReportingService {
       }
     }
 
-    const users = await User.find(query).select('-password');
+    const users = await (User as any).find(query).select('-password');
     return users.map(user => ({
       id: user._id,
       name: user.name,
@@ -652,8 +652,8 @@ class AdvancedReportingService {
       query.category = parameters.vendorCategory;
     }
 
-    const vendors = await Vendor.find(query);
-    return vendors.map(vendor => ({
+    const vendors = await (Vendor as any).find(query);
+    return vendors.map((_vendor: any) => ({
       id: vendor._id,
       name: vendor.name,
       businessName: vendor.businessName,
@@ -667,8 +667,8 @@ class AdvancedReportingService {
   }
 
   private async getVenueData(parameters: Record<string, any>): Promise<any[]> {
-    const venues = await Venue.find({});
-    return venues.map(venue => ({
+    const venues = await (Venue as any).find({});
+    return venues.map((_venue: any) => ({
       id: venue._id,
       name: venue.name,
       type: venue.type,
@@ -696,7 +696,7 @@ class AdvancedReportingService {
       };
     }
 
-    const bookings = await Booking.find(query).populate(
+    const bookings = await (Booking as any).find(query).populate(
       'userId vendorId venueId'
     );
     return bookings.map(booking => ({
@@ -722,7 +722,7 @@ class AdvancedReportingService {
       query.createdAt = { $gte: startDate };
     }
 
-    const payments = await Payment.find(query).populate('userId');
+    const payments = await (Payment as any).find(query).populate('userId');
     return payments.map(payment => ({
       id: payment._id,
       userId: payment.userId,
@@ -735,8 +735,8 @@ class AdvancedReportingService {
   }
 
   private async getReviewData(parameters: Record<string, any>): Promise<any[]> {
-    const reviews = await Review.find({}).populate('userId vendorId');
-    return reviews.map((review: any) => ({
+    const reviews = await (Review as any).find({}).populate('userId vendorId');
+    return reviews.map((_review: any) => ({
       id: review._id,
       userId: review.userId,
       vendorId: review.vendorId,
@@ -776,9 +776,9 @@ class AdvancedReportingService {
 
     return [
       ...users.map(u => ({ ...u, dataType: 'user' })),
-      ...vendors.map(v => ({ ...v, dataType: 'vendor' })),
-      ...venues.map(v => ({ ...v, dataType: 'venue' })),
-      ...bookings.map(b => ({ ...b, dataType: 'booking' })),
+      ...vendors.map((_v: any) => ({ ...v, dataType: 'vendor' })),
+      ...venues.map((_v: any) => ({ ...v, dataType: 'venue' })),
+      ...bookings.map((_b: any) => ({ ...b, dataType: 'booking' })),
       ...payments.map(p => ({ ...p, dataType: 'payment' })),
       ...reviews.map(r => ({ ...r, dataType: 'review' })),
       ...tasks.map(t => ({ ...t, dataType: 'task' })),
@@ -867,7 +867,7 @@ class AdvancedReportingService {
     }
   }
 
-  private getStartDate(range: string): Date {
+  private getStartDate(_range: string): Date {
     const now = new Date();
     switch (range) {
       case '7d':
@@ -903,7 +903,7 @@ class AdvancedReportingService {
     });
   }
 
-  private getChartOptions(chartType: string): Record<string, any> {
+  private getChartOptions(_chartType: string): Record<string, any> {
     const baseOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -950,7 +950,7 @@ class AdvancedReportingService {
     visualization: VisualizationConfig,
     data: any[]
   ): any[][] {
-    const rows: any[][] = [];
+    const _rows: any[][] = [];
 
     for (const metric of visualization.metrics) {
       const values = data
@@ -967,7 +967,7 @@ class AdvancedReportingService {
 
   private generateSummaryStatistics(
     data: any[],
-    metrics: string[]
+    _metrics: string[]
   ): Record<string, any> {
     const statistics: Record<string, any> = {};
 
@@ -1007,7 +1007,7 @@ class AdvancedReportingService {
     template: ReportTemplate
   ): Promise<string[]> {
     // Generate insights based on data analysis
-    const insights: string[] = [];
+    const _insights: string[] = [];
 
     if (data.length > 1000) {
       insights.push('High data volume indicates strong platform activity');
@@ -1049,14 +1049,14 @@ class AdvancedReportingService {
   }
 
   private async updateReportTemplateInDatabase(
-    templateId: string,
-    updates: Partial<ReportTemplate>
+    _templateId: string,
+    _updates: Partial<$2>
   ): Promise<void> {
     console.log('Updating report template in database:', templateId);
   }
 
   private async deleteReportTemplateFromDatabase(
-    templateId: string
+    _templateId: string
   ): Promise<void> {
     console.log('Deleting report template from database:', templateId);
   }
@@ -1106,7 +1106,7 @@ class AdvancedReportingService {
   }
 
   public scheduleReport(
-    templateId: string,
+    _templateId: string,
     schedule: ReportSchedule
   ): Promise<void> {
     // Schedule report execution

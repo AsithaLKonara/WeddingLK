@@ -13,10 +13,10 @@ import { Filter, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface GalleryFiltersProps {
-  selectedCategory: string;
-  selectedVenue: string;
-  onCategoryChange: (category: string) => void;
-  onVenueChange: (venue: string) => void;
+  _selectedCategory: string;
+  _selectedVenue: string;
+  onCategoryChange: (_category: string) => void;
+  onVenueChange: (_venue: string) => void;
 }
 
 const categories = [
@@ -59,7 +59,7 @@ export function GalleryFilters({
     if (venue) activeFilters.push({ type: 'venue', value: venue.label });
   }
 
-  const clearFilter = (type: string) => {
+  const clearFilter = (_type: string) => {
     if (type === 'category') onCategoryChange('all');
     if (type === 'venue') onVenueChange('all');
   };
@@ -98,7 +98,7 @@ export function GalleryFilters({
               <SelectValue placeholder='Venue' />
             </SelectTrigger>
             <SelectContent>
-              {venues.map(venue => (
+              {venues.map((_venue: any) => (
                 <SelectItem key={venue.id} value={venue.id}>
                   {venue.label}
                 </SelectItem>

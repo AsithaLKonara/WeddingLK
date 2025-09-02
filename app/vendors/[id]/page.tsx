@@ -21,67 +21,67 @@ import { VendorContact } from '@/components/organisms/vendor-contact';
 
 interface Vendor {
   _id: string;
-  name: string;
-  businessName: string;
-  category: string;
-  description: string;
+  _name: string;
+  _businessName: string;
+  _category: string;
+  _description: string;
   location: {
-    address: string;
-    city: string;
-    province: string;
+    _address: string;
+    _city: string;
+    _province: string;
     coordinates?: {
-      lat: number;
-      lng: number;
+      _lat: number;
+      _lng: number;
     };
   };
   contact: {
-    phone: string;
-    email: string;
+    _phone: string;
+    _email: string;
     website?: string;
   };
   services: Array<{
-    name: string;
-    description: string;
-    price: number;
+    _name: string;
+    _description: string;
+    _price: number;
   }>;
-  portfolio: string[];
+  _portfolio: string[];
   pricing: {
-    startingPrice: number;
-    currency: string;
+    _startingPrice: number;
+    _currency: string;
     packages?: Array<{
-      name: string;
-      description: string;
-      price: number;
-      includes: string[];
+      _name: string;
+      _description: string;
+      _price: number;
+      _includes: string[];
     }>;
   };
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
   reviews: Array<{
     _id: string;
     user: {
-      firstName: string;
-      lastName: string;
+      _firstName: string;
+      _lastName: string;
     };
-    rating: number;
-    comment: string;
-    createdAt: string;
+    _rating: number;
+    _comment: string;
+    _createdAt: string;
   }>;
   owner: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
+    _firstName: string;
+    _lastName: string;
+    _email: string;
+    _phone: string;
   };
-  experience: number;
-  awards: string[];
+  _experience: number;
+  _awards: string[];
   availability: {
-    isAvailable: boolean;
+    _isAvailable: boolean;
     nextAvailableDate?: string;
   };
-  createdAt: string;
+  _createdAt: string;
 }
 
 export default function VendorDetailPage() {
@@ -127,7 +127,7 @@ export default function VendorDetailPage() {
     loadVendor();
   }, [loadVendor]);
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (_price: number, _currency: string) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: currency || 'LKR',
@@ -135,8 +135,8 @@ export default function VendorDetailPage() {
     }).format(price);
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
+  const getCategoryColor = (_category: string) => {
+    const colors: { [_key: string]: string } = {
       photographer: 'bg-blue-100 text-blue-800',
       caterer: 'bg-green-100 text-green-800',
       decorator: 'bg-purple-100 text-purple-800',

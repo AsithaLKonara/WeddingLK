@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-09-02T14:18:30.566Z",
+  "totalSourceErrors": 0,
+  "categories": {
+    "propertyAccess": [],
+    "missingVariables": [],
+    "missingProperties": [],
+    "unusedParams": [],
+    "mongodbAssertions": [],
+    "importExport": [],
+    "other": []
+  },
+  "priorities": [],
+  "recommendations": {
+    "propertyAccess": 0,
+    "missingVariables": 0,
+    "missingProperties": 0,
+    "mongodbAssertions": 0,
+    "unusedParams": 0,
+    "other": 0
+  }
+}

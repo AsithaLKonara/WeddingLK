@@ -18,10 +18,10 @@ interface Props {
 }
 
 interface State {
-  hasError: boolean;
+  _hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
-  errorId: string;
+  _errorId: string;
 }
 
 export class GlobalErrorBoundary extends Component<Props, State> {

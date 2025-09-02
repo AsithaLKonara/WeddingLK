@@ -3,41 +3,41 @@ import bcrypt from 'bcryptjs';
 
 export interface IUser {
   _id?: ObjectId;
-  email: string;
-  password: string;
-  name: string;
+  _email: string;
+  _password: string;
+  _name: string;
   role: 'user' | 'vendor' | 'wedding_planner' | 'admin' | 'maintainer';
-  roleVerified: boolean;
+  _roleVerified: boolean;
   profile: {
-    firstName: string;
-    lastName: string;
-    phone: string;
+    _firstName: string;
+    _lastName: string;
+    _phone: string;
     dateOfBirth?: Date;
     gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
     avatar?: string;
     bio?: string;
   };
   location: {
-    country: string;
-    state: string;
-    city: string;
+    _country: string;
+    _state: string;
+    _city: string;
     address?: string;
     postalCode?: string;
     coordinates?: {
-      latitude: number;
-      longitude: number;
+      _latitude: number;
+      _longitude: number;
     };
   };
   preferences: {
     weddingStyle?: string[];
     budget?: {
-      min: number;
-      max: number;
-      currency: string;
+      _min: number;
+      _max: number;
+      _currency: string;
     };
     guestCount?: {
-      min: number;
-      max: number;
+      _min: number;
+      _max: number;
     };
     preferredDates?: Date[];
     preferredLocations?: string[];
@@ -45,30 +45,30 @@ export interface IUser {
   };
   socialAccounts: Array<{
     provider: 'google' | 'facebook' | 'instagram' | 'apple';
-    providerId: string;
-    accessToken: string;
+    _providerId: string;
+    _accessToken: string;
     refreshToken?: string;
     expiresAt?: Date;
     additionalData?: Record<string, unknown>;
   }>;
   verification: {
-    emailVerified: boolean;
-    phoneVerified: boolean;
-    identityVerified: boolean;
+    _emailVerified: boolean;
+    _phoneVerified: boolean;
+    _identityVerified: boolean;
     emailVerificationToken?: string;
     phoneVerificationCode?: string;
     identityDocuments?: Array<{
-      type: string;
-      documentId: string;
+      _type: string;
+      _documentId: string;
       status: 'pending' | 'approved' | 'rejected';
       uploadedAt: Date;
       verifiedAt?: Date;
     }>;
   };
   security: {
-    twoFactorEnabled: boolean;
+    _twoFactorEnabled: boolean;
     twoFactorSecret?: string;
-    loginAttempts: number;
+    _loginAttempts: number;
     lockoutUntil?: Date;
     passwordChangedAt: Date;
     passwordResetToken?: string;
@@ -79,25 +79,25 @@ export interface IUser {
     lastActive: Date;
     loginHistory: Array<{
       timestamp: Date;
-      ip: string;
-      userAgent: string;
+      _ip: string;
+      _userAgent: string;
       location?: string;
       success: boolean;
     }>;
-    totalLogins: number;
-    totalSessions: number;
+    _totalLogins: number;
+    _totalSessions: number;
   };
   notifications: {
-    email: boolean;
-    sms: boolean;
-    push: boolean;
-    marketing: boolean;
+    _email: boolean;
+    _sms: boolean;
+    _push: boolean;
+    _marketing: boolean;
     preferences: {
-      newBookings: boolean;
-      bookingUpdates: boolean;
-      paymentReminders: boolean;
-      specialOffers: boolean;
-      systemUpdates: boolean;
+      _newBookings: boolean;
+      _bookingUpdates: boolean;
+      _paymentReminders: boolean;
+      _specialOffers: boolean;
+      _systemUpdates: boolean;
     };
   };
   metadata: {
@@ -110,7 +110,7 @@ export interface IUser {
       | 'referral';
     referralCode?: string;
     referredBy?: ObjectId;
-    tags: string[];
+    _tags: string[];
     notes?: string;
   };
   status: 'active' | 'inactive' | 'suspended' | 'deleted';
@@ -119,9 +119,9 @@ export interface IUser {
 }
 
 export class UserModel {
-  private collection: any;
+  private _collection: any;
 
-  constructor(collection: any) {
+  constructor(_collection: any) {
     this.collection = collection;
   }
 
@@ -231,11 +231,11 @@ export class UserModel {
   }
 
   // Find user by ID
-  async findById(id: string | ObjectId): Promise<IUser | null> {
+  async findById(_id: string | ObjectId): Promise<IUser | null> {
     try {
       const objectId = typeof id === 'string' ? new ObjectId(id) : id;
       const user = await this.collection.findOne({
-        _id: objectId,
+        id: objectId,
         status: { $ne: 'deleted' },
       });
       return user;
@@ -246,7 +246,7 @@ export class UserModel {
   }
 
   // Find user by email
-  async findByEmail(email: string): Promise<IUser | null> {
+  async findByEmail(_email: string): Promise<IUser | null> {
     try {
       const user = await this.collection.findOne({
         email: email.toLowerCase(),
@@ -261,8 +261,8 @@ export class UserModel {
 
   // Find user by social account
   async findBySocialAccount(
-    provider: string,
-    providerId: string
+    _provider: string,
+    _providerId: string
   ): Promise<IUser | null> {
     try {
       const user = await this.collection.findOne({
@@ -279,13 +279,13 @@ export class UserModel {
 
   // Update user
   async update(
-    id: string | ObjectId,
-    updateData: Partial<IUser>
+    _id: string | ObjectId,
+    _updateData: Partial<$2>
   ): Promise<boolean> {
     try {
       const objectId = typeof id === 'string' ? new ObjectId(id) : id;
       const result = await this.collection.updateOne(
-        { _id: objectId, status: { $ne: 'deleted' } },
+        { id: objectId, status: { $ne: 'deleted' } },
         {
           $set: {
             ...updateData,
@@ -301,11 +301,11 @@ export class UserModel {
   }
 
   // Delete user (soft delete)
-  async delete(id: string | ObjectId): Promise<boolean> {
+  async delete(_id: string | ObjectId): Promise<boolean> {
     try {
       const objectId = typeof id === 'string' ? new ObjectId(id) : id;
       const result = await this.collection.updateOne(
-        { _id: objectId },
+        { id: objectId },
         {
           $set: {
             status: 'deleted',
@@ -337,7 +337,7 @@ export class UserModel {
   }
 
   // Search users
-  async search(query: string, limit = 50): Promise<IUser[]> {
+  async search(_query: string, limit = 50): Promise<IUser[]> {
     try {
       const users = await this.collection
         .find({

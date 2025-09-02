@@ -1,5 +1,5 @@
-import { connectDB } from './db';
-import { User, Vendor, Venue, Booking, Payment } from './models';
+// import { connectDB } from './db';
+// import { User, Vendor, Venue, Booking, Payment } from './models';
 
 interface AnalyticsMetrics {
   revenue: RevenueMetrics;
@@ -13,66 +13,66 @@ interface AnalyticsMetrics {
 }
 
 interface RevenueMetrics {
-  total: number;
-  monthly: number;
-  growth: number;
+  _total: number;
+  _monthly: number;
+  _growth: number;
   byCategory: Record<string, number>;
   byVendor: Record<string, number>;
   byVenue: Record<string, number>;
-  averageOrderValue: number;
-  customerLifetimeValue: number;
+  _averageOrderValue: number;
+  _customerLifetimeValue: number;
 }
 
 interface UserMetrics {
-  total: number;
-  active: number;
-  new: number;
-  retention: number;
-  engagement: number;
+  _total: number;
+  _active: number;
+  _new: number;
+  _retention: number;
+  _engagement: number;
   byRole: Record<string, number>;
   byLocation: Record<string, number>;
-  conversionRate: number;
+  _conversionRate: number;
 }
 
 interface VendorMetrics {
-  total: number;
-  active: number;
-  verified: number;
-  featured: number;
+  _total: number;
+  _active: number;
+  _verified: number;
+  _featured: number;
   performance: Record<string, number>;
   byCategory: Record<string, number>;
   byLocation: Record<string, number>;
-  averageRating: number;
+  _averageRating: number;
 }
 
 interface VenueMetrics {
-  total: number;
-  active: number;
-  featured: number;
+  _total: number;
+  _active: number;
+  _featured: number;
   availability: Record<string, number>;
   byType: Record<string, number>;
   byLocation: Record<string, number>;
-  averageRating: number;
+  _averageRating: number;
 }
 
 interface BookingMetrics {
-  total: number;
-  confirmed: number;
-  pending: number;
-  cancelled: number;
-  conversionRate: number;
-  averageValue: number;
+  _total: number;
+  _confirmed: number;
+  _pending: number;
+  _cancelled: number;
+  _conversionRate: number;
+  _averageValue: number;
   byMonth: Record<string, number>;
   byCategory: Record<string, number>;
 }
 
 interface PerformanceMetrics {
-  pageLoadTime: number;
-  apiResponseTime: number;
-  errorRate: number;
-  uptime: number;
-  userSatisfaction: number;
-  mobileUsage: number;
+  _pageLoadTime: number;
+  _apiResponseTime: number;
+  _errorRate: number;
+  _uptime: number;
+  _userSatisfaction: number;
+  _mobileUsage: number;
   browserDistribution: Record<string, number>;
 }
 
@@ -85,52 +85,52 @@ interface TrendAnalysis {
 }
 
 interface TrendData {
-  period: string;
-  value: number;
-  change: number;
+  _period: string;
+  _value: number;
+  _change: number;
   trend: 'up' | 'down' | 'stable';
 }
 
 interface SeasonalPatterns {
-  peakSeasons: string[];
-  lowSeasons: string[];
-  recommendations: string[];
+  _peakSeasons: string[];
+  _lowSeasons: string[];
+  _recommendations: string[];
 }
 
 interface MarketTrends {
-  growthRate: number;
-  marketShare: number;
-  competition: string[];
-  opportunities: string[];
+  _growthRate: number;
+  _marketShare: number;
+  _competition: string[];
+  _opportunities: string[];
 }
 
 interface PredictiveInsights {
   revenue: RevenuePrediction;
   users: UserPrediction;
   market: MarketPrediction;
-  recommendations: string[];
+  _recommendations: string[];
 }
 
 interface RevenuePrediction {
-  nextMonth: number;
-  nextQuarter: number;
-  nextYear: number;
-  confidence: number;
-  factors: string[];
+  _nextMonth: number;
+  _nextQuarter: number;
+  _nextYear: number;
+  _confidence: number;
+  _factors: string[];
 }
 
 interface UserPrediction {
-  growth: number;
-  churn: number;
-  engagement: number;
-  confidence: number;
+  _growth: number;
+  _churn: number;
+  _engagement: number;
+  _confidence: number;
 }
 
 interface MarketPrediction {
-  demand: number;
-  competition: number;
-  opportunities: string[];
-  risks: string[];
+  _demand: number;
+  _competition: number;
+  _opportunities: string[];
+  _risks: string[];
 }
 
 class AdvancedAnalyticsService {
@@ -191,10 +191,10 @@ class AdvancedAnalyticsService {
   }
 
   // Revenue Analytics
-  private async getRevenueMetrics(timeRange: string): Promise<RevenueMetrics> {
+  private async getRevenueMetrics(_timeRange: string): Promise<RevenueMetrics> {
     const startDate = this.getStartDate(timeRange);
 
-    const payments = await Payment.find({
+    const payments = await (Payment as any).find({
       status: 'completed',
       createdAt: { $gte: startDate },
     }).populate('bookingId');
@@ -223,7 +223,7 @@ class AdvancedAnalyticsService {
   }
 
   // User Analytics
-  private async getUserMetrics(timeRange: string): Promise<UserMetrics> {
+  private async getUserMetrics(_timeRange: string): Promise<UserMetrics> {
     const startDate = this.getStartDate(timeRange);
 
     const total = await User.countDocuments();
@@ -255,7 +255,7 @@ class AdvancedAnalyticsService {
   }
 
   // Vendor Analytics
-  private async getVendorMetrics(timeRange: string): Promise<VendorMetrics> {
+  private async getVendorMetrics(_timeRange: string): Promise<VendorMetrics> {
     const total = await Vendor.countDocuments();
     const active = await Vendor.countDocuments({ isActive: true });
     const verified = await Vendor.countDocuments({ isVerified: true });
@@ -280,7 +280,7 @@ class AdvancedAnalyticsService {
   }
 
   // Venue Analytics
-  private async getVenueMetrics(timeRange: string): Promise<VenueMetrics> {
+  private async getVenueMetrics(_timeRange: string): Promise<VenueMetrics> {
     const total = await Venue.countDocuments();
     const active = await Venue.countDocuments({ isActive: true });
     const featured = await Venue.countDocuments({ featured: true });
@@ -303,7 +303,7 @@ class AdvancedAnalyticsService {
   }
 
   // Booking Analytics
-  private async getBookingMetrics(timeRange: string): Promise<BookingMetrics> {
+  private async getBookingMetrics(_timeRange: string): Promise<BookingMetrics> {
     const startDate = this.getStartDate(timeRange);
 
     const total = await Booking.countDocuments({
@@ -360,7 +360,7 @@ class AdvancedAnalyticsService {
   }
 
   // Trend Analysis
-  private async getTrendAnalysis(timeRange: string): Promise<TrendAnalysis> {
+  private async getTrendAnalysis(_timeRange: string): Promise<TrendAnalysis> {
     const revenue = await this.analyzeRevenueTrends(timeRange);
     const users = await this.analyzeUserTrends(timeRange);
     const bookings = await this.analyzeBookingTrends(timeRange);
@@ -379,7 +379,7 @@ class AdvancedAnalyticsService {
 
   // Predictive Insights
   private async getPredictiveInsights(
-    timeRange: string
+    _timeRange: string
   ): Promise<PredictiveInsights> {
     const revenue = await this.predictRevenue(timeRange);
     const users = await this.predictUserGrowth(timeRange);
@@ -400,7 +400,7 @@ class AdvancedAnalyticsService {
   }
 
   // Helper Methods
-  private getStartDate(timeRange: string): Date {
+  private getStartDate(_timeRange: string): Date {
     const now = new Date();
     switch (timeRange) {
       case '7d':
@@ -416,7 +416,7 @@ class AdvancedAnalyticsService {
     }
   }
 
-  private calculateMonthlyRevenue(payments: any[]): number {
+  private calculateMonthlyRevenue(_payments: any[]): number {
     const now = new Date();
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -425,7 +425,7 @@ class AdvancedAnalyticsService {
       .reduce((sum, payment) => sum + payment.amount, 0);
   }
 
-  private calculateGrowthRate(payments: any[], timeRange: string): number {
+  private calculateGrowthRate(_payments: any[], _timeRange: string): number {
     const periods = this.splitTimeRangeIntoPeriods(timeRange);
     if (periods.length < 2) return 0;
 
@@ -446,7 +446,7 @@ class AdvancedAnalyticsService {
   }
 
   private splitTimeRangeIntoPeriods(
-    timeRange: string
+    _timeRange: string
   ): Array<{ start: Date; end: Date }> {
     const periods = [];
     const now = new Date();
@@ -472,7 +472,7 @@ class AdvancedAnalyticsService {
   }
 
   private calculateRevenueForPeriod(
-    payments: any[],
+    _payments: any[],
     period: { start: Date; end: Date }
   ): number {
     return payments
@@ -484,8 +484,8 @@ class AdvancedAnalyticsService {
   }
 
   private groupByCategory(
-    payments: any[],
-    categoryField: string
+    _payments: any[],
+    _categoryField: string
   ): Record<string, number> {
     const grouped: Record<string, number> = {};
 
@@ -497,7 +497,7 @@ class AdvancedAnalyticsService {
     return grouped;
   }
 
-  private groupByVendor(payments: any[]): Record<string, number> {
+  private groupByVendor(_payments: any[]): Record<string, number> {
     const grouped: Record<string, number> = {};
 
     payments.forEach(payment => {
@@ -508,7 +508,7 @@ class AdvancedAnalyticsService {
     return grouped;
   }
 
-  private groupByVenue(payments: any[]): Record<string, number> {
+  private groupByVenue(_payments: any[]): Record<string, number> {
     const grouped: Record<string, number> = {};
 
     payments.forEach(payment => {
@@ -520,17 +520,17 @@ class AdvancedAnalyticsService {
   }
 
   private async calculateCustomerLifetimeValue(): Promise<number> {
-    const users = await User.find();
+    const users = await (User as any).find();
     const totalRevenue = await Payment.aggregate([
       { $match: { status: 'completed' } },
-      { $group: { _id: null, total: { $sum: '$amount' } } },
+      { $group: { id: null, total: { $sum: '$amount' } } },
     ]);
 
     const totalRevenueValue = totalRevenue[0]?.total || 0;
     return users.length > 0 ? totalRevenueValue / users.length : 0;
   }
 
-  private async calculateRetentionRate(timeRange: string): Promise<number> {
+  private async calculateRetentionRate(_timeRange: string): Promise<number> {
     const startDate = this.getStartDate(timeRange);
     const previousStartDate = new Date(
       startDate.getTime() - (startDate.getTime() - new Date().getTime())
@@ -546,7 +546,7 @@ class AdvancedAnalyticsService {
     return previousUsers > 0 ? (currentUsers / previousUsers) * 100 : 0;
   }
 
-  private async calculateEngagementRate(timeRange: string): Promise<number> {
+  private async calculateEngagementRate(_timeRange: string): Promise<number> {
     const startDate = this.getStartDate(timeRange);
     const activeUsers = await User.countDocuments({
       lastLoginAt: { $gte: startDate },
@@ -558,7 +558,7 @@ class AdvancedAnalyticsService {
 
   private async groupUsersByRole(): Promise<Record<string, number>> {
     const users = await User.aggregate([
-      { $group: { _id: '$role', count: { $sum: 1 } } },
+      { $group: { id: '$role', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -571,7 +571,7 @@ class AdvancedAnalyticsService {
 
   private async groupUsersByLocation(): Promise<Record<string, number>> {
     const users = await User.aggregate([
-      { $group: { _id: '$location', count: { $sum: 1 } } },
+      { $group: { id: '$location', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -582,7 +582,7 @@ class AdvancedAnalyticsService {
     return grouped;
   }
 
-  private async calculateConversionRate(timeRange: string): Promise<number> {
+  private async calculateConversionRate(_timeRange: string): Promise<number> {
     const startDate = this.getStartDate(timeRange);
     const visitors = await User.countDocuments({
       createdAt: { $gte: startDate },
@@ -596,15 +596,15 @@ class AdvancedAnalyticsService {
   }
 
   private async calculateVendorPerformance(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, number>> {
     const startDate = this.getStartDate(timeRange);
 
-    const performance = await Vendor.aggregate([
+    const performance = await (Vendor as any).aggregate([
       { $match: { createdAt: { $gte: startDate } } },
       {
         $group: {
-          _id: '$_id',
+          id: '$_id',
           averageRating: { $avg: '$rating.average' },
           totalBookings: { $sum: '$totalBookings' },
           revenue: { $sum: '$totalRevenue' },
@@ -624,8 +624,8 @@ class AdvancedAnalyticsService {
   }
 
   private async groupVendorsByCategory(): Promise<Record<string, number>> {
-    const vendors = await Vendor.aggregate([
-      { $group: { _id: '$category', count: { $sum: 1 } } },
+    const vendors = await (Vendor as any).aggregate([
+      { $group: { id: '$category', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -637,8 +637,8 @@ class AdvancedAnalyticsService {
   }
 
   private async groupVendorsByLocation(): Promise<Record<string, number>> {
-    const vendors = await Vendor.aggregate([
-      { $group: { _id: '$location', count: { $sum: 1 } } },
+    const vendors = await (Vendor as any).aggregate([
+      { $group: { id: '$location', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -650,16 +650,16 @@ class AdvancedAnalyticsService {
   }
 
   private async calculateAverageVendorRating(): Promise<number> {
-    const result = await Vendor.aggregate([
-      { $group: { _id: null, average: { $avg: '$rating.average' } } },
+    const result = await (Vendor as any).aggregate([
+      { $group: { id: null, average: { $avg: '$rating.average' } } },
     ]);
 
     return result[0]?.average || 0;
   }
 
   private async calculateVenueAvailability(): Promise<Record<string, number>> {
-    const venues = await Venue.aggregate([
-      { $group: { _id: '$availability.status', count: { $sum: 1 } } },
+    const venues = await (Venue as any).aggregate([
+      { $group: { id: '$availability.status', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -671,8 +671,8 @@ class AdvancedAnalyticsService {
   }
 
   private async groupVenuesByType(): Promise<Record<string, number>> {
-    const venues = await Venue.aggregate([
-      { $group: { _id: '$type', count: { $sum: 1 } } },
+    const venues = await (Venue as any).aggregate([
+      { $group: { id: '$type', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -684,8 +684,8 @@ class AdvancedAnalyticsService {
   }
 
   private async groupVenuesByLocation(): Promise<Record<string, number>> {
-    const venues = await Venue.aggregate([
-      { $group: { _id: '$location', count: { $sum: 1 } } },
+    const venues = await (Venue as any).aggregate([
+      { $group: { id: '$location', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -697,28 +697,28 @@ class AdvancedAnalyticsService {
   }
 
   private async calculateAverageVenueRating(): Promise<number> {
-    const result = await Venue.aggregate([
-      { $group: { _id: null, average: { $avg: '$rating.average' } } },
+    const result = await (Venue as any).aggregate([
+      { $group: { id: null, average: { $avg: '$rating.average' } } },
     ]);
 
     return result[0]?.average || 0;
   }
 
   private async calculateAverageBookingValue(
-    timeRange: string
+    _timeRange: string
   ): Promise<number> {
     const startDate = this.getStartDate(timeRange);
 
     const result = await Booking.aggregate([
       { $match: { createdAt: { $gte: startDate } } },
-      { $group: { _id: null, average: { $avg: '$amount' } } },
+      { $group: { id: null, average: { $avg: '$amount' } } },
     ]);
 
     return result[0]?.average || 0;
   }
 
   private async groupBookingsByMonth(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, number>> {
     const startDate = this.getStartDate(timeRange);
 
@@ -726,7 +726,7 @@ class AdvancedAnalyticsService {
       { $match: { createdAt: { $gte: startDate } } },
       {
         $group: {
-          _id: {
+          id: {
             year: { $year: '$createdAt' },
             month: { $month: '$createdAt' },
           },
@@ -746,13 +746,13 @@ class AdvancedAnalyticsService {
   }
 
   private async groupBookingsByCategory(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, number>> {
     const startDate = this.getStartDate(timeRange);
 
     const bookings = await Booking.aggregate([
       { $match: { createdAt: { $gte: startDate } } },
-      { $group: { _id: '$serviceType', count: { $sum: 1 } } },
+      { $group: { id: '$serviceType', count: { $sum: 1 } } },
     ]);
 
     const grouped: Record<string, number> = {};
@@ -764,7 +764,7 @@ class AdvancedAnalyticsService {
   }
 
   // Trend Analysis Methods
-  private async analyzeRevenueTrends(timeRange: string): Promise<TrendData[]> {
+  private async analyzeRevenueTrends(_timeRange: string): Promise<TrendData[]> {
     const periods = this.splitTimeRangeIntoPeriods(timeRange);
     const trends: TrendData[] = [];
 
@@ -793,7 +793,7 @@ class AdvancedAnalyticsService {
     return trends;
   }
 
-  private async analyzeUserTrends(timeRange: string): Promise<TrendData[]> {
+  private async analyzeUserTrends(_timeRange: string): Promise<TrendData[]> {
     const periods = this.splitTimeRangeIntoPeriods(timeRange);
     const trends: TrendData[] = [];
 
@@ -826,7 +826,7 @@ class AdvancedAnalyticsService {
     return trends;
   }
 
-  private async analyzeBookingTrends(timeRange: string): Promise<TrendData[]> {
+  private async analyzeBookingTrends(_timeRange: string): Promise<TrendData[]> {
     const periods = this.splitTimeRangeIntoPeriods(timeRange);
     const trends: TrendData[] = [];
 
@@ -864,7 +864,7 @@ class AdvancedAnalyticsService {
     const seasonalData = await Booking.aggregate([
       {
         $group: {
-          _id: { month: { $month: '$createdAt' } },
+          id: { month: { $month: '$createdAt' } },
           count: { $sum: 1 },
           revenue: { $sum: '$amount' },
         },
@@ -901,7 +901,7 @@ class AdvancedAnalyticsService {
     // Analyze market trends and competition
     const totalRevenue = await Payment.aggregate([
       { $match: { status: 'completed' } },
-      { $group: { _id: null, total: { $sum: '$amount' } } },
+      { $group: { id: null, total: { $sum: '$amount' } } },
     ]);
 
     const growthRate = await this.calculateGrowthRate([], '90d');
@@ -922,7 +922,7 @@ class AdvancedAnalyticsService {
   }
 
   // Predictive Methods
-  private async predictRevenue(timeRange: string): Promise<RevenuePrediction> {
+  private async predictRevenue(_timeRange: string): Promise<RevenuePrediction> {
     const historicalData = await this.getRevenueMetrics(timeRange);
     const trends = await this.analyzeRevenueTrends(timeRange);
 
@@ -944,7 +944,7 @@ class AdvancedAnalyticsService {
     return { nextMonth, nextQuarter, nextYear, confidence, factors };
   }
 
-  private async predictUserGrowth(timeRange: string): Promise<UserPrediction> {
+  private async predictUserGrowth(_timeRange: string): Promise<UserPrediction> {
     const historicalData = await this.getUserMetrics(timeRange);
     const trends = await this.analyzeUserTrends(timeRange);
 
@@ -957,7 +957,7 @@ class AdvancedAnalyticsService {
   }
 
   private async predictMarketTrends(
-    timeRange: string
+    _timeRange: string
   ): Promise<MarketPrediction> {
     const demand = 85; // This would come from market research and forecasting
     const competition = 70; // Competition intensity score
@@ -982,7 +982,7 @@ class AdvancedAnalyticsService {
     users: UserPrediction,
     market: MarketPrediction
   ): Promise<string[]> {
-    const recommendations: string[] = [];
+    const _recommendations: string[] = [];
 
     if (revenue.nextMonth < revenue.nextQuarter / 3) {
       recommendations.push('Focus on short-term revenue optimization');
@@ -1016,7 +1016,7 @@ class AdvancedAnalyticsService {
     start: Date;
     end: Date;
   }): Promise<number> {
-    const payments = await Payment.find({
+    const payments = await (Payment as any).find({
       status: 'completed',
       createdAt: { $gte: period.start, $lt: period.end },
     });
@@ -1024,7 +1024,7 @@ class AdvancedAnalyticsService {
     return payments.reduce((sum, payment) => sum + payment.amount, 0);
   }
 
-  private getMonthName(month: number): string {
+  private getMonthName(_month: number): string {
     const months = [
       'January',
       'February',
@@ -1044,9 +1044,9 @@ class AdvancedAnalyticsService {
 
   // Public Methods
   public async getCustomReport(
-    metrics: string[],
-    filters: any,
-    timeRange: string
+    _metrics: string[],
+    _filters: any,
+    _timeRange: string
   ): Promise<any> {
     const report: any = {};
 

@@ -95,7 +95,7 @@ export function SubscriptionPlans() {
     },
   ];
 
-  const handleSubscribe = async (plan: any) => {
+  const handleSubscribe = async (_plan: any) => {
     try {
       const response = await fetch('/api/payments', {
         method: 'POST',

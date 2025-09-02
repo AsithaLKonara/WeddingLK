@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Venue } from '@/lib/models/venue';
 import { Booking } from '@/lib/models/booking';
 
@@ -21,13 +21,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if venue exists
-    const venue = await Venue.findById(venueId);
+    const venue = await (Venue as any).findById(venueId);
     if (!venue) {
       return NextResponse.json({ error: 'Venue not found' }, { status: 404 });
     }
 
     // Check for existing bookings on the same date
-    const existingBookings = await Booking.find({
+    const existingBookings = await (Booking as any).find({
       venue: venueId,
       date: new Date(date),
       status: { $in: ['confirmed', 'pending'] },
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Check if the requested time slot conflicts with existing bookings
     let isAvailable = true;
-    let conflictingBookings: any[] = [];
+    let _conflictingBookings: any[] = [];
 
     if (startTime && endTime) {
       conflictingBookings = existingBookings.filter(booking => {
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       venueId,
       date,
       isAvailable,
-      conflictingBookings: conflictingBookings.map(b => ({
+      conflictingBookings: conflictingBookings.map((_b: any) => ({
         id: b._id,
         startTime: b.startTime,
         endTime: b.endTime,

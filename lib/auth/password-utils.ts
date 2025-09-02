@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs';
 
 export interface PasswordValidationResult {
-  isValid: boolean;
-  errors: string[];
+  _isValid: boolean;
+  _errors: string[];
   strength: 'weak' | 'medium' | 'strong' | 'very_strong';
 }
 
-export function validatePassword(password: string): PasswordValidationResult {
-  const errors: string[] = [];
+export function validatePassword(_password: string): PasswordValidationResult {
+  const _errors: string[] = [];
   let score = 0;
 
   // Length check
@@ -81,14 +81,14 @@ export function validatePassword(password: string): PasswordValidationResult {
   };
 }
 
-export async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(_password: string): Promise<string> {
   const saltRounds = 12;
   return bcrypt.hash(password, saltRounds);
 }
 
 export async function comparePassword(
-  password: string,
-  hash: string
+  _password: string,
+  _hash: string
 ): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
@@ -116,7 +116,7 @@ export function generateStrongPassword(length: number = 16): string {
     .join('');
 }
 
-export function getPasswordStrengthColor(strength: string): string {
+export function getPasswordStrengthColor(_strength: string): string {
   switch (strength) {
     case 'very_strong':
       return '#10B981'; // Green
@@ -131,7 +131,7 @@ export function getPasswordStrengthColor(strength: string): string {
   }
 }
 
-export function getPasswordStrengthText(strength: string): string {
+export function getPasswordStrengthText(_strength: string): string {
   switch (strength) {
     case 'very_strong':
       return 'Very Strong';

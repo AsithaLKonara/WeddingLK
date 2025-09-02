@@ -6,34 +6,34 @@ import Link from 'next/link';
 
 interface Vendor {
   _id: string;
-  name: string;
-  businessName: string;
-  category: string;
-  description: string;
+  _name: string;
+  _businessName: string;
+  _category: string;
+  _description: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
   contact: {
-    phone: string;
-    email: string;
+    _phone: string;
+    _email: string;
   };
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
   reviewStats: {
-    averageRating: number;
-    count: number;
+    _averageRating: number;
+    _count: number;
   };
-  isVerified: boolean;
-  isActive: boolean;
+  _isVerified: boolean;
+  _isActive: boolean;
 }
 
 interface VendorCategory {
-  value: string;
-  label: string;
-  count: number;
+  _value: string;
+  _label: string;
+  _count: number;
 }
 
 export default function VendorsPage() {
@@ -214,7 +214,7 @@ export default function VendorsPage() {
             </div>
           ) : (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-              {vendors.map(vendor => (
+              {vendors.map((_vendor: any) => (
                 <div
                   key={vendor._id}
                   className='hover:shadow-lg transition-shadow duration-300'

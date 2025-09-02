@@ -7,8 +7,8 @@ import { ChevronLeft, ChevronRight, Expand } from 'lucide-react';
 import Image from 'next/image';
 
 interface VenueGalleryProps {
-  images: string[];
-  venueName: string;
+  _images: string[];
+  _venueName: string;
 }
 
 export function VenueGallery({ images, venueName }: VenueGalleryProps) {

@@ -2,43 +2,43 @@
 // This service provides AI-powered features for wedding planning
 
 export interface AIRecommendation {
-  id: string;
+  _id: string;
   type: 'venue' | 'vendor' | 'timeline' | 'budget' | 'guest-list';
-  title: string;
-  description: string;
-  confidence: number;
+  _title: string;
+  _description: string;
+  _confidence: number;
   priority: 'high' | 'medium' | 'low';
   actionUrl?: string;
 }
 
 export interface AISearchResult {
-  query: string;
-  results: any[];
+  _query: string;
+  _results: any[];
   recommendations: AIRecommendation[];
   filters: Record<string, any>;
   timestamp: Date;
 }
 
 export interface WeddingPlan {
-  id: string;
-  userId: string;
+  _id: string;
+  _userId: string;
   weddingDate: Date;
-  budget: number;
-  guestCount: number;
-  location: string;
-  style: string;
-  timeline: any[];
-  vendors: any[];
-  venues: any[];
-  tasks: any[];
+  _budget: number;
+  _guestCount: number;
+  _location: string;
+  _style: string;
+  _timeline: any[];
+  _vendors: any[];
+  _venues: any[];
+  _tasks: any[];
   recommendations: AIRecommendation[];
 }
 
 export class AIService {
   // Generate personalized wedding recommendations
   static async generateRecommendations(
-    userId: string,
-    preferences: any
+    _userId: string,
+    _preferences: any
   ): Promise<AIRecommendation[]> {
     try {
       // Mock AI recommendations based on user preferences
@@ -101,8 +101,8 @@ export class AIService {
 
   // Smart search with AI-powered filtering
   static async smartSearch(
-    query: string,
-    filters: any
+    _query: string,
+    _filters: any
   ): Promise<AISearchResult> {
     try {
       // Mock AI search results
@@ -161,7 +161,7 @@ export class AIService {
   // Generate wedding timeline
   static async generateTimeline(
     weddingDate: Date,
-    guestCount: number
+    _guestCount: number
   ): Promise<any[]> {
     try {
       const monthsUntilWedding = Math.ceil(
@@ -231,7 +231,7 @@ export class AIService {
   // Optimize budget allocation
   static async optimizeBudget(
     totalBudget: number,
-    guestCount: number
+    _guestCount: number
   ): Promise<any> {
     try {
       const budgetBreakdown = {
@@ -269,8 +269,8 @@ export class AIService {
 
   // Generate guest list suggestions
   static async generateGuestListSuggestions(
-    guestCount: number,
-    budget: number
+    _guestCount: number,
+    _budget: number
   ): Promise<any[]> {
     try {
       const suggestions = [

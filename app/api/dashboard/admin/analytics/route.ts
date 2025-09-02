@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { Vendor } from '@/lib/models/vendor';
 import { Venue } from '@/lib/models/venue';
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     startDate.setDate(startDate.getDate() - parseInt(period));
 
     // Get user growth analytics
-    const userGrowth = await User.aggregate([
+    const userGrowth = await (User as any).aggregate([
       {
         $match: {
           createdAt: { $gte: startDate, $lte: endDate },
@@ -33,15 +33,15 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
           count: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } },
+      { $sort: { id: 1 } },
     ]);
 
     // Get vendor growth analytics
-    const vendorGrowth = await Vendor.aggregate([
+    const vendorGrowth = await (Vendor as any).aggregate([
       {
         $match: {
           createdAt: { $gte: startDate, $lte: endDate },
@@ -49,11 +49,11 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
           count: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } },
+      { $sort: { id: 1 } },
     ]);
 
     // Get revenue analytics
@@ -66,12 +66,12 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
           revenue: { $sum: '$amount' },
           count: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } },
+      { $sort: { id: 1 } },
     ]);
 
     // Get booking analytics
@@ -83,16 +83,16 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+          id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
           count: { $sum: 1 },
           revenue: { $sum: '$totalAmount' },
         },
       },
-      { $sort: { _id: 1 } },
+      { $sort: { id: 1 } },
     ]);
 
     // Get category performance
-    const categoryPerformance = await Vendor.aggregate([
+    const categoryPerformance = await (Vendor as any).aggregate([
       {
         $lookup: {
           from: 'bookings',
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: '$category',
+          id: '$category',
           vendorCount: { $sum: 1 },
           totalBookings: { $sum: '$totalBookings' },
           totalRevenue: { $sum: '$totalRevenue' },
@@ -122,10 +122,10 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Get geographic distribution
-    const geographicDistribution = await Vendor.aggregate([
+    const geographicDistribution = await (Vendor as any).aggregate([
       {
         $group: {
-          _id: '$location.province',
+          id: '$location.province',
           vendorCount: { $sum: 1 },
           averageRating: { $avg: '$rating.average' },
         },
@@ -141,10 +141,10 @@ export async function GET(request: NextRequest) {
       totalBookings: await Booking.countDocuments(),
       totalRevenue: await Payment.aggregate([
         { $match: { status: 'completed' } },
-        { $group: { _id: null, total: { $sum: '$amount' } } },
+        { $group: { id: null, total: { $sum: '$amount' } } },
       ]).then(result => result[0]?.total || 0),
       averageRating: await Review.aggregate([
-        { $group: { _id: null, average: { $avg: '$rating' } } },
+        { $group: { id: null, average: { $avg: '$rating' } } },
       ]).then(result => result[0]?.average || 0),
     };
 

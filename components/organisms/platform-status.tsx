@@ -7,38 +7,38 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, AlertCircle, Activity } from 'lucide-react';
 
 interface SystemStatus {
-  name: string;
+  _name: string;
   status: 'operational' | 'degraded' | 'down';
-  lastChecked: string;
+  _lastChecked: string;
   responseTime?: number;
 }
 
 export function PlatformStatus() {
   const [systems, setSystems] = useState<SystemStatus[]>([
     {
-      name: 'Authentication',
+      _name: 'Authentication',
       status: 'operational',
-      lastChecked: new Date().toISOString(),
+      _lastChecked: new Date().toISOString(),
     },
     {
-      name: 'Database',
+      _name: 'Database',
       status: 'operational',
-      lastChecked: new Date().toISOString(),
+      _lastChecked: new Date().toISOString(),
     },
     {
-      name: 'Booking System',
+      _name: 'Booking System',
       status: 'operational',
-      lastChecked: new Date().toISOString(),
+      _lastChecked: new Date().toISOString(),
     },
     {
-      name: 'Payment Gateway',
+      _name: 'Payment Gateway',
       status: 'operational',
-      lastChecked: new Date().toISOString(),
+      _lastChecked: new Date().toISOString(),
     },
     {
-      name: 'AI Search',
+      _name: 'AI Search',
       status: 'operational',
-      lastChecked: new Date().toISOString(),
+      _lastChecked: new Date().toISOString(),
     },
   ]);
 
@@ -47,7 +47,7 @@ export function PlatformStatus() {
     // For demo purposes, we'll simulate status checks
     const updatedSystems = systems.map(system => ({
       ...system,
-      lastChecked: new Date().toISOString(),
+      _lastChecked: new Date().toISOString(),
       responseTime: Math.floor(Math.random() * 200) + 50, // Random response time 50-250ms
     }));
     setSystems(updatedSystems);
@@ -59,7 +59,7 @@ export function PlatformStatus() {
     return () => clearInterval(interval);
   }, [checkSystemStatus]);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (_status: string) => {
     switch (status) {
       case 'operational':
         return <CheckCircle className='h-4 w-4 text-green-500' />;
@@ -72,7 +72,7 @@ export function PlatformStatus() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (_status: string) => {
     switch (status) {
       case 'operational':
         return (
@@ -112,12 +112,12 @@ export function PlatformStatus() {
             >
               <div className='flex items-center space-x-3'>
                 {getStatusIcon(system.status)}
-                <span className='font-medium'>{system.name}</span>
+                <span className='font-medium'>{system._name}</span>
               </div>
               <div className='text-right text-sm text-gray-600'>
                 {system.responseTime && <div>{system.responseTime}ms</div>}
                 <div>
-                  Updated {new Date(system.lastChecked).toLocaleTimeString()}
+                  Updated {new Date(system._lastChecked).toLocaleTimeString()}
                 </div>
               </div>
             </div>

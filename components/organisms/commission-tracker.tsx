@@ -113,16 +113,16 @@ export function CommissionTracker() {
 
   const data = commissionData[selectedPeriod as keyof typeof commissionData];
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(_amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-LK', {
+  const formatDate = (_dateString: string) => {
+    return new Date(_dateString).toLocaleDateString('en-LK', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -171,7 +171,7 @@ export function CommissionTracker() {
     }
   };
 
-  const handlePeriodChange = (period: string) => {
+  const handlePeriodChange = (_period: string) => {
     setSelectedPeriod(period);
     toast({
       title: 'Period Changed',

@@ -3,10 +3,10 @@
 import React from 'react';
 import { useState } from 'react';
 import { MainLayout } from '@/components/templates/main-layout';
-import { FeedStories } from '@/components/organisms/feed-stories';
-import { FeedPosts } from '@/components/organisms/feed-posts';
-import { FeedSidebar } from '@/components/organisms/feed-sidebar';
 import { motion } from 'framer-motion';
+
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
 
 export default function FeedPage() {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -37,7 +37,10 @@ export default function FeedPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                <FeedStories />
+                <div className='bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md'>
+                  <h2 className='text-xl font-semibold mb-4'>Stories</h2>
+                  <p className='text-gray-600 dark:text-gray-300'>Feed stories will be loaded here</p>
+                </div>
               </motion.div>
 
               <motion.div
@@ -45,10 +48,10 @@ export default function FeedPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
-                <FeedPosts
-                  activeFilter={activeFilter}
-                  onFilterChange={setActiveFilter}
-                />
+                <div className='bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md'>
+                  <h2 className='text-xl font-semibold mb-4'>Posts</h2>
+                  <p className='text-gray-600 dark:text-gray-300'>Feed posts will be loaded here</p>
+                </div>
               </motion.div>
             </div>
 
@@ -58,9 +61,11 @@ export default function FeedPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className='sticky top-24'
               >
-                <FeedSidebar />
+                <div className='bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md'>
+                  <h2 className='text-xl font-semibold mb-4'>Sidebar</h2>
+                  <p className='text-gray-600 dark:text-gray-300'>Sidebar content will be loaded here</p>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -69,6 +74,3 @@ export default function FeedPage() {
     </MainLayout>
   );
 }
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';

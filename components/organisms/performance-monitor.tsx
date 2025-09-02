@@ -16,13 +16,13 @@ import {
 } from 'lucide-react';
 
 interface PerformanceMetrics {
-  pageLoadTime: number;
-  apiResponseTime: number;
-  memoryUsage: number;
-  networkLatency: number;
-  cacheHitRate: number;
-  errorRate: number;
-  userExperienceScore: number;
+  _pageLoadTime: number;
+  _apiResponseTime: number;
+  _memoryUsage: number;
+  _networkLatency: number;
+  _cacheHitRate: number;
+  _errorRate: number;
+  _userExperienceScore: number;
 }
 
 interface PerformanceMonitorProps {
@@ -132,7 +132,7 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
 
   const getPerformanceStatus = (
     score: number
-  ): { label: string; color: string; icon: React.ReactNode } => {
+  ): { _label: string; _color: string; icon: React.ReactNode } => {
     if (score >= 90) {
       return {
         label: 'Excellent',
@@ -167,7 +167,7 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
     }
   };
 
-  const formatTime = (ms: number): string => {
+  const formatTime = (_ms: number): string => {
     if (ms < 1000) return `${Math.round(ms)}ms`;
     return `${(ms / 1000).toFixed(2)}s`;
   };

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Booking } from '@/lib/models/booking';
 import { sendEmail } from '@/lib/email';
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       console.log(`Payment ${paymentId} completed for booking ${bookingId}`);
 
       // Update booking status to confirmed
-      const updatedBooking = await Booking.findByIdAndUpdate(
+      const updatedBooking = await (Booking as any).findByIdAndUpdate(
         bookingId,
         {
           status: 'confirmed',
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       console.log(`Payment ${paymentId} failed for booking ${bookingId}`);
 
       // Update booking status to payment failed
-      await Booking.findByIdAndUpdate(bookingId, {
+      await (Booking as any).findByIdAndUpdate(bookingId, {
         status: 'pending',
         paymentStatus: 'failed',
         paymentId,

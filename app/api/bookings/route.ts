@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Booking } from '@/lib/models/booking';
 import { Venue } from '@/lib/models/venue';
 import { Vendor } from '@/lib/models/vendor';
@@ -45,14 +45,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate venue exists
-    const venue = await Venue.findById(venueId);
+    const venue = await (Venue as any).findById(venueId);
     if (!venue) {
       return NextResponse.json({ error: 'Venue not found' }, { status: 404 });
     }
 
     // Validate vendor if provided
     if (vendorId) {
-      const vendor = await Vendor.findById(vendorId);
+      const vendor = await (Vendor as any).findById(vendorId);
       if (!vendor) {
         return NextResponse.json(
           { error: 'Vendor not found' },
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get bookings with pagination
-    const bookings = await Booking.find(query)
+    const bookings = await (Booking as any).find(query)
       .populate('venue', 'name location capacity pricing')
       .populate('vendor', 'businessName category contact')
       .populate('user', 'name email')
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
       { $match: query },
       {
         $group: {
-          _id: '$status',
+          id: '$status',
           count: { $sum: 1 },
         },
       },
@@ -246,7 +246,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find booking and check permissions
-    const booking = await Booking.findById(bookingId);
+    const booking = await (Booking as any).findById(bookingId);
     if (!booking) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
@@ -278,7 +278,7 @@ export async function PUT(request: NextRequest) {
       updateData.statusChangedAt = new Date();
     }
 
-    const updatedBooking = await Booking.findByIdAndUpdate(
+    const updatedBooking = await (Booking as any).findByIdAndUpdate(
       bookingId,
       updateData,
       { new: true }
@@ -328,7 +328,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Find booking and check permissions
-    const booking = await Booking.findById(bookingId);
+    const booking = await (Booking as any).findById(bookingId);
     if (!booking) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
@@ -346,7 +346,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Cancel booking (soft delete)
-    await Booking.findByIdAndUpdate(bookingId, {
+    await (Booking as any).findByIdAndUpdate(bookingId, {
       status: 'cancelled',
       cancelledAt: new Date(),
       cancelledBy: user._id,

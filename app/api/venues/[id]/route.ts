@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Venue } from '@/lib/models/venue';
 import mongoose from 'mongoose';
 
@@ -20,7 +20,7 @@ export async function GET(
 
     await connectDB();
 
-    const venue = await Venue.findById(id);
+    const venue = await (Venue as any).findById(id);
     if (!venue) {
       return NextResponse.json({ error: 'Venue not found' }, { status: 404 });
     }
@@ -53,7 +53,7 @@ export async function PUT(
     await connectDB();
 
     const update = await request.json();
-    const venue = await Venue.findByIdAndUpdate(id, update, { new: true });
+    const venue = await (Venue as any).findByIdAndUpdate(id, update, { new: true });
 
     if (!venue) {
       return NextResponse.json({ error: 'Venue not found' }, { status: 404 });
@@ -86,7 +86,7 @@ export async function DELETE(
 
     await connectDB();
 
-    const result = await Venue.findByIdAndDelete(id);
+    const result = await (Venue as any).findByIdAndDelete(id);
     if (!result) {
       return NextResponse.json({ error: 'Venue not found' }, { status: 404 });
     }

@@ -3,24 +3,24 @@ import { getDb } from '@/lib/db/mongodb';
 import { ObjectId } from 'mongodb';
 
 interface FeedPost {
-  id: string;
+  _id: string;
   user: {
-    id: string;
-    name: string;
-    avatar: string;
-    verified: boolean;
+    _id: string;
+    _name: string;
+    _avatar: string;
+    _verified: boolean;
     location?: string;
   };
-  content: string;
-  images: string[];
+  _content: string;
+  _images: string[];
   location?: string;
   date: Date;
-  likes: number;
-  comments: number;
-  shares: number;
-  isLiked: boolean;
-  isBookmarked: boolean;
-  tags: string[];
+  _likes: number;
+  _comments: number;
+  _shares: number;
+  _isLiked: boolean;
+  _isBookmarked: boolean;
+  _tags: string[];
   type: 'wedding' | 'engagement' | 'planning' | 'inspiration';
 }
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     const enrichedPosts: FeedPost[] = await Promise.all(
       posts.map(async post => {
         const user = await usersCollection.findOne(
-          { _id: new ObjectId(post.userId) },
+          { id: new ObjectId(post.userId) },
           { projection: { name: 1, profile: 1, verification: 1, location: 1 } }
         );
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { auth } from '@/lib/auth-config';
 export async function GET(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const userId = session.user.id;
 
     // Get user with favorites
-    const user = await User.findById(userId).populate('favorites');
+    const user = await (User as any).findById(userId).populate('favorites');
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });

@@ -21,20 +21,20 @@ import {
 } from 'lucide-react';
 
 interface RegistrationStep {
-  id: string;
-  title: string;
-  description: string;
+  _id: string;
+  _title: string;
+  _description: string;
   status: 'pending' | 'in_progress' | 'completed' | 'error';
-  required: boolean;
-  estimatedTime: number; // in minutes
+  _required: boolean;
+  _estimatedTime: number; // in minutes
 }
 
 interface RegistrationProgressProps {
   steps: RegistrationStep[];
-  currentStep: number;
-  onStepClick: (stepIndex: number) => void;
+  _currentStep: number;
+  onStepClick: (_stepIndex: number) => void;
   onSaveProgress: () => void;
-  totalProgress: number;
+  _totalProgress: number;
   className?: string;
 }
 

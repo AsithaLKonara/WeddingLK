@@ -18,12 +18,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface ActivityItem {
-  id: string;
+  _id: string;
   type: 'saved' | 'message' | 'booking' | 'review' | 'payment';
-  title: string;
-  time: string;
-  icon: any;
-  color: string;
+  _title: string;
+  _time: string;
+  _icon: any;
+  _color: string;
   description?: string;
   actionUrl?: string;
 }
@@ -90,7 +90,7 @@ export function RecentActivity() {
     },
   ]);
 
-  const getTypeLabel = (type: string) => {
+  const getTypeLabel = (_type: string) => {
     switch (type) {
       case 'saved':
         return 'Saved';
@@ -107,7 +107,7 @@ export function RecentActivity() {
     }
   };
 
-  const getTypeColor = (type: string) => {
+  const getTypeColor = (_type: string) => {
     switch (type) {
       case 'saved':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
@@ -153,8 +153,8 @@ export function RecentActivity() {
   };
 
   const handleDeleteActivity = async (
-    activityId: string,
-    activityTitle: string
+    _activityId: string,
+    _activityTitle: string
   ) => {
     setIsLoading(true);
     try {

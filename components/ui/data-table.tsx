@@ -35,7 +35,7 @@ import { ChevronDown, Search } from 'lucide-react';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onAction?: (id: string, action: string) => void;
+  onAction?: (_id: string, _action: string) => void;
   searchKey?: string;
   searchPlaceholder?: string;
 }

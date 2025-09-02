@@ -2,20 +2,20 @@ import { User } from '../models/user';
 import { sendEmail } from '../email';
 
 interface DocumentType {
-  id: string;
-  name: string;
-  description: string;
-  maxFileSize: number;
-  allowedMimeTypes: string[];
-  required: boolean;
+  _id: string;
+  _name: string;
+  _description: string;
+  _maxFileSize: number;
+  _allowedMimeTypes: string[];
+  _required: boolean;
 }
 
 interface Document {
-  id: string;
-  userId: string;
-  documentType: string;
-  fileName: string;
-  filePath: string;
+  _id: string;
+  _userId: string;
+  _documentType: string;
+  _fileName: string;
+  _filePath: string;
   uploadDate: Date;
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
@@ -63,10 +63,10 @@ class DocumentVerificationService {
 
   // Upload document
   async uploadDocument(
-    userId: string,
-    documentType: string,
-    fileName: string,
-    filePath: string
+    _userId: string,
+    _documentType: string,
+    _fileName: string,
+    _filePath: string
   ): Promise<Document> {
     try {
       // Validate document type
@@ -98,9 +98,9 @@ class DocumentVerificationService {
 
   // Review document
   async reviewDocument(
-    documentId: string,
+    _documentId: string,
     status: 'approved' | 'rejected',
-    verifiedBy: string,
+    _verifiedBy: string,
     rejectionReason?: string
   ): Promise<Document> {
     try {
@@ -137,17 +137,17 @@ class DocumentVerificationService {
   }
 
   // Get document type by ID
-  getDocumentType(id: string): DocumentType | undefined {
+  getDocumentType(_id: string): DocumentType | undefined {
     return this.documentTypes.find(dt => dt.id === id);
   }
 
   // Validate document before upload
   validateDocument(
-    documentType: string,
-    fileSize: number,
-    mimeType: string
-  ): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
+    _documentType: string,
+    _fileSize: number,
+    _mimeType: string
+  ): { _isValid: boolean; _errors: string[] } {
+    const _errors: string[] = [];
     const docType = this.getDocumentType(documentType);
 
     if (!docType) {

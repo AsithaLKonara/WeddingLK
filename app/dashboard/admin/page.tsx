@@ -21,36 +21,36 @@ import {
 } from 'lucide-react';
 
 interface DashboardStats {
-  totalUsers: number;
-  totalVendors: number;
-  totalVenues: number;
-  totalBookings: number;
-  totalRevenue: number;
-  pendingApprovals: number;
-  activeUsers: number;
-  conversionRate: number;
+  _totalUsers: number;
+  _totalVendors: number;
+  _totalVenues: number;
+  _totalBookings: number;
+  _totalRevenue: number;
+  _pendingApprovals: number;
+  _activeUsers: number;
+  _conversionRate: number;
 }
 
 interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
+  _id: string;
+  _name: string;
+  _email: string;
+  _role: string;
   status: 'active' | 'inactive' | 'pending';
   joinDate: Date;
   lastActive: Date;
-  verified: boolean;
+  _verified: boolean;
 }
 
 interface Vendor {
-  id: string;
-  name: string;
-  category: string;
+  _id: string;
+  _name: string;
+  _category: string;
   status: 'approved' | 'pending' | 'rejected';
-  rating: number;
-  reviewCount: number;
+  _rating: number;
+  _reviewCount: number;
   joinDate: Date;
-  verified: boolean;
+  _verified: boolean;
 }
 
 export default function AdminDashboardPage() {

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: config.clientId,
+        clientid: config.clientId,
         client_secret: config.clientSecret,
         grant_type: 'authorization_code',
         redirect_uri: config.redirectURI,

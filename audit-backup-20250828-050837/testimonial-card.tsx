@@ -6,11 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 
 interface TestimonialCardProps {
-  name: string;
-  role: string;
-  content: string;
-  avatar: string;
-  rating: number;
+  _name: string;
+  _role: string;
+  _content: string;
+  _avatar: string;
+  _rating: number;
   className?: string;
 }
 
@@ -44,7 +44,7 @@ export function TestimonialCard({
               <AvatarFallback>
                 {name
                   .split(' ')
-                  .map(n => n[0])
+                  .map((_n: any) => n[0])
                   .join('')}
               </AvatarFallback>
             </Avatar>

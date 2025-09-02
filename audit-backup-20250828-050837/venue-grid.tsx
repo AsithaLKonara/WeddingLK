@@ -12,29 +12,29 @@ import { useRouter } from 'next/navigation';
 
 interface Venue {
   _id: string;
-  name: string;
-  description: string;
+  _name: string;
+  _description: string;
   location: {
-    address: string;
-    city: string;
-    province: string;
+    _address: string;
+    _city: string;
+    _province: string;
   };
   capacity: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
   pricing: {
-    basePrice: number;
-    currency: string;
+    _basePrice: number;
+    _currency: string;
   };
-  amenities: string[];
-  images: string[];
+  _amenities: string[];
+  _images: string[];
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
-  featured: boolean;
-  isActive: boolean;
+  _featured: boolean;
+  _isActive: boolean;
   isFavorite?: boolean;
 }
 
@@ -44,16 +44,16 @@ interface VenueGridProps {
   location?: string;
   className?: string;
   filters?: {
-    location: string;
-    priceRange: number[];
-    capacity: string;
-    amenities: string[];
-    rating: number;
+    _location: string;
+    _priceRange: number[];
+    _capacity: string;
+    _amenities: string[];
+    _rating: number;
   };
   sortBy?: string;
-  onSortChange?: (value: string) => void;
+  onSortChange?: (_value: string) => void;
   viewMode?: string;
-  onViewModeChange?: (value: string) => void;
+  onViewModeChange?: (_value: string) => void;
 }
 
 export function VenueGrid({
@@ -120,7 +120,7 @@ export function VenueGrid({
 
       if (data.success) {
         const venueIds = data.favorites.venues.map(
-          (venue: any) => venue._id || venue
+          (_venue: any) => venue._id || venue
         );
         setFavorites(venueIds);
       }
@@ -134,7 +134,7 @@ export function VenueGrid({
     loadFavorites();
   }, [loadVenues, loadFavorites]);
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (_price: number, _currency: string) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: currency || 'LKR',
@@ -142,7 +142,7 @@ export function VenueGrid({
     }).format(price);
   };
 
-  const handleFavorite = async (venueId: string) => {
+  const handleFavorite = async (_venueId: string) => {
     try {
       const isFavorited = favorites.includes(venueId);
       const method = isFavorited ? 'DELETE' : 'POST';
@@ -193,13 +193,13 @@ export function VenueGrid({
     }
   };
 
-  const handleFavoriteToggle = async (venueId: string) => {
+  const handleFavoriteToggle = async (_venueId: string) => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
 
       setVenues(prev =>
-        prev.map(venue =>
+        prev.map((_venue: any) =>
           venue._id === venueId
             ? { ...venue, isFavorite: !venue.isFavorite }
             : venue
@@ -219,7 +219,7 @@ export function VenueGrid({
     }
   };
 
-  const handleContactVenue = async (venueId: string) => {
+  const handleContactVenue = async (_venueId: string) => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -289,7 +289,7 @@ export function VenueGrid({
     <div
       className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}
     >
-      {venues.map(venue => {
+      {venues.map((_venue: any) => {
         const isFavorited = favorites.includes(venue._id);
 
         return (

@@ -44,17 +44,17 @@ import {
 } from '@/lib/forms/dynamic-form-engine';
 
 interface EnhancedRegistrationFormProps {
-  role: string;
+  _role: string;
   onSuccess?: (data: any) => void;
-  onError?: (error: string) => void;
+  onError?: (_error: string) => void;
 }
 
 interface FormData {
-  [key: string]: any;
+  [_key: string]: any;
 }
 
 interface FormErrors {
-  [key: string]: string;
+  [_key: string]: string;
 }
 
 export function EnhancedRegistrationForm({
@@ -137,7 +137,7 @@ export function EnhancedRegistrationForm({
     }
   }, [formData, form]);
 
-  const handleInputChange = (fieldId: string, value: any) => {
+  const handleInputChange = (_fieldId: string, _value: any) => {
     setFormData(prev => ({
       ...prev,
       [fieldId]: value,
@@ -152,7 +152,7 @@ export function EnhancedRegistrationForm({
     }
   };
 
-  const handleLocationChange = (field: string, value: string) => {
+  const handleLocationChange = (_field: string, _value: string) => {
     setFormData(prev => ({
       ...prev,
       location: {
@@ -162,7 +162,7 @@ export function EnhancedRegistrationForm({
     }));
   };
 
-  const handlePricingChange = (field: string, value: any) => {
+  const handlePricingChange = (_field: string, _value: any) => {
     setFormData(prev => ({
       ...prev,
       pricing: {
@@ -172,7 +172,7 @@ export function EnhancedRegistrationForm({
     }));
   };
 
-  const handleContactChange = (field: string, value: any) => {
+  const handleContactChange = (_field: string, _value: any) => {
     setFormData(prev => ({
       ...prev,
       contact: {
@@ -215,7 +215,7 @@ export function EnhancedRegistrationForm({
     }
   };
 
-  const goToSection = (index: number) => {
+  const goToSection = (_index: number) => {
     if (index >= 0 && index < form!.sections.length) {
       setCurrentSectionIndex(index);
     }

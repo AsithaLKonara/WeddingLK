@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
         : undefined,
       additionalData: {
         ...additionalData,
-        picture_data: userData.picture,
+        picturedata: userData.picture,
       },
     });
 

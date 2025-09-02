@@ -11,31 +11,31 @@ import { useRouter } from 'next/navigation';
 
 interface WeddingPackageCardProps {
   package: {
-    id: number;
-    title: string;
-    subtitle: string;
-    price: number;
-    originalPrice: number;
-    rating: number;
-    reviewCount: number;
-    badge: string;
-    badgeColor: string;
-    icon: any;
-    features: string[];
-    venues: Array<{ name: string; rating: number; image: string }>;
-    vendors: Array<{ name: string; category: string; rating: number }>;
+    _id: number;
+    _title: string;
+    _subtitle: string;
+    _price: number;
+    _originalPrice: number;
+    _rating: number;
+    _reviewCount: number;
+    _badge: string;
+    _badgeColor: string;
+    _icon: any;
+    _features: string[];
+    venues: Array<{ _name: string; _rating: number; image: string }>;
+    vendors: Array<{ _name: string; _category: string; rating: number }>;
   };
 }
 
 export function WeddingPackageCard({ package: pkg }: WeddingPackageCardProps) {
   const router = useRouter();
 
-  const handleSave = (packageId: number) => {
+  const handleSave = (_packageId: number) => {
     // Add to favorites logic
     console.log('Saving package:', packageId);
   };
 
-  const handleShare = (packageId: number) => {
+  const handleShare = (_packageId: number) => {
     // Share functionality
     if (navigator.share) {
       navigator.share({

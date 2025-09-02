@@ -8,7 +8,7 @@ interface Props {
 }
 
 interface State {
-  hasError: boolean;
+  _hasError: boolean;
   error?: Error;
   errorInfo?: ErrorInfo;
 }

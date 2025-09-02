@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { auth } from '@/lib/auth-config';
 // In-memory settings store (in production, use database)
 let platformSettings = {

@@ -26,33 +26,33 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
-  id: string;
-  senderId: string;
-  content: string;
+  _id: string;
+  _senderId: string;
+  _content: string;
   timestamp: Date;
-  isRead: boolean;
+  _isRead: boolean;
   type: 'text' | 'image' | 'voice' | 'file';
   mediaUrl?: string;
   replyTo?: string;
 }
 
 interface ChatUser {
-  id: string;
-  name: string;
-  avatar: string;
-  isOnline: boolean;
+  _id: string;
+  _name: string;
+  _avatar: string;
+  _isOnline: boolean;
   lastSeen?: Date;
-  unreadCount: number;
-  isTyping: boolean;
+  _unreadCount: number;
+  _isTyping: boolean;
 }
 
 interface Conversation {
-  id: string;
+  _id: string;
   user: ChatUser;
   lastMessage: ChatMessage;
-  unreadCount: number;
-  isPinned: boolean;
-  isMuted: boolean;
+  _unreadCount: number;
+  _isPinned: boolean;
+  _isMuted: boolean;
 }
 
 export default function InstagramChat() {
@@ -250,11 +250,11 @@ export default function InstagramChat() {
                       <AvatarFallback>
                         {conversation.user.name
                           .split(' ')
-                          .map(n => n[0])
+                          .map((_n: any) => n[0])
                           .join('')}
                       </AvatarFallback>
                     </Avatar>
-                    {conversation.user.isOnline && (
+                    {conversation.user._isOnline && (
                       <div className='absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white' />
                     )}
                   </div>
@@ -312,7 +312,7 @@ export default function InstagramChat() {
                     {conversations
                       .find(c => c.id === selectedConversation)
                       ?.user.name.split(' ')
-                      .map(n => n[0])
+                      .map((_n: any) => n[0])
                       .join('')}
                   </AvatarFallback>
                 </Avatar>
@@ -326,7 +326,7 @@ export default function InstagramChat() {
                   </h3>
                   <p className='text-sm text-gray-500'>
                     {conversations.find(c => c.id === selectedConversation)
-                      ?.user.isOnline
+                      ?.user._isOnline
                       ? 'Online'
                       : 'Last seen ' +
                         formatTime(
@@ -378,7 +378,7 @@ export default function InstagramChat() {
                             {conversations
                               .find(c => c.id === selectedConversation)
                               ?.user.name.split(' ')
-                              .map(n => n[0])
+                              .map((_n: any) => n[0])
                               .join('')}
                           </AvatarFallback>
                         </Avatar>

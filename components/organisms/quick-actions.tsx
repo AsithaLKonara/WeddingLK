@@ -18,11 +18,11 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface QuickAction {
-  id: string;
-  icon: any;
-  label: string;
-  href: string;
-  color: string;
+  _id: string;
+  _icon: any;
+  _label: string;
+  _href: string;
+  _color: string;
   description?: string;
   isPopular?: boolean;
   isNew?: boolean;

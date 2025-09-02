@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Review } from '@/lib/models/review';
 
 export async function GET(request: NextRequest) {
@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get verified testimonials with high ratings
-    const testimonials = await Review.find({
+    const testimonials = await (Review as any).find({
       isVerified: true,
       isActive: true,
       rating: { $gte: 4 },

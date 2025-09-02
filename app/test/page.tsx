@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import { Testimonialdiv } from '@/components/molecules/testimonial-card';
 
 interface TestResult {
-  name: string;
+  _name: string;
   status: 'pass' | 'fail' | 'pending';
-  message: string;
+  _message: string;
   details?: any;
 }
 

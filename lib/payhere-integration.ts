@@ -1,45 +1,45 @@
 import * as crypto from 'crypto';
 
 interface PayHereConfig {
-  merchantId: string;
-  secretKey: string;
-  sandboxMode: boolean;
+  _merchantId: string;
+  _secretKey: string;
+  _sandboxMode: boolean;
 }
 
 interface PayHerePaymentRequest {
-  merchant_id: string;
-  return_url: string;
-  cancel_url: string;
-  notify_url: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  country: string;
-  order_id: string;
-  items: string;
-  currency: string;
-  amount: number;
+  _merchantid: string;
+  _return_url: string;
+  _cancel_url: string;
+  _notify_url: string;
+  _first_name: string;
+  _last_name: string;
+  _email: string;
+  _phone: string;
+  _address: string;
+  _city: string;
+  _country: string;
+  _orderid: string;
+  _items: string;
+  _currency: string;
+  _amount: number;
   custom_1?: string;
   custom_2?: string;
-  hash: string;
+  _hash: string;
 }
 
 interface PayHereInstallmentPlan {
-  planId: string;
-  name: string;
-  installments: number;
-  interestRate: number;
-  processingFee: number;
-  minAmount: number;
-  maxAmount: number;
+  _planId: string;
+  _name: string;
+  _installments: number;
+  _interestRate: number;
+  _processingFee: number;
+  _minAmount: number;
+  _maxAmount: number;
 }
 
 export class PayHereIntegration {
   private config: PayHereConfig;
-  private baseUrl: string;
+  private _baseUrl: string;
 
   constructor() {
     this.config = {
@@ -55,25 +55,25 @@ export class PayHereIntegration {
 
   // Create payment request for various payment methods
   async createPaymentRequest(paymentData: {
-    orderId: string;
-    amount: number;
-    currency: string;
+    _orderId: string;
+    _amount: number;
+    _currency: string;
     customer: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      phone: string;
-      address: string;
-      city: string;
+      _firstName: string;
+      _lastName: string;
+      _email: string;
+      _phone: string;
+      _address: string;
+      _city: string;
     };
-    items: string;
-    returnUrl: string;
-    cancelUrl: string;
-    notifyUrl: string;
+    _items: string;
+    _returnUrl: string;
+    _cancelUrl: string;
+    _notifyUrl: string;
     customFields?: Record<string, string>;
   }): Promise<PayHerePaymentRequest> {
     const paymentRequest: PayHerePaymentRequest = {
-      merchant_id: this.config.merchantId,
+      merchantid: this.config.merchantId,
       return_url: paymentData.returnUrl,
       cancel_url: paymentData.cancelUrl,
       notify_url: paymentData.notifyUrl,
@@ -84,7 +84,7 @@ export class PayHereIntegration {
       address: paymentData.customer.address,
       city: paymentData.customer.city,
       country: 'Sri Lanka',
-      order_id: paymentData.orderId,
+      orderid: paymentData.orderId,
       items: paymentData.items,
       currency: paymentData.currency,
       amount: paymentData.amount,
@@ -101,18 +101,18 @@ export class PayHereIntegration {
 
   // Create installment payment plan
   async createInstallmentPayment(paymentData: {
-    orderId: string;
-    totalAmount: number;
-    installments: number;
-    customer: any;
-    items: string;
-    returnUrl: string;
-    cancelUrl: string;
-    notifyUrl: string;
+    _orderId: string;
+    _totalAmount: number;
+    _installments: number;
+    _customer: any;
+    _items: string;
+    _returnUrl: string;
+    _cancelUrl: string;
+    _notifyUrl: string;
   }): Promise<{
-    paymentUrl: string;
+    _paymentUrl: string;
     installmentPlan: PayHereInstallmentPlan;
-    monthlyPayment: number;
+    _monthlyPayment: number;
   }> {
     const installmentPlan = this.getInstallmentPlan(
       paymentData.installments,
@@ -149,16 +149,16 @@ export class PayHereIntegration {
 
   // Create eZ Cash payment
   async createEzCashPayment(paymentData: {
-    orderId: string;
-    amount: number;
-    customer: any;
-    items: string;
-    returnUrl: string;
-    cancelUrl: string;
-    notifyUrl: string;
+    _orderId: string;
+    _amount: number;
+    _customer: any;
+    _items: string;
+    _returnUrl: string;
+    _cancelUrl: string;
+    _notifyUrl: string;
   }): Promise<{
-    paymentUrl: string;
-    paymentMethod: string;
+    _paymentUrl: string;
+    _paymentMethod: string;
   }> {
     const paymentRequest = await this.createPaymentRequest({
       orderId: `${paymentData.orderId}_EZCASH`,
@@ -184,16 +184,16 @@ export class PayHereIntegration {
 
   // Create mCash payment
   async createMCashPayment(paymentData: {
-    orderId: string;
-    amount: number;
-    customer: any;
-    items: string;
-    returnUrl: string;
-    cancelUrl: string;
-    notifyUrl: string;
+    _orderId: string;
+    _amount: number;
+    _customer: any;
+    _items: string;
+    _returnUrl: string;
+    _cancelUrl: string;
+    _notifyUrl: string;
   }): Promise<{
-    paymentUrl: string;
-    paymentMethod: string;
+    _paymentUrl: string;
+    _paymentMethod: string;
   }> {
     const paymentRequest = await this.createPaymentRequest({
       orderId: `${paymentData.orderId}_MCASH`,
@@ -219,17 +219,17 @@ export class PayHereIntegration {
 
   // Create bank transfer payment
   async createBankTransferPayment(paymentData: {
-    orderId: string;
-    amount: number;
-    customer: any;
-    items: string;
-    returnUrl: string;
-    cancelUrl: string;
-    notifyUrl: string;
+    _orderId: string;
+    _amount: number;
+    _customer: any;
+    _items: string;
+    _returnUrl: string;
+    _cancelUrl: string;
+    _notifyUrl: string;
   }): Promise<{
-    paymentUrl: string;
-    paymentMethod: string;
-    bankDetails: any;
+    _paymentUrl: string;
+    _paymentMethod: string;
+    _bankDetails: any;
   }> {
     const paymentRequest = await this.createPaymentRequest({
       orderId: `${paymentData.orderId}_BANK`,
@@ -264,12 +264,12 @@ export class PayHereIntegration {
   }
 
   // Verify payment notification
-  verifyPaymentNotification(notificationData: any): {
-    isValid: boolean;
-    paymentStatus: string;
-    orderId: string;
-    amount: number;
-    transactionId: string;
+  verifyPaymentNotification(_notificationData: any): {
+    _isValid: boolean;
+    _paymentStatus: string;
+    _orderId: string;
+    _amount: number;
+    _transactionId: string;
   } {
     try {
       const receivedHash = notificationData.hash;
@@ -358,8 +358,8 @@ export class PayHereIntegration {
   }
 
   private getInstallmentPlan(
-    installments: number,
-    amount: number
+    _installments: number,
+    _amount: number
   ): PayHereInstallmentPlan {
     const plans = this.getAvailableInstallmentPlans();
     const plan = plans.find(
@@ -379,7 +379,7 @@ export class PayHereIntegration {
   }
 
   private calculateMonthlyPayment(
-    totalAmount: number,
+    _totalAmount: number,
     plan: PayHereInstallmentPlan
   ): number {
     const interestAmount = (totalAmount * plan.interestRate) / 100;
@@ -388,11 +388,11 @@ export class PayHereIntegration {
   }
 
   // Get payment status
-  async getPaymentStatus(orderId: string): Promise<{
-    status: string;
-    amount: number;
-    transactionId: string;
-    paymentMethod: string;
+  async getPaymentStatus(_orderId: string): Promise<{
+    _status: string;
+    _amount: number;
+    _transactionId: string;
+    _paymentMethod: string;
     paidAt?: Date;
   }> {
     // This would typically make an API call to PayHere
@@ -408,13 +408,13 @@ export class PayHereIntegration {
 
   // Process refund
   async processRefund(
-    transactionId: string,
-    amount: number,
-    reason: string
+    _transactionId: string,
+    _amount: number,
+    _reason: string
   ): Promise<{
     success: boolean;
-    refundId: string;
-    message: string;
+    _refundId: string;
+    _message: string;
   }> {
     // This would make an API call to PayHere for refund
     return {

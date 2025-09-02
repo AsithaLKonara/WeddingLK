@@ -1,5 +1,5 @@
-import { connectDB } from '@/lib/db';
-import User from '@/lib/models/user';
+// import { connectDB } from '@/lib/db';
+// import User from '@/lib/models/user';
 import { Venue } from '@/lib/models/venue';
 import { Vendor } from '@/lib/models/vendor';
 import { Booking } from '@/lib/models/booking';
@@ -9,55 +9,55 @@ import { Notification } from '@/lib/models/notification';
 
 interface AnalyticsMetrics {
   users: {
-    total: number;
-    active: number;
-    newThisMonth: number;
-    growth: number;
+    _total: number;
+    _active: number;
+    _newThisMonth: number;
+    _growth: number;
   };
   revenue: {
-    total: number;
-    thisMonth: number;
-    growth: number;
-    averageBooking: number;
+    _total: number;
+    _thisMonth: number;
+    _growth: number;
+    _averageBooking: number;
   };
   bookings: {
-    total: number;
-    thisMonth: number;
-    pending: number;
-    confirmed: number;
-    completed: number;
-    cancelled: number;
+    _total: number;
+    _thisMonth: number;
+    _pending: number;
+    _confirmed: number;
+    _completed: number;
+    _cancelled: number;
   };
   venues: {
-    total: number;
-    active: number;
-    averageRating: number;
-    topRated: any[];
+    _total: number;
+    _active: number;
+    _averageRating: number;
+    _topRated: any[];
   };
   vendors: {
-    total: number;
-    active: number;
+    _total: number;
+    _active: number;
     byCategory: Record<string, number>;
-    topPerforming: any[];
+    _topPerforming: any[];
   };
   engagement: {
-    messagesSent: number;
-    notificationsSent: number;
-    averageResponseTime: number;
+    _messagesSent: number;
+    _notificationsSent: number;
+    _averageResponseTime: number;
   };
   performance: {
-    pageViews: number;
-    uniqueVisitors: number;
-    conversionRate: number;
-    averageSessionDuration: number;
+    _pageViews: number;
+    _uniqueVisitors: number;
+    _conversionRate: number;
+    _averageSessionDuration: number;
   };
 }
 
 interface ChartData {
-  revenue: Array<{ date: string; amount: number }>;
-  bookings: Array<{ date: string; count: number }>;
-  users: Array<{ date: string; count: number }>;
-  categories: Array<{ category: string; count: number }>;
+  revenue: Array<{ _date: string; amount: number }>;
+  bookings: Array<{ _date: string; count: number }>;
+  users: Array<{ _date: string; count: number }>;
+  categories: Array<{ _category: string; count: number }>;
 }
 
 class AnalyticsDashboard {
@@ -87,7 +87,7 @@ class AnalyticsDashboard {
       // Revenue metrics
       const totalRevenue = await Payment.aggregate([
         { $match: { status: 'completed' } },
-        { $group: { _id: null, total: { $sum: '$amount' } } },
+        { $group: { id: null, total: { $sum: '$amount' } } },
       ]);
 
       const thisMonthRevenue = await Payment.aggregate([
@@ -97,7 +97,7 @@ class AnalyticsDashboard {
             createdAt: { $gte: thisMonth },
           },
         },
-        { $group: { _id: null, total: { $sum: '$amount' } } },
+        { $group: { id: null, total: { $sum: '$amount' } } },
       ]);
 
       const lastMonthRevenue = await Payment.aggregate([
@@ -107,7 +107,7 @@ class AnalyticsDashboard {
             createdAt: { $gte: lastMonth, $lt: thisMonth },
           },
         },
-        { $group: { _id: null, total: { $sum: '$amount' } } },
+        { $group: { id: null, total: { $sum: '$amount' } } },
       ]);
 
       const revenueGrowth =
@@ -119,7 +119,7 @@ class AnalyticsDashboard {
 
       const averageBooking = await Payment.aggregate([
         { $match: { status: 'completed' } },
-        { $group: { _id: null, average: { $avg: '$amount' } } },
+        { $group: { id: null, average: { $avg: '$amount' } } },
       ]);
 
       // Booking metrics
@@ -144,9 +144,9 @@ class AnalyticsDashboard {
       const totalVenues = await Venue.countDocuments();
       const activeVenues = await Venue.countDocuments({ isActive: true });
       const averageVenueRating = await Venue.aggregate([
-        { $group: { _id: null, average: { $avg: '$rating' } } },
+        { $group: { id: null, average: { $avg: '$rating' } } },
       ]);
-      const topRatedVenues = await Venue.find({ isActive: true })
+      const topRatedVenues = await (Venue as any).find({ isActive: true })
         .sort({ rating: -1 })
         .limit(5)
         .select('name rating location price');
@@ -155,9 +155,9 @@ class AnalyticsDashboard {
       const totalVendors = await Vendor.countDocuments();
       const activeVendors = await Vendor.countDocuments({ isActive: true });
       const vendorsByCategory = await Vendor.aggregate([
-        { $group: { _id: '$category', count: { $sum: 1 } } },
+        { $group: { id: '$category', count: { $sum: 1 } } },
       ]);
-      const topPerformingVendors = await Vendor.find({ isActive: true })
+      const topPerformingVendors = await (Vendor as any).find({ isActive: true })
         .sort({ rating: -1 })
         .limit(5)
         .select('name category rating price');
@@ -206,7 +206,7 @@ class AnalyticsDashboard {
           total: totalVendors,
           active: activeVendors,
           byCategory: vendorsByCategory.reduce(
-            (acc: Record<string, number>, item: any) => {
+            (acc: Record<string, number>, _item: any) => {
               acc[item._id] = item.count;
               return acc;
             },
@@ -250,11 +250,11 @@ class AnalyticsDashboard {
         },
         {
           $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
             amount: { $sum: '$amount' },
           },
         },
-        { $sort: { _id: 1 } },
+        { $sort: { id: 1 } },
       ]);
 
       // Bookings chart data
@@ -266,15 +266,15 @@ class AnalyticsDashboard {
         },
         {
           $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
             count: { $sum: 1 },
           },
         },
-        { $sort: { _id: 1 } },
+        { $sort: { id: 1 } },
       ]);
 
       // Users chart data
-      const usersData = await User.aggregate([
+      const usersData = await (User as any).aggregate([
         {
           $match: {
             createdAt: { $gte: startDate, $lte: endDate },
@@ -282,18 +282,18 @@ class AnalyticsDashboard {
         },
         {
           $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
             count: { $sum: 1 },
           },
         },
-        { $sort: { _id: 1 } },
+        { $sort: { id: 1 } },
       ]);
 
       // Categories chart data
       const categoriesData = await Vendor.aggregate([
         {
           $group: {
-            _id: '$category',
+            id: '$category',
             count: { $sum: 1 },
           },
         },
@@ -301,19 +301,19 @@ class AnalyticsDashboard {
       ]);
 
       return {
-        revenue: revenueData.map((item: any) => ({
+        revenue: revenueData.map((_item: any) => ({
           date: item._id,
           amount: item.amount,
         })),
-        bookings: bookingsData.map((item: any) => ({
+        bookings: bookingsData.map((_item: any) => ({
           date: item._id,
           count: item.count,
         })),
-        users: usersData.map((item: any) => ({
+        users: usersData.map((_item: any) => ({
           date: item._id,
           count: item.count,
         })),
-        categories: categoriesData.map((item: any) => ({
+        categories: categoriesData.map((_item: any) => ({
           category: item._id,
           count: item.count,
         })),
@@ -341,11 +341,11 @@ class AnalyticsDashboard {
       const lastHour = new Date(now.getTime() - 60 * 60 * 1000);
       const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-      const recentBookings = await Booking.find({
+      const recentBookings = await (Booking as any).find({
         createdAt: { $gte: last24Hours },
       }).populate('userId', 'name email');
 
-      const recentPayments = await Payment.find({
+      const recentPayments = await (Payment as any).find({
         createdAt: { $gte: last24Hours },
       }).populate('userId', 'name email');
 

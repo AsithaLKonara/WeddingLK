@@ -4,90 +4,90 @@ export interface IVendorProfile extends Document {
   userId: mongoose.Types.ObjectId;
 
   // Business Information
-  businessName: string;
+  _businessName: string;
   businessType: 'individual' | 'company' | 'partnership';
   businessRegistrationNumber?: string;
   taxIdentificationNumber?: string;
   businessLicenseNumber?: string;
-  yearsInBusiness: number;
+  _yearsInBusiness: number;
 
   // Service Details
   services: {
-    category: string;
-    subcategory: string;
-    description: string;
+    _category: string;
+    _subcategory: string;
+    _description: string;
     pricing: {
       type: 'fixed' | 'hourly' | 'package' | 'custom';
-      amount: number;
-      currency: string;
+      _amount: number;
+      _currency: string;
       unit?: string;
     };
     availability: {
-      days: number[];
+      _days: number[];
       hours: {
-        start: string;
-        end: string;
+        _start: string;
+        _end: string;
       };
-      isAvailable: boolean;
+      _isAvailable: boolean;
     };
   }[];
 
   // Coverage Areas
   serviceAreas: {
-    city: string;
-    state: string;
-    country: string;
-    radius: number; // in kilometers
+    _city: string;
+    _state: string;
+    _country: string;
+    _radius: number; // in kilometers
   }[];
 
   // Portfolio & Media
   portfolio: {
-    title: string;
-    description: string;
-    images: string[];
+    _title: string;
+    _description: string;
+    _images: string[];
     videos?: string[];
-    category: string;
-    tags: string[];
-    featured: boolean;
+    _category: string;
+    _tags: string[];
+    _featured: boolean;
   }[];
 
   // Certifications & Licenses
   certifications: {
-    name: string;
-    issuingAuthority: string;
+    _name: string;
+    _issuingAuthority: string;
     issueDate: Date;
     expiryDate?: Date;
-    documentUrl: string;
-    verified: boolean;
+    _documentUrl: string;
+    _verified: boolean;
   }[];
 
   // Insurance & Liability
   insurance: {
-    type: string;
-    provider: string;
-    policyNumber: string;
-    coverageAmount: number;
+    _type: string;
+    _provider: string;
+    _policyNumber: string;
+    _coverageAmount: number;
     expiryDate: Date;
-    documentUrl: string;
-    verified: boolean;
+    _documentUrl: string;
+    _verified: boolean;
   }[];
 
   // Business Hours & Availability
   businessHours: {
-    monday: { open: string; close: string; closed: boolean };
-    tuesday: { open: string; close: string; closed: boolean };
-    wednesday: { open: string; close: string; closed: boolean };
-    thursday: { open: string; close: string; closed: boolean };
-    friday: { open: string; close: string; closed: boolean };
-    saturday: { open: string; close: string; closed: boolean };
-    sunday: { open: string; close: string; closed: boolean };
+    monday: { _open: string; _close: string; closed: boolean };
+    tuesday: { _open: string; _close: string; closed: boolean };
+    wednesday: { _open: string; _close: string; closed: boolean };
+    thursday: { _open: string; _close: string; closed: boolean };
+    friday: { _open: string; _close: string; closed: boolean };
+    saturday: { _open: string; _close: string; closed: boolean };
+    sunday: { _open: string; _close: string; closed: boolean };
   };
 
   // Emergency Contact
   emergencyContact: {
-    name: string;
-    relationship: string;
-    phone: string;
+    _name: string;
+    _relationship: string;
+    _phone: string;
     email?: string;
   };
 
@@ -100,14 +100,14 @@ export interface IVendorProfile extends Document {
 
   // Business Metrics
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
     breakdown: {
-      1: number;
-      2: number;
-      3: number;
-      4: number;
-      5: number;
+      _1: number;
+      _2: number;
+      _3: number;
+      _4: number;
+      _5: number;
     };
   };
 
@@ -124,8 +124,8 @@ export interface IVendorProfile extends Document {
   // Payment & Billing
   paymentMethods: {
     type: 'bank_transfer' | 'credit_card' | 'paypal' | 'stripe' | 'cash';
-    details: any;
-    isDefault: boolean;
+    _details: any;
+    _isDefault: boolean;
   }[];
 
   // Timestamps
@@ -509,7 +509,7 @@ const VendorProfileSchema: Schema = new Schema(
 );
 
 // Indexes for performance
-VendorProfileSchema.index({ userId: 1 });
+// userId index is automatically created by unique: true
 VendorProfileSchema.index({ verificationStatus: 1 });
 VendorProfileSchema.index({ 'services.category': 1 });
 VendorProfileSchema.index({ 'serviceAreas.city': 1, 'serviceAreas.state': 1 });
@@ -517,7 +517,7 @@ VendorProfileSchema.index({ 'rating.average': -1 });
 VendorProfileSchema.index({ businessName: 'text' });
 
 // Instance methods
-VendorProfileSchema.methods.updateRating = function (newRating: number) {
+VendorProfileSchema.methods.updateRating = function (_newRating: number) {
   const oldAverage = this.rating.average;
   const oldCount = this.rating.count;
 
@@ -537,13 +537,13 @@ VendorProfileSchema.methods.updateRating = function (newRating: number) {
   return this.save();
 };
 
-VendorProfileSchema.methods.addService = function (service: any) {
+VendorProfileSchema.methods.addService = function (_service: any) {
   this.services.push(service);
   return this.save();
 };
 
 VendorProfileSchema.methods.updateVerificationStatus = function (
-  status: string,
+  _status: string,
   notes?: string,
   verifiedBy?: mongoose.Types.ObjectId
 ) {

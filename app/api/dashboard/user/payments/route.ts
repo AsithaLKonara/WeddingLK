@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Payment } from '@/lib/models/Payment';
 import { auth } from '@/lib/auth-config';
 export async function GET(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     if (status) query.status = status;
 
     // Get payments with pagination
-    const payments = await Payment.find(query)
+    const payments = await (Payment as any).find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

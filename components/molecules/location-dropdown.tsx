@@ -19,8 +19,8 @@ import { Check, ChevronDown, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LocationDropdownProps {
-  value: string;
-  onChange: (value: string) => void;
+  _value: string;
+  onChange: (_value: string) => void;
   placeholder?: string;
 }
 

@@ -3,37 +3,37 @@ import { getDb } from '@/lib/db/mongodb';
 import { ObjectId } from 'mongodb';
 
 interface WeddingPackage {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
+  _id: string;
+  _name: string;
+  _description: string;
+  _price: number;
   originalPrice?: number;
   currency: 'LKR';
   category: 'basic' | 'premium' | 'luxury' | 'custom';
   venue: {
-    id: string;
-    name: string;
-    location: string;
-    image: string;
-    rating: number;
+    _id: string;
+    _name: string;
+    _location: string;
+    _image: string;
+    _rating: number;
   };
-  features: string[];
+  _features: string[];
   guestCapacity: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
-  duration: string;
-  includes: string[];
-  exclusions: string[];
-  availability: string[];
-  images: string[];
-  rating: number;
-  reviewCount: number;
-  isBoosted: boolean;
+  _duration: string;
+  _includes: string[];
+  _exclusions: string[];
+  _availability: string[];
+  _images: string[];
+  _rating: number;
+  _reviewCount: number;
+  _isBoosted: boolean;
   boostType?: 'featured' | 'trending' | 'sponsored';
   discount?: number;
-  isPopular: boolean;
-  isNew: boolean;
+  _isPopular: boolean;
+  _isNew: boolean;
 }
 
 export async function GET(request: NextRequest) {
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
     const enrichedPackages: WeddingPackage[] = await Promise.all(
       packages.map(async pkg => {
         const venue = await venuesCollection.findOne(
-          { _id: new ObjectId(pkg.venueId) },
+          { id: new ObjectId(pkg.venueId) },
           { projection: { name: 1, location: 1, images: 1, rating: 1 } }
         );
 
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     const categoryCounts = await packagesCollection
       .aggregate([
         { $match: { status: 'active' } },
-        { $group: { _id: '$category', count: { $sum: 1 } } },
+        { $group: { id: '$category', count: { $sum: 1 } } },
       ])
       .toArray();
 

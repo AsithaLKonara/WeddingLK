@@ -2,13 +2,13 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IService extends Document {
   vendor: mongoose.Types.ObjectId;
-  name: string;
-  description: string;
-  category: string;
-  price: number;
+  _name: string;
+  _description: string;
+  _category: string;
+  _price: number;
   priceType: 'fixed' | 'per-person' | 'per-hour';
   duration?: number; // in hours
-  isActive: boolean;
+  _isActive: boolean;
   images?: string[];
   features?: string[];
   requirements?: string[];

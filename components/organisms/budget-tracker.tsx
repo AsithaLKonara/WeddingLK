@@ -48,20 +48,20 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 
 interface BudgetCategory {
-  id: string;
-  name: string;
-  budgeted: number;
-  spent: number;
-  color: string;
+  _id: string;
+  _name: string;
+  _budgeted: number;
+  _spent: number;
+  _color: string;
   items: BudgetItem[];
 }
 
 interface BudgetItem {
-  id: string;
-  name: string;
-  amount: number;
-  paid: boolean;
-  dueDate: string;
+  _id: string;
+  _name: string;
+  _amount: number;
+  _paid: boolean;
+  _dueDate: string;
 }
 
 export function BudgetTracker() {
@@ -238,7 +238,7 @@ export function BudgetTracker() {
   const remaining = totalBudget - totalSpent;
   const overBudget = totalSpent > totalBudget;
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: 'LKR',
@@ -246,7 +246,7 @@ export function BudgetTracker() {
     }).format(amount);
   };
 
-  const getSpentPercentage = (spent: number, budgeted: number) => {
+  const getSpentPercentage = (_spent: number, _budgeted: number) => {
     return budgeted > 0 ? (spent / budgeted) * 100 : 0;
   };
 
@@ -355,8 +355,8 @@ export function BudgetTracker() {
   };
 
   const handleDeleteCategory = async (
-    categoryId: string,
-    categoryName: string
+    _categoryId: string,
+    _categoryName: string
   ) => {
     setIsLoading(true);
     try {
@@ -518,9 +518,9 @@ export function BudgetTracker() {
   };
 
   const handleDeleteItem = async (
-    categoryId: string,
-    itemId: string,
-    itemName: string
+    _categoryId: string,
+    _itemId: string,
+    _itemName: string
   ) => {
     setIsLoading(true);
     try {
@@ -558,11 +558,11 @@ export function BudgetTracker() {
   };
 
   const handleToggleItemPaid = async (
-    categoryId: string,
-    itemId: string,
-    itemName: string,
-    currentPaid: boolean,
-    amount: number
+    _categoryId: string,
+    _itemId: string,
+    _itemName: string,
+    _currentPaid: boolean,
+    _amount: number
   ) => {
     setIsLoading(true);
     try {

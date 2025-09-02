@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth-config';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { Message } from '@/lib/models/message';
 
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: '$conversationId',
+          id: '$conversationId',
           lastMessage: { $last: '$$ROOT' },
           unreadCount: {
             $sum: {
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
             ? lastMessage.receiver
             : lastMessage.sender;
 
-        const otherUser = await User.findById(otherUserId).select(
+        const otherUser = await (User as any).findById(otherUserId).select(
           'name email avatar role'
         );
 

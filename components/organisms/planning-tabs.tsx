@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Calendar, CheckSquare, DollarSign, Users } from 'lucide-react';
 
 interface PlanningTabsProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  _activeTab: string;
+  onTabChange: (_tab: string) => void;
 }
 
 export function PlanningTabs({ activeTab, onTabChange }: PlanningTabsProps) {

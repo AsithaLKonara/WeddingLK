@@ -6,20 +6,20 @@ import { Star, Quote } from 'lucide-react';
 
 interface Testimonial {
   _id: string;
-  content: string;
-  rating: number;
+  _content: string;
+  _rating: number;
   user: {
-    name: string;
+    _name: string;
     avatar?: string;
   };
   vendor?: {
-    name: string;
-    businessName: string;
+    _name: string;
+    _businessName: string;
   };
   venue?: {
-    name: string;
+    _name: string;
   };
-  createdAt: string;
+  _createdAt: string;
 }
 
 export default function RealTestimonials() {

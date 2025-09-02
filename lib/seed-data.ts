@@ -19,7 +19,7 @@ const generateUsers = (): User[] => {
 
   for (let i = 1; i <= 50; i++) {
     const user: User = {
-      _id: `user_${i}`,
+      id: `user_${i}`,
       email: `user${i}@example.com`,
       name: `User ${i}`,
       role: i <= 5 ? 'admin' : i <= 15 ? 'vendor' : 'user',
@@ -77,7 +77,7 @@ const generateVenues = (): Venue[] => {
 
   for (let i = 1; i <= 50; i++) {
     const venue: Venue = {
-      _id: `venue_${i}`,
+      id: `venue_${i}`,
       name: `${venueTypes[Math.floor(Math.random() * venueTypes.length)]} ${i}`,
       location: locations[Math.floor(Math.random() * locations.length)] || 'Colombo',
       capacity: Math.floor(Math.random() * 500) + 100,
@@ -134,7 +134,7 @@ const generateVendors = (): Vendor[] => {
   for (let i = 1; i <= 50; i++) {
     const category = categories[Math.floor(Math.random() * categories.length)];
     const vendor: Vendor = {
-      _id: `vendor_${i}`,
+      id: `vendor_${i}`,
       name: `${category} Pro ${i}`,
       category: category || 'photographer',
       location: locations[Math.floor(Math.random() * locations.length)] || 'Colombo',
@@ -206,7 +206,7 @@ const generateBookings = (): Booking[] => {
 
   for (let i = 1; i <= 50; i++) {
     const booking: Booking = {
-      _id: `booking_${i}`,
+      id: `booking_${i}`,
       userId: `user_${Math.floor(Math.random() * 50) + 1}`,
       venueId: `venue_${Math.floor(Math.random() * 50) + 1}`,
       vendorIds: [
@@ -239,7 +239,7 @@ const generatePayments = (): Payment[] => {
 
   for (let i = 1; i <= 50; i++) {
     const payment: Payment = {
-      _id: `payment_${i}`,
+      id: `payment_${i}`,
       bookingId: `booking_${Math.floor(Math.random() * 50) + 1}`,
       userId: `user_${Math.floor(Math.random() * 50) + 1}`,
       amount: Math.floor(Math.random() * 100000) + 20000,
@@ -264,11 +264,11 @@ const generatePayments = (): Payment[] => {
 };
 
 const generateReviews = (): any[] => {
-  const reviews: any[] = [];
+  const _reviews: any[] = [];
 
   for (let i = 1; i <= 50; i++) {
     const review: any = {
-      _id: `review_${i}`,
+      id: `review_${i}`,
       userId: `user_${Math.floor(Math.random() * 50) + 1}`,
       targetId:
         Math.random() > 0.5
@@ -294,7 +294,7 @@ const generateMessages = (): Message[] => {
 
   for (let i = 1; i <= 50; i++) {
     const message: Message = {
-      _id: `message_${i}`,
+      id: `message_${i}`,
       senderId: `user_${Math.floor(Math.random() * 50) + 1}`,
       receiverId: `user_${Math.floor(Math.random() * 50) + 1}`,
       content: `This is message ${i} content.`,
@@ -315,7 +315,7 @@ const generateTasks = (): Task[] => {
 
   for (let i = 1; i <= 50; i++) {
     const task: Task = {
-      _id: `task_${i}`,
+      id: `task_${i}`,
       userId: `user_${Math.floor(Math.random() * 50) + 1}`,
       title: `Task ${i}`,
       description: `Description for task ${i}`,

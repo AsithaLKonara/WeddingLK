@@ -1,35 +1,35 @@
 interface PerformanceMetrics {
-  responseTime: number;
-  memoryUsage: number;
-  cpuUsage: number;
-  databaseQueryTime: number;
-  cacheHitRate: number;
-  errorRate: number;
-  throughput: number;
+  _responseTime: number;
+  _memoryUsage: number;
+  _cpuUsage: number;
+  _databaseQueryTime: number;
+  _cacheHitRate: number;
+  _errorRate: number;
+  _throughput: number;
 }
 
 interface PerformanceData {
   timestamp: Date;
   metrics: PerformanceMetrics;
-  context: string;
+  _context: string;
   userId?: string;
   sessionId?: string;
 }
 
 interface PerformanceThresholds {
-  responseTime: number;
-  memoryUsage: number;
-  cpuUsage: number;
-  databaseQueryTime: number;
-  errorRate: number;
+  _responseTime: number;
+  _memoryUsage: number;
+  _cpuUsage: number;
+  _databaseQueryTime: number;
+  _errorRate: number;
 }
 
 interface PerformanceAlert {
   type: 'warning' | 'critical';
-  metric: string;
-  value: number;
-  threshold: number;
-  message: string;
+  _metric: string;
+  _value: number;
+  _threshold: number;
+  _message: string;
   timestamp: Date;
 }
 
@@ -56,7 +56,7 @@ class PerformanceMonitor {
 
   // Track API performance
   public static async trackAPIPerformance(
-    context: string,
+    _context: string,
     operation: () => Promise<unknown>
   ): Promise<unknown> {
     const startTime = Date.now();
@@ -120,8 +120,8 @@ class PerformanceMonitor {
 
   // Track database performance
   public static async trackDatabasePerformance(
-    operation: string,
-    query: string,
+    _operation: string,
+    _query: string,
     operationFn: () => Promise<unknown>
   ): Promise<unknown> {
     const startTime = Date.now();
@@ -157,7 +157,7 @@ class PerformanceMonitor {
   }
 
   // Track cache performance
-  public static trackCachePerformance(hit: boolean): void {
+  public static trackCachePerformance(_hit: boolean): void {
     const instance = PerformanceMonitor.getInstance();
     const recentData = instance.metrics.get('cache') || [];
 
@@ -193,7 +193,7 @@ class PerformanceMonitor {
   // Check performance thresholds
   private static checkThresholds(
     metrics: PerformanceMetrics,
-    context: string
+    _context: string
   ): void {
     const instance = PerformanceMonitor.getInstance();
     const alerts: PerformanceAlert[] = [];
@@ -410,7 +410,7 @@ class PerformanceMonitor {
 
   // Update performance thresholds
   public static updateThresholds(
-    newThresholds: Partial<PerformanceThresholds>
+    _newThresholds: Partial<$2>
   ): void {
     const instance = PerformanceMonitor.getInstance();
     instance.thresholds = { ...instance.thresholds, ...newThresholds };

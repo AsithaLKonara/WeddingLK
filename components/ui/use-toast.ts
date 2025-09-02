@@ -9,7 +9,7 @@ const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
 
 type ToasterToast = ToastProps & {
-  id: string;
+  _id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
@@ -38,7 +38,7 @@ type Action =
     }
   | {
       type: ActionType['UPDATE_TOAST'];
-      toast: Partial<ToasterToast>;
+      _toast: Partial<$2>;
     }
   | {
       type: ActionType['DISMISS_TOAST'];
@@ -55,7 +55,7 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
-const addToRemoveQueue = (toastId: string) => {
+const addToRemoveQueue = (_toastId: string) => {
   if (toastTimeouts.has(toastId)) {
     return;
   }

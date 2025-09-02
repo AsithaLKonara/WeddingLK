@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models';
 import { advancedCache } from '@/lib/advanced-cache-service';
 import { auth } from '@/lib/auth-config';
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
       owner: session.user.id,
     });
 
-    const populatedVendor = await Vendor.findById(vendor._id).populate(
+    const populatedVendor = await (Vendor as any).findById(vendor._id).populate(
       'owner',
       'firstName lastName email'
     );
@@ -256,7 +256,7 @@ export async function PUT(request: NextRequest) {
     // Dynamically import the Vendor model
     const { Vendor } = await import('@/lib/models/vendor');
 
-    const vendor = await Vendor.findById(vendorId);
+    const vendor = await (Vendor as any).findById(vendorId);
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
@@ -269,7 +269,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    const updatedVendor = await Vendor.findByIdAndUpdate(vendorId, updateData, {
+    const updatedVendor = await (Vendor as any).findByIdAndUpdate(vendorId, updateData, {
       new: true,
     })
       .populate('owner', 'firstName lastName email')
@@ -337,7 +337,7 @@ export async function DELETE(request: NextRequest) {
     // Dynamically import the Vendor model
     const { Vendor } = await import('@/lib/models/vendor');
 
-    const vendor = await Vendor.findById(vendorId);
+    const vendor = await (Vendor as any).findById(vendorId);
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
@@ -350,7 +350,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    await Vendor.findByIdAndDelete(vendorId);
+    await (Vendor as any).findByIdAndDelete(vendorId);
 
     return NextResponse.json({
       success: true,
@@ -417,7 +417,7 @@ export async function PATCH(request: NextRequest) {
     // Dynamically import the Vendor model
     const { Vendor } = await import('@/lib/models/vendor');
 
-    const vendor = await Vendor.findById(vendorId);
+    const vendor = await (Vendor as any).findById(vendorId);
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
@@ -438,7 +438,7 @@ export async function PATCH(request: NextRequest) {
     if (typeof onboardingComplete === 'boolean')
       update.onboardingComplete = onboardingComplete;
 
-    const updatedVendor = await Vendor.findByIdAndUpdate(
+    const updatedVendor = await (Vendor as any).findByIdAndUpdate(
       vendorId,
       { $set: update },
       { new: true }

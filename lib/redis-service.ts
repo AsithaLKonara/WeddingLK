@@ -61,7 +61,7 @@ export class CacheService {
   }
 
   // Set cache with TTL
-  async set(key: string, value: any, ttl: number = REDIS_TTL): Promise<void> {
+  async set(_key: string, _value: any, ttl: number = REDIS_TTL): Promise<void> {
     try {
       const serialized = JSON.stringify(value);
       await this.redis.setex(key, ttl, serialized);
@@ -71,7 +71,7 @@ export class CacheService {
   }
 
   // Get cache value
-  async get<T>(key: string): Promise<T | null> {
+  async get<T>(_key: string): Promise<T | null> {
     try {
       const value = await this.redis.get(key);
       return value ? JSON.parse(value) : null;
@@ -82,7 +82,7 @@ export class CacheService {
   }
 
   // Delete cache key
-  async del(key: string): Promise<void> {
+  async del(_key: string): Promise<void> {
     try {
       await this.redis.del(key);
     } catch (error) {
@@ -118,7 +118,7 @@ export class CacheService {
   }
 
   // Pattern-based cache invalidation
-  async invalidatePattern(pattern: string): Promise<void> {
+  async invalidatePattern(_pattern: string): Promise<void> {
     try {
       const keys = await this.redis.keys(pattern);
       if (keys.length > 0) {
@@ -134,7 +134,7 @@ export class CacheService {
 
   // Cache with fallback function
   async cacheWithFallback<T>(
-    key: string,
+    _key: string,
     fallback: () => Promise<T>,
     ttl: number = REDIS_TTL
   ): Promise<T> {
@@ -161,8 +161,8 @@ export class CacheService {
 
   // Health check
   async healthCheck(): Promise<{
-    status: string;
-    responseTime: number;
+    _status: string;
+    _responseTime: number;
     error?: string;
   }> {
     try {
@@ -184,7 +184,7 @@ export class CacheService {
   }
 
   // Parse Redis INFO command output
-  private parseRedisInfo(info: string): Record<string, any> {
+  private parseRedisInfo(_info: string): Record<string, any> {
     const lines = info.split('\r\n');
     const result: Record<string, any> = {};
 
@@ -206,24 +206,24 @@ export const cacheService = CacheService.getInstance();
 
 // Utility functions for common caching patterns
 export async function cacheJson<T>(
-  key: string,
-  ttlSec: number,
+  _key: string,
+  _ttlSec: number,
   fn: () => Promise<T>
 ): Promise<T> {
   return cacheService.cacheWithFallback(key, fn, ttlSec);
 }
 
 export async function cacheStats(
-  key: string,
-  ttlSec: number,
+  _key: string,
+  _ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec);
 }
 
 export async function cacheSearch(
-  key: string,
-  ttlSec: number,
+  _key: string,
+  _ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec);

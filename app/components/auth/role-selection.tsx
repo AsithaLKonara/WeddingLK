@@ -1,7 +1,7 @@
 'use client';
 
 interface RoleSelectionProps {
-  onRoleSelect: (role: string) => void;
+  onRoleSelect: (_role: string) => void;
 }
 
 export function RoleSelection({ onRoleSelect }: RoleSelectionProps) {

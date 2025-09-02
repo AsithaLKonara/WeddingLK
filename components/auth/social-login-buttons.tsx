@@ -13,20 +13,20 @@ import {
 import { AlertCircle, CheckCircle, Loader2, ExternalLink } from 'lucide-react';
 
 interface SocialLoginButtonsProps {
-  onSuccess?: (provider: string) => void;
-  onError?: (error: string) => void;
+  onSuccess?: (_provider: string) => void;
+  onError?: (_error: string) => void;
   showDescription?: boolean;
   className?: string;
 }
 
 interface OAuthProvider {
-  name: string;
-  provider: string;
-  color: string;
-  icon: string;
-  description: string;
-  authUrl: string;
-  isEnabled: boolean;
+  _name: string;
+  _provider: string;
+  _color: string;
+  _icon: string;
+  _description: string;
+  _authUrl: string;
+  _isEnabled: boolean;
 }
 
 const oauthProviders: OAuthProvider[] = [

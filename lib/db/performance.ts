@@ -1,7 +1,7 @@
 import { getDb } from './mongodb';
 
 export interface IndexConfig {
-  collection: string;
+  _collection: string;
   indexes: Array<{
     keys: Record<string, 1 | -1>;
     options?: {
@@ -14,7 +14,7 @@ export interface IndexConfig {
 }
 
 export class DatabasePerformanceOptimizer {
-  private db: any;
+  private _db: any;
 
   constructor() {
     this.db = null;
@@ -155,7 +155,7 @@ export class DatabasePerformanceOptimizer {
             background: true, // Create indexes in background
           });
           console.log(`✅ Created index: ${config.collection}.${indexName}`);
-        } catch (error: any) {
+        } catch (_error: any) {
           if (error.code === 85) {
             // Index already exists
             console.log(
@@ -250,7 +250,7 @@ export class DatabasePerformanceOptimizer {
           indexSize: stats.indexSize,
         },
         collections: await Promise.all(
-          collections.map(async (col: any) => {
+          collections.map(async (_col: any) => {
             const colStats = await this.db.collection(col.name).stats();
             return {
               name: col.name,
@@ -272,7 +272,7 @@ export class DatabasePerformanceOptimizer {
   }
 
   // Query performance analysis
-  async analyzeQueryPerformance(query: any, collection: string) {
+  async analyzeQueryPerformance(_query: any, _collection: string) {
     if (!this.db) await this.initialize();
 
     try {
@@ -330,7 +330,7 @@ export class DatabasePerformanceOptimizer {
         try {
           await this.db.collection(col.name).compact();
           console.log(`🧹 Compacted collection: ${col.name}`);
-        } catch (error: any) {
+        } catch (_error: any) {
           if (error.code !== 20) {
             // Not a command error
             console.error(`❌ Error compacting ${col.name}:`, error.message);

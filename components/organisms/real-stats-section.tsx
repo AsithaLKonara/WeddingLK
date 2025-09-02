@@ -6,15 +6,15 @@ import { Users, Calendar, Star, TrendingUp } from 'lucide-react';
 
 interface PlatformStats {
   overview: {
-    totalUsers: number;
-    totalVendors: number;
-    totalVenues: number;
-    totalBookings: number;
-    totalReviews: number;
+    _totalUsers: number;
+    _totalVendors: number;
+    _totalVenues: number;
+    _totalBookings: number;
+    _totalReviews: number;
   };
   growth: {
-    users: number;
-    vendors: number;
+    _users: number;
+    _vendors: number;
   };
 }
 

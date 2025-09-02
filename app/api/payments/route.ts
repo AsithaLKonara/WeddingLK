@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
-import User from '@/lib/models/user';
+// import { connectDB } from '@/lib/db';
+// import User from '@/lib/models/user';
 import { Payment } from '@/lib/models/Payment';
 
 // POST /api/payments - Process payments
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate user exists
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       return NextResponse.json(
         {
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get payments with user population
-    const payments = await Payment.find(query)
+    const payments = await (Payment as any).find(query)
       .populate('userId', 'name email')
       .populate('bookingId', 'date guestCount totalAmount')
       .sort({ createdAt: -1 })

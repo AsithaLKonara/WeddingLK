@@ -1,70 +1,70 @@
-// import { connectDB } from '@/lib/db';
+// // import { connectDB } from '@/lib/db';
 
 interface VoiceCommand {
-  type: 'search' | 'navigate' | 'action' | 'query';
-  text: string;
-  confidence: number;
-  parameters: Record<string, unknown>;
+  _type: 'search' | 'navigate' | 'action' | 'query';
+  _text: string;
+  _confidence: number;
+  _parameters: Record<string, unknown>;
 }
 
 interface VoiceResponse {
   success: boolean;
-  text: string;
+  _text: string;
   actions?: Array<{
-    type: string;
+    _type: string;
     data: Record<string, unknown>;
   }>;
   error?: string;
 }
 
 interface VoiceSession {
-  sessionId: string;
-  userId: string;
-  language: string;
-  voice: string;
-  context: Record<string, unknown>;
+  _sessionId: string;
+  _userId: string;
+  _language: string;
+  _voice: string;
+  _context: Record<string, unknown>;
   startTime: Date;
   lastActivity: Date;
 }
 
 interface VoiceConfig {
-  language: string;
-  voice: string;
-  speed: number;
-  pitch: number;
-  volume: number;
+  _language: string;
+  _voice: string;
+  _speed: number;
+  _pitch: number;
+  _volume: number;
 }
 
 export class VoiceIntegrationService {
   private sessions: Map<string, VoiceSession> = new Map();
   private config: VoiceConfig = {
-    language: 'en-US',
-    voice: 'default',
-    speed: 1.0,
-    pitch: 1.0,
-    volume: 1.0,
+    _language: 'en-US',
+    _voice: 'default',
+    _speed: 1.0,
+    _pitch: 1.0,
+    _volume: 1.0,
   };
 
   async processVoiceCommand(
     audioData: ArrayBuffer,
-    userId: string
+    _userId: string
   ): Promise<VoiceResponse> {
     try {
       // TODO: Implement actual voice recognition
       const recognizedText = await this.recognizeSpeech(audioData);
       const command = await this.parseCommand(recognizedText);
 
-      const response = await this.executeCommand(command, userId);
+      const response = await this.executeCommand(command, _userId);
 
       // Update session
-      await this.updateSession(userId, command);
+      await this.updateSession(_userId, command);
 
       return response;
     } catch (error) {
       console.error('Voice command processing failed:', error);
       return {
         success: false,
-        text: 'Sorry, I could not process your voice command. Please try again.',
+        _text: 'Sorry, I could not process your voice command. Please try again.',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
@@ -75,64 +75,64 @@ export class VoiceIntegrationService {
     return 'search for wedding venues in Colombo';
   }
 
-  private async parseCommand(text: string): Promise<VoiceCommand> {
+  private async parseCommand(_text: string): Promise<VoiceCommand> {
     // TODO: Implement actual command parsing
-    const lowerText = text.toLowerCase();
+    const lowerText = _text.toLowerCase();
 
     if (lowerText.includes('search') || lowerText.includes('find')) {
       return {
-        type: 'search',
-        text,
-        confidence: 0.9,
-        parameters: { query: text },
+        _type: 'search',
+        _text,
+        _confidence: 0.9,
+        _parameters: { query: _text },
       };
     }
 
     if (lowerText.includes('go to') || lowerText.includes('navigate')) {
       return {
-        type: 'navigate',
-        text,
-        confidence: 0.8,
-        parameters: { destination: text },
+        _type: 'navigate',
+        _text,
+        _confidence: 0.8,
+        _parameters: { destination: _text },
       };
     }
 
     return {
-      type: 'query',
-      text,
-      confidence: 0.7,
-      parameters: { query: text },
+      _type: 'query',
+      _text,
+      _confidence: 0.7,
+      _parameters: { query: _text },
     };
   }
 
   private async executeCommand(
     command: VoiceCommand,
-    userId: string
+    _userId: string
   ): Promise<VoiceResponse> {
-    switch (command.type) {
+    switch (command._type) {
       case 'search':
-        return await this.handleSearchCommand(command, userId);
+        return await this.handleSearchCommand(command, _userId);
       case 'navigate':
-        return await this.handleNavigateCommand(command, userId);
+        return await this.handleNavigateCommand(command, _userId);
       case 'action':
-        return await this.handleActionCommand(command, userId);
+        return await this.handleActionCommand(command, _userId);
       default:
-        return await this.handleQueryCommand(command, userId);
+        return await this.handleQueryCommand(command, _userId);
     }
   }
 
   private async handleSearchCommand(
     command: VoiceCommand,
-    _userId: string
+    __userId: string
   ): Promise<VoiceResponse> {
     // TODO: Implement actual search functionality
     return {
       success: true,
-      text: `I found several results for "${command.parameters.query}". Would you like me to show them?`,
+      _text: `I found several results for "${command._parameters.query}". Would you like me to show them?`,
       actions: [
         {
-          type: 'search_results',
-          data: { query: command.parameters.query },
+          _type: 'search_results',
+          data: { query: command._parameters.query },
         },
       ],
     };
@@ -140,16 +140,16 @@ export class VoiceIntegrationService {
 
   private async handleNavigateCommand(
     command: VoiceCommand,
-    _userId: string
+    __userId: string
   ): Promise<VoiceResponse> {
     // TODO: Implement actual navigation
     return {
       success: true,
-      text: `Navigating to ${command.parameters.destination}`,
+      _text: `Navigating to ${command._parameters.destination}`,
       actions: [
         {
-          type: 'navigate',
-          data: { destination: command.parameters.destination },
+          _type: 'navigate',
+          data: { destination: command._parameters.destination },
         },
       ],
     };
@@ -157,16 +157,16 @@ export class VoiceIntegrationService {
 
   private async handleActionCommand(
     command: VoiceCommand,
-    _userId: string
+    __userId: string
   ): Promise<VoiceResponse> {
     // TODO: Implement actual actions
     return {
       success: true,
-      text: 'Action completed successfully',
+      _text: 'Action completed successfully',
       actions: [
         {
-          type: 'action_completed',
-          data: { action: command.text },
+          _type: 'action_completed',
+          data: { action: command._text },
         },
       ],
     };
@@ -174,56 +174,56 @@ export class VoiceIntegrationService {
 
   private async handleQueryCommand(
     command: VoiceCommand,
-    _userId: string
+    __userId: string
   ): Promise<VoiceResponse> {
     // TODO: Implement actual query handling
     return {
       success: true,
-      text: `Here's what I found about "${command.parameters.query}"`,
+      _text: `Here's what I found about "${command._parameters.query}"`,
       actions: [
         {
-          type: 'query_results',
-          data: { query: command.parameters.query },
+          _type: 'query_results',
+          data: { query: command._parameters.query },
         },
       ],
     };
   }
 
   private async updateSession(
-    userId: string,
+    _userId: string,
     command: VoiceCommand
   ): Promise<void> {
-    const session = this.sessions.get(userId);
+    const session = this.sessions.get(_userId);
     if (session) {
       session.lastActivity = new Date();
-      session.context.lastCommand = command;
+      session._context.lastCommand = command;
     }
   }
 
   async startVoiceSession(
-    userId: string,
+    _userId: string,
     config?: Partial<VoiceConfig>
   ): Promise<VoiceSession> {
     const session: VoiceSession = {
-      sessionId: `session_${Date.now()}`,
-      userId,
-      language: config?.language || this.config.language,
-      voice: config?.voice || this.config.voice,
-      context: {},
+      _sessionId: `session_${Date.now()}`,
+      _userId,
+      _language: config?._language || this.config._language,
+      _voice: config?._voice || this.config._voice,
+      _context: {},
       startTime: new Date(),
       lastActivity: new Date(),
     };
 
-    this.sessions.set(userId, session);
+    this.sessions.set(_userId, session);
     return session;
   }
 
-  async endVoiceSession(userId: string): Promise<void> {
-    this.sessions.delete(userId);
+  async endVoiceSession(_userId: string): Promise<void> {
+    this.sessions.delete(_userId);
   }
 
-  async updateVoiceConfig(config: Partial<VoiceConfig>): Promise<void> {
-    this.config = { ...this.config, ...config };
+  async updateVoiceConfig(_config: Partial<VoiceConfig>): Promise<void> {
+    this.config = { ...this.config, ..._config };
   }
 
   getVoiceConfig(): VoiceConfig {
@@ -232,48 +232,48 @@ export class VoiceIntegrationService {
 
   async getSupportedLanguages(): Promise<
     Array<{
-      code: string;
-      name: string;
-      nativeName: string;
+      _code: string;
+      _name: string;
+      _nativeName: string;
     }>
   > {
     // TODO: Implement actual language support
     return [
-      { code: 'en-US', name: 'English (US)', nativeName: 'English' },
-      { code: 'si-LK', name: 'Sinhala', nativeName: 'සිංහල' },
-      { code: 'ta-LK', name: 'Tamil', nativeName: 'தமிழ்' },
+      { _code: 'en-US', _name: 'English (US)', _nativeName: 'English' },
+      { _code: 'si-LK', _name: 'Sinhala', _nativeName: 'සිංහල' },
+      { _code: 'ta-LK', _name: 'Tamil', _nativeName: 'தமிழ்' },
     ];
   }
 
   async getSupportedVoices(): Promise<
     Array<{
-      id: string;
-      name: string;
-      language: string;
+      _id: string;
+      _name: string;
+      _language: string;
       gender: 'male' | 'female' | 'neutral';
     }>
   > {
     // TODO: Implement actual voice support
     return [
-      { id: 'en-US-1', name: 'Sarah', language: 'en-US', gender: 'female' },
-      { id: 'en-US-2', name: 'Mike', language: 'en-US', gender: 'male' },
-      { id: 'si-LK-1', name: 'සුනිතා', language: 'si-LK', gender: 'female' },
+      { _id: 'en-US-1', _name: 'Sarah', _language: 'en-US', gender: 'female' },
+      { _id: 'en-US-2', _name: 'Mike', _language: 'en-US', gender: 'male' },
+      { _id: 'si-LK-1', _name: 'සුනිතා', _language: 'si-LK', gender: 'female' },
     ];
   }
 
   async generateSpeech(
-    text: string,
-    config?: Partial<VoiceConfig>
+    _text: string,
+    _config?: Partial<VoiceConfig>
   ): Promise<ArrayBuffer> {
     // TODO: Implement actual text-to-speech
-    console.log(`Generating speech for: ${text}`);
+    console.log(`Generating speech for: ${_text}`);
     return new ArrayBuffer(0);
   }
 
   async validateVoiceInput(audioData: ArrayBuffer): Promise<{
-    isValid: boolean;
-    duration: number;
-    quality: number;
+    _isValid: boolean;
+    _duration: number;
+    _quality: number;
     error?: string;
   }> {
     try {
@@ -281,31 +281,31 @@ export class VoiceIntegrationService {
       const duration = audioData.byteLength / 16000; // Rough estimate
 
       return {
-        isValid: duration > 0.5 && duration < 30, // Between 0.5 and 30 seconds
-        duration,
-        quality: 0.8,
+        _isValid: duration > 0.5 && duration < 30, // Between 0.5 and 30 seconds
+        _duration: duration,
+        _quality: 0.8,
       };
     } catch (error) {
       return {
-        isValid: false,
-        duration: 0,
-        quality: 0,
+        _isValid: false,
+        _duration: 0,
+        _quality: 0,
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
 
-  async getVoiceAnalytics(userId: string): Promise<{
-    totalCommands: number;
-    successRate: number;
-    averageConfidence: number;
-    mostUsedCommands: Array<{ command: string; count: number }>;
+  async getVoiceAnalytics(_userId: string): Promise<{
+    _totalCommands: number;
+    _successRate: number;
+    _averageConfidence: number;
+    mostUsedCommands: Array<{ _command: string; count: number }>;
   }> {
     // TODO: Implement actual analytics
     return {
-      totalCommands: 0,
-      successRate: 0,
-      averageConfidence: 0,
+      _totalCommands: 0,
+      _successRate: 0,
+      _averageConfidence: 0,
       mostUsedCommands: [],
     };
   }

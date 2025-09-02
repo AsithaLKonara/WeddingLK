@@ -126,7 +126,7 @@ export class OptimizedAISearch {
     // Project only needed fields
     pipeline.push({
       $project: {
-        _id: 1,
+        id: 1,
         businessName: 1,
         businessType: 1,
         description: 1,
@@ -202,7 +202,7 @@ export class OptimizedAISearch {
     // Project only needed fields
     pipeline.push({
       $project: {
-        _id: 1,
+        id: 1,
         name: 1,
         type: 1,
         description: 1,

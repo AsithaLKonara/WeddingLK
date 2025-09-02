@@ -26,10 +26,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  content: string;
+  _id: string;
+  _senderId: string;
+  _receiverId: string;
+  _content: string;
   timestamp: Date;
   type: 'text' | 'image' | 'file';
   senderName?: string;
@@ -37,16 +37,16 @@ interface Message {
 }
 
 interface ChatParticipant {
-  id: string;
-  name: string;
+  _id: string;
+  _name: string;
   avatar?: string;
-  isOnline: boolean;
+  _isOnline: boolean;
   lastSeen?: Date;
 }
 
 interface RealTimeChatProps {
-  receiverId: string;
-  receiverName: string;
+  _receiverId: string;
+  _receiverName: string;
   receiverAvatar?: string;
   onClose?: () => void;
 }
@@ -130,7 +130,7 @@ const RealTimeChat: React.FC<RealTimeChatProps> = ({
     };
   }, [newMessage, sendTypingIndicator, receiverId, isTypingTimeout]);
 
-  const handleTyping = (value: string) => {
+  const handleTyping = (_value: string) => {
     setNewMessage(value);
 
     if (!isTyping) {

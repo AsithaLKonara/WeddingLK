@@ -19,11 +19,11 @@ import { useToast } from '@/hooks/use-toast';
 
 interface PaymentFormProps {
   booking: {
-    id: string;
-    venueName: string;
-    totalAmount: number;
+    _id: string;
+    _venueName: string;
+    _totalAmount: number;
   };
-  onPaymentSuccess: (paymentId: string) => void;
+  onPaymentSuccess: (_paymentId: string) => void;
 }
 
 export function PaymentForm({ booking, onPaymentSuccess }: PaymentFormProps) {

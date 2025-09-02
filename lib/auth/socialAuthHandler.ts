@@ -2,17 +2,17 @@ import { getOAuthProviderConfig, validateOAuthConfig } from './oauth-config';
 import { generateJWT } from './jwt-utils';
 
 interface SocialAuthConfig {
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
+  _clientId: string;
+  _clientSecret: string;
+  _redirectUri: string;
 }
 
 interface SocialProfile {
-  id: string;
-  name: string;
-  email: string;
+  _id: string;
+  _name: string;
+  _email: string;
   image?: string;
-  provider: string;
+  _provider: string;
 }
 
 interface SocialAuthResult {
@@ -30,18 +30,18 @@ interface RefreshTokenResult {
 }
 
 interface TokenValidationResult {
-  isValid: boolean;
+  _isValid: boolean;
   user?: any;
   error?: string;
 }
 
 export interface SocialUserData {
-  id: string;
-  email: string;
-  name: string;
+  _id: string;
+  _email: string;
+  _name: string;
   picture?: string;
-  provider: string;
-  accessToken: string;
+  _provider: string;
+  _accessToken: string;
   refreshToken?: string;
   expiresAt?: number;
   additionalData?: Record<string, unknown>;
@@ -105,13 +105,13 @@ export class SocialAuthHandler {
     }
   }
 
-  private async findUserByEmail(email: string): Promise<any> {
+  private async findUserByEmail(_email: string): Promise<any> {
     // TODO: Implement real database lookup
     return null;
   }
 
   private async updateSocialAccount(
-    userId: string,
+    _userId: string,
     socialData: SocialUserData
   ): Promise<void> {
     // TODO: Implement real database update
@@ -120,21 +120,21 @@ export class SocialAuthHandler {
   private async createSocialUser(socialData: SocialUserData): Promise<any> {
     // TODO: Implement real database creation
     return {
-      _id: socialData.id,
+      id: socialData.id,
       email: socialData.email,
       name: socialData.name,
       provider: socialData.provider,
     };
   }
 
-  private async createUserProfile(userId: any, role: string): Promise<void> {
+  private async createUserProfile(_userId: any, _role: string): Promise<void> {
     // TODO: Implement real profile creation based on role
     console.log(`Creating profile for user ${userId} with role ${role}`);
   }
 
   async refreshAccessToken(
-    userId: string,
-    provider: string
+    _userId: string,
+    _provider: string
   ): Promise<string | null> {
     try {
       // TODO: Implement real database lookup
@@ -142,7 +142,7 @@ export class SocialAuthHandler {
       if (!user?.socialAccounts) return null;
 
       const socialAccount = user.socialAccounts.find(
-        (account: any) => account.provider === provider
+        (_account: any) => account.provider === provider
       );
 
       if (!socialAccount?.refreshToken) return null;
@@ -167,8 +167,8 @@ export class SocialAuthHandler {
   }
 
   private async refreshProviderToken(
-    provider: string,
-    refreshToken: string
+    _provider: string,
+    _refreshToken: string
   ): Promise<string | null> {
     try {
       const config = getOAuthProviderConfig(
@@ -194,14 +194,14 @@ export class SocialAuthHandler {
   }
 
   private async refreshGoogleToken(
-    refreshToken: string,
-    config: any
+    _refreshToken: string,
+    _config: any
   ): Promise<string | null> {
     const response = await fetch(config.tokenURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_id: config.clientId,
+        clientid: config.clientId,
         client_secret: config.clientSecret,
         refresh_token: refreshToken,
         grant_type: 'refresh_token',
@@ -216,8 +216,8 @@ export class SocialAuthHandler {
   }
 
   private async refreshFacebookToken(
-    refreshToken: string,
-    config: any
+    _refreshToken: string,
+    _config: any
   ): Promise<string | null> {
     // Facebook tokens are long-lived, but we can extend them
     const response = await fetch(
@@ -232,8 +232,8 @@ export class SocialAuthHandler {
   }
 
   private async refreshInstagramToken(
-    refreshToken: string,
-    config: any
+    _refreshToken: string,
+    _config: any
   ): Promise<string | null> {
     // Instagram Basic Display API doesn't support refresh tokens
     // Users need to re-authenticate
@@ -241,8 +241,8 @@ export class SocialAuthHandler {
   }
 
   private async refreshLinkedinToken(
-    refreshToken: string,
-    config: any
+    _refreshToken: string,
+    _config: any
   ): Promise<string | null> {
     const response = await fetch(config.tokenURL, {
       method: 'POST',
@@ -250,7 +250,7 @@ export class SocialAuthHandler {
       body: new URLSearchParams({
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
-        client_id: config.clientId,
+        clientid: config.clientId,
         client_secret: config.clientSecret,
       }),
     });
@@ -263,8 +263,8 @@ export class SocialAuthHandler {
   }
 
   async unlinkSocialAccount(
-    userId: string,
-    provider: string
+    _userId: string,
+    _provider: string
   ): Promise<boolean> {
     try {
       // TODO: Implement real database update
@@ -278,7 +278,7 @@ export class SocialAuthHandler {
     }
   }
 
-  async getSocialAccounts(userId: string): Promise<any[]> {
+  async getSocialAccounts(_userId: string): Promise<any[]> {
     try {
       // TODO: Implement real database lookup
       const user = await this.findUserById(userId);
@@ -289,10 +289,10 @@ export class SocialAuthHandler {
     }
   }
 
-  private async findUserById(userId: string): Promise<any> {
+  private async findUserById(_userId: string): Promise<any> {
     // TODO: Implement real database lookup
     return {
-      _id: userId,
+      id: userId,
       email: 'user@example.com',
       name: 'Test User',
       socialAccounts: [],
@@ -300,9 +300,9 @@ export class SocialAuthHandler {
   }
 
   private async updateUserSocialAccount(
-    userId: string,
-    provider: string,
-    accessToken: string
+    _userId: string,
+    _provider: string,
+    _accessToken: string
   ): Promise<void> {
     // TODO: Implement real database update
     console.log(

@@ -1,4 +1,4 @@
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import { Vendor } from './models/vendor';
 import { Venue } from './models/venue';
 import { User } from './models/user';
@@ -6,18 +6,18 @@ import { Booking } from './models/booking';
 import { Review } from './models/review';
 
 interface PerformanceResults {
-  vendorQuery: { vendors: any[]; queryTime: number } | null;
-  venueQuery: { venues: any[]; queryTime: number } | null;
+  vendorQuery: { _vendors: any[]; queryTime: number } | null;
+  venueQuery: { _venues: any[]; queryTime: number } | null;
   statsQuery: {
-    userCount: number;
-    vendorCount: number;
-    venueCount: number;
-    bookingCount: number;
-    reviewCount: number;
-    queryTime: number;
+    _userCount: number;
+    _vendorCount: number;
+    _venueCount: number;
+    _bookingCount: number;
+    _reviewCount: number;
+    _queryTime: number;
   } | null;
-  textSearch: { vendors: any[]; queryTime: number } | null;
-  totalTime: number;
+  textSearch: { _vendors: any[]; queryTime: number } | null;
+  _totalTime: number;
 }
 
 export class PerformanceOptimizer {

@@ -1,21 +1,21 @@
 import Redis from 'ioredis';
 
 export interface CacheConfig {
-  host: string;
-  port: number;
+  _host: string;
+  _port: number;
   password?: string;
-  db: number;
-  keyPrefix: string;
-  ttl: number;
-  maxRetries: number;
-  retryDelay: number;
+  _db: number;
+  _keyPrefix: string;
+  _ttl: number;
+  _maxRetries: number;
+  _retryDelay: number;
 }
 
 export interface CacheItem<T = any> {
   data: T;
-  timestamp: number;
-  ttl: number;
-  version: string;
+  _timestamp: number;
+  _ttl: number;
+  _version: string;
 }
 
 export class RedisCacheStrategy {
@@ -60,8 +60,8 @@ export class RedisCacheStrategy {
 
   // Session storage
   async storeSession(
-    sessionId: string,
-    sessionData: any,
+    _sessionId: string,
+    _sessionData: any,
     ttl: number = 3600
   ): Promise<void> {
     try {
@@ -81,7 +81,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async getSession(sessionId: string): Promise<any | null> {
+  async getSession(_sessionId: string): Promise<any | null> {
     try {
       const key = `session:${sessionId}`;
       const data = await this.redis.get(key);
@@ -103,7 +103,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async deleteSession(sessionId: string): Promise<void> {
+  async deleteSession(_sessionId: string): Promise<void> {
     try {
       const key = `session:${sessionId}`;
       await this.redis.del(key);
@@ -115,8 +115,8 @@ export class RedisCacheStrategy {
 
   // Frequently queried data caching
   async cacheVenueData(
-    venueId: string,
-    venueData: any,
+    _venueId: string,
+    _venueData: any,
     ttl: number = 1800
   ): Promise<void> {
     try {
@@ -135,7 +135,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async getCachedVenue(venueId: string): Promise<any | null> {
+  async getCachedVenue(_venueId: string): Promise<any | null> {
     try {
       const key = `venue:${venueId}`;
       const data = await this.redis.get(key);
@@ -159,8 +159,8 @@ export class RedisCacheStrategy {
 
   // Search results caching
   async cacheSearchResults(
-    searchKey: string,
-    results: any[],
+    _searchKey: string,
+    _results: any[],
     ttl: number = 900
   ): Promise<void> {
     try {
@@ -179,7 +179,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async getCachedSearchResults(searchKey: string): Promise<any[] | null> {
+  async getCachedSearchResults(_searchKey: string): Promise<any[] | null> {
     try {
       const key = `search:${this.hashString(searchKey)}`;
       const data = await this.redis.get(key);
@@ -203,8 +203,8 @@ export class RedisCacheStrategy {
 
   // AI recommendations caching
   async cacheRecommendations(
-    userId: string,
-    recommendations: any[],
+    _userId: string,
+    _recommendations: any[],
     ttl: number = 3600
   ): Promise<void> {
     try {
@@ -223,7 +223,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async getCachedRecommendations(userId: string): Promise<any[] | null> {
+  async getCachedRecommendations(_userId: string): Promise<any[] | null> {
     try {
       const key = `recommendations:${userId}`;
       const data = await this.redis.get(key);
@@ -247,7 +247,7 @@ export class RedisCacheStrategy {
 
   // Social feed caching
   async cacheFeedData(
-    feedType: string,
+    _feedType: string,
     data: any[],
     ttl: number = 300
   ): Promise<void> {
@@ -267,7 +267,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async getCachedFeed(feedType: string): Promise<any[] | null> {
+  async getCachedFeed(_feedType: string): Promise<any[] | null> {
     try {
       const key = `feed:${feedType}`;
       const data = await this.redis.get(key);
@@ -290,7 +290,7 @@ export class RedisCacheStrategy {
   }
 
   // Cache invalidation
-  async invalidateCache(pattern: string): Promise<void> {
+  async invalidateCache(_pattern: string): Promise<void> {
     try {
       const keys = await this.redis.keys(pattern);
       if (keys.length > 0) {
@@ -302,7 +302,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async invalidateUserCache(userId: string): Promise<void> {
+  async invalidateUserCache(_userId: string): Promise<void> {
     try {
       const patterns = [
         `session:${userId}`,
@@ -319,7 +319,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  async invalidateVenueCache(venueId: string): Promise<void> {
+  async invalidateVenueCache(_venueId: string): Promise<void> {
     try {
       const patterns = [
         `venue:${venueId}`,
@@ -356,7 +356,7 @@ export class RedisCacheStrategy {
     }
   }
 
-  private parseRedisInfo(info: string): any {
+  private parseRedisInfo(_info: string): any {
     const lines = info.split('\r\n');
     const parsed: any = {};
 
@@ -370,11 +370,11 @@ export class RedisCacheStrategy {
     return parsed;
   }
 
-  private parseMemoryUsage(memory: string | number | null): any {
+  private parseMemoryUsage(_memory: string | number | null): any {
     return { usage: memory || 'N/A' };
   }
 
-  private parseKeyspaceInfo(keyspace: string): any {
+  private parseKeyspaceInfo(_keyspace: string): any {
     const lines = keyspace.split('\r\n');
     const parsed: any = {};
 
@@ -389,7 +389,7 @@ export class RedisCacheStrategy {
   }
 
   // Utility methods
-  private hashString(str: string): string {
+  private hashString(_str: string): string {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);

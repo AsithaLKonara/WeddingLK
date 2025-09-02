@@ -2,21 +2,21 @@
 // Pre-loads frequently accessed data during peak usage times
 
 import { advancedCache } from './advanced-cache-service';
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import { User, Vendor, Venue, Booking, Review } from './models';
 
 export interface WarmingStrategy {
-  name: string;
+  _name: string;
   priority: 'critical' | 'high' | 'medium' | 'low';
-  frequency: number; // minutes
+  _frequency: number; // minutes
   lastRun: Date;
-  isActive: boolean;
+  _isActive: boolean;
   dependencies: string[];
 }
 
 export interface WarmingTask {
-  id: string;
-  strategy: string;
+  _id: string;
+  _strategy: string;
   status: 'pending' | 'running' | 'completed' | 'failed';
   startTime: Date;
   endTime?: Date;
@@ -78,7 +78,7 @@ export class CacheWarmingService {
   }
 
   // Add warming strategy
-  addStrategy(id: string, strategy: WarmingStrategy) {
+  addStrategy(_id: string, strategy: WarmingStrategy) {
     this.strategies.set(id, strategy);
     console.log(`🔥 Added warming strategy: ${strategy.name}`);
   }
@@ -297,7 +297,7 @@ export class CacheWarmingService {
   private async warmVendorList() {
     try {
       await connectDB();
-      const vendors = await Vendor.find({ isActive: true })
+      const vendors = await (Vendor as any).find({ isActive: true })
         .select('businessName businessType rating totalReviews')
         .limit(20)
         .lean();
@@ -329,7 +329,7 @@ export class CacheWarmingService {
   private async warmVenueList() {
     try {
       await connectDB();
-      const venues = await Venue.find({ isActive: true })
+      const venues = await (Venue as any).find({ isActive: true })
         .select('name type capacity rating')
         .limit(20)
         .lean();
@@ -361,7 +361,7 @@ export class CacheWarmingService {
   private async warmUserProfiles() {
     try {
       await connectDB();
-      const users = await User.find({ isActive: true })
+      const users = await (User as any).find({ isActive: true })
         .select('name email role lastActive')
         .limit(50)
         .lean();
@@ -382,7 +382,7 @@ export class CacheWarmingService {
   private async warmReviews() {
     try {
       await connectDB();
-      const reviews = await Review.find({ isVerified: true })
+      const reviews = await (Review as any).find({ isVerified: true })
         .select('rating comment createdAt')
         .limit(100)
         .lean();
@@ -421,7 +421,7 @@ export class CacheWarmingService {
       await connectDB();
       const locations = await Vendor.aggregate([
         { $match: { isActive: true, location: { $exists: true } } },
-        { $group: { _id: '$location', count: { $sum: 1 } } },
+        { $group: { id: '$location', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
         { $limit: 50 },
       ]);

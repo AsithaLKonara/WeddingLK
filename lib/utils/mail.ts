@@ -13,9 +13,9 @@ export async function sendMail({
   subject,
   html,
 }: {
-  to: string;
-  subject: string;
-  html: string;
+  _to: string;
+  _subject: string;
+  _html: string;
 }) {
   const mailOptions = {
     from: process.env.EMAIL_USER,

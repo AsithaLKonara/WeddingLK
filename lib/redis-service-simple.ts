@@ -3,12 +3,12 @@
 
 // In-memory cache implementation
 class InMemoryCache {
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> =
+  private cache: Map<string, { data: any; _timestamp: number; ttl: number }> =
     new Map();
   private readonly defaultTTL: number = 300000; // 5 minutes in milliseconds
 
   // Set cache with TTL
-  set(key: string, value: any, ttl: number = this.defaultTTL): void {
+  set(_key: string, _value: any, ttl: number = this.defaultTTL): void {
     const timestamp = Date.now();
     this.cache.set(key, { data: value, timestamp, ttl });
 
@@ -17,7 +17,7 @@ class InMemoryCache {
   }
 
   // Get cache value
-  get<T>(key: string): T | null {
+  get<T>(_key: string): T | null {
     const item = this.cache.get(key);
     if (!item) return null;
 
@@ -31,7 +31,7 @@ class InMemoryCache {
   }
 
   // Delete cache key
-  del(key: string): void {
+  del(_key: string): void {
     this.cache.delete(key);
   }
 
@@ -64,7 +64,7 @@ class InMemoryCache {
   }
 
   // Pattern-based cache invalidation
-  invalidatePattern(pattern: string): void {
+  invalidatePattern(_pattern: string): void {
     const regex = new RegExp(pattern.replace(/\*/g, '.*'));
     let deletedCount = 0;
 
@@ -84,7 +84,7 @@ class InMemoryCache {
 
   // Cache with fallback function
   async cacheWithFallback<T>(
-    key: string,
+    _key: string,
     fallback: () => Promise<T>,
     ttl: number = this.defaultTTL
   ): Promise<T> {
@@ -110,7 +110,7 @@ class InMemoryCache {
   }
 
   // Health check
-  healthCheck(): { status: string; responseTime: number; error?: string } {
+  healthCheck(): { _status: string; _responseTime: number; error?: string } {
     const start = Date.now();
 
     try {
@@ -191,24 +191,24 @@ export const cacheService = new InMemoryCache();
 
 // Utility functions for common caching patterns
 export async function cacheJson<T>(
-  key: string,
-  ttlSec: number,
+  _key: string,
+  _ttlSec: number,
   fn: () => Promise<T>
 ): Promise<T> {
   return cacheService.cacheWithFallback(key, fn, ttlSec * 1000);
 }
 
 export async function cacheStats(
-  key: string,
-  ttlSec: number,
+  _key: string,
+  _ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec * 1000);
 }
 
 export async function cacheSearch(
-  key: string,
-  ttlSec: number,
+  _key: string,
+  _ttlSec: number,
   fn: () => Promise<any>
 ): Promise<any> {
   return cacheService.cacheWithFallback(key, fn, ttlSec * 1000);

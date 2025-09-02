@@ -70,10 +70,10 @@ export interface IPayment extends mongoose.Document {
   vendor?: mongoose.Types.ObjectId
   venue?: mongoose.Types.ObjectId
   booking?: mongoose.Types.ObjectId
-  amount: number
-  currency: string
+  _amount: number
+  _currency: string
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
-  paymentMethod: string
+  _paymentMethod: string
   transactionId?: string
   gatewayResponse?: any
   description?: string

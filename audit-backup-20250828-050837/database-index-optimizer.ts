@@ -1,7 +1,7 @@
 // Database Index Optimizer for WeddingLK
 // Analyzes and creates optimal indexes for slow queries
 
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import {
   User,
   Vendor,
@@ -13,8 +13,8 @@ import {
 } from './models';
 
 export interface IndexDefinition {
-  collection: string;
-  fields: { [key: string]: 1 | -1 };
+  _collection: string;
+  fields: { [_key: string]: 1 | -1 };
   options?: {
     unique?: boolean;
     sparse?: boolean;
@@ -24,25 +24,25 @@ export interface IndexDefinition {
 }
 
 export interface QueryAnalysis {
-  query: string;
-  collection: string;
-  executionTime: number;
-  documentsExamined: number;
-  documentsReturned: number;
+  _query: string;
+  _collection: string;
+  _executionTime: number;
+  _documentsExamined: number;
+  _documentsReturned: number;
   indexUsed?: string;
-  recommendation: string;
+  _recommendation: string;
   priority: 'high' | 'medium' | 'low';
 }
 
 export interface IndexPerformance {
-  name: string;
-  collection: string;
-  size: number;
+  _name: string;
+  _collection: string;
+  _size: number;
   usage: {
-    ops: number;
+    _ops: number;
     since: Date;
   };
-  efficiency: number;
+  _efficiency: number;
 }
 
 export class DatabaseIndexOptimizer {
@@ -199,8 +199,8 @@ export class DatabaseIndexOptimizer {
 
   // Add index definition
   addIndexDefinition(
-    collection: string,
-    fields: { [key: string]: 1 | -1 },
+    _collection: string,
+    fields: { [_key: string]: 1 | -1 },
     options: any = {}
   ) {
     this.indexDefinitions.push({
@@ -245,7 +245,7 @@ export class DatabaseIndexOptimizer {
       // Check if index already exists
       const existingIndexes = await collection.listIndexes().toArray();
       const indexExists = existingIndexes.some(
-        (idx: any) => idx.name === indexName
+        (_idx: any) => idx.name === indexName
       );
 
       if (indexExists) {
@@ -265,8 +265,8 @@ export class DatabaseIndexOptimizer {
   }
 
   // Get collection by name
-  private getCollection(collectionName: string) {
-    const collections: { [key: string]: any } = {
+  private getCollection(_collectionName: string) {
+    const collections: { [_key: string]: any } = {
       users: User,
       vendors: Vendor,
       venues: Venue,
@@ -318,7 +318,7 @@ export class DatabaseIndexOptimizer {
       const startTime = Date.now();
 
       // Test user search query
-      const userQuery = await User.find({ role: 'user', isActive: true })
+      const userQuery = await (User as any).find({ role: 'user', isActive: true })
         .select('name email role lastActive')
         .limit(100)
         .explain('executionStats');
@@ -349,7 +349,7 @@ export class DatabaseIndexOptimizer {
       const startTime = Date.now();
 
       // Test vendor search query
-      const vendorQuery = await Vendor.find({
+      const vendorQuery = await (Vendor as any).find({
         businessType: 'catering',
         isActive: true,
         rating: { $gte: 4 },
@@ -386,7 +386,7 @@ export class DatabaseIndexOptimizer {
       const startTime = Date.now();
 
       // Test venue search query
-      const venueQuery = await Venue.find({
+      const venueQuery = await (Venue as any).find({
         type: 'outdoor',
         capacity: { $gte: 100 },
         isActive: true,
@@ -423,7 +423,7 @@ export class DatabaseIndexOptimizer {
       const startTime = Date.now();
 
       // Test booking search query
-      const bookingQuery = await Booking.find({
+      const bookingQuery = await (Booking as any).find({
         status: 'confirmed',
         date: { $gte: new Date() },
       })
@@ -459,7 +459,7 @@ export class DatabaseIndexOptimizer {
       const startTime = Date.now();
 
       // Test review search query
-      const reviewQuery = await Review.find({
+      const reviewQuery = await (Review as any).find({
         isVerified: true,
         rating: { $gte: 4 },
       })
@@ -490,7 +490,7 @@ export class DatabaseIndexOptimizer {
   }
 
   // Get recommendation based on execution stats
-  private getRecommendation(stats: any): string {
+  private getRecommendation(_stats: any): string {
     const examinedRatio =
       stats.totalDocsExamined / Math.max(stats.nReturned, 1);
 
@@ -504,7 +504,7 @@ export class DatabaseIndexOptimizer {
   }
 
   // Get priority based on execution stats
-  private getPriority(stats: any): 'high' | 'medium' | 'low' {
+  private getPriority(_stats: any): 'high' | 'medium' | 'low' {
     const examinedRatio =
       stats.totalDocsExamined / Math.max(stats.nReturned, 1);
 
@@ -583,7 +583,7 @@ export class DatabaseIndexOptimizer {
   }
 
   // Calculate index efficiency
-  private calculateIndexEfficiency(index: any): number {
+  private calculateIndexEfficiency(_index: any): number {
     // Simple efficiency calculation based on usage and size
     const usageScore = Math.min(index.usage?.ops || 0, 1000) / 1000;
     const sizeScore = Math.max(0, 1 - (index.size || 0) / 1000000);

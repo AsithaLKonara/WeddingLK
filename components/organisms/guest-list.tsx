@@ -26,15 +26,15 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface Guest {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
+  _id: string;
+  _name: string;
+  _email: string;
+  _phone: string;
   category: 'family' | 'friends' | 'colleagues' | 'plus-one';
   side: 'bride' | 'groom' | 'both';
   rsvp: 'pending' | 'attending' | 'declined';
-  dietaryRestrictions: string;
-  plusOne: boolean;
+  _dietaryRestrictions: string;
+  _plusOne: boolean;
 }
 
 export function GuestList() {
@@ -169,7 +169,7 @@ export function GuestList() {
     setIsGuestSaving(false);
   };
 
-  const handleCopy = (value: string, label: string) => {
+  const handleCopy = (_value: string, _label: string) => {
     navigator.clipboard.writeText(value);
     toast({ title: `${label} copied!`, type: 'success' });
   };
@@ -193,7 +193,7 @@ export function GuestList() {
     return sum + (guest.rsvp === 'attending' ? (guest.plusOne ? 2 : 1) : 0);
   }, 0);
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (_category: string) => {
     switch (category) {
       case 'family':
         return 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200';
@@ -208,7 +208,7 @@ export function GuestList() {
     }
   };
 
-  const getRSVPColor = (rsvp: string) => {
+  const getRSVPColor = (_rsvp: string) => {
     switch (rsvp) {
       case 'attending':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';

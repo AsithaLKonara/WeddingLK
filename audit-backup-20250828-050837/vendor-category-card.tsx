@@ -7,10 +7,10 @@ import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface VendorCategoryCardProps {
-  title: string;
-  count: string;
-  image: string;
-  description: string;
+  _title: string;
+  _count: string;
+  _image: string;
+  _description: string;
   className?: string;
 }
 

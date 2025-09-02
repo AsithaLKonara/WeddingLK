@@ -19,16 +19,16 @@ import {
 
 export type Service = {
   _id: string;
-  name: string;
-  description: string;
-  category: string;
-  price: number;
+  _name: string;
+  _description: string;
+  _category: string;
+  _price: number;
   priceType: 'fixed' | 'per-person' | 'per-hour';
   duration?: number;
-  isActive: boolean;
+  _isActive: boolean;
   images?: string[];
   features?: string[];
-  createdAt: string;
+  _createdAt: string;
 };
 
 export const columns: ColumnDef<Service>[] = [

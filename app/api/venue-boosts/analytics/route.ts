@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import VenueBoost from '@/lib/models/venueBoost';
 import { auth } from '@/lib/auth-config';
 // GET /api/venue-boosts/analytics - Get boost analytics
@@ -98,33 +98,33 @@ export async function GET(request: NextRequest) {
     // Calculate overview metrics
     const overview = {
       totalBoosts: boosts.length,
-      activeBoosts: boosts.filter((b: any) => b.status === 'active').length,
+      activeBoosts: boosts.filter((_b: any) => b.status === 'active').length,
       totalBudget: boosts.reduce(
-        (sum: number, b: any) => sum + b.budget.amount,
+        (_sum: number, _b: any) => sum + b.budget.amount,
         0
       ),
       totalSpent: boosts.reduce(
-        (sum: number, b: any) => sum + b.budget.spent,
+        (_sum: number, _b: any) => sum + b.budget.spent,
         0
       ),
       totalImpressions: boosts.reduce(
-        (sum: number, b: any) => sum + b.performance.impressions,
+        (_sum: number, _b: any) => sum + b.performance.impressions,
         0
       ),
       totalClicks: boosts.reduce(
-        (sum: number, b: any) => sum + b.performance.clicks,
+        (_sum: number, _b: any) => sum + b.performance.clicks,
         0
       ),
       totalViews: boosts.reduce(
-        (sum: number, b: any) => sum + b.performance.views,
+        (_sum: number, _b: any) => sum + b.performance.views,
         0
       ),
       totalInquiries: boosts.reduce(
-        (sum: number, b: any) => sum + b.performance.inquiries,
+        (_sum: number, _b: any) => sum + b.performance.inquiries,
         0
       ),
       totalBookings: boosts.reduce(
-        (sum: number, b: any) => sum + b.performance.bookings,
+        (_sum: number, _b: any) => sum + b.performance.bookings,
         0
       ),
     };
@@ -168,22 +168,22 @@ export async function GET(request: NextRequest) {
       const dailyMetrics = {
         date: dateStr,
         impressions: activeBoosts.reduce(
-          (sum: number, b: any) =>
+          (_sum: number, _b: any) =>
             sum + Math.floor(b.performance.impressions / b.schedule.duration),
           0
         ),
         clicks: activeBoosts.reduce(
-          (sum: number, b: any) =>
+          (_sum: number, _b: any) =>
             sum + Math.floor(b.performance.clicks / b.schedule.duration),
           0
         ),
         views: activeBoosts.reduce(
-          (sum: number, b: any) =>
+          (_sum: number, _b: any) =>
             sum + Math.floor(b.performance.views / b.schedule.duration),
           0
         ),
         spent: activeBoosts.reduce(
-          (sum: number, b: any) => sum + b.budget.spent / b.schedule.duration,
+          (_sum: number, _b: any) => sum + b.budget.spent / b.schedule.duration,
           0
         ),
       };

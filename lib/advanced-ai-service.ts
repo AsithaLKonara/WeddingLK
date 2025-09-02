@@ -497,7 +497,7 @@ export class AdvancedAIService {
   }
 
   private async getUserData(userId: string): Promise<UserType> {
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       throw new Error('User not found');
     }
@@ -505,14 +505,14 @@ export class AdvancedAIService {
   }
 
   private async getUserBookings(userId: string): Promise<BookingType[]> {
-    const bookings = await Booking.find({ userId }).populate(
+    const bookings = await (Booking as any).find({ userId }).populate(
       'vendorId venueId'
     );
     return bookings || [];
   }
 
   private async getUserReviews(userId: string): Promise<ReviewType[]> {
-    const reviews = await Review.find({ userId });
+    const reviews = await (Review as any).find({ userId });
     return reviews || [];
   }
 }

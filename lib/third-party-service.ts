@@ -1,44 +1,44 @@
-// import { connectDB } from './db';
+// // import { connectDB } from './db';
 
 interface WeatherData {
-  temperature: number;
-  condition: string;
-  humidity: number;
-  windSpeed: number;
+  _temperature: number;
+  _condition: string;
+  _humidity: number;
+  _windSpeed: number;
   forecast: Array<{
-    date: string;
-    temperature: number;
-    condition: string;
+    _date: string;
+    _temperature: number;
+    _condition: string;
   }>;
 }
 
 interface CurrencyData {
-  base: string;
+  _base: string;
   rates: Record<string, number>;
-  timestamp: number;
+  _timestamp: number;
 }
 
 interface MapsData {
-  address: string;
+  _address: string;
   coordinates: {
-    lat: number;
-    lng: number;
+    _lat: number;
+    _lng: number;
   };
-  formattedAddress: string;
+  _formattedAddress: string;
 }
 
 interface TranslationData {
-  originalText: string;
-  translatedText: string;
-  sourceLanguage: string;
-  targetLanguage: string;
+  _originalText: string;
+  _translatedText: string;
+  _sourceLanguage: string;
+  _targetLanguage: string;
 }
 
 class ThirdPartyService {
-  private weatherApiKey: string;
-  private currencyApiKey: string;
-  private mapsApiKey: string;
-  private translationApiKey: string;
+  private _weatherApiKey: string;
+  private _currencyApiKey: string;
+  private _mapsApiKey: string;
+  private _translationApiKey: string;
 
   constructor() {
     this.weatherApiKey = process.env.WEATHER_API_KEY || '';
@@ -48,7 +48,7 @@ class ThirdPartyService {
   }
 
   // Weather API Integration
-  async getWeatherData(location: string): Promise<WeatherData | null> {
+  async getWeatherData(_location: string): Promise<WeatherData | null> {
     try {
       if (!this.weatherApiKey) {
         console.log('🌤️ Weather API not configured, returning mock data');
@@ -67,7 +67,7 @@ class ThirdPartyService {
     }
   }
 
-  private getMockWeatherData(location: string): WeatherData {
+  private getMockWeatherData(_location: string): WeatherData {
     return {
       temperature: Math.floor(Math.random() * 30) + 15,
       condition: ['Sunny', 'Cloudy', 'Rainy', 'Partly Cloudy'][
@@ -109,7 +109,7 @@ class ThirdPartyService {
     }
   }
 
-  private getMockCurrencyData(baseCurrency: string): CurrencyData {
+  private getMockCurrencyData(_baseCurrency: string): CurrencyData {
     return {
       base: baseCurrency,
       rates: {
@@ -129,7 +129,7 @@ class ThirdPartyService {
   }
 
   // Maps API Integration
-  async getMapsData(address: string): Promise<MapsData | null> {
+  async getMapsData(_address: string): Promise<MapsData | null> {
     try {
       if (!this.mapsApiKey) {
         console.log('🗺️ Maps API not configured, returning mock data');
@@ -148,7 +148,7 @@ class ThirdPartyService {
     }
   }
 
-  private getMockMapsData(address: string): MapsData {
+  private getMockMapsData(_address: string): MapsData {
     return {
       address: address,
       coordinates: {
@@ -161,8 +161,8 @@ class ThirdPartyService {
 
   // Translation API Integration
   async translateText(
-    text: string,
-    targetLanguage: string,
+    _text: string,
+    _targetLanguage: string,
     sourceLanguage: string = 'en'
   ): Promise<TranslationData | null> {
     try {
@@ -196,9 +196,9 @@ class ThirdPartyService {
   }
 
   private getMockTranslationData(
-    text: string,
-    targetLanguage: string,
-    sourceLanguage: string
+    _text: string,
+    _targetLanguage: string,
+    _sourceLanguage: string
   ): TranslationData {
     const translations: Record<string, Record<string, string>> = {
       si: {
@@ -228,7 +228,7 @@ class ThirdPartyService {
   }
 
   // Payment Gateway Integration (PayHere)
-  async processPayHerePayment(paymentData: any): Promise<any> {
+  async processPayHerePayment(_paymentData: any): Promise<any> {
     try {
       console.log('💳 Processing PayHere payment:', paymentData.amount);
 
@@ -257,8 +257,8 @@ class ThirdPartyService {
 
   // SMS Gateway Integration (eZ Cash, mCash)
   async sendSMSViaGateway(
-    phone: string,
-    message: string,
+    _phone: string,
+    _message: string,
     gateway: 'ezcash' | 'mcash'
   ): Promise<any> {
     try {
@@ -286,7 +286,7 @@ class ThirdPartyService {
   }
 
   // Bank Transfer Integration
-  async processBankTransfer(transferData: any): Promise<any> {
+  async processBankTransfer(_transferData: any): Promise<any> {
     try {
       console.log('🏦 Processing bank transfer:', transferData.amount);
 
@@ -314,7 +314,7 @@ class ThirdPartyService {
   }
 
   // Google Calendar Integration
-  async createCalendarEvent(eventData: any): Promise<any> {
+  async createCalendarEvent(_eventData: any): Promise<any> {
     try {
       console.log('📅 Creating calendar event:', eventData.title);
 
@@ -345,8 +345,8 @@ class ThirdPartyService {
 
   // WhatsApp Business API Integration
   async sendWhatsAppMessage(
-    phone: string,
-    message: string,
+    _phone: string,
+    _message: string,
     template?: string
   ): Promise<any> {
     try {
@@ -373,7 +373,7 @@ class ThirdPartyService {
   }
 
   // Instagram Business API Integration
-  async postToInstagramBusiness(postData: any): Promise<any> {
+  async postToInstagramBusiness(_postData: any): Promise<any> {
     try {
       console.log('📷 Posting to Instagram Business');
 

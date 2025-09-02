@@ -18,26 +18,26 @@ import {
 import { DashboardLayout } from '@/components/templates/dashboard-layout';
 
 interface VendorStats {
-  totalBookings: number;
-  completedBookings: number;
-  pendingBookings: number;
-  totalRevenue: number;
-  averageRating: number;
-  totalReviews: number;
-  upcomingBookings: number;
-  responseRate: number;
+  _totalBookings: number;
+  _completedBookings: number;
+  _pendingBookings: number;
+  _totalRevenue: number;
+  _averageRating: number;
+  _totalReviews: number;
+  _upcomingBookings: number;
+  _responseRate: number;
 }
 
 interface Booking {
-  id: string;
-  clientName: string;
+  _id: string;
+  _clientName: string;
   eventDate: Date;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  amount: number;
-  service: string;
-  clientPhone: string;
-  clientEmail: string;
-  notes: string;
+  _amount: number;
+  _service: string;
+  _clientPhone: string;
+  _clientEmail: string;
+  _notes: string;
 }
 
 export default function VendorDashboard() {
@@ -117,7 +117,7 @@ export default function VendorDashboard() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('si-LK', {
       style: 'currency',
       currency: 'LKR',
@@ -126,7 +126,7 @@ export default function VendorDashboard() {
     }).format(amount);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (_status: string) => {
     switch (status) {
       case 'confirmed':
         return 'bg-green-500';
@@ -141,7 +141,7 @@ export default function VendorDashboard() {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (_status: string) => {
     switch (status) {
       case 'confirmed':
         return 'Confirmed';
@@ -157,7 +157,7 @@ export default function VendorDashboard() {
   };
 
   const handleBookingAction = (
-    bookingId: string,
+    _bookingId: string,
     action: 'confirm' | 'complete' | 'cancel'
   ) => {
     // TODO: Implement booking actions

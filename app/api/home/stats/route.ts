@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User, Vendor, Venue, Booking, Review } from '@/lib/models';
 import { advancedCache } from '@/lib/advanced-cache-service';
 
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         { $match: { isActive: true } },
         {
           $group: {
-            _id: null,
+            id: null,
             total: { $sum: 1 },
             verified: { $sum: { $cond: ['$isVerified', 1, 0] } },
           },
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         { $match: { isActive: true } },
         {
           $group: {
-            _id: null,
+            id: null,
             total: { $sum: 1 },
             featured: { $sum: { $cond: ['$featured', 1, 0] } },
           },
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       Booking.aggregate([
         {
           $group: {
-            _id: null,
+            id: null,
             total: { $sum: 1 },
             confirmed: {
               $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
         { $match: { isVerified: true } },
         {
           $group: {
-            _id: null,
+            id: null,
             total: { $sum: 1 },
             avgRating: { $avg: '$rating' },
           },
@@ -187,7 +187,7 @@ async function getPerformanceMetrics() {
       Booking.aggregate([
         {
           $group: {
-            _id: null,
+            id: null,
             total: { $sum: 1 },
             confirmed: {
               $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },

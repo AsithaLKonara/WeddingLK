@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Booking } from '@/lib/models/booking';
 import { Vendor } from '@/lib/models/vendor';
 import { auth } from '@/lib/auth-config';
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get bookings with pagination
-    const bookings = await Booking.find(query)
+    const bookings = await (Booking as any).find(query)
       .populate('client', 'name email phone')
       .populate('venue', 'name location')
       .sort({ date: 1, startTime: 1 })
@@ -65,13 +65,13 @@ export async function GET(request: NextRequest) {
       { $match: { vendor: vendorId } },
       {
         $group: {
-          _id: '$status',
+          id: '$status',
           count: { $sum: 1 },
         },
       },
     ]);
 
-    const statusSummary = statusCounts.reduce((acc: any, item) => {
+    const statusSummary = statusCounts.reduce((_acc: any, item) => {
       acc[item._id] = item.count;
       return acc;
     }, {});
@@ -125,7 +125,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Verify booking belongs to vendor
-    const booking = await Booking.findOne({ _id: bookingId, vendor: vendorId });
+    const booking = await Booking.findOne({ id: bookingId, vendor: vendorId });
     if (!booking) {
       return NextResponse.json(
         { error: 'Booking not found or access denied' },
@@ -134,7 +134,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update booking
-    const updatedBooking = await Booking.findByIdAndUpdate(
+    const updatedBooking = await (Booking as any).findByIdAndUpdate(
       bookingId,
       { $set: updates },
       { new: true, runValidators: true }
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify booking belongs to vendor
-    const booking = await Booking.findOne({ _id: bookingId, vendor: vendorId });
+    const booking = await Booking.findOne({ id: bookingId, vendor: vendorId });
     if (!booking) {
       return NextResponse.json(
         { error: 'Booking not found or access denied' },
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update booking
-    const updatedBooking = await Booking.findByIdAndUpdate(
+    const updatedBooking = await (Booking as any).findByIdAndUpdate(
       bookingId,
       { $set: updates },
       { new: true, runValidators: true }

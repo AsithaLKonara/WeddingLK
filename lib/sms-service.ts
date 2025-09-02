@@ -1,8 +1,8 @@
-import { connectDB } from './db';
+// import { connectDB } from './db';
 
 interface SMSData {
-  to: string;
-  message: string;
+  _to: string;
+  _message: string;
   template?: string;
   data?: Record<string, any>;
 }
@@ -14,9 +14,9 @@ interface SMSResponse {
 }
 
 class SMSService {
-  private apiKey: string;
-  private apiSecret: string;
-  private _senderId: string;
+  private _apiKey: string;
+  private _apiSecret: string;
+  private __senderId: string;
 
   constructor() {
     this.apiKey = process.env.SMS_API_KEY || '';
@@ -50,7 +50,7 @@ class SMSService {
       //   body: JSON.stringify({
       //     to: smsData.to,
       //     message: smsData.message,
-      //     sender_id: this._senderId
+      //     senderid: this._senderId
       //   })
       // })
 
@@ -70,8 +70,8 @@ class SMSService {
 
   // Send SMS with template
   async sendSMSTemplate(
-    to: string,
-    template: string,
+    _to: string,
+    _template: string,
     data: Record<string, any>
   ): Promise<SMSResponse> {
     const message = await this.getSMSTemplate(template, data);
@@ -80,7 +80,7 @@ class SMSService {
 
   // Get SMS template
   private async getSMSTemplate(
-    template: string,
+    _template: string,
     data: Record<string, any>
   ): Promise<string> {
     const templates: Record<string, string> = {
@@ -114,7 +114,7 @@ class SMSService {
   }
 
   // Send welcome SMS
-  async sendWelcomeSMS(userId: string): Promise<SMSResponse> {
+  async sendWelcomeSMS(_userId: string): Promise<SMSResponse> {
     try {
       await connectDB();
 
@@ -135,7 +135,7 @@ class SMSService {
   }
 
   // Send booking confirmation SMS
-  async sendBookingConfirmationSMS(bookingId: string): Promise<SMSResponse> {
+  async sendBookingConfirmationSMS(_bookingId: string): Promise<SMSResponse> {
     try {
       await connectDB();
 
@@ -165,7 +165,7 @@ class SMSService {
   }
 
   // Send payment receipt SMS
-  async sendPaymentReceiptSMS(paymentId: string): Promise<SMSResponse> {
+  async sendPaymentReceiptSMS(_paymentId: string): Promise<SMSResponse> {
     try {
       await connectDB();
 
@@ -196,22 +196,22 @@ class SMSService {
   }
 
   // Send OTP verification SMS
-  async sendOTPVerification(phone: string, otp: string): Promise<SMSResponse> {
+  async sendOTPVerification(_phone: string, _otp: string): Promise<SMSResponse> {
     return await this.sendSMSTemplate(phone, 'otp_verification', { otp });
   }
 
   // Send password reset SMS
   async sendPasswordResetSMS(
-    phone: string,
-    code: string
+    _phone: string,
+    _code: string
   ): Promise<SMSResponse> {
     return await this.sendSMSTemplate(phone, 'password_reset', { code });
   }
 
   // Send wedding reminder SMS
   async sendWeddingReminderSMS(
-    userId: string,
-    daysLeft: number
+    _userId: string,
+    _daysLeft: number
   ): Promise<SMSResponse> {
     try {
       await connectDB();
@@ -234,8 +234,8 @@ class SMSService {
 
   // Send vendor inquiry SMS
   async sendVendorInquirySMS(
-    vendorId: string,
-    inquiryData: any
+    _vendorId: string,
+    _inquiryData: any
   ): Promise<SMSResponse> {
     try {
       await connectDB();
@@ -258,8 +258,8 @@ class SMSService {
 
   // Send appointment reminder SMS
   async sendAppointmentReminderSMS(
-    userId: string,
-    appointmentData: any
+    _userId: string,
+    _appointmentData: any
   ): Promise<SMSResponse> {
     try {
       await connectDB();
@@ -282,8 +282,8 @@ class SMSService {
 
   // Send payment due reminder SMS
   async sendPaymentDueSMS(
-    userId: string,
-    paymentData: any
+    _userId: string,
+    _paymentData: any
   ): Promise<SMSResponse> {
     try {
       await connectDB();
@@ -307,8 +307,8 @@ class SMSService {
 
   // Send booking update SMS
   async sendBookingUpdateSMS(
-    bookingId: string,
-    updateData: any
+    _bookingId: string,
+    _updateData: any
   ): Promise<SMSResponse> {
     try {
       await connectDB();

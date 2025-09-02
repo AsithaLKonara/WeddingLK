@@ -37,93 +37,93 @@ interface VenueBoost {
   _id: string;
   venue: {
     _id: string;
-    name: string;
+    _name: string;
     location: {
-      city: string;
-      province: string;
+      _city: string;
+      _province: string;
     };
-    images: string[];
+    _images: string[];
   };
   boostType: 'basic' | 'premium' | 'featured' | 'trending';
   status: 'pending' | 'active' | 'paused' | 'completed' | 'cancelled';
   budget: {
-    amount: number;
-    spent: number;
-    remaining: number;
-    currency: string;
+    _amount: number;
+    _spent: number;
+    _remaining: number;
+    _currency: string;
   };
   targeting: {
-    locations: string[];
+    _locations: string[];
     guestCount: {
-      min: number;
-      max: number;
+      _min: number;
+      _max: number;
     };
-    eventTypes: string[];
+    _eventTypes: string[];
     priceRange: {
-      min: number;
-      max: number;
+      _min: number;
+      _max: number;
     };
   };
   schedule: {
-    startDate: string;
-    endDate: string;
-    duration: number;
+    _startDate: string;
+    _endDate: string;
+    _duration: number;
   };
   performance: {
-    impressions: number;
-    clicks: number;
-    views: number;
-    inquiries: number;
-    bookings: number;
-    ctr: number;
-    cpc: number;
-    cpm: number;
-    roi: number;
+    _impressions: number;
+    _clicks: number;
+    _views: number;
+    _inquiries: number;
+    _bookings: number;
+    _ctr: number;
+    _cpc: number;
+    _cpm: number;
+    _roi: number;
   };
   settings: {
-    autoRenew: boolean;
-    maxDailyBudget: number;
-    bidAmount: number;
+    _autoRenew: boolean;
+    _maxDailyBudget: number;
+    _bidAmount: number;
     priority: 'low' | 'medium' | 'high';
   };
 }
 
 interface BoostAnalytics {
   overview: {
-    totalBoosts: number;
-    activeBoosts: number;
+    _totalBoosts: number;
+    _activeBoosts: number;
     totalBudget: number;
-    totalSpent: number;
-    totalImpressions: number;
-    totalClicks: number;
-    totalViews: number;
-    totalInquiries: number;
-    totalBookings: number;
+    _totalSpent: number;
+    _totalImpressions: number;
+    _totalClicks: number;
+    _totalViews: number;
+    _totalInquiries: number;
+    _totalBookings: number;
   };
   performance: {
-    ctr: number;
-    cpc: number;
-    cpm: number;
-    roi: number;
+    _ctr: number;
+    _cpc: number;
+    _cpm: number;
+    _roi: number;
   };
   trends: Array<{
-    date: string;
-    impressions: number;
-    clicks: number;
-    views: number;
-    spent: number;
+    _date: string;
+    _impressions: number;
+    _clicks: number;
+    _views: number;
+    _spent: number;
   }>;
   topPerforming: Array<{
-    id: string;
-    venueName: string;
-    boostType: string;
-    status: string;
-    budget: number;
-    spent: number;
-    impressions: number;
-    clicks: number;
-    ctr: number;
-    cpc: number;
+    _id: string;
+    _venueName: string;
+    _boostType: string;
+    _status: string;
+    _budget: number;
+    _spent: number;
+    _impressions: number;
+    _clicks: number;
+    _ctr: number;
+    _cpc: number;
   }>;
 }
 
@@ -180,7 +180,7 @@ export default function VenueBoostManager() {
     }
   };
 
-  const handleBoostAction = async (boostId: string, action: string) => {
+  const handleBoostAction = async (_boostId: string, _action: string) => {
     try {
       const response = await fetch('/api/venue-boosts', {
         method: 'PUT',
@@ -197,7 +197,7 @@ export default function VenueBoostManager() {
     }
   };
 
-  const getBoostTypeInfo = (type: string) => {
+  const getBoostTypeInfo = (_type: string) => {
     const types = {
       basic: {
         name: 'Basic Boost',
@@ -223,7 +223,7 @@ export default function VenueBoostManager() {
     return types[type as keyof typeof types] || types.basic;
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (_status: string) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-800',
       active: 'bg-green-100 text-green-800',
@@ -641,7 +641,7 @@ export default function VenueBoostManager() {
                       <SelectValue placeholder='Choose a venue to boost' />
                     </SelectTrigger>
                     <SelectContent>
-                      {venues.map((venue: any) => (
+                      {venues.map((_venue: any) => (
                         <SelectItem key={venue._id} value={venue._id}>
                           {venue.name} - {venue.location?.city}
                         </SelectItem>

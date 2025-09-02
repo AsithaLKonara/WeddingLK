@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Booking } from '@/lib/models/booking';
 import { User } from '@/lib/models/user';
 import { Message } from '@/lib/models/message';
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // Get user stats
     const totalBookings = await Booking.countDocuments({ client: userId });
-    const totalFavorites = await User.findById(userId).then(
+    const totalFavorites = await (User as any).findById(userId).then(
       user => user?.favorites?.length || 0
     );
     const totalMessages = await Message.countDocuments({

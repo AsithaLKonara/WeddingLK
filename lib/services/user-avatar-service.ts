@@ -1,14 +1,14 @@
-import { connectDB } from '@/lib/db';
-import User from '@/lib/models/user';
+// import { connectDB } from '@/lib/db';
+// import User from '@/lib/models/user';
 import { Vendor } from '@/lib/models/vendor';
 import { Venue } from '@/lib/models/venue';
 
 export interface UserAvatarData {
   _id: string;
-  name: string;
-  email: string;
+  _name: string;
+  _email: string;
   avatar?: string;
-  role: string;
+  _role: string;
   phone?: string;
   isVerified?: boolean;
   isActive?: boolean;
@@ -16,17 +16,17 @@ export interface UserAvatarData {
 
 export interface VendorAvatarData {
   _id: string;
-  name: string;
-  businessName: string;
+  _name: string;
+  _businessName: string;
   avatar?: string;
-  category: string;
+  _category: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
   rating?: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
   isVerified?: boolean;
   owner?: UserAvatarData;
@@ -34,20 +34,20 @@ export interface VendorAvatarData {
 
 export interface VenueAvatarData {
   _id: string;
-  name: string;
+  _name: string;
   avatar?: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
-  capacity: number;
+  _capacity: number;
   priceRange: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
   rating?: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
   isVerified?: boolean;
 }
@@ -56,7 +56,7 @@ export class UserAvatarService {
   /**
    * Get user avatar and basic info by ID
    */
-  static async getUserById(userId: string): Promise<UserAvatarData | null> {
+  static async getUserById(_userId: string): Promise<UserAvatarData | null> {
     try {
       await connectDB();
       const user = await (User as any).findById(userId).select(
@@ -72,7 +72,7 @@ export class UserAvatarService {
   /**
    * Get user avatar and basic info by email
    */
-  static async getUserByEmail(email: string): Promise<UserAvatarData | null> {
+  static async getUserByEmail(_email: string): Promise<UserAvatarData | null> {
     try {
       await connectDB();
       const user = await (User as any).findOne({ email }).select(
@@ -88,13 +88,13 @@ export class UserAvatarService {
   /**
    * Get multiple users by IDs
    */
-  static async getUsersByIds(userIds: string[]): Promise<UserAvatarData[]> {
+  static async getUsersByIds(_userIds: string[]): Promise<UserAvatarData[]> {
     try {
       await connectDB();
-      const users = await (User as any).find({ _id: { $in: userIds } }).select(
+      const users = await (User as any).find({ id: { $in: userIds } }).select(
         'name email avatar role phone isVerified isActive'
       );
-      return users.map((user: any) => user.toObject());
+      return users.map((_user: any) => user.toObject());
     } catch (error) {
       console.error('Error fetching users:', error);
       return [];
@@ -110,7 +110,7 @@ export class UserAvatarService {
       const users = await (User as any).find().select(
         'name email avatar role phone isVerified isActive'
       );
-      return users.map((user: any) => user.toObject());
+      return users.map((_user: any) => user.toObject());
     } catch (error) {
       console.error('Error fetching all users:', error);
       return [];
@@ -121,11 +121,11 @@ export class UserAvatarService {
    * Get vendor with owner avatar data
    */
   static async getVendorWithOwner(
-    vendorId: string
+    _vendorId: string
   ): Promise<VendorAvatarData | null> {
     try {
       await connectDB();
-      const vendor = await Vendor.findById(vendorId)
+      const vendor = await (Vendor as any).findById(vendorId)
         .populate('owner', 'name email avatar role phone isVerified isActive')
         .select(
           'name businessName avatar category location rating isVerified owner'
@@ -150,13 +150,13 @@ export class UserAvatarService {
   static async getAllVendorsWithOwners(): Promise<VendorAvatarData[]> {
     try {
       await connectDB();
-      const vendors = await Vendor.find()
+      const vendors = await (Vendor as any).find()
         .populate('owner', 'name email avatar role phone isVerified isActive')
         .select(
           'name businessName avatar category location rating isVerified owner'
         );
 
-      return vendors.map(vendor => {
+      return vendors.map((_vendor: any) => {
         const vendorData = vendor.toObject();
         return {
           ...vendorData,
@@ -175,10 +175,10 @@ export class UserAvatarService {
   static async getAllVenues(): Promise<VenueAvatarData[]> {
     try {
       await connectDB();
-      const venues = await Venue.find().select(
+      const venues = await (Venue as any).find().select(
         'name avatar location capacity priceRange rating isVerified'
       );
-      return venues.map(venue => venue.toObject());
+      return venues.map((_venue: any) => venue.toObject());
     } catch (error) {
       console.error('Error fetching venues:', error);
       return [];
@@ -188,10 +188,10 @@ export class UserAvatarService {
   /**
    * Get venue by ID
    */
-  static async getVenueById(venueId: string): Promise<VenueAvatarData | null> {
+  static async getVenueById(_venueId: string): Promise<VenueAvatarData | null> {
     try {
       await connectDB();
-      const venue = await Venue.findById(venueId).select(
+      const venue = await (Venue as any).findById(venueId).select(
         'name avatar location capacity priceRange rating isVerified'
       );
       return venue ? venue.toObject() : null;

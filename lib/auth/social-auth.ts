@@ -1,40 +1,38 @@
 import { User } from '@/lib/models/user';
-import { VendorProfile } from '@/lib/models/vendorProfile';
-import { WeddingPlannerProfile } from '@/lib/models/weddingPlannerProfile';
 
 export interface SocialProfile {
-  id: string;
-  email: string;
-  name: string;
+  _id: string;
+  _email: string;
+  _name: string;
   picture?: string;
-  provider: string;
-  [key: string]: any;
+  _provider: string;
+  [_key: string]: any;
 }
 
 export interface SocialAuthResult {
   success: boolean;
   user?: any;
-  isNewUser: boolean;
-  message: string;
+  _isNewUser: boolean;
+  _message: string;
 }
 
 export async function handleSocialLogin(
   profile: SocialProfile
 ): Promise<SocialAuthResult> {
   try {
-    const { email, provider } = profile;
+    const { _email, _provider } = profile;
 
     // Check if user exists by email
-    const user = await User.findOne({ email });
+    const user = await (User as any).findOne({ email: _email });
 
     if (user) {
       // Link social account to existing user
-      await linkSocialAccount(user._id, provider, profile);
+      await linkSocialAccount(user._id, _provider, profile);
       return {
         success: true,
         user,
-        isNewUser: false,
-        message: 'Social account linked successfully',
+        _isNewUser: false,
+        _message: 'Social account linked successfully',
       };
     } else {
       // Create new user with social account
@@ -42,33 +40,33 @@ export async function handleSocialLogin(
       return {
         success: true,
         user: newUser,
-        isNewUser: true,
-        message: 'New user created with social account',
+        _isNewUser: true,
+        _message: 'New user created with social account',
       };
     }
   } catch (error) {
     console.error('Social login error:', error);
     return {
       success: false,
-      isNewUser: false,
-      message: 'Social login failed',
+      _isNewUser: false,
+      _message: 'Social login failed',
     };
   }
 }
 
 async function createUserFromSocialLogin(profile: SocialProfile) {
   const userData = {
-    email: profile.email,
-    name: profile.name,
+    email: profile._email,
+    name: profile._name,
     avatar: profile.picture,
     role: 'user', // Default role for social login users
     isEmailVerified: true, // Social accounts are pre-verified
     status: 'active',
     socialAccounts: {
-      [profile.provider]: {
-        id: profile.id,
-        email: profile.email,
-        name: profile.name,
+      [profile._provider]: {
+        id: profile._id,
+        email: profile._email,
+        name: profile._name,
         picture: profile.picture,
       },
     },
@@ -107,14 +105,14 @@ async function linkSocialAccount(
 ) {
   const updateData = {
     [`socialAccounts.${provider}`]: {
-      id: profile.id,
-      email: profile.email,
-      name: profile.name,
+      id: profile._id,
+      email: profile._email,
+      name: profile._name,
       picture: profile.picture,
     },
   };
 
-  await User.findByIdAndUpdate(userId, updateData);
+  await (User as any).findByIdAndUpdate(userId, updateData);
 }
 
 export async function verifySocialToken(
@@ -150,7 +148,7 @@ async function verifyGoogleToken(token: string): Promise<SocialProfile | null> {
       throw new Error('Invalid Google token');
     }
 
-    const data = await response.json();
+    await response.json();
 
     // Get user info from Google
     const userResponse = await fetch(
@@ -169,11 +167,11 @@ async function verifyGoogleToken(token: string): Promise<SocialProfile | null> {
     const userData = await userResponse.json();
 
     return {
-      id: userData.id,
-      email: userData.email,
-      name: userData.name,
+      _id: userData.id,
+      _email: userData.email,
+      _name: userData.name,
       picture: userData.picture,
-      provider: 'google',
+      _provider: 'google',
     };
   } catch (error) {
     console.error('Google token verification error:', error);
@@ -196,11 +194,11 @@ async function verifyFacebookToken(
     const data = await response.json();
 
     return {
-      id: data.id,
-      email: data.email,
-      name: data.name,
+      _id: data.id,
+      _email: data.email,
+      _name: data.name,
       picture: data.picture?.data?.url,
-      provider: 'facebook',
+      _provider: 'facebook',
     };
   } catch (error) {
     console.error('Facebook token verification error:', error);
@@ -224,11 +222,11 @@ async function verifyInstagramToken(
 
     // Instagram Basic Display API doesn't provide email, so we'll use username
     return {
-      id: data.id,
-      email: `${data.username}@instagram.user`, // Placeholder email
-      name: data.username,
-      picture: undefined,
-      provider: 'instagram',
+      _id: data.id,
+      _email: `${data.username}@instagram.user`, // Placeholder email
+      _name: data.username,
+      picture: '',
+      _provider: 'instagram',
     };
   } catch (error) {
     console.error('Instagram token verification error:', error);
@@ -274,13 +272,13 @@ async function verifyLinkedInToken(
     }
 
     return {
-      id: data.id,
-      email,
-      name: `${data.firstName.localized.en_US} ${data.lastName.localized.en_US}`,
+      _id: data.id,
+      _email: email,
+      _name: `${data.firstName.localized.en_US} ${data.lastName.localized.en_US}`,
       picture:
         data.profilePicture?.['displayImage~']?.elements?.[0]?.identifiers?.[0]
           ?.identifier,
-      provider: 'linkedin',
+      _provider: 'linkedin',
     };
   } catch (error) {
     console.error('LinkedIn token verification error:', error);
@@ -297,7 +295,7 @@ export async function unlinkSocialAccount(
       $unset: { [`socialAccounts.${provider}`]: 1 },
     };
 
-    await User.findByIdAndUpdate(userId, updateData);
+    await (User as any).findByIdAndUpdate(userId, updateData);
     return true;
   } catch (error) {
     console.error('Error unlinking social account:', error);
@@ -307,7 +305,7 @@ export async function unlinkSocialAccount(
 
 export async function getSocialAccounts(userId: string): Promise<any> {
   try {
-    const user = await User.findById(userId).select('socialAccounts');
+    const user = await (User as any).findById(userId).select('socialAccounts');
     return user?.socialAccounts || {};
   } catch (error) {
     console.error('Error getting social accounts:', error);

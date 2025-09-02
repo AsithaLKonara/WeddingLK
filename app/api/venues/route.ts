@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     // This is a placeholder implementation
     // In a real app, you'd validate the data and save to database
     const venue = {
-      _id: 'placeholder_venue_id',
+      id: 'placeholder_venue_id',
       name: body.name || 'New Venue',
       type: body.type || 'General',
       description: body.description || 'Venue description',
@@ -105,7 +105,7 @@ export async function PUT(request: NextRequest) {
 
     // This is a placeholder implementation
     const updatedVenue = {
-      _id: venueId,
+      id: venueId,
       ...updateData,
       updatedAt: new Date().toISOString(),
     };

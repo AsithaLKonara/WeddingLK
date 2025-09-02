@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models/vendor';
 import mongoose from 'mongoose';
 
@@ -20,7 +20,7 @@ export async function GET(
 
     await connectDB();
 
-    const vendor = await Vendor.findById(id);
+    const vendor = await (Vendor as any).findById(id);
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
@@ -53,7 +53,7 @@ export async function PUT(
     await connectDB();
 
     const update = await request.json();
-    const vendor = await Vendor.findByIdAndUpdate(id, update, { new: true });
+    const vendor = await (Vendor as any).findByIdAndUpdate(id, update, { new: true });
 
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
@@ -86,7 +86,7 @@ export async function DELETE(
 
     await connectDB();
 
-    const result = await Vendor.findByIdAndDelete(id);
+    const result = await (Vendor as any).findByIdAndDelete(id);
     if (!result) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 500 });
     }

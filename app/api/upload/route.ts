@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { auth } from '@/lib/auth-config';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 
 // Configure Cloudinary
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           folder: `${folder}/${uploadType}`,
           resource_type: 'auto',
           transformation: [{ quality: 'auto:good' }, { fetch_format: 'auto' }],
-          public_id: `${entityId}_${Date.now()}`,
+          publicid: `${entityId}_${Date.now()}`,
           tags: [uploadType, entityId, user._id.toString()],
         },
         (error, result) => {
@@ -163,7 +163,7 @@ export async function GET(request: NextRequest) {
         .max_results(50)
         .execute();
 
-      const images = result.resources.map((resource: any) => ({
+      const images = result.resources.map((_resource: any) => ({
         id: resource.public_id,
         url: resource.secure_url,
         thumbnail: resource.secure_url.replace(

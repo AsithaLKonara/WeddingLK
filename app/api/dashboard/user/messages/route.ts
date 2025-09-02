@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Message } from '@/lib/models/message';
 import { auth } from '@/lib/auth-config';
 export async function GET(request: NextRequest) {

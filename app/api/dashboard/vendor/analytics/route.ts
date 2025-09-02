@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Vendor } from '@/lib/models/vendor';
 import { Booking } from '@/lib/models/booking';
 import { Review } from '@/lib/models/review';
@@ -42,12 +42,12 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+          id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
           count: { $sum: 1 },
           revenue: { $sum: '$totalAmount' },
         },
       },
-      { $sort: { _id: 1 } },
+      { $sort: { id: 1 } },
     ]);
 
     // Get revenue analytics
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: null,
+          id: null,
           totalRevenue: { $sum: '$amount' },
           averageAmount: { $avg: '$amount' },
           count: { $sum: 1 },
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: null,
+          id: null,
           averageRating: { $avg: '$rating' },
           totalReviews: { $sum: 1 },
           ratingDistribution: {
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: { $arrayElemAt: ['$vendorInfo.category', 0] },
+          id: { $arrayElemAt: ['$vendorInfo.category', 0] },
           bookings: { $sum: 1 },
           revenue: { $sum: '$totalAmount' },
         },
@@ -125,14 +125,14 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: '$client',
+          id: '$client',
           totalBookings: { $sum: 1 },
           totalSpent: { $sum: '$totalAmount' },
         },
       },
       {
         $group: {
-          _id: null,
+          id: null,
           uniqueClients: { $sum: 1 },
           averageBookingsPerClient: { $avg: '$totalBookings' },
           averageSpentPerClient: { $avg: '$totalSpent' },
@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
         },
         distribution:
           reviewStats[0]?.ratingDistribution.reduce(
-            (acc: any, rating: number) => {
+            (_acc: any, _rating: number) => {
               acc[rating] = (acc[rating] || 0) + 1;
               return acc;
             },

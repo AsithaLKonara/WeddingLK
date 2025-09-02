@@ -12,33 +12,33 @@ import { useRouter } from 'next/navigation';
 
 interface Vendor {
   _id: string;
-  name: string;
-  businessName: string;
-  category: string;
-  description: string;
+  _name: string;
+  _businessName: string;
+  _category: string;
+  _description: string;
   location: {
-    address: string;
-    city: string;
-    province: string;
+    _address: string;
+    _city: string;
+    _province: string;
   };
   contact: {
-    phone: string;
-    email: string;
+    _phone: string;
+    _email: string;
     website?: string;
   };
   services: Array<{
-    name: string;
-    description: string;
-    price: number;
+    _name: string;
+    _description: string;
+    _price: number;
   }>;
-  portfolio: string[];
+  _portfolio: string[];
   pricing: {
-    startingPrice: number;
-    currency: string;
+    _startingPrice: number;
+    _currency: string;
   };
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
 }
 
@@ -48,10 +48,10 @@ interface VendorGridProps {
   location?: string;
   className?: string;
   filters?: {
-    location: string;
-    priceRange: number[];
-    rating: number;
-    experience: string;
+    _location: string;
+    _priceRange: number[];
+    _rating: number;
+    _experience: string;
   };
 }
 
@@ -119,7 +119,7 @@ export function VendorGrid({
 
       if (data.success) {
         const vendorIds = data.favorites.vendors.map(
-          (vendor: any) => vendor._id || vendor
+          (_vendor: any) => vendor._id || vendor
         );
         setFavorites(vendorIds);
       }
@@ -133,7 +133,7 @@ export function VendorGrid({
     loadFavorites();
   }, [loadVendors, loadFavorites]);
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (_price: number, _currency: string) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: currency || 'LKR',
@@ -141,8 +141,8 @@ export function VendorGrid({
     }).format(price);
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
+  const getCategoryColor = (_category: string) => {
+    const colors: { [_key: string]: string } = {
       photographer: 'bg-blue-100 text-blue-800',
       caterer: 'bg-green-100 text-green-800',
       decorator: 'bg-purple-100 text-purple-800',
@@ -155,7 +155,7 @@ export function VendorGrid({
     return colors[category.toLowerCase()] || 'bg-gray-100 text-gray-800';
   };
 
-  const handleFavorite = async (vendorId: string) => {
+  const handleFavorite = async (_vendorId: string) => {
     try {
       const isFavorited = favorites.includes(vendorId);
       const method = isFavorited ? 'DELETE' : 'POST';
@@ -292,7 +292,7 @@ export function VendorGrid({
     <div
       className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}
     >
-      {vendors.map(vendor => {
+      {vendors.map((_vendor: any) => {
         const isFavorited = favorites.includes(vendor._id);
 
         return (

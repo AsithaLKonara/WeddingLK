@@ -182,7 +182,7 @@ ConversationSchema.virtual('displayTitle').get(function () {
 ConversationSchema.pre('save', function (next) {
   // Ensure participants are unique
   const participantIds = this.participants.map(p => p.user.toString());
-  const uniqueIds = [...new Set(participantIds)];
+  const uniqueIds = Array.from(new Set(participantIds));
 
   if (participantIds.length !== uniqueIds.length) {
     const error = new Error('Duplicate participants are not allowed');
@@ -194,7 +194,7 @@ ConversationSchema.pre('save', function (next) {
 
 // Static method to find or create conversation
 ConversationSchema.statics.findOrCreateConversation = async function (
-  participants: any[],
+  _participants: any[],
   options: any = {}
 ) {
   const {
@@ -236,7 +236,7 @@ ConversationSchema.statics.findOrCreateConversation = async function (
 
 // Static method to get user conversations
 ConversationSchema.statics.getUserConversations = async function (
-  userId: string,
+  _userId: string,
   options: any = {}
 ) {
   const { limit = 20, offset = 0, includeArchived = false } = options;
@@ -266,11 +266,11 @@ ConversationSchema.statics.getUserConversations = async function (
 
 // Instance method to add participant
 ConversationSchema.methods.addParticipant = function (
-  userId: string,
-  role: string
+  _userId: string,
+  _role: string
 ) {
   const existingParticipant = this.participants.find(
-    (p: any) => p.user.toString() === userId
+    (_p: any) => p.user.toString() === userId
   );
 
   if (existingParticipant) {
@@ -291,9 +291,9 @@ ConversationSchema.methods.addParticipant = function (
 };
 
 // Instance method to remove participant
-ConversationSchema.methods.removeParticipant = function (userId: string) {
+ConversationSchema.methods.removeParticipant = function (_userId: string) {
   const participant = this.participants.find(
-    (p: any) => p.user.toString() === userId
+    (_p: any) => p.user.toString() === userId
   );
 
   if (participant) {
@@ -305,7 +305,7 @@ ConversationSchema.methods.removeParticipant = function (userId: string) {
 };
 
 // Instance method to update last message
-ConversationSchema.methods.updateLastMessage = function (message: any) {
+ConversationSchema.methods.updateLastMessage = function (_message: any) {
   this.lastMessage = {
     content: message.content,
     sender: message.sender,
@@ -314,13 +314,13 @@ ConversationSchema.methods.updateLastMessage = function (message: any) {
   };
 
   // Update unread counts for other participants
-  this.participants.forEach((participant: any) => {
+  this.participants.forEach((_participant: any) => {
     if (
       participant.user.toString() !== message.sender.toString() &&
       participant.isActive
     ) {
       const unreadEntry = this.unreadCounts.find(
-        (u: any) => u.user.toString() === participant.user.toString()
+        (_u: any) => u.user.toString() === participant.user.toString()
       );
 
       if (unreadEntry) {
@@ -338,9 +338,9 @@ ConversationSchema.methods.updateLastMessage = function (message: any) {
 };
 
 // Instance method to mark as read
-ConversationSchema.methods.markAsRead = function (userId: string) {
+ConversationSchema.methods.markAsRead = function (_userId: string) {
   const unreadEntry = this.unreadCounts.find(
-    (u: any) => u.user.toString() === userId
+    (_u: any) => u.user.toString() === userId
   );
 
   if (unreadEntry) {
@@ -352,7 +352,7 @@ ConversationSchema.methods.markAsRead = function (userId: string) {
 };
 
 // Instance method to archive conversation
-ConversationSchema.methods.archive = function (userId: string) {
+ConversationSchema.methods.archive = function (_userId: string) {
   this.isArchived = true;
   this.archivedBy.push({
     user: userId,
@@ -363,9 +363,9 @@ ConversationSchema.methods.archive = function (userId: string) {
 };
 
 // Instance method to pin conversation
-ConversationSchema.methods.pin = function (userId: string) {
+ConversationSchema.methods.pin = function (_userId: string) {
   const existingPin = this.pinnedBy.find(
-    (p: any) => p.user.toString() === userId
+    (_p: any) => p.user.toString() === userId
   );
 
   if (!existingPin) {
@@ -379,9 +379,9 @@ ConversationSchema.methods.pin = function (userId: string) {
 };
 
 // Instance method to unpin conversation
-ConversationSchema.methods.unpin = function (userId: string) {
+ConversationSchema.methods.unpin = function (_userId: string) {
   this.pinnedBy = this.pinnedBy.filter(
-    (p: any) => p.user.toString() !== userId
+    (_p: any) => p.user.toString() !== userId
   );
   return this.save();
 };

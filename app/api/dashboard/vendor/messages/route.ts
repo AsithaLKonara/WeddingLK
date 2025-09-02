@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Message } from '@/lib/models/message';
 import { Vendor } from '@/lib/models/vendor';
 import { auth } from '@/lib/auth-config';
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       { $match: { vendor: vendorId } },
       {
         $group: {
-          _id: '$conversationId',
+          id: '$conversationId',
           lastMessage: { $first: '$$ROOT' },
           unreadCount: {
             $sum: { $cond: ['$isRead', 0, 1] },
@@ -188,7 +188,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Verify message belongs to vendor
-    const message = await Message.findOne({ _id: messageId, vendor: vendorId });
+    const message = await Message.findOne({ id: messageId, vendor: vendorId });
     if (!message) {
       return NextResponse.json(
         { error: 'Message not found or access denied' },

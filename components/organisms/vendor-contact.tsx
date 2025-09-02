@@ -23,27 +23,27 @@ import { useToast } from '@/hooks/use-toast';
 interface VendorContactProps {
   vendor: {
     _id: string;
-    businessName: string;
-    name: string;
-    category: string;
-    description: string;
+    _businessName: string;
+    _name: string;
+    _category: string;
+    _description: string;
     location: {
-      address: string;
-      city: string;
-      province: string;
+      _address: string;
+      _city: string;
+      _province: string;
     };
     contact: {
-      phone: string;
-      email: string;
+      _phone: string;
+      _email: string;
       website?: string;
     };
     rating: {
-      average: number;
-      count: number;
+      _average: number;
+      _count: number;
     };
     pricing: {
-      startingPrice: number;
-      currency: string;
+      _startingPrice: number;
+      _currency: string;
     };
   };
 }

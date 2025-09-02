@@ -19,14 +19,14 @@ import {
 } from 'lucide-react';
 
 interface UserData {
-  id: string;
-  name: string;
-  email: string;
+  _id: string;
+  _name: string;
+  _email: string;
   role: 'user' | 'vendor' | 'wedding_planner' | 'admin' | 'maintainer';
   status: 'active' | 'inactive' | 'pending' | 'suspended';
-  isVerified: boolean;
-  createdAt: string;
-  lastLogin: string;
+  _isVerified: boolean;
+  _createdAt: string;
+  _lastLogin: string;
 }
 
 export default function AdminUsersPage() {

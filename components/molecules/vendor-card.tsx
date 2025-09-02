@@ -9,14 +9,14 @@ import { Star, MapPin, Heart, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface VendorCardProps {
-  id: number;
-  name: string;
-  category: string;
-  location: string;
-  rating: number;
-  price: number;
-  image: string;
-  portfolio: string[];
+  _id: number;
+  _name: string;
+  _category: string;
+  _location: string;
+  _rating: number;
+  _price: number;
+  _image: string;
+  _portfolio: string[];
   className?: string;
 }
 

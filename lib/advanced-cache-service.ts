@@ -4,18 +4,18 @@
 import { Redis } from 'ioredis';
 
 export interface CacheConfig {
-  ttl: number; // Time to live in seconds
-  staleWhileRevalidate: number; // How long to serve stale data while revalidating
-  maxRetries: number; // Maximum retry attempts for failed operations
-  retryDelay: number; // Delay between retries in milliseconds
+  _ttl: number; // Time to live in seconds
+  _staleWhileRevalidate: number; // How long to serve stale data while revalidating
+  _maxRetries: number; // Maximum retry attempts for failed operations
+  _retryDelay: number; // Delay between retries in milliseconds
 }
 
 export interface CacheResult<T> {
   data: T;
-  isStale: boolean;
-  isFromCache: boolean;
-  timestamp: number;
-  ttl: number;
+  _isStale: boolean;
+  _isFromCache: boolean;
+  _timestamp: number;
+  _ttl: number;
 }
 
 export class AdvancedCacheService {
@@ -51,14 +51,14 @@ export class AdvancedCacheService {
   }
 
   // Generate cache key with namespace
-  private generateKey(namespace: string, key: string): string {
+  private generateKey(_namespace: string, _key: string): string {
     return `weddinglk:${namespace}:${key}`;
   }
 
   // Set cache with metadata
   async set<T>(
-    namespace: string,
-    key: string,
+    _namespace: string,
+    _key: string,
     data: T,
     config: Partial<CacheConfig> = {}
   ): Promise<void> {
@@ -85,7 +85,7 @@ export class AdvancedCacheService {
   }
 
   // Get cache with stale-while-revalidate logic
-  async get<T>(namespace: string, key: string): Promise<CacheResult<T> | null> {
+  async get<T>(_namespace: string, _key: string): Promise<CacheResult<T> | null> {
     const cacheKey = this.generateKey(namespace, key);
 
     try {
@@ -122,7 +122,7 @@ export class AdvancedCacheService {
   }
 
   // Delete cache
-  async delete(namespace: string, key: string): Promise<void> {
+  async delete(_namespace: string, _key: string): Promise<void> {
     const cacheKey = this.generateKey(namespace, key);
     try {
       await this.redis.del(cacheKey);
@@ -133,7 +133,7 @@ export class AdvancedCacheService {
   }
 
   // Clear all cache for a namespace
-  async clearNamespace(namespace: string): Promise<void> {
+  async clearNamespace(_namespace: string): Promise<void> {
     try {
       const keys = await this.redis.keys(`weddinglk:${namespace}:*`);
       if (keys.length > 0) {
@@ -147,8 +147,8 @@ export class AdvancedCacheService {
 
   // Cache with background refresh
   async getWithBackgroundRefresh<T>(
-    namespace: string,
-    key: string,
+    _namespace: string,
+    _key: string,
     fetchFunction: () => Promise<T>,
     config: Partial<CacheConfig> = {}
   ): Promise<T> {
@@ -181,8 +181,8 @@ export class AdvancedCacheService {
 
   // Refresh cache in background
   private async refreshInBackground<T>(
-    namespace: string,
-    key: string,
+    _namespace: string,
+    _key: string,
     fetchFunction: () => Promise<T>,
     config: CacheConfig
   ): Promise<void> {
@@ -201,7 +201,7 @@ export class AdvancedCacheService {
   }
 
   // Batch operations
-  async mget<T>(namespace: string, keys: string[]): Promise<(T | null)[]> {
+  async mget<T>(_namespace: string, _keys: string[]): Promise<(T | null)[]> {
     const cacheKeys = keys.map(key => this.generateKey(namespace, key));
 
     try {
@@ -223,8 +223,8 @@ export class AdvancedCacheService {
 
   // Cache warming
   async warmCache<T>(
-    namespace: string,
-    key: string,
+    _namespace: string,
+    _key: string,
     fetchFunction: () => Promise<T>,
     config: Partial<CacheConfig> = {}
   ): Promise<void> {
@@ -249,9 +249,9 @@ export class AdvancedCacheService {
 
   // Get cache statistics
   async getStats(): Promise<{
-    totalKeys: number;
-    memoryUsage: string;
-    hitRate: number;
+    _totalKeys: number;
+    _memoryUsage: string;
+    _hitRate: number;
   }> {
     try {
       const info = await this.redis.info('memory');

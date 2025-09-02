@@ -27,10 +27,10 @@ export type PaymentStatus =
 
 // Payment request interface
 export interface PaymentRequest {
-  amount: number;
-  currency: string;
-  description: string;
-  customerEmail: string;
+  _amount: number;
+  _currency: string;
+  _description: string;
+  _customerEmail: string;
   customerName?: string;
   customerPhone?: string;
   metadata?: Record<string, string>;
@@ -42,7 +42,7 @@ export interface PaymentRequest {
 // Payment response interface
 export interface PaymentResponse {
   success: boolean;
-  paymentId: string;
+  _paymentId: string;
   status: PaymentStatus;
   paymentUrl?: string;
   error?: string;
@@ -88,7 +88,7 @@ export class StripePaymentProcessor {
   }
 
   static async confirmPayment(
-    paymentIntentId: string
+    _paymentIntentId: string
   ): Promise<PaymentResponse> {
     try {
       const paymentIntent =
@@ -140,7 +140,7 @@ export class PayHerePaymentProcessor {
       const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       const params: Record<string, string> = {
-        merchant_id: PAYHERE_MERCHANT_ID,
+        merchantid: PAYHERE_MERCHANT_ID,
         return_url:
           request.returnUrl ||
           `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
@@ -148,7 +148,7 @@ export class PayHerePaymentProcessor {
           request.cancelUrl ||
           `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
         notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/webhook`,
-        order_id: orderId,
+        orderid: orderId,
         items: request.description,
         currency: request.currency,
         amount: request.amount.toString(),
@@ -194,7 +194,7 @@ export class PayHerePaymentProcessor {
     }
   }
 
-  static verifyWebhook(data: any, signature: string): boolean {
+  static verifyWebhook(data: any, _signature: string): boolean {
     try {
       const calculatedSignature = this.generateSignature(data);
       return calculatedSignature === signature;
@@ -347,7 +347,7 @@ export class PaymentGateway {
   }
 
   static async confirmPayment(
-    paymentId: string,
+    _paymentId: string,
     paymentMethod: PaymentMethod
   ): Promise<PaymentResponse> {
     try {

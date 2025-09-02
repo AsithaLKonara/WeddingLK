@@ -10,41 +10,41 @@ import Image from 'next/image';
 interface AISearchResultsProps {
   results: {
     interpretation: {
-      weddingStyle: string;
-      budget: { min: number; max: number };
-      preferences: string[];
+      _weddingStyle: string;
+      budget: { _min: number; max: number };
+      _preferences: string[];
     };
     recommendations: {
       venues: Array<{
-        id: number;
-        name: string;
-        location: string;
-        rating: number;
-        price: number;
-        image: string;
-        matchScore: number;
+        _id: number;
+        _name: string;
+        _location: string;
+        _rating: number;
+        _price: number;
+        _image: string;
+        _matchScore: number;
         reasons: string[];
       }>;
       vendors: Array<{
-        id: number;
-        name: string;
-        category: string;
-        rating: number;
-        price: number;
-        matchScore: number;
+        _id: number;
+        _name: string;
+        _category: string;
+        _rating: number;
+        _price: number;
+        _matchScore: number;
         reasons: string[];
       }>;
       packages: Array<{
-        id: number;
-        title: string;
-        price: number;
-        originalPrice: number;
-        rating: number;
-        matchScore: number;
-        features: string[];
+        _id: number;
+        _title: string;
+        _price: number;
+        _originalPrice: number;
+        _rating: number;
+        _matchScore: number;
+        _features: string[];
       }>;
     };
-    insights: string[];
+    _insights: string[];
   };
 }
 

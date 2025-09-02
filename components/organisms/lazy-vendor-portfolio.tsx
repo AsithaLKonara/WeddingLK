@@ -19,8 +19,8 @@ const OptimizedImage = dynamic(() => import('./optimized-image'), {
 });
 
 interface VendorPortfolioProps {
-  images: string[];
-  vendorName: string;
+  _images: string[];
+  _vendorName: string;
 }
 
 function ImageSkeleton() {
@@ -106,7 +106,7 @@ export function LazyVendorPortfolio({
 
         {images.length > 1 && (
           <div className='flex justify-center mt-4 space-x-2'>
-            {images.map((_: string, index: number) => (
+            {images.map((__: string, _index: number) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full ${
@@ -119,7 +119,7 @@ export function LazyVendorPortfolio({
         )}
 
         <div className='grid grid-cols-2 md:grid-cols-4 gap-2 mt-4'>
-          {images.map((image: string, index: number) => (
+          {images.map((_image: string, _index: number) => (
             <button
               key={index}
               className={`aspect-square rounded-lg overflow-hidden border-2 ${

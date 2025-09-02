@@ -68,8 +68,8 @@ export const Notification =
 
 export interface INotification extends mongoose.Document {
   user: mongoose.Types.ObjectId;
-  title: string;
-  message: string;
+  _title: string;
+  _message: string;
   type:
     | 'info'
     | 'success'
@@ -84,8 +84,8 @@ export interface INotification extends mongoose.Document {
     | 'user_status_changed'
     | 'vendor_approved'
     | 'vendor_rejected';
-  isRead: boolean;
-  isActive: boolean;
+  _isRead: boolean;
+  _isActive: boolean;
   actionUrl?: string;
   actionText?: string;
   metadata?: Record<string, any>;

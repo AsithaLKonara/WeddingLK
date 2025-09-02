@@ -1,4 +1,4 @@
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import { User } from './models/user';
 import { Vendor } from './models/vendor';
 import { Venue } from './models/venue';
@@ -43,34 +43,34 @@ export class OptimizedStatsService {
         // User statistics
         User.aggregate([
           { $group: { _id: null, total: { $sum: 1 } } },
-          { $project: { _id: 0, total: 1 } },
+          { $project: { id: 0, total: 1 } },
         ]).exec(),
 
         // Vendor statistics
         Vendor.aggregate([
           { $match: { isActive: true, isVerified: true } },
           { $group: { _id: null, total: { $sum: 1 } } },
-          { $project: { _id: 0, total: 1 } },
+          { $project: { id: 0, total: 1 } },
         ]).exec(),
 
         // Venue statistics
         Venue.aggregate([
           { $match: { isAvailable: true, isVerified: true } },
           { $group: { _id: null, total: { $sum: 1 } } },
-          { $project: { _id: 0, total: 1 } },
+          { $project: { id: 0, total: 1 } },
         ]).exec(),
 
         // Booking statistics
         Booking.aggregate([
           { $group: { _id: null, total: { $sum: 1 } } },
-          { $project: { _id: 0, total: 1 } },
+          { $project: { id: 0, total: 1 } },
         ]).exec(),
 
         // Review statistics
         Review.aggregate([
           { $match: { isVerified: true } },
           { $group: { _id: null, total: { $sum: 1 } } },
-          { $project: { _id: 0, total: 1 } },
+          { $project: { id: 0, total: 1 } },
         ]).exec(),
 
         // Category distribution
@@ -124,7 +124,7 @@ export class OptimizedStatsService {
         Review.aggregate([
           { $match: { isVerified: true } },
           { $group: { _id: null, avgRating: { $avg: '$rating' } } },
-          { $project: { _id: 0, avgRating: { $round: ['$avgRating', 2] } } },
+          { $project: { id: 0, avgRating: { $round: ['$avgRating', 2] } } },
         ]).exec(),
 
         // Success rate (completed vs total bookings)
@@ -135,7 +135,7 @@ export class OptimizedStatsService {
         // Total bookings count
         Booking.aggregate([
           { $group: { _id: null, total: { $sum: 1 } } },
-          { $project: { _id: 0, total: 1 } },
+          { $project: { id: 0, total: 1 } },
         ]).exec(),
       ]);
 
@@ -183,7 +183,7 @@ export class OptimizedStatsService {
         { $unwind: '$reviewer' },
         {
           $project: {
-            _id: 1,
+            id: 1,
             rating: 1,
             title: 1,
             comment: 1,
@@ -218,11 +218,11 @@ export class OptimizedStatsService {
     try {
       await connectDB();
 
-      const analytics = await Vendor.aggregate([
+      const analytics = await (Vendor as any).aggregate([
         { $match: { isActive: true } },
         {
           $group: {
-            _id: '$businessType',
+            id: '$businessType',
             count: { $sum: 1 },
             avgRating: { $avg: '$rating' },
             avgExperience: { $avg: '$experience' },
@@ -262,7 +262,7 @@ export class OptimizedStatsService {
     let validEntries = 0;
     let expiredEntries = 0;
 
-    Array.from(statsCache.entries()).forEach(([key, value]) => {
+    Array.from(statsCache.entries()).forEach(([_key, value]) => {
       if (now - value.timestamp < STATS_CACHE_TTL) {
         validEntries++;
       } else {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Task } from '@/lib/models/task';
 import { User } from '@/lib/models/user';
 import { Booking } from '@/lib/models/booking';

@@ -21,18 +21,18 @@ import {
 } from 'lucide-react';
 
 interface AdminNavigationProps {
-  userRole: string;
+  _userRole: string;
   unreadNotifications?: number;
   onLogout?: () => void;
 }
 
 interface NavigationItem {
-  title: string;
-  href: string;
+  _title: string;
+  _href: string;
   icon: React.ReactNode;
   badge?: string | number;
-  description: string;
-  roles: string[];
+  _description: string;
+  _roles: string[];
 }
 
 const navigationItems: NavigationItem[] = [

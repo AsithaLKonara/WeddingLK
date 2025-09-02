@@ -39,32 +39,32 @@ import {
 } from 'lucide-react';
 
 interface Task {
-  id: string;
-  title: string;
-  description: string;
+  _id: string;
+  _title: string;
+  _description: string;
   dueDate: Date;
-  completed: boolean;
+  _completed: boolean;
   priority: 'low' | 'medium' | 'high';
-  category: string;
+  _category: string;
 }
 
 interface Guest {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
+  _id: string;
+  _name: string;
+  _email: string;
+  _phone: string;
   rsvp: 'pending' | 'confirmed' | 'declined';
-  dietary: string;
-  plusOne: boolean;
+  _dietary: string;
+  _plusOne: boolean;
 }
 
 interface BudgetItem {
-  id: string;
-  category: string;
-  item: string;
-  estimated: number;
-  actual: number;
-  paid: boolean;
+  _id: string;
+  _category: string;
+  _item: string;
+  _estimated: number;
+  _actual: number;
+  _paid: boolean;
 }
 
 export default function PlanningPage() {
@@ -134,7 +134,7 @@ export default function PlanningPage() {
     });
   };
 
-  const toggleTask = (taskId: string) => {
+  const toggleTask = (_taskId: string) => {
     setTasks(
       tasks.map(task =>
         task.id === taskId ? { ...task, completed: !task.completed } : task
@@ -142,7 +142,7 @@ export default function PlanningPage() {
     );
   };
 
-  const deleteTask = (taskId: string) => {
+  const deleteTask = (_taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId));
   };
 
@@ -165,13 +165,13 @@ export default function PlanningPage() {
     });
   };
 
-  const updateGuestRSVP = (guestId: string, rsvp: 'confirmed' | 'declined') => {
+  const updateGuestRSVP = (_guestId: string, rsvp: 'confirmed' | 'declined') => {
     setGuests(
       guests.map(guest => (guest.id === guestId ? { ...guest, rsvp } : guest))
     );
   };
 
-  const deleteGuest = (guestId: string) => {
+  const deleteGuest = (_guestId: string) => {
     setGuests(guests.filter(guest => guest.id !== guestId));
   };
 
@@ -190,9 +190,9 @@ export default function PlanningPage() {
   };
 
   const updateBudgetItem = (
-    itemId: string,
+    _itemId: string,
     field: keyof BudgetItem,
-    value: any
+    _value: any
   ) => {
     setBudget(
       budget.map(item =>
@@ -201,11 +201,11 @@ export default function PlanningPage() {
     );
   };
 
-  const deleteBudgetItem = (itemId: string) => {
+  const deleteBudgetItem = (_itemId: string) => {
     setBudget(budget.filter(item => item.id !== itemId));
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (_priority: string) => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 text-red-800';
@@ -218,7 +218,7 @@ export default function PlanningPage() {
     }
   };
 
-  const getRSVPColor = (rsvp: string) => {
+  const getRSVPColor = (_rsvp: string) => {
     switch (rsvp) {
       case 'confirmed':
         return 'bg-green-100 text-green-800';

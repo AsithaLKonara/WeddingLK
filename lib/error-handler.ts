@@ -4,10 +4,10 @@
 export interface ErrorResponse {
   success: false;
   error: {
-    code: string;
-    message: string;
+    _code: string;
+    _message: string;
     details?: any;
-    timestamp: string;
+    _timestamp: string;
     requestId?: string;
   };
 }
@@ -15,18 +15,18 @@ export interface ErrorResponse {
 export interface SuccessResponse<T = any> {
   success: true;
   data: T;
-  timestamp: string;
+  _timestamp: string;
   requestId?: string;
 }
 
 export class AppError extends Error {
-  public readonly statusCode: number;
-  public readonly code: string;
-  public readonly isOperational: boolean;
+  public readonly _statusCode: number;
+  public readonly _code: string;
+  public readonly _isOperational: boolean;
   public readonly details?: any;
 
   constructor(
-    message: string,
+    _message: string,
     statusCode: number = 500,
     code: string = 'INTERNAL_ERROR',
     details?: any,
@@ -46,7 +46,7 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(_message: string, details?: any) {
     super(message, 400, 'VALIDATION_ERROR', details);
   }
 }
@@ -64,13 +64,13 @@ export class AuthorizationError extends AppError {
 }
 
 export class NotFoundError extends AppError {
-  constructor(resource: string, details?: any) {
+  constructor(_resource: string, details?: any) {
     super(`${resource} not found`, 404, 'NOT_FOUND_ERROR', details);
   }
 }
 
 export class ConflictError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(_message: string, details?: any) {
     super(message, 409, 'CONFLICT_ERROR', details);
   }
 }
@@ -82,13 +82,13 @@ export class RateLimitError extends AppError {
 }
 
 export class DatabaseError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(_message: string, details?: any) {
     super(message, 500, 'DATABASE_ERROR', details);
   }
 }
 
 export class ExternalServiceError extends AppError {
-  constructor(service: string, message: string, details?: any) {
+  constructor(_service: string, _message: string, details?: any) {
     super(`External service error: ${message}`, 502, 'EXTERNAL_SERVICE_ERROR', {
       service,
       ...details,
@@ -97,7 +97,7 @@ export class ExternalServiceError extends AppError {
 }
 
 export interface ErrorInfo {
-  message: string;
+  _message: string;
   stack?: string | undefined;
   context?: Record<string, any> | undefined;
   timestamp: Date;
@@ -147,7 +147,7 @@ export class ErrorHandler {
   /**
    * Handle API errors specifically
    */
-  handleApiError(error: any, endpoint?: string): void {
+  handleApiError(_error: any, endpoint?: string): void {
     const context = {
       type: 'API_ERROR',
       endpoint,
@@ -161,7 +161,7 @@ export class ErrorHandler {
   /**
    * Handle validation errors
    */
-  handleValidationError(error: any, field?: string): void {
+  handleValidationError(_error: any, field?: string): void {
     const context = {
       type: 'VALIDATION_ERROR',
       field,
@@ -175,7 +175,7 @@ export class ErrorHandler {
   /**
    * Handle authentication errors
    */
-  handleAuthError(error: any, action?: string): void {
+  handleAuthError(_error: any, action?: string): void {
     const context = {
       type: 'AUTH_ERROR',
       action,
@@ -244,7 +244,7 @@ export class ErrorHandler {
   /**
    * Check if error is retryable
    */
-  isRetryableError(error: any): boolean {
+  isRetryableError(_error: any): boolean {
     const retryableStatuses = [408, 429, 500, 502, 503, 504];
     const retryableMessages = [
       'Network Error',
@@ -276,23 +276,23 @@ export const logError = (
   context?: Record<string, any>
 ) => errorHandler.logError(error, context);
 
-export const handleApiError = (error: any, endpoint?: string) =>
+export const handleApiError = (_error: any, endpoint?: string) =>
   errorHandler.handleApiError(error, endpoint);
 
-export const handleValidationError = (error: any, field?: string) =>
+export const handleValidationError = (_error: any, field?: string) =>
   errorHandler.handleValidationError(error, field);
 
-export const handleAuthError = (error: any, action?: string) =>
+export const handleAuthError = (_error: any, action?: string) =>
   errorHandler.handleAuthError(error, action);
 
 export const getUserFriendlyMessage = (error: Error | string) =>
   errorHandler.getUserFriendlyMessage(error);
 
-export const isRetryableError = (error: any) =>
+export const isRetryableError = (_error: any) =>
   errorHandler.isRetryableError(error);
 
 // Error handler for API routes
-export function handleApiRouteError(error: any): ErrorResponse {
+export function handleApiRouteError(_error: any): ErrorResponse {
   const requestId = generateRequestId();
   const timestamp = new Date().toISOString();
 
@@ -323,7 +323,7 @@ export function handleApiRouteError(error: any): ErrorResponse {
 
   // Handle Mongoose validation errors
   if (error.name === 'ValidationError') {
-    const validationErrors = Object.values(error.errors).map((err: any) => ({
+    const validationErrors = Object.values(error.errors).map((_err: any) => ({
       field: err.path,
       message: err.message,
       value: err.value,
@@ -530,7 +530,7 @@ export function setupGlobalErrorHandlers() {
 }
 
 // Database connection error handler
-export function handleDatabaseError(error: any): never {
+export function handleDatabaseError(_error: any): never {
   console.error('Database connection error:', error);
 
   if (error.name === 'MongoServerError' && error.code === 18) {

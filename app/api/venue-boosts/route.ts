@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import VenueBoost from '@/lib/models/venueBoost';
 import { Venue } from '@/lib/models/venue';
 import { User } from '@/lib/models/user';
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate venue ownership
-    const venue = await Venue.findById(venueId);
+    const venue = await (Venue as any).findById(venueId);
     if (!venue) {
       return NextResponse.json({ error: 'Venue not found' }, { status: 404 });
     }
@@ -215,14 +215,14 @@ export async function GET(request: NextRequest) {
       { $match: query },
       {
         $group: {
-          _id: '$status',
+          id: '$status',
           count: { $sum: 1 },
         },
       },
     ]);
 
     const statusSummary = statusCounts.reduce(
-      (acc: Record<string, number>, item: any) => {
+      (acc: Record<string, number>, _item: any) => {
         acc[item._id] = item.count;
         return acc;
       },

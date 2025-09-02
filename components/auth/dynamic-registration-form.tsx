@@ -21,14 +21,14 @@ import { ArrowLeft, ArrowRight, Check, Upload, X } from 'lucide-react';
 import { z } from 'zod';
 
 interface RegistrationFormProps {
-  role: string;
+  _role: string;
   onSubmit: (data: any) => void;
   onBack: () => void;
 }
 
 interface FormField {
-  name: string;
-  label: string;
+  _name: string;
+  _label: string;
   type:
     | 'text'
     | 'email'
@@ -40,19 +40,19 @@ interface FormField {
     | 'textarea'
     | 'checkbox'
     | 'file';
-  required: boolean;
-  placeholder: string;
+  _required: boolean;
+  _placeholder: string;
   description?: string;
-  options?: { value: string; label: string }[];
+  options?: { _value: string; label: string }[];
   defaultValues?: Record<string, any>;
-  dependsOn?: { field: string; value: any };
+  dependsOn?: { _field: string; value: any };
 }
 
 interface FormStep {
-  title: string;
-  description: string;
+  _title: string;
+  _description: string;
   fields: FormField[];
-  schema: any;
+  _schema: any;
   defaultValues?: Record<string, any>;
 }
 
@@ -63,7 +63,7 @@ export function DynamicRegistrationForm({
 }: RegistrationFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, any>>({});
-  const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File[] }>(
+  const [uploadedFiles, setUploadedFiles] = useState<{ [_key: string]: File[] }>(
     {}
   );
 
@@ -100,7 +100,7 @@ export function DynamicRegistrationForm({
     }
   };
 
-  const handleFileUpload = (fieldName: string, files: FileList | null) => {
+  const handleFileUpload = (_fieldName: string, files: FileList | null) => {
     if (files) {
       const fileArray = Array.from(files);
       setUploadedFiles(prev => ({
@@ -110,7 +110,7 @@ export function DynamicRegistrationForm({
     }
   };
 
-  const removeFile = (fieldName: string, index: number) => {
+  const removeFile = (_fieldName: string, _index: number) => {
     setUploadedFiles(prev => ({
       ...prev,
       [fieldName]: prev[fieldName]?.filter((_, i) => i !== index) || [],
@@ -382,7 +382,7 @@ export function DynamicRegistrationForm({
   );
 }
 
-function getFormConfig(role: string) {
+function getFormConfig(_role: string) {
   const baseSteps = [
     {
       title: 'Basic Information',

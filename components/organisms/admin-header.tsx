@@ -27,7 +27,7 @@ export function AdminHeader({ unreadNotifications = 0 }: AdminHeaderProps) {
     signOut({ callbackUrl: '/' });
   };
 
-  const getRoleIcon = (role: string) => {
+  const getRoleIcon = (_role: string) => {
     switch (role) {
       case 'admin':
         return <Crown className='w-4 h-4 text-yellow-600' />;
@@ -38,7 +38,7 @@ export function AdminHeader({ unreadNotifications = 0 }: AdminHeaderProps) {
     }
   };
 
-  const getRoleColor = (role: string) => {
+  const getRoleColor = (_role: string) => {
     switch (role) {
       case 'admin':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';

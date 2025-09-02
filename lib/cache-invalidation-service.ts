@@ -4,16 +4,16 @@
 import { advancedCache } from './advanced-cache-service';
 
 export interface InvalidationRule {
-  pattern: string;
-  ttl: number;
+  _pattern: string;
+  _ttl: number;
   priority: 'high' | 'medium' | 'low';
   dependencies: string[];
 }
 
 export interface InvalidationEvent {
   type: 'create' | 'update' | 'delete';
-  entity: string;
-  entityId: string;
+  _entity: string;
+  _entityId: string;
   timestamp: Date;
   metadata?: any;
 }
@@ -80,7 +80,7 @@ export class CacheInvalidationService {
   }
 
   // Add invalidation rule
-  addRule(name: string, rule: InvalidationRule) {
+  addRule(_name: string, rule: InvalidationRule) {
     this.invalidationRules.set(name, rule);
     console.log(`📋 Added invalidation rule: ${name}`);
   }
@@ -168,7 +168,7 @@ export class CacheInvalidationService {
   }
 
   // Invalidate entity-specific cache
-  private async invalidateEntityCache(entity: string, entityId: string) {
+  private async invalidateEntityCache(_entity: string, _entityId: string) {
     const patterns = [
       `${entity}:${entityId}`,
       `${entity}:${entityId}:*`,
@@ -201,7 +201,7 @@ export class CacheInvalidationService {
   }
 
   // Get rule for entity
-  private getRuleForEntity(entity: string): InvalidationRule | undefined {
+  private getRuleForEntity(_entity: string): InvalidationRule | undefined {
     for (const [name, rule] of Array.from(this.invalidationRules.entries())) {
       if (entity.startsWith(name) || name.startsWith(entity)) {
         return rule;

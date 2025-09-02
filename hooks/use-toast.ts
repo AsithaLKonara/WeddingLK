@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
 
-interface Toast {
+export interface Toast {
   id: string;
-  title: string;
+  title?: string;
   description?: string;
-  type?: 'default' | 'success' | 'error' | 'warning';
+  type?: 'success' | 'error' | 'warning' | 'info';
   duration?: number;
 }
 
@@ -16,32 +16,28 @@ export function useToast() {
     const newToast: Toast = {
       id,
       duration: 5000,
-      type: 'default',
       ...toastData,
     };
 
     setToasts(prev => [...prev, newToast]);
 
     // Auto remove toast after duration
-    setTimeout(() => {
-      setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, newToast.duration);
+    if (newToast.duration) {
+      setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      }, newToast.duration);
+    }
 
     return id;
   }, []);
 
   const dismiss = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
-
-  const dismissAll = useCallback(() => {
-    setToasts([]);
+    setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
   return {
-    toasts,
     toast,
     dismiss,
-    dismissAll,
+    toasts,
   };
 }

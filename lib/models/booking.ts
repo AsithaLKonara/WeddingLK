@@ -82,12 +82,12 @@ export interface IBooking extends mongoose.Document {
   endTime?: string;
   guestCount?: number;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  totalAmount: number;
+  _totalAmount: number;
   depositAmount?: number;
-  depositPaid: boolean;
+  _depositPaid: boolean;
   notes?: string;
   specialRequirements?: string;
-  isActive: boolean;
+  _isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

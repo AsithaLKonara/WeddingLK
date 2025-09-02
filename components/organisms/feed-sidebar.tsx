@@ -55,7 +55,7 @@ export function FeedSidebar() {
           </CardTitle>
         </CardHeader>
         <CardContent className='space-y-3'>
-          {trendingVenues.map(venue => (
+          {trendingVenues.map((_venue: any) => (
             <div key={venue.id} className='flex items-center justify-between'>
               <div className='flex items-center space-x-3'>
                 <Avatar className='h-10 w-10'>

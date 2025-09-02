@@ -15,19 +15,19 @@ interface VendorReviewsProps {
   reviews: {
     _id: string;
     user: {
-      firstName: string;
-      lastName: string;
+      _firstName: string;
+      _lastName: string;
     };
-    rating: number;
-    comment: string;
-    createdAt: string;
+    _rating: number;
+    _comment: string;
+    _createdAt: string;
   }[];
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
-  vendorId: string;
-  vendorName: string;
+  _vendorId: string;
+  _vendorName: string;
 }
 
 export function VendorReviews({

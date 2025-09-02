@@ -1,11 +1,11 @@
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Venue } from '@/lib/models/venue';
 import { Vendor } from '@/lib/models/vendor';
-import User from '@/lib/models/user';
+// import User from '@/lib/models/user';
 
 interface SocialMediaPost {
   platform: 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'pinterest';
-  content: string;
+  _content: string;
   image?: string;
   link?: string;
   hashtags?: string[];
@@ -16,15 +16,15 @@ interface SocialMediaResponse {
   success: boolean;
   postId?: string;
   error?: string;
-  platform: string;
+  _platform: string;
 }
 
 class SocialMediaService {
-  private facebookToken: string;
-  private instagramToken: string;
-  private twitterToken: string;
-  private linkedinToken: string;
-  private pinterestToken: string;
+  private _facebookToken: string;
+  private _instagramToken: string;
+  private _twitterToken: string;
+  private _linkedinToken: string;
+  private _pinterestToken: string;
 
   constructor() {
     this.facebookToken = process.env.FACEBOOK_TOKEN || '';
@@ -197,8 +197,8 @@ class SocialMediaService {
 
   // Share venue to social media
   async shareVenue(
-    venueId: string,
-    platforms: string[]
+    _venueId: string,
+    _platforms: string[]
   ): Promise<SocialMediaResponse[]> {
     try {
       await connectDB();
@@ -247,8 +247,8 @@ ${venue.description}
 
   // Share vendor to social media
   async shareVendor(
-    vendorId: string,
-    platforms: string[]
+    _vendorId: string,
+    _platforms: string[]
   ): Promise<SocialMediaResponse[]> {
     try {
       await connectDB();
@@ -297,8 +297,8 @@ ${vendor.description}
 
   // Share wedding success story
   async shareWeddingStory(
-    storyData: any,
-    platforms: string[]
+    _storyData: any,
+    _platforms: string[]
   ): Promise<SocialMediaResponse[]> {
     const content = `💒 Beautiful wedding story: ${storyData.title}
       
@@ -333,8 +333,8 @@ ${storyData.description}
 
   // Share wedding tips
   async shareWeddingTips(
-    tipData: any,
-    platforms: string[]
+    _tipData: any,
+    _platforms: string[]
   ): Promise<SocialMediaResponse[]> {
     const content = `💡 Wedding Planning Tip: ${tipData.title}
       
@@ -364,8 +364,8 @@ ${tipData.content}
 
   // Share promotional content
   async sharePromotion(
-    promotionData: any,
-    platforms: string[]
+    _promotionData: any,
+    _platforms: string[]
   ): Promise<SocialMediaResponse[]> {
     const content = `🎉 Special Offer: ${promotionData.title}
       
@@ -423,8 +423,8 @@ ${promotionData.description}
 
   // Get social media analytics
   async getSocialMediaAnalytics(
-    platform: string,
-    timeRange: string
+    _platform: string,
+    _timeRange: string
   ): Promise<any> {
     try {
       // In a real implementation, this would fetch analytics from social media APIs

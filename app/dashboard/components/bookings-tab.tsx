@@ -81,7 +81,7 @@ export default function BookingsTab() {
       <div>
         {bookings.length > 0 ? (
           <div className='space-y-4'>
-            {bookings.map((booking: any) => (
+            {bookings.map((_booking: any) => (
               <div
                 key={booking._id}
                 className='flex items-center justify-between p-4 border rounded-lg'

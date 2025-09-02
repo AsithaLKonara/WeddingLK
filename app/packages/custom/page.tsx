@@ -60,7 +60,7 @@ export default function CustomPackagePage() {
     },
   ];
 
-  const handleServiceToggle = (serviceId: string) => {
+  const handleServiceToggle = (_serviceId: string) => {
     setselectedServices(prev =>
       prev.includes(serviceId)
         ? prev.filter(id => id !== serviceId)

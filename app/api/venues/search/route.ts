@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Venue } from '@/lib/models/venue';
 import { Review } from '@/lib/models/review';
 
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Execute search
-    const venues = await Venue.find(searchQuery)
+    const venues = await (Venue as any).find(searchQuery)
       .populate('owner', 'name email avatar')
       .sort({ 'rating.average': -1, 'rating.count': -1 })
       .skip(offset)
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     // Enhance venue data with review statistics
     const enhancedVenues = await Promise.all(
       venues.map(async venue => {
-        const reviews = await Review.find({
+        const reviews = await (Review as any).find({
           venue: venue._id,
           isVerified: true,
           isActive: true,

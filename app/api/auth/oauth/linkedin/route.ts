@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         grant_type: 'authorization_code',
         code,
         redirect_uri: config.redirectURI,
-        client_id: config.clientId,
+        clientid: config.clientId,
         client_secret: config.clientSecret,
       }),
     });

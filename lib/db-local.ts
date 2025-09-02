@@ -90,7 +90,7 @@ export class LocalDatabase {
     collection: T,
     item: DatabaseConfig[T][0]
   ): Promise<DatabaseConfig[T][0]> {
-    const newItem = { ...item, _id: this.generateId() };
+    const newItem = { ...item, id: this.generateId() };
     this.data[collection].push(newItem as any);
     saveDatabase(this.data);
     return newItem as DatabaseConfig[T][0];
@@ -109,19 +109,19 @@ export class LocalDatabase {
 
   async findById<T extends keyof DatabaseConfig>(
     collection: T,
-    id: string
+    _id: string
   ): Promise<DatabaseConfig[T][0] | null> {
-    const item = this.data[collection].find((item: any) => item._id === id);
+    const item = this.data[collection].find((_item: any) => item._id === id);
     return (item as DatabaseConfig[T][0]) || null;
   }
 
   async update<T extends keyof DatabaseConfig>(
     collection: T,
-    id: string,
+    _id: string,
     updates: Partial<DatabaseConfig[T][0]>
   ): Promise<DatabaseConfig[T][0] | null> {
     const index = this.data[collection].findIndex(
-      (item: any) => item._id === id
+      (_item: any) => item._id === id
     );
     if (index === -1) return null;
 
@@ -135,10 +135,10 @@ export class LocalDatabase {
 
   async delete<T extends keyof DatabaseConfig>(
     collection: T,
-    id: string
+    _id: string
   ): Promise<boolean> {
     const index = this.data[collection].findIndex(
-      (item: any) => item._id === id
+      (_item: any) => item._id === id
     );
     if (index === -1) return false;
 

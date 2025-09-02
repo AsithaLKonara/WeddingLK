@@ -10,7 +10,7 @@ import { Search, Calendar, Users, Sparkles, Mic, MicOff } from 'lucide-react';
 import { LocationDropdown } from '@/components/molecules/location-dropdown';
 import { AISearchResults } from '@/components/molecules/ai-search-results';
 
-export default function AISearchSection(props: any) {
+export default function AISearchSection(_props: any) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
@@ -154,7 +154,7 @@ export default function AISearchSection(props: any) {
       recognition.onstart = () => setIsListening(true);
       recognition.onend = () => setIsListening(false);
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (_event: any) => {
         const transcript = event.results[0][0].transcript;
         setSearchQuery(transcript);
       };

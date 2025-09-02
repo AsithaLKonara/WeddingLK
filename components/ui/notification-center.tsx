@@ -77,7 +77,7 @@ const getNotificationColor = (type: Notification['type']) => {
   }
 };
 
-const formatTimeAgo = (timestamp: string) => {
+const formatTimeAgo = (_timestamp: string) => {
   const now = new Date();
   const notificationTime = new Date(timestamp);
   const diffInSeconds = Math.floor(
@@ -128,7 +128,7 @@ export function NotificationCenter({
     return true;
   });
 
-  const handleMarkAsRead = (notificationId: string) => {
+  const handleMarkAsRead = (_notificationId: string) => {
     markNotificationAsRead(notificationId);
   };
 

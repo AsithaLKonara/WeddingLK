@@ -4,11 +4,11 @@ import DocumentVerificationService from '@/lib/verification/document-verificatio
 
 // Mock document data for now (in real app, this would come from database)
 const mockDocuments: Array<{
-  id: string;
-  userId: string;
-  documentType: string;
-  fileName: string;
-  filePath: string;
+  _id: string;
+  _userId: string;
+  _documentType: string;
+  _fileName: string;
+  _filePath: string;
   uploadDate: Date;
   status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;

@@ -2,16 +2,16 @@
 // Validates dates for wedding planning and bookings
 
 export interface DateValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
+  _isValid: boolean;
+  _errors: string[];
+  _warnings: string[];
   suggestions?: string[];
 }
 
 export interface DateConstraints {
-  minimumAdvanceNotice: number; // days
-  maximumAdvanceBooking: number; // days
-  blackoutDates: string[]; // YYYY-MM-DD format
+  _minimumAdvanceNotice: number; // days
+  _maximumAdvanceBooking: number; // days
+  _blackoutDates: string[]; // YYYY-MM-DD format
   preferredDays: (
     | 'monday'
     | 'tuesday'
@@ -22,21 +22,21 @@ export interface DateConstraints {
     | 'sunday'
   )[];
   seasonalRestrictions?: {
-    startMonth: number; // 1-12
-    endMonth: number; // 1-12
-    reason: string;
+    _startMonth: number; // 1-12
+    _endMonth: number; // 1-12
+    _reason: string;
   };
 }
 
 export interface WeddingDateInfo {
-  date: string;
-  dayOfWeek: string;
+  _date: string;
+  _dayOfWeek: string;
   season: 'spring' | 'summer' | 'fall' | 'winter';
-  isWeekend: boolean;
-  isHoliday: boolean;
-  isPeakSeason: boolean;
-  daysUntilEvent: number;
-  monthsUntilEvent: number;
+  _isWeekend: boolean;
+  _isHoliday: boolean;
+  _isPeakSeason: boolean;
+  _daysUntilEvent: number;
+  _monthsUntilEvent: number;
 }
 
 const HOLIDAYS_2024 = [
@@ -68,9 +68,9 @@ const HOLIDAYS_2025 = [
 export function validateWeddingDate(
   date: string,
   constraints: DateConstraints = {
-    minimumAdvanceNotice: 90, // 3 months
-    maximumAdvanceBooking: 730, // 2 years
-    blackoutDates: [],
+    _minimumAdvanceNotice: 90, // 3 months
+    _maximumAdvanceBooking: 730, // 2 years
+    _blackoutDates: [],
     preferredDays: ['friday', 'saturday', 'sunday'],
   }
 ): DateValidationResult {
@@ -90,13 +90,13 @@ export function validateWeddingDate(
     // Check if date is valid
     if (isNaN(selectedDate.getTime())) {
       errors.push('Invalid date format. Please use YYYY-MM-DD format.');
-      return { isValid: false, errors, warnings, suggestions };
+      return { _isValid: false, _errors: errors, _warnings: warnings, suggestions };
     }
 
     // Check if date is in the past
     if (selectedDate < today) {
       errors.push('Cannot select a date in the past.');
-      return { isValid: false, errors, warnings, suggestions };
+      return { _isValid: false, _errors: errors, _warnings: warnings, suggestions };
     }
 
     // Calculate days until event
@@ -105,21 +105,21 @@ export function validateWeddingDate(
     );
 
     // Check minimum advance notice
-    if (daysUntilEvent < constraints.minimumAdvanceNotice) {
+    if (daysUntilEvent < constraints._minimumAdvanceNotice) {
       errors.push(
-        `Wedding date must be at least ${constraints.minimumAdvanceNotice} days in advance.`
+        `Wedding date must be at least ${constraints._minimumAdvanceNotice} days in advance.`
       );
     }
 
     // Check maximum advance booking
-    if (daysUntilEvent > constraints.maximumAdvanceBooking) {
+    if (daysUntilEvent > constraints._maximumAdvanceBooking) {
       errors.push(
-        `Cannot book more than ${constraints.maximumAdvanceBooking} days in advance.`
+        `Cannot book more than ${constraints._maximumAdvanceBooking} days in advance.`
       );
     }
 
     // Check blackout dates
-    if (constraints.blackoutDates.includes(date)) {
+    if (constraints._blackoutDates.includes(date)) {
       errors.push('Selected date is not available (blackout date).');
     }
 
@@ -135,11 +135,11 @@ export function validateWeddingDate(
     if (constraints.seasonalRestrictions) {
       const month = selectedDate.getMonth() + 1;
       if (
-        month >= constraints.seasonalRestrictions.startMonth &&
-        month <= constraints.seasonalRestrictions.endMonth
+        month >= constraints.seasonalRestrictions._startMonth &&
+        month <= constraints.seasonalRestrictions._endMonth
       ) {
         warnings.push(
-          `Seasonal restriction: ${constraints.seasonalRestrictions.reason}`
+          `Seasonal restriction: ${constraints.seasonalRestrictions._reason}`
         );
       }
     }
@@ -197,9 +197,9 @@ export function validateWeddingDate(
   }
 
   return {
-    isValid: errors.length === 0,
-    errors,
-    warnings,
+    _isValid: errors.length === 0,
+    _errors: errors,
+    _warnings: warnings,
     suggestions: suggestions.length > 0 ? suggestions : undefined,
   };
 }
@@ -238,14 +238,14 @@ export function getWeddingDateInfo(date: string): WeddingDateInfo {
   const isPeakSeason = [6, 7, 8, 12].includes(month);
 
   return {
-    date,
-    dayOfWeek,
+    _date: date,
+    _dayOfWeek: dayOfWeek,
     season,
-    isWeekend,
-    isHoliday,
-    isPeakSeason,
-    daysUntilEvent,
-    monthsUntilEvent,
+    _isWeekend: isWeekend,
+    _isHoliday: isHoliday,
+    _isPeakSeason: isPeakSeason,
+    _daysUntilEvent: daysUntilEvent,
+    _monthsUntilEvent: monthsUntilEvent,
   };
 }
 
@@ -265,7 +265,7 @@ export function suggestWeddingDates(
     const dateString = currentDate.toISOString().split('T')[0];
     const validation = validateWeddingDate(dateString, constraints);
 
-    if (validation.isValid && validation.warnings.length === 0) {
+    if (validation._isValid && validation._warnings.length === 0) {
       suggestions.push(dateString);
     }
 
@@ -280,9 +280,9 @@ export function calculateOptimalBookingTime(
   weddingDate: string,
   vendorType: 'venue' | 'photographer' | 'caterer' | 'musician' | 'decorator'
 ): {
-  recommendedBookingTime: string;
+  _recommendedBookingTime: string;
   urgency: 'low' | 'medium' | 'high' | 'critical';
-  message: string;
+  _message: string;
 } {
   const wedding = new Date(weddingDate);
   const today = new Date();
@@ -320,9 +320,9 @@ export function calculateOptimalBookingTime(
   const recommendedBookingTime = recommendedDate.toISOString().split('T')[0];
 
   return {
-    recommendedBookingTime,
+    _recommendedBookingTime: recommendedBookingTime,
     urgency,
-    message,
+    _message: message,
   };
 }
 

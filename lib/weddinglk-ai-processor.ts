@@ -3,32 +3,32 @@ import { Venue } from '@/lib/models';
 import { Vendor } from '@/lib/models';
 
 interface AIProcessingRequest {
-  type: string;
+  _type: string;
   userId?: string;
   data: Record<string, unknown>;
   context?: string;
-}
+  processingTime?: number;}
 
 interface AIProcessingResponse {
   success: boolean;
   data?: Record<string, unknown>;
   error?: string;
-  processingTime: number;
-  confidence: number;
+  _processingTime: number;
+  _confidence: number;
 }
 
 interface VenueRecommendation {
-  venueId: string;
-  name: string;
+  _venueId: string;
+  _name: string;
   score: number;
   reasons: string[];
   matchPercentage: number;
 }
 
 interface VendorRecommendation {
-  vendorId: string;
-  name: string;
-  category: string;
+  _vendorId: string;
+  _name: string;
+  _category: string;
   score: number;
   reasons: string[];
   matchPercentage: number;
@@ -39,7 +39,7 @@ interface BudgetOptimization {
   recommendedAllocation: Record<string, number>;
   costSavings: number;
   suggestions: string[];
-  [key: string]: unknown;
+  [_key: string]: unknown;
 }
 
 interface TimelineOptimization {
@@ -51,7 +51,7 @@ interface TimelineOptimization {
     dependencies: string[];
   }>;
   criticalPath: string[];
-  [key: string]: unknown;
+  [_key: string]: unknown;
 }
 
 class WeddingLKAIProcessor {
@@ -84,7 +84,7 @@ class WeddingLKAIProcessor {
       const processor = WeddingLKAIProcessor.getInstance();
       let response: AIProcessingResponse;
 
-      switch (request.type) {
+      switch (request._type) {
         case 'venue-recommendation':
           response = await processor.processVenueRecommendation(request);
           break;
@@ -112,14 +112,14 @@ class WeddingLKAIProcessor {
         default:
           response = {
             success: false,
-            error: `Unsupported AI processing type: ${request.type}`,
-            processingTime: Date.now() - startTime,
-            confidence: 0,
+            error: `Unsupported AI processing type: ${request._type}`,
+            _processingTime: Date.now() - startTime,
+            _confidence: 0,
           };
       }
 
       // Store processing history
-      processor.storeProcessingHistory(request.type, response);
+      processor.storeProcessingHistory(request._type, response);
 
       return response;
     } catch (error) {
@@ -129,8 +129,8 @@ class WeddingLKAIProcessor {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime,
-        confidence: 0,
+        _processingTime: processingTime,
+        _confidence: 0,
       };
     }
   }
@@ -142,7 +142,7 @@ class WeddingLKAIProcessor {
     const startTime = Date.now();
 
     try {
-      const { guestCount, budget, location, date, style } = request.data;
+      const { guestCount, budget, location, style } = request.data;
 
       // Build query based on requirements
       const query: Record<string, unknown> = { isActive: true };
@@ -176,8 +176,8 @@ class WeddingLKAIProcessor {
         return {
           success: false,
           error: 'No venues found matching your criteria',
-          processingTime: Date.now() - startTime,
-          confidence: 0,
+          _processingTime: Date.now() - startTime,
+          _confidence: 0,
         };
       }
 
@@ -187,8 +187,8 @@ class WeddingLKAIProcessor {
         const reasons = this.generateVenueReasons(venue, request.data);
 
         return {
-          venueId: venue._id.toString(),
-          name: venue.name,
+          _venueId: venue._id.toString(),
+          _name: venue.name,
           score,
           reasons,
           matchPercentage: Math.round((score / 100) * 100),
@@ -205,8 +205,8 @@ class WeddingLKAIProcessor {
           totalVenues: venues.length,
           criteria: request.data,
         },
-        processingTime: Date.now() - startTime,
-        confidence: Math.min(
+        _processingTime: Date.now() - startTime,
+        _confidence: Math.min(
           95,
           Math.max(60, recommendations[0]?.matchPercentage || 0)
         ),
@@ -215,8 +215,8 @@ class WeddingLKAIProcessor {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -228,7 +228,7 @@ class WeddingLKAIProcessor {
     const startTime = Date.now();
 
     try {
-      const { category, budget, location, date, style } = request.data;
+      const { category, location, style } = request.data;
 
       const query: Record<string, unknown> = { isActive: true };
 
@@ -255,8 +255,8 @@ class WeddingLKAIProcessor {
         return {
           success: false,
           error: 'No vendors found matching your criteria',
-          processingTime: Date.now() - startTime,
-          confidence: 0,
+          _processingTime: Date.now() - startTime,
+          _confidence: 0,
         };
       }
 
@@ -266,9 +266,9 @@ class WeddingLKAIProcessor {
         const reasons = this.generateVendorReasons(vendor, request.data);
 
         return {
-          vendorId: vendor._id.toString(),
-          name: vendor.name,
-          category: vendor.category,
+          _vendorId: vendor._id.toString(),
+          _name: vendor.name,
+          _category: vendor.category,
           score,
           reasons,
           matchPercentage: Math.round((score / 100) * 100),
@@ -285,8 +285,8 @@ class WeddingLKAIProcessor {
           totalVendors: vendors.length,
           criteria: request.data,
         },
-        processingTime: Date.now() - startTime,
-        confidence: Math.min(
+        _processingTime: Date.now() - startTime,
+        _confidence: Math.min(
           95,
           Math.max(60, recommendations[0]?.matchPercentage || 0)
         ),
@@ -295,8 +295,8 @@ class WeddingLKAIProcessor {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -374,15 +374,15 @@ class WeddingLKAIProcessor {
       return {
         success: true,
         data: optimization,
-        processingTime: Date.now() - startTime,
-        confidence: 85,
+        _processingTime: Date.now() - startTime,
+        _confidence: 85,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -413,15 +413,15 @@ class WeddingLKAIProcessor {
       return {
         success: true,
         data: optimization,
-        processingTime: Date.now() - startTime,
-        confidence: 80,
+        _processingTime: Date.now() - startTime,
+        _confidence: 80,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -453,15 +453,15 @@ class WeddingLKAIProcessor {
           estimatedSavings: Math.round((budget as number) * 0.1),
           recommendations: this.generateGuestListRecommendations(optimizedList),
         },
-        processingTime: Date.now() - startTime,
-        confidence: 75,
+        _processingTime: Date.now() - startTime,
+        _confidence: 75,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -492,15 +492,15 @@ class WeddingLKAIProcessor {
           compatibilityScore:
             this.calculateSeatingCompatibility(seatingArrangement),
         },
-        processingTime: Date.now() - startTime,
-        confidence: 70,
+        _processingTime: Date.now() - startTime,
+        _confidence: 70,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -531,15 +531,15 @@ class WeddingLKAIProcessor {
           dietaryAccommodations: (dietaryRestrictions as string[]).length,
           courses: menu.length,
         },
-        processingTime: Date.now() - startTime,
-        confidence: 75,
+        _processingTime: Date.now() - startTime,
+        _confidence: 75,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -569,15 +569,15 @@ class WeddingLKAIProcessor {
           style: style as string,
           colorScheme: colorScheme as string,
         },
-        processingTime: Date.now() - startTime,
-        confidence: 80,
+        _processingTime: Date.now() - startTime,
+        _confidence: 80,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTime: Date.now() - startTime,
-        confidence: 0,
+        _processingTime: Date.now() - startTime,
+        _confidence: 0,
       };
     }
   }
@@ -682,16 +682,16 @@ class WeddingLKAIProcessor {
 
   private generateBudgetSuggestions(
     totalBudget: number,
-    guestCount: number,
-    style: string
+    _guestCount: number,
+    _style: string
   ): string[] {
     const suggestions: string[] = [];
 
-    if (totalBudget / guestCount > 200) {
+    if (totalBudget / _guestCount > 200) {
       suggestions.push('Consider reducing guest count for premium experience');
     }
 
-    if (style === 'luxury') {
+    if (_style === 'luxury') {
       suggestions.push('Allocate more budget to photography and entertainment');
     }
 
@@ -703,9 +703,9 @@ class WeddingLKAIProcessor {
 
   private generateWeddingTimeline(
     eventDate: Date,
-    guestCount: number,
+    _guestCount: number,
     complexity: string,
-    style: string
+    _style: string
   ): Array<{
     task: string;
     deadline: Date;
@@ -761,16 +761,16 @@ class WeddingLKAIProcessor {
   }
 
   private optimizeGuestList(
-    guestList: Array<Record<string, unknown>>,
-    budget: number,
+    _guestList: Array<Record<string, unknown>>,
+    _budget: number,
     venueCapacity: number,
-    relationships: Record<string, string>
+    _relationships: Record<string, string>
   ): Array<Record<string, unknown>> {
     // Simple optimization: prioritize close relationships
-    const priorityGuests = guestList.filter(
+    const priorityGuests = _guestList.filter(
       guest =>
-        relationships[guest.id as string] === 'immediate' ||
-        relationships[guest.id as string] === 'close'
+        _relationships[guest.id as string] === 'immediate' ||
+        _relationships[guest.id as string] === 'close'
     );
 
     return priorityGuests.slice(
@@ -780,7 +780,7 @@ class WeddingLKAIProcessor {
   }
 
   private generateGuestListRecommendations(
-    guestList: Array<Record<string, unknown>>
+    _guestList: Array<Record<string, unknown>>
   ): string[] {
     return [
       'Consider plus-ones carefully',
@@ -790,10 +790,10 @@ class WeddingLKAIProcessor {
   }
 
   private generateSeatingArrangement(
-    guestList: Array<Record<string, unknown>>,
+    _guestList: Array<Record<string, unknown>>,
     tableCount: number,
-    relationships: Record<string, string>,
-    preferences: Record<string, unknown>
+    _relationships: Record<string, string>,
+    _preferences: Record<string, unknown>
   ): Record<string, unknown>[] {
     const tables: Record<string, unknown>[] = [];
 
@@ -809,17 +809,17 @@ class WeddingLKAIProcessor {
   }
 
   private calculateSeatingCompatibility(
-    seatingArrangement: Record<string, unknown>[]
+    _seatingArrangement: Record<string, unknown>[]
   ): number {
     return Math.floor(Math.random() * 30) + 70; // Random score between 70-100
   }
 
   private generateWeddingMenu(
-    guestCount: number,
-    budget: number,
-    dietaryRestrictions: string[],
-    cuisine: string,
-    style: string
+    _guestCount: number,
+    _budget: number,
+    _dietaryRestrictions: string[],
+    _cuisine: string,
+    _style: string
   ): Array<Record<string, unknown>> {
     const menu = [
       {
@@ -845,8 +845,8 @@ class WeddingLKAIProcessor {
   private generateDecorSuggestions(
     style: string,
     colorScheme: string,
-    venue: Record<string, unknown>,
-    budget: number,
+    _venue: Record<string, unknown>,
+    _budget: number,
     season: string
   ): string[] {
     const suggestions: string[] = [];

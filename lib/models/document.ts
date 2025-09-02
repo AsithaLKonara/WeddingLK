@@ -9,20 +9,20 @@ export interface IDocument extends MongooseDocument {
     | 'insurance'
     | 'portfolio'
     | 'other';
-  title: string;
+  _title: string;
   description?: string;
-  fileName: string;
-  originalName: string;
-  fileUrl: string;
+  _fileName: string;
+  _originalName: string;
+  _fileUrl: string;
   thumbnailUrl?: string;
-  fileSize: number;
-  mimeType: string;
+  _fileSize: number;
+  _mimeType: string;
   status: 'pending' | 'verified' | 'rejected' | 'expired';
   verificationNotes?: string;
   verifiedBy?: mongoose.Types.ObjectId;
   verifiedAt?: Date;
   expiresAt?: Date;
-  tags: string[];
+  _tags: string[];
   metadata: {
     category?: string;
     subcategory?: string;
@@ -30,7 +30,7 @@ export interface IDocument extends MongooseDocument {
     issuingAuthority?: string;
     issueDate?: Date;
     expiryDate?: Date;
-    [key: string]: any;
+    [_key: string]: any;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -186,7 +186,7 @@ DocumentSchema.methods.verify = function (
 
 DocumentSchema.methods.reject = function (
   verifiedBy: mongoose.Types.ObjectId,
-  notes: string
+  _notes: string
 ) {
   this.status = 'rejected';
   this.verifiedBy = verifiedBy;
@@ -214,8 +214,8 @@ DocumentSchema.methods.getDaysUntilExpiry = function (): number {
 
 // Static methods
 DocumentSchema.statics.findByUserAndType = function (
-  userId: string,
-  documentType: string
+  _userId: string,
+  _documentType: string
 ) {
   return this.find({ userId, documentType });
 };

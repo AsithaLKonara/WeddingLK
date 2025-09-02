@@ -47,7 +47,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string>('');
   const router = useRouter();
 
-  const handleRoleselect = (role: string) => {
+  const handleRoleselect = (_role: string) => {
     setselectedRole(role);
     setCurrentStep('registration');
   };

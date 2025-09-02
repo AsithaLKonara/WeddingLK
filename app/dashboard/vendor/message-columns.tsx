@@ -13,17 +13,17 @@ import {
 
 export type Message = {
   _id: string;
-  conversationId: string;
+  _conversationId: string;
   client: {
-    name: string;
-    email: string;
+    _name: string;
+    _email: string;
     avatar?: string;
   };
-  content: string;
+  _content: string;
   messageType: 'text' | 'image' | 'file';
   direction: 'inbound' | 'outbound';
-  isRead: boolean;
-  createdAt: string;
+  _isRead: boolean;
+  _createdAt: string;
 };
 
 export const columns: ColumnDef<Message>[] = [

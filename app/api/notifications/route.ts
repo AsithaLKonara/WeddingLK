@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth-config';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { Notification } from '@/lib/models/notification';
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get notifications
-    const notifications = await Notification.find(query)
+    const notifications = await (Notification as any).find(query)
       .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit);
@@ -137,7 +137,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const notification = await Notification.findOneAndUpdate(
-      { _id: notificationId, user: user._id },
+      { id: notificationId, user: user._id },
       {
         isRead: isRead !== undefined ? isRead : true,
         readAt: isRead ? new Date() : null,

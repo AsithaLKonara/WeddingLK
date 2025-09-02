@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        let result: any;
+        let _result: any;
 
         switch (service) {
           case 'weather':

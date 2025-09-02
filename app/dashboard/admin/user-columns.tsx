@@ -13,12 +13,12 @@ import {
 
 export type User = {
   _id: string;
-  name: string;
-  email: string;
-  role: string;
-  isActive: boolean;
-  isVerified: boolean;
-  createdAt: string;
+  _name: string;
+  _email: string;
+  _role: string;
+  _isActive: boolean;
+  _isVerified: boolean;
+  _createdAt: string;
   lastLogin?: string;
 };
 

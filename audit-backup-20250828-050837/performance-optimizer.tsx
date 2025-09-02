@@ -243,7 +243,7 @@ export function PerformanceOptimizer({
 }
 
 // Performance Monitor Hook
-export function usePerformanceMonitor(componentName: string) {
+export function usePerformanceMonitor(_componentName: string) {
   const [renderTime, setRenderTime] = useState<number>(0);
   const [isSlow, setIsSlow] = useState(false);
 
@@ -270,10 +270,10 @@ export function usePerformanceMonitor(componentName: string) {
 
 // Virtual Scroller Component (for large lists)
 interface VirtualScrollerProps {
-  items: any[];
-  itemHeight: number;
-  containerHeight: number;
-  renderItem: (item: any, index: number) => ReactNode;
+  _items: any[];
+  _itemHeight: number;
+  _containerHeight: number;
+  renderItem: (_item: any, _index: number) => ReactNode;
   className?: string;
 }
 
@@ -316,7 +316,7 @@ export function VirtualScroller({
 // Debounced Search Hook
 export function useDebouncedSearch<T>(
   items: T[],
-  searchTerm: string,
+  _searchTerm: string,
   searchKeys: (keyof T)[],
   delay: number = 300
 ) {

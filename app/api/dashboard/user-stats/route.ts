@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { Booking } from '@/lib/models/booking';
 import { Payment } from '@/lib/models/Payment';
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const userId = session.user.id;
 
     // Get user's basic stats
-    const user = await User.findById(userId).select(
+    const user = await (User as any).findById(userId).select(
       'name email role createdAt'
     );
 
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's bookings
-    const bookings = await Booking.find({ userId })
+    const bookings = await (Booking as any).find({ userId })
       .sort({ createdAt: -1 })
       .limit(10);
     const totalBookings = await Booking.countDocuments({ userId });
@@ -41,17 +41,17 @@ export async function GET(request: NextRequest) {
     });
 
     // Get user's payments
-    const payments = await Payment.find({ userId })
+    const payments = await (Payment as any).find({ userId })
       .sort({ createdAt: -1 })
       .limit(10);
     const totalPayments = await Payment.countDocuments({ userId });
     const totalSpent = await Payment.aggregate([
       { $match: { userId, status: 'completed' } },
-      { $group: { _id: null, total: { $sum: '$amount' } } },
+      { $group: { id: null, total: { $sum: '$amount' } } },
     ]);
 
     // Get user's reviews
-    const reviews = await Review.find({ userId })
+    const reviews = await (Review as any).find({ userId })
       .sort({ createdAt: -1 })
       .limit(10);
     const totalReviews = await Review.countDocuments({ userId });
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       { $match: { userId, createdAt: { $gte: sixMonthsAgo } } },
       {
         $group: {
-          _id: {
+          id: {
             year: { $year: '$createdAt' },
             month: { $month: '$createdAt' },
           },
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $group: {
-          _id: {
+          id: {
             year: { $year: '$createdAt' },
             month: { $month: '$createdAt' },
           },

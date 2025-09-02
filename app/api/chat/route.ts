@@ -3,28 +3,28 @@ import { getDb } from '@/lib/db/mongodb';
 import { ObjectId } from 'mongodb';
 
 interface ChatMessage {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  content: string;
+  _id: string;
+  _conversationId: string;
+  _senderId: string;
+  _content: string;
   type: 'text' | 'image' | 'voice' | 'file';
   timestamp: Date;
   status: 'sent' | 'delivered' | 'read';
   replyTo?: {
-    messageId: string;
-    content: string;
-    senderName: string;
+    _messageId: string;
+    _content: string;
+    _senderName: string;
   };
 }
 
 interface Conversation {
-  id: string;
-  participants: string[];
+  _id: string;
+  _participants: string[];
   type: 'direct' | 'group';
   lastMessage?: {
-    content: string;
+    _content: string;
     timestamp: Date;
-    senderId: string;
+    _senderId: string;
   };
   unreadCount: Record<string, number>;
   metadata?: {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
 
       // Get conversation details
       const conversation = await conversationsCollection.findOne({
-        _id: new ObjectId(conversationId),
+        id: new ObjectId(conversationId),
       });
 
       if (!conversation) {
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
 
       // Reset unread count for this user
       await conversationsCollection.updateOne(
-        { _id: new ObjectId(conversationId) },
+        { id: new ObjectId(conversationId) },
         { $set: { [`unreadCount.${userId}`]: 0 } }
       );
 
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       const enrichedMessages: ChatMessage[] = await Promise.all(
         messages.map(async message => {
           const sender = await usersCollection.findOne(
-            { _id: new ObjectId(message.senderId) },
+            { id: new ObjectId(message.senderId) },
             { projection: { name: 1, profile: 1 } }
           );
 
@@ -150,12 +150,12 @@ export async function GET(request: NextRequest) {
         conversations.map(async conv => {
           // Get other participants' info
           const otherParticipants = conv.participants.filter(
-            (p: string) => p !== userId
+            (_p: string) => p !== userId
           );
           const participantsInfo = await Promise.all(
-            otherParticipants.map(async (participantId: string) => {
+            otherParticipants.map(async (_participantId: string) => {
               const user = await usersCollection.findOne(
-                { _id: new ObjectId(participantId) },
+                { id: new ObjectId(participantId) },
                 { projection: { name: 1, profile: 1 } }
               );
               return {
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
 
       // Initialize unread counts for all participants except sender
       const unreadUpdates: any = {};
-      participants.forEach((participantId: string) => {
+      participants.forEach((_participantId: string) => {
         if (participantId !== senderId) {
           unreadUpdates[`unreadCount.${participantId}`] = 1;
         }
@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
 
       if (Object.keys(unreadUpdates).length > 0) {
         await conversationsCollection.updateOne(
-          { _id: convResult.insertedId },
+          { id: convResult.insertedId },
           { $set: unreadUpdates }
         );
       }
@@ -287,21 +287,21 @@ export async function POST(request: NextRequest) {
 
     // Increment unread count for other participants
     const conversation = await conversationsCollection.findOne({
-      _id: new ObjectId(actualConversationId),
+      id: new ObjectId(actualConversationId),
     });
 
     if (conversation) {
       const otherParticipants = conversation.participants.filter(
-        (p: string) => p !== senderId
+        (_p: string) => p !== senderId
       );
-      otherParticipants.forEach((participantId: string) => {
+      otherParticipants.forEach((_participantId: string) => {
         updateData[`unreadCount.${participantId}`] =
           (conversation.unreadCount?.[participantId] || 0) + 1;
       });
     }
 
     await conversationsCollection.updateOne(
-      { _id: new ObjectId(actualConversationId) },
+      { id: new ObjectId(actualConversationId) },
       { $set: updateData }
     );
 
@@ -357,7 +357,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const result = await messagesCollection.updateOne(
-      { _id: new ObjectId(messageId) },
+      { id: new ObjectId(messageId) },
       { $set: updateData }
     );
 

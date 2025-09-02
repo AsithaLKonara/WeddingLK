@@ -19,33 +19,33 @@ import {
 import Image from 'next/image';
 
 interface WeddingPackage {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
+  _id: string;
+  _name: string;
+  _description: string;
+  _price: number;
   originalPrice?: number;
   currency: 'LKR';
   category: 'basic' | 'premium' | 'luxury' | 'custom';
-  features: string[];
-  images: string[];
+  _features: string[];
+  _images: string[];
   vendor: {
-    id: string;
-    name: string;
-    avatar: string;
-    rating: number;
-    reviewCount: number;
-    verified: boolean;
+    _id: string;
+    _name: string;
+    _avatar: string;
+    _rating: number;
+    _reviewCount: number;
+    _verified: boolean;
   };
-  location: string;
-  maxGuests: number;
-  duration: string;
-  availability: string[];
+  _location: string;
+  _maxGuests: number;
+  _duration: string;
+  _availability: string[];
   boostType?: 'featured' | 'trending' | 'popular';
   boostExpiry?: Date;
-  tags: string[];
-  rating: number;
-  reviewCount: number;
-  isBookmarked: boolean;
+  _tags: string[];
+  _rating: number;
+  _reviewCount: number;
+  _isBookmarked: boolean;
 }
 
 export default function WeddingPackagesPage() {
@@ -247,7 +247,7 @@ export default function WeddingPackagesPage() {
     sortBy,
   ]);
 
-  const handleBookmark = (packageId: string) => {
+  const handleBookmark = (_packageId: string) => {
     setPackages(prev =>
       prev.map(pkg =>
         pkg.id === packageId ? { ...pkg, isBookmarked: !pkg.isBookmarked } : pkg
@@ -255,7 +255,7 @@ export default function WeddingPackagesPage() {
     );
   };
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (_price: number) => {
     return new Intl.NumberFormat('si-LK', {
       style: 'currency',
       currency: 'LKR',

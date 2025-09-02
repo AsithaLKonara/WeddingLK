@@ -183,7 +183,7 @@ export async function GET(request: NextRequest) {
       { $match: query },
       {
         $group: {
-          _id: null,
+          id: null,
           averageRating: { $avg: '$rating' },
           totalReviews: { $sum: 1 },
           ratingDistribution: {
@@ -260,7 +260,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find review and check permissions
-    const review = await Review.findById(reviewId);
+    const review = await (Review as any).findById(reviewId);
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 });
     }
@@ -341,7 +341,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Find review and check permissions
-    const review = await Review.findById(reviewId);
+    const review = await (Review as any).findById(reviewId);
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 });
     }

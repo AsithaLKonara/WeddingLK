@@ -15,27 +15,27 @@ import { Star, MapPin, Users, DollarSign } from 'lucide-react';
 
 interface FeaturedVenue {
   _id: string;
-  name: string;
-  description: string;
+  _name: string;
+  _description: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
   capacity: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
   pricing: {
-    basePrice: number;
-    currency: string;
+    _basePrice: number;
+    _currency: string;
   };
   reviewStats: {
-    averageRating: number;
-    count: number;
+    _averageRating: number;
+    _count: number;
   };
-  isVerified: boolean;
-  isActive: boolean;
-  featured: boolean;
+  _isVerified: boolean;
+  _isActive: boolean;
+  _featured: boolean;
 }
 
 export default function RealFeaturedVenues() {
@@ -99,7 +99,7 @@ export default function RealFeaturedVenues() {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {venues.map(venue => (
+          {venues.map((_venue: any) => (
             <Card
               key={venue._id}
               className='hover:shadow-lg transition-shadow duration-300'

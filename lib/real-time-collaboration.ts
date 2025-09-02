@@ -1,12 +1,12 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import { User, Task, Message } from './models';
 
 interface CollaborationSession {
-  id: string;
+  _id: string;
   type: 'wedding_planning' | 'vendor_coordination' | 'task_management';
-  participants: string[];
+  _participants: string[];
   activeUsers: Map<string, UserSession>;
   documents: Map<string, DocumentState>;
   comments: Comment[];
@@ -14,28 +14,28 @@ interface CollaborationSession {
 }
 
 interface UserSession {
-  userId: string;
-  socketId: string;
-  username: string;
-  role: string;
-  isTyping: boolean;
+  _userId: string;
+  _socketId: string;
+  _username: string;
+  _role: string;
+  _isTyping: boolean;
   lastSeen: Date;
 }
 
 interface DocumentState {
-  id: string;
-  content: string;
-  version: number;
+  _id: string;
+  _content: string;
+  _version: number;
   lastModified: Date;
-  lastModifiedBy: string;
-  collaborators: string[];
+  _lastModifiedBy: string;
+  _collaborators: string[];
 }
 
 interface Comment {
-  id: string;
-  userId: string;
-  username: string;
-  content: string;
+  _id: string;
+  _userId: string;
+  _username: string;
+  _content: string;
   timestamp: Date;
   documentId?: string;
   replyTo?: string;
@@ -44,10 +44,10 @@ interface Comment {
 
 interface LiveEditOperation {
   type: 'insert' | 'delete' | 'replace';
-  position: number;
+  _position: number;
   content?: string;
   length?: number;
-  userId: string;
+  _userId: string;
   timestamp: Date;
   documentId?: string;
 }
@@ -80,7 +80,7 @@ class RealTimeCollaborationService {
       // Join collaboration session
       socket.on(
         'join-session',
-        async (data: { sessionId: string; userId: string }) => {
+        async (data: { _sessionId: string; userId: string }) => {
           await this.handleJoinSession(socket, data);
         }
       );
@@ -88,7 +88,7 @@ class RealTimeCollaborationService {
       // Leave collaboration session
       socket.on(
         'leave-session',
-        (data: { sessionId: string; userId: string }) => {
+        (data: { _sessionId: string; userId: string }) => {
           this.handleLeaveSession(socket, data);
         }
       );
@@ -96,7 +96,7 @@ class RealTimeCollaborationService {
       // Live document editing
       socket.on(
         'document-edit',
-        (data: { sessionId: string; operation: LiveEditOperation }) => {
+        (data: { _sessionId: string; operation: LiveEditOperation }) => {
           this.handleDocumentEdit(socket, data);
         }
       );
@@ -105,7 +105,7 @@ class RealTimeCollaborationService {
       socket.on(
         'add-comment',
         async (data: {
-          sessionId: string;
+          _sessionId: string;
           comment: Omit<Comment, 'id' | 'timestamp'>;
         }) => {
           await this.handleAddComment(socket, data);
@@ -116,10 +116,10 @@ class RealTimeCollaborationService {
       socket.on(
         'comment-reaction',
         (data: {
-          sessionId: string;
-          commentId: string;
-          userId: string;
-          reaction: string;
+          _sessionId: string;
+          _commentId: string;
+          _userId: string;
+          _reaction: string;
         }) => {
           this.handleCommentReaction(socket, data);
         }
@@ -128,14 +128,14 @@ class RealTimeCollaborationService {
       // Typing indicators
       socket.on(
         'typing-start',
-        (data: { sessionId: string; userId: string }) => {
+        (data: { _sessionId: string; userId: string }) => {
           this.handleTypingStart(socket, data);
         }
       );
 
       socket.on(
         'typing-stop',
-        (data: { sessionId: string; userId: string }) => {
+        (data: { _sessionId: string; userId: string }) => {
           this.handleTypingStop(socket, data);
         }
       );
@@ -143,7 +143,7 @@ class RealTimeCollaborationService {
       // Task coordination
       socket.on(
         'task-update',
-        async (data: { sessionId: string; taskId: string; updates: any }) => {
+        async (data: { _sessionId: string; _taskId: string; updates: any }) => {
           await this.handleTaskUpdate(socket, data);
         }
       );
@@ -151,7 +151,7 @@ class RealTimeCollaborationService {
       // Real-time notifications
       socket.on(
         'notification',
-        (data: { sessionId: string; userId: string; message: string }) => {
+        (data: { _sessionId: string; _userId: string; message: string }) => {
           this.handleNotification(socket, data);
         }
       );
@@ -164,8 +164,8 @@ class RealTimeCollaborationService {
   }
 
   private async handleJoinSession(
-    socket: any,
-    data: { sessionId: string; userId: string }
+    _socket: any,
+    data: { _sessionId: string; userId: string }
   ) {
     try {
       await connectDB();
@@ -221,8 +221,8 @@ class RealTimeCollaborationService {
   }
 
   private handleLeaveSession(
-    socket: any,
-    data: { sessionId: string; userId: string }
+    _socket: any,
+    data: { _sessionId: string; userId: string }
   ) {
     const session = this.activeSessions.get(data.sessionId);
     if (session) {
@@ -245,8 +245,8 @@ class RealTimeCollaborationService {
   }
 
   private handleDocumentEdit(
-    socket: any,
-    data: { sessionId: string; operation: LiveEditOperation }
+    _socket: any,
+    data: { _sessionId: string; operation: LiveEditOperation }
   ) {
     const session = this.activeSessions.get(data.sessionId);
     if (!session) return;
@@ -268,8 +268,8 @@ class RealTimeCollaborationService {
   }
 
   private async handleAddComment(
-    socket: any,
-    data: { sessionId: string; comment: Omit<Comment, 'id' | 'timestamp'> }
+    _socket: any,
+    data: { _sessionId: string; comment: Omit<Comment, 'id' | 'timestamp'> }
   ) {
     try {
       const session = this.activeSessions.get(data.sessionId);
@@ -298,12 +298,12 @@ class RealTimeCollaborationService {
   }
 
   private handleCommentReaction(
-    socket: any,
+    _socket: any,
     data: {
-      sessionId: string;
-      commentId: string;
-      userId: string;
-      reaction: string;
+      _sessionId: string;
+      _commentId: string;
+      _userId: string;
+      _reaction: string;
     }
   ) {
     const session = this.activeSessions.get(data.sessionId);
@@ -322,8 +322,8 @@ class RealTimeCollaborationService {
   }
 
   private handleTypingStart(
-    socket: any,
-    data: { sessionId: string; userId: string }
+    _socket: any,
+    data: { _sessionId: string; userId: string }
   ) {
     const session = this.activeSessions.get(data.sessionId);
     if (!session) return;
@@ -340,8 +340,8 @@ class RealTimeCollaborationService {
   }
 
   private handleTypingStop(
-    socket: any,
-    data: { sessionId: string; userId: string }
+    _socket: any,
+    data: { _sessionId: string; userId: string }
   ) {
     const session = this.activeSessions.get(data.sessionId);
     if (!session) return;
@@ -357,8 +357,8 @@ class RealTimeCollaborationService {
   }
 
   private async handleTaskUpdate(
-    _socket: any,
-    data: { sessionId: string; taskId: string; updates: any }
+    __socket: any,
+    data: { _sessionId: string; _taskId: string; updates: any }
   ) {
     try {
       await connectDB();
@@ -384,8 +384,8 @@ class RealTimeCollaborationService {
   }
 
   private handleNotification(
-    socket: any,
-    data: { sessionId: string; userId: string; message: string }
+    _socket: any,
+    data: { _sessionId: string; _userId: string; message: string }
   ) {
     // Broadcast notification to all participants
     this.io?.to(data.sessionId).emit('notification', {
@@ -395,7 +395,7 @@ class RealTimeCollaborationService {
     });
   }
 
-  private handleDisconnect(socket: any) {
+  private handleDisconnect(_socket: any) {
     // Find and remove user from all sessions
     Array.from(this.activeSessions.entries()).forEach(
       ([sessionId, session]) => {
@@ -404,12 +404,12 @@ class RealTimeCollaborationService {
           if (userSession) {
             session.activeUsers.delete(socket.id);
             session.participants = session.participants.filter(
-              id => id !== userSession.userId
+              id => id !== userSession._userId
             );
 
             // Notify other participants
             socket.to(sessionId).emit('user-disconnected', {
-              userId: userSession.userId,
+              userId: userSession._userId,
               username: userSession.username,
             });
 
@@ -429,8 +429,8 @@ class RealTimeCollaborationService {
 
   // Session Management
   private async createSession(
-    sessionId: string,
-    creatorId: string
+    _sessionId: string,
+    _creatorId: string
   ): Promise<CollaborationSession> {
     const session: CollaborationSession = {
       id: sessionId,
@@ -482,11 +482,11 @@ class RealTimeCollaborationService {
 
     document.version++;
     document.lastModified = new Date();
-    document.lastModifiedBy = operation.userId;
+    document.lastModifiedBy = operation._userId;
   }
 
   // Database Operations
-  private async saveCommentToDatabase(comment: Comment, sessionId: string) {
+  private async saveCommentToDatabase(comment: Comment, _sessionId: string) {
     try {
       const message = new Message({
         sender: comment.userId,
@@ -549,12 +549,12 @@ class RealTimeCollaborationService {
     );
   }
 
-  public getSessionParticipants(sessionId: string) {
+  public getSessionParticipants(_sessionId: string) {
     const session = this.activeSessions.get(sessionId);
     return session ? Array.from(session.activeUsers.values()) : [];
   }
 
-  public broadcastToSession(sessionId: string, event: string, data: any) {
+  public broadcastToSession(_sessionId: string, _event: string, data: any) {
     this.io?.to(sessionId).emit(event, data);
   }
 }

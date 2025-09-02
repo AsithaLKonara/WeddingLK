@@ -14,20 +14,20 @@ import {
 export type Booking = {
   _id: string;
   client: {
-    name: string;
-    email: string;
-    phone: string;
+    _name: string;
+    _email: string;
+    _phone: string;
   };
   venue?: {
-    name: string;
-    location: string;
+    _name: string;
+    _location: string;
   };
-  date: string;
+  _date: string;
   startTime?: string;
   endTime?: string;
-  totalAmount: number;
+  _totalAmount: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected';
-  createdAt: string;
+  _createdAt: string;
 };
 
 export const columns: ColumnDef<Booking>[] = [
@@ -94,7 +94,7 @@ export const columns: ColumnDef<Booking>[] = [
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
-      const getStatusColor = (status: string) => {
+      const getStatusColor = (_status: string) => {
         switch (status) {
           case 'confirmed':
             return 'bg-green-100 text-green-800';
@@ -110,7 +110,7 @@ export const columns: ColumnDef<Booking>[] = [
         }
       };
 
-      const getStatusIcon = (status: string) => {
+      const getStatusIcon = (_status: string) => {
         switch (status) {
           case 'confirmed':
             return <CheckCircle className='h-4 w-4 text-green-600' />;

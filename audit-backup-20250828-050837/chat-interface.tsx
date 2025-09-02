@@ -49,50 +49,50 @@ import { formatDistanceToNow } from 'date-fns';
 
 interface Message {
   _id: string;
-  content: string;
+  _content: string;
   sender: {
     _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
+    _firstName: string;
+    _lastName: string;
+    _email: string;
     profileImage?: string;
-    userType: string;
+    _userType: string;
   };
   recipient: {
     _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
+    _firstName: string;
+    _lastName: string;
+    _email: string;
     profileImage?: string;
-    userType: string;
+    _userType: string;
   };
-  messageType: string;
+  _messageType: string;
   attachments: Array<{
-    type: string;
-    url: string;
-    filename: string;
-    size: number;
-    mimeType: string;
+    _type: string;
+    _url: string;
+    _filename: string;
+    _size: number;
+    _mimeType: string;
   }>;
-  isRead: boolean;
-  isDelivered: boolean;
-  isEdited: boolean;
-  createdAt: string;
+  _isRead: boolean;
+  _isDelivered: boolean;
+  _isEdited: boolean;
+  _createdAt: string;
   replyTo?: {
     _id: string;
-    content: string;
+    _content: string;
     sender: {
-      firstName: string;
-      lastName: string;
+      _firstName: string;
+      _lastName: string;
     };
   };
   reactions: Array<{
     user: {
       _id: string;
-      firstName: string;
-      lastName: string;
+      _firstName: string;
+      _lastName: string;
     };
-    emoji: string;
+    _emoji: string;
   }>;
 }
 
@@ -101,41 +101,41 @@ interface Conversation {
   participants: Array<{
     user: {
       _id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
+      _firstName: string;
+      _lastName: string;
+      _email: string;
       profileImage?: string;
-      userType: string;
+      _userType: string;
     };
-    role: string;
-    isActive: boolean;
+    _role: string;
+    _isActive: boolean;
   }>;
-  conversationType: string;
+  _conversationType: string;
   title?: string;
   lastMessage?: {
-    content: string;
+    _content: string;
     sender: {
       _id: string;
-      firstName: string;
-      lastName: string;
+      _firstName: string;
+      _lastName: string;
     };
-    timestamp: string;
-    messageType: string;
+    _timestamp: string;
+    _messageType: string;
   };
-  unreadCount: number;
-  isPinned: boolean;
+  _unreadCount: number;
+  _isPinned: boolean;
   bookingId?: {
     _id: string;
-    bookingNumber: string;
-    date: string;
+    _bookingNumber: string;
+    _date: string;
   };
   venueId?: {
     _id: string;
-    name: string;
+    _name: string;
   };
   vendorId?: {
     _id: string;
-    businessName: string;
+    _businessName: string;
   };
 }
 
@@ -219,7 +219,7 @@ export function ChatInterface({
   }, [conversationId, selectedConversation, onConversationSelect, toast]);
 
   const loadMessages = useCallback(
-    async (convId: string, offset = 0) => {
+    async (_convId: string, offset = 0) => {
       try {
         setIsLoading(true);
         const response = await fetch(
@@ -229,12 +229,12 @@ export function ChatInterface({
 
         if (data.success) {
           if (offset === 0) {
-            setMessages(data.messages);
+            setMessages(data._messages);
           } else {
-            setMessages(prev => [...data.messages, ...prev]);
+            setMessages(prev => [...data._messages, ...prev]);
           }
           setHasMoreMessages(data.hasMore);
-          setMessageOffset(offset + data.messages.length);
+          setMessageOffset(offset + data._messages.length);
         }
       } catch (error) {
         console.error('Error loading messages:', error);
@@ -250,7 +250,7 @@ export function ChatInterface({
     [toast]
   );
 
-  function handleNewMessage(message: any) {
+  function handleNewMessage(_message: any) {
     if (
       selectedConversation &&
       message.conversationId === selectedConversation._id
@@ -272,7 +272,7 @@ export function ChatInterface({
     }
   }
 
-  function handleNotification(notification: any) {
+  function handleNotification(_notification: any) {
     if (notification.type === 'new_message') {
       toast({
         title: notification.title,
@@ -307,13 +307,13 @@ export function ChatInterface({
         setEditingMessage(null);
 
         // Add message to local state
-        setMessages(prev => [...prev, data.message]);
+        setMessages(prev => [...prev, data._message]);
 
         // Update conversation last message
         setConversations(prev =>
           prev.map(conv =>
             conv._id === selectedConversation._id
-              ? { ...conv, lastMessage: data.message, unreadCount: 0 }
+              ? { ...conv, lastMessage: data._message, unreadCount: 0 }
               : conv
           )
         );
@@ -328,7 +328,7 @@ export function ChatInterface({
     }
   }
 
-  async function editMessage(message: Message, newContent: string) {
+  async function editMessage(message: Message, _newContent: string) {
     try {
       const response = await fetch('/api/messages', {
         method: 'PUT',
@@ -343,7 +343,7 @@ export function ChatInterface({
 
       if (data.success) {
         setMessages(prev =>
-          prev.map(msg => (msg._id === message._id ? data.message : msg))
+          prev.map(msg => (msg._id === message._id ? data._message : msg))
         );
         setEditingMessage(null);
       }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Booking } from '@/lib/models/booking';
 import { auth } from '@/lib/auth-config';
 
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     if (status) query.status = status;
 
     // Get bookings with pagination
-    const bookings = await Booking.find(query)
+    const bookings = await (Booking as any).find(query)
       .populate('venue', 'name location')
       .populate('vendor', 'businessName category')
       .sort({ date: 1 })

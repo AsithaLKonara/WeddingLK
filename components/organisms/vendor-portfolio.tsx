@@ -13,8 +13,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 interface VendorPortfolioProps {
-  images: string[];
-  vendorName: string;
+  _images: string[];
+  _vendorName: string;
 }
 
 export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
@@ -88,7 +88,7 @@ export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
 
         {images.length > 1 && (
           <div className='flex justify-center mt-4 space-x-2'>
-            {images.map((_: string, index: number) => (
+            {images.map((__: string, _index: number) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full ${
@@ -101,7 +101,7 @@ export function VendorPortfolio({ images, vendorName }: VendorPortfolioProps) {
         )}
 
         <div className='grid grid-cols-2 md:grid-cols-4 gap-2 mt-4'>
-          {images.map((image: string, index: number) => (
+          {images.map((_image: string, _index: number) => (
             <button
               key={index}
               className='aspect-square bg-gray-100 dark:bg-gray-800 rounded overflow-hidden'

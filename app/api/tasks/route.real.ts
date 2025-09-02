@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { auth } from '@/lib/auth-config';
 import { Task } from '@/lib/models/task';
 
@@ -60,7 +60,7 @@ export async function PATCH(request: NextRequest) {
     if (!id)
       return NextResponse.json({ error: 'Missing task id' }, { status: 400 });
     const task = await Task.findOneAndUpdate(
-      { _id: id, plannerId: session.user.id },
+      { id: id, plannerId: session.user.id },
       update,
       { new: true }
     );
@@ -86,7 +86,7 @@ export async function DELETE(request: NextRequest) {
     if (!id)
       return NextResponse.json({ error: 'Missing task id' }, { status: 400 });
     const result = await Task.deleteOne({
-      _id: id,
+      id: id,
       plannerId: session.user.id,
     });
     if (result.deletedCount === 0)

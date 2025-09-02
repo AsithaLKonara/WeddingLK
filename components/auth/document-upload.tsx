@@ -27,18 +27,18 @@ import {
 } from 'lucide-react';
 
 interface DocumentUploadProps {
-  documentType: string;
+  _documentType: string;
   onUpload: (file: File) => Promise<void>;
-  onRemove: (fileId: string) => void;
-  maxFileSize: number;
-  allowedTypes: string[];
-  required: boolean;
+  onRemove: (_fileId: string) => void;
+  _maxFileSize: number;
+  _allowedTypes: string[];
+  _required: boolean;
   uploadedFiles?: Array<{
-    id: string;
-    fileName: string;
-    fileSize: number;
-    mimeType: string;
-    url: string;
+    _id: string;
+    _fileName: string;
+    _fileSize: number;
+    _mimeType: string;
+    _url: string;
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
   }>;
@@ -126,13 +126,13 @@ export function DocumentUpload({
     disabled: uploading,
   });
 
-  const getFileIcon = (mimeType: string) => {
+  const getFileIcon = (_mimeType: string) => {
     if (mimeType.startsWith('image/')) return <Image className='w-5 h-5' />;
     if (mimeType.startsWith('video/')) return <Video className='w-5 h-5' />;
     return <FileText className='w-5 h-5' />;
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (_status: string) => {
     switch (status) {
       case 'approved':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -143,7 +143,7 @@ export function DocumentUpload({
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (_status: string) => {
     switch (status) {
       case 'approved':
         return <CheckCircle className='w-4 h-4 text-green-600' />;
@@ -154,7 +154,7 @@ export function DocumentUpload({
     }
   };
 
-  const formatFileSize = (bytes: number) => {
+  const formatFileSize = (_bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];

@@ -1,4 +1,4 @@
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models';
 import { Venue } from '@/lib/models';
 import { Vendor } from '@/lib/models';
@@ -6,82 +6,82 @@ import { Booking } from '@/lib/models';
 import { Notification } from '@/lib/models';
 
 interface MobileAppConfig {
-  version: string;
-  features: string[];
-  settings: Record<string, unknown>;
+  _version: string;
+  _features: string[];
+  _settings: Record<string, unknown>;
 }
 
 interface MobileAppManifest {
-  name: string;
-  short_name: string;
-  description: string;
-  start_url: string;
-  display: string;
-  theme_color: string;
-  background_color: string;
+  _name: string;
+  _short_name: string;
+  _description: string;
+  _start_url: string;
+  _display: string;
+  _theme_color: string;
+  _background_color: string;
   icons: Array<{
-    src: string;
-    sizes: string;
-    type: string;
+    _src: string;
+    _sizes: string;
+    _type: string;
   }>;
 }
 
 interface ReactNativeConfig {
-  apiUrl: string;
-  websocketUrl: string;
-  features: string[];
-  settings: Record<string, unknown>;
+  _apiUrl: string;
+  _websocketUrl: string;
+  _features: string[];
+  _settings: Record<string, unknown>;
 }
 
 interface MobileAPIDocs {
   endpoints: Array<{
-    path: string;
-    method: string;
-    description: string;
+    _path: string;
+    _method: string;
+    _description: string;
     parameters: Array<{
-      name: string;
-      type: string;
-      required: boolean;
-      description: string;
+      _name: string;
+      _type: string;
+      _required: boolean;
+      _description: string;
     }>;
   }>;
-  authentication: string;
-  rateLimiting: string;
+  _authentication: string;
+  _rateLimiting: string;
 }
 
 interface MobileUserData {
   user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    profile: Record<string, unknown>;
+    _id: string;
+    _name: string;
+    _email: string;
+    _role: string;
+    _profile: Record<string, unknown>;
   };
-  preferences: Record<string, unknown>;
-  notifications: Array<Record<string, unknown>>;
+  _preferences: Record<string, unknown>;
+  _notifications: Array<Record<string, unknown>>;
 }
 
 interface MobileVenuesData {
-  venues: Array<Record<string, unknown>>;
-  total: number;
-  filters: Record<string, unknown>;
+  _venues: Array<Record<string, unknown>>;
+  _total: number;
+  _filters: Record<string, unknown>;
 }
 
 interface MobileVendorsData {
-  vendors: Array<Record<string, unknown>>;
-  total: number;
-  filters: Record<string, unknown>;
+  _vendors: Array<Record<string, unknown>>;
+  _total: number;
+  _filters: Record<string, unknown>;
 }
 
 interface MobileBookingsData {
-  bookings: Array<Record<string, unknown>>;
-  total: number;
-  status: string;
+  _bookings: Array<Record<string, unknown>>;
+  _total: number;
+  _status: string;
 }
 
 interface PushNotificationData {
-  title: string;
-  body: string;
+  _title: string;
+  _body: string;
   data?: Record<string, unknown>;
 }
 
@@ -226,17 +226,17 @@ class MobileAppService {
 
   // Get mobile user data
   static async getMobileUserData(
-    userId: string
+    _userId: string
   ): Promise<MobileUserData | null> {
     try {
       await connectDB();
 
-      const user = await User.findById(userId).select('-password');
+      const user = await (User as any).findById(userId).select('-password');
       if (!user) {
         return null;
       }
 
-      const notifications = await Notification.find({
+      const notifications = await (Notification as any).find({
         userId,
         read: false,
       }).limit(10);
@@ -250,7 +250,7 @@ class MobileAppService {
           profile: user.profile || {},
         },
         preferences: user.preferences || {},
-        notifications: notifications.map(n => ({
+        notifications: notifications.map((_n: any) => ({
           id: n._id.toString(),
           title: n.title,
           message: n.message,
@@ -266,7 +266,7 @@ class MobileAppService {
 
   // Get mobile venues
   static async getMobileVenues(
-    filters: Record<string, unknown>
+    _filters: Record<string, unknown>
   ): Promise<MobileVenuesData | null> {
     try {
       await connectDB();
@@ -287,18 +287,18 @@ class MobileAppService {
         'min' in filters.priceRange &&
         'max' in filters.priceRange
       ) {
-        const priceRange = filters.priceRange as { min: number; max: number };
+        const priceRange = filters.priceRange as { _min: number; max: number };
         query.pricePerPerson = { $gte: priceRange.min, $lte: priceRange.max };
       }
 
-      const venues = await Venue.find(query)
+      const venues = await (Venue as any).find(query)
         .select(
           'name description location capacity pricePerPerson images rating'
         )
         .limit(20);
 
       return {
-        venues: venues.map(v => ({
+        venues: venues.map((_v: any) => ({
           id: v._id.toString(),
           name: v.name,
           description: v.description,
@@ -319,7 +319,7 @@ class MobileAppService {
 
   // Get mobile vendors
   static async getMobileVendors(
-    filters: Record<string, unknown>
+    _filters: Record<string, unknown>
   ): Promise<MobileVendorsData | null> {
     try {
       await connectDB();
@@ -338,12 +338,12 @@ class MobileAppService {
         query.rating = { $gte: filters.rating };
       }
 
-      const vendors = await Vendor.find(query)
+      const vendors = await (Vendor as any).find(query)
         .select('name category description location rating images services')
         .limit(20);
 
       return {
-        vendors: vendors.map(v => ({
+        vendors: vendors.map((_v: any) => ({
           id: v._id.toString(),
           name: v.name,
           category: v.category,
@@ -364,19 +364,19 @@ class MobileAppService {
 
   // Get mobile bookings
   static async getMobileBookings(
-    userId: string
+    _userId: string
   ): Promise<MobileBookingsData | null> {
     try {
       await connectDB();
 
-      const bookings = await Booking.find({ userId })
+      const bookings = await (Booking as any).find({ userId })
         .populate('venue', 'name location')
         .populate('vendor', 'name category')
         .sort({ createdAt: -1 })
         .limit(20);
 
       return {
-        bookings: bookings.map(b => ({
+        bookings: bookings.map((_b: any) => ({
           id: b._id.toString(),
           venue: b.venue,
           vendor: b.vendor,
@@ -396,7 +396,7 @@ class MobileAppService {
 
   // Send mobile push notification
   static async sendMobilePushNotification(
-    userId: string,
+    _userId: string,
     notification: PushNotificationData
   ): Promise<Record<string, unknown> | null> {
     try {

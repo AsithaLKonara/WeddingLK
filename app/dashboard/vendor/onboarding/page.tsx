@@ -110,7 +110,7 @@ export default function VendorOnboardingWizard() {
     files: FileList,
     type: 'portfolio' | 'verification'
   ) => {
-    const uploadedUrls: string[] = [];
+    const _uploadedUrls: string[] = [];
 
     for (const file of Array.from(files)) {
       const url = await uploadFile(file, type);
@@ -134,7 +134,7 @@ export default function VendorOnboardingWizard() {
   };
 
   const removeFile = async (
-    index: number,
+    _index: number,
     type: 'portfolio' | 'verification'
   ) => {
     if (type === 'portfolio') {
@@ -218,7 +218,7 @@ export default function VendorOnboardingWizard() {
       await patchVendor({
         packages: packages.map(pkg => ({
           ...pkg,
-          features: pkg.features.split(',').map((f: string) => f.trim()),
+          features: pkg.features.split(',').map((_f: string) => f.trim()),
         })),
       });
     } else if (currentStep === 3) {
@@ -506,7 +506,7 @@ export default function VendorOnboardingWizard() {
                           ...pkg,
                           features: pkg.features
                             .split(',')
-                            .map((f: string) => f.trim()),
+                            .map((_f: string) => f.trim()),
                         })),
                       });
                     }}
@@ -543,7 +543,7 @@ export default function VendorOnboardingWizard() {
                           ...pkg,
                           features: pkg.features
                             .split(',')
-                            .map((f: string) => f.trim()),
+                            .map((_f: string) => f.trim()),
                         })),
                       });
                     }}
@@ -580,7 +580,7 @@ export default function VendorOnboardingWizard() {
                       ...pkg,
                       features: pkg.features
                         .split(',')
-                        .map((f: string) => f.trim()),
+                        .map((_f: string) => f.trim()),
                     })),
                   });
                 }}
@@ -596,7 +596,7 @@ export default function VendorOnboardingWizard() {
                         ...pkg,
                         features: pkg.features
                           .split(',')
-                          .map((f: string) => f.trim()),
+                          .map((_f: string) => f.trim()),
                       })),
                     });
                   }}
@@ -620,7 +620,7 @@ export default function VendorOnboardingWizard() {
                   ...pkg,
                   features: pkg.features
                     .split(',')
-                    .map((f: string) => f.trim()),
+                    .map((_f: string) => f.trim()),
                 })),
               });
             }}

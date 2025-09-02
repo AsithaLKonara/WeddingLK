@@ -1,10 +1,10 @@
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 
 class SocialMediaIntegration {
   // Initialize social media integration
   static async initializeIntegration(
-    platform: string,
-    credentials: Record<string, unknown>
+    _platform: string,
+    _credentials: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -35,7 +35,7 @@ class SocialMediaIntegration {
 
   // Initialize Facebook integration
   private static async initializeFacebook(
-    credentials: Record<string, unknown>
+    _credentials: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Facebook OAuth flow
     const { appId, appSecret, redirectUri } = credentials;
@@ -57,7 +57,7 @@ class SocialMediaIntegration {
 
   // Initialize Instagram integration
   private static async initializeInstagram(
-    credentials: Record<string, unknown>
+    _credentials: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Instagram Basic Display API
     const { appId, appSecret, redirectUri } = credentials;
@@ -78,7 +78,7 @@ class SocialMediaIntegration {
 
   // Initialize Twitter integration
   private static async initializeTwitter(
-    credentials: Record<string, unknown>
+    _credentials: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Twitter OAuth 2.0
     const { apiKey, apiSecret, redirectUri } = credentials;
@@ -99,7 +99,7 @@ class SocialMediaIntegration {
 
   // Initialize LinkedIn integration
   private static async initializeLinkedIn(
-    credentials: Record<string, unknown>
+    _credentials: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // LinkedIn OAuth 2.0
     const { clientId, clientSecret, redirectUri } = credentials;
@@ -120,7 +120,7 @@ class SocialMediaIntegration {
 
   // Initialize Pinterest integration
   private static async initializePinterest(
-    credentials: Record<string, unknown>
+    _credentials: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Pinterest OAuth 2.0
     const { appId, appSecret, redirectUri } = credentials;
@@ -141,8 +141,8 @@ class SocialMediaIntegration {
 
   // Create social media post
   static async createPost(
-    platform: string,
-    postData: Record<string, unknown>
+    _platform: string,
+    _postData: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -173,7 +173,7 @@ class SocialMediaIntegration {
 
   // Create Facebook post
   private static async createFacebookPost(
-    postData: Record<string, unknown>
+    _postData: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Facebook Graph API post creation
     const { scheduledTime } = postData;
@@ -192,7 +192,7 @@ class SocialMediaIntegration {
 
   // Create Instagram post
   private static async createInstagramPost(
-    postData: Record<string, unknown>
+    _postData: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Instagram Basic Display API
     // const { content, image } = postData;
@@ -209,7 +209,7 @@ class SocialMediaIntegration {
 
   // Create Twitter post
   private static async createTwitterPost(
-    postData: Record<string, unknown>
+    _postData: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Twitter API v2
     const { content } = postData;
@@ -226,7 +226,7 @@ class SocialMediaIntegration {
 
   // Create LinkedIn post
   private static async createLinkedInPost(
-    postData: Record<string, unknown>
+    _postData: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // LinkedIn API
     const { content } = postData;
@@ -243,7 +243,7 @@ class SocialMediaIntegration {
 
   // Create Pinterest post
   private static async createPinterestPost(
-    postData: Record<string, unknown>
+    _postData: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     // Pinterest API
     // const { content, image } = postData;
@@ -260,8 +260,8 @@ class SocialMediaIntegration {
 
   // Schedule social media post
   static async schedulePost(
-    platform: string,
-    postData: Record<string, unknown>,
+    _platform: string,
+    _postData: Record<string, unknown>,
     scheduledTime: Date
   ): Promise<Record<string, unknown>> {
     try {
@@ -290,8 +290,8 @@ class SocialMediaIntegration {
 
   // Get social media analytics
   static async getAnalytics(
-    platform: string,
-    timeRange: string
+    _platform: string,
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -322,7 +322,7 @@ class SocialMediaIntegration {
 
   // Get Facebook analytics
   private static async getFacebookAnalytics(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     // Facebook Graph API analytics
     const analytics = {
@@ -344,7 +344,7 @@ class SocialMediaIntegration {
 
   // Get Instagram analytics
   private static async getInstagramAnalytics(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     // Instagram Basic Display API analytics
     const analytics = {
@@ -366,7 +366,7 @@ class SocialMediaIntegration {
 
   // Get Twitter analytics
   private static async getTwitterAnalytics(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     // Twitter API v2 analytics
     const analytics = {
@@ -388,7 +388,7 @@ class SocialMediaIntegration {
 
   // Get LinkedIn analytics
   private static async getLinkedInAnalytics(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     // LinkedIn API analytics
     const analytics = {
@@ -410,7 +410,7 @@ class SocialMediaIntegration {
 
   // Get Pinterest analytics
   private static async getPinterestAnalytics(
-    timeRange: string
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     // Pinterest API analytics
     const analytics = {
@@ -432,9 +432,9 @@ class SocialMediaIntegration {
 
   // Update social media account
   static async updateAccount(
-    platform: string,
-    accountId: string,
-    updates: Record<string, unknown>
+    _platform: string,
+    _accountId: string,
+    _updates: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -456,8 +456,8 @@ class SocialMediaIntegration {
 
   // Delete social media post
   static async deletePost(
-    platform: string,
-    postId: string
+    _platform: string,
+    _postId: string
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -479,8 +479,8 @@ class SocialMediaIntegration {
 
   // Get social media campaigns
   static async getCampaigns(
-    platform: string,
-    timeRange: string
+    _platform: string,
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -513,8 +513,8 @@ class SocialMediaIntegration {
 
   // Create social media campaign
   static async createCampaign(
-    platform: string,
-    campaignData: Record<string, unknown>
+    _platform: string,
+    _campaignData: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -538,8 +538,8 @@ class SocialMediaIntegration {
 
   // Get social media insights
   static async getInsights(
-    platform: string,
-    timeRange: string
+    _platform: string,
+    _timeRange: string
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -567,7 +567,7 @@ class SocialMediaIntegration {
 
   // Test social media integration
   static async testIntegration(
-    platform: string
+    _platform: string
   ): Promise<Record<string, unknown>> {
     try {
       await connectDB();
@@ -592,7 +592,7 @@ class SocialMediaIntegration {
 
   // Test platform-specific functionality
   private static async testPlatformFunctionality(
-    platform: string
+    _platform: string
   ): Promise<Record<string, unknown>> {
     // Platform-specific tests
     switch (platform) {

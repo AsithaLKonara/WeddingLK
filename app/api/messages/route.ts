@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     if (unreadMessages.length > 0) {
       await Message.updateMany(
-        { _id: { $in: unreadMessages.map(m => m._id) } },
+        { id: { $in: unreadMessages.map(m => m._id) } },
         { isRead: true, readAt: new Date() }
       );
     }

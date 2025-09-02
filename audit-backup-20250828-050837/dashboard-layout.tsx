@@ -40,8 +40,8 @@ interface DashboardLayoutProps {
 }
 
 interface MenuItem {
-  label: string;
-  href: string;
+  _label: string;
+  _href: string;
   icon: ReactNode;
   badge?: string | number;
   role?: string[];

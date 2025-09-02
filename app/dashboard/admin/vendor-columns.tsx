@@ -13,24 +13,24 @@ import {
 
 export type Vendor = {
   _id: string;
-  businessName: string;
-  name: string;
-  email: string;
-  category: string;
+  _businessName: string;
+  _name: string;
+  _email: string;
+  _category: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
-  isVerified: boolean;
-  isActive: boolean;
+  _isVerified: boolean;
+  _isActive: boolean;
   rating: {
-    average: number;
-    count: number;
+    _average: number;
+    _count: number;
   };
-  createdAt: string;
+  _createdAt: string;
   owner: {
-    name: string;
-    email: string;
+    _name: string;
+    _email: string;
   };
 };
 

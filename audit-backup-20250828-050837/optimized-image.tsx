@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface OptimizedImageProps {
-  src: string;
-  alt: string;
+  _src: string;
+  _alt: string;
   className?: string;
   priority?: boolean;
   fill?: boolean;

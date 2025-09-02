@@ -5,7 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 declare module 'next-auth' {
   interface Session {
     user: {
-      id: string;
+      _id: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -15,8 +15,8 @@ declare module 'next-auth' {
   }
 
   interface User {
-    id: string;
-    email: string;
+    _id: string;
+    _email: string;
     name?: string;
     role?: string;
     twoFactorPending?: boolean;
@@ -52,7 +52,7 @@ export const authOptions: NextAuthConfig = {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
+    async jwt({ token, user }: { _token: any; user: any }) {
       if (user && 'role' in user) {
         token.role = user.role;
       }
@@ -61,7 +61,7 @@ export const authOptions: NextAuthConfig = {
       }
       return token;
     },
-    async session({ session, token }: { token: any; session: any }) {
+    async session({ session, token }: { _token: any; session: any }) {
       if (token && session.user) {
         session.user.id = token.sub!;
         if (token.role) session.user.role = token.role as string;

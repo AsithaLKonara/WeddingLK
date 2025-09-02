@@ -16,7 +16,7 @@ export default function MessagesTab() {
       const response = await fetch('/api/dashboard/user/messages');
       if (response.ok) {
         const data = await response.json();
-        setMessages(data.messages || []);
+        setMessages(data._messages || []);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -49,7 +49,7 @@ export default function MessagesTab() {
       <div>
         {messages.length > 0 ? (
           <div className='space-y-4'>
-            {messages.map((message: any) => (
+            {messages.map((_message: any) => (
               <div
                 key={message._id}
                 className='flex items-center justify-between p-4 border rounded-lg'

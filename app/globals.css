@@ -51,10 +51,11 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: #e5e7eb;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: white;
+    color: #111827;
   }
 }
 

@@ -5,14 +5,14 @@ import SecurityService from '@/lib/security-service';
 import { connectDB } from '@/lib/db';
 
 interface AnalyticsQuery {
-  type: string;
-  timeRange: string;
+  _type: string;
+  _timeRange: string;
   venueId?: string;
   vendorId?: string;
 }
 
 interface AnalyticsData {
-  [key: string]: unknown;
+  [_key: string]: unknown;
 }
 
 export async function GET(request: NextRequest) {

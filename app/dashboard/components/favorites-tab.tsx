@@ -49,7 +49,7 @@ export default function FavoritesTab() {
       <div>
         {favorites.length > 0 ? (
           <div className='space-y-4'>
-            {favorites.map((favorite: any) => (
+            {favorites.map((_favorite: any) => (
               <div
                 key={favorite._id}
                 className='flex items-center justify-between p-4 border rounded-lg'

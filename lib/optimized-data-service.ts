@@ -1,4 +1,4 @@
-import { connectDB } from './db';
+// import { connectDB } from './db';
 import { Vendor } from './models/vendor';
 import { Venue } from './models/venue';
 
@@ -203,7 +203,7 @@ export class OptimizedDataService {
   /**
    * Get vendor by ID with optimized query
    */
-  async getVendorById(id: string) {
+  async getVendorById(_id: string) {
     const cacheKey = `vendor_${id}`;
     const now = Date.now();
 
@@ -216,7 +216,7 @@ export class OptimizedDataService {
     try {
       await connectDB();
 
-      const vendor = await Vendor.findById(id)
+      const vendor = await (Vendor as any).findById(id)
         .select(
           'businessName businessType description services experience rating totalReviews availability portfolio isVerified isActive'
         )
@@ -243,7 +243,7 @@ export class OptimizedDataService {
   /**
    * Get venue by ID with optimized query
    */
-  async getVenueById(id: string) {
+  async getVenueById(_id: string) {
     const cacheKey = `venue_${id}`;
     const now = Date.now();
 
@@ -256,7 +256,7 @@ export class OptimizedDataService {
     try {
       await connectDB();
 
-      const venue = await Venue.findById(id)
+      const venue = await (Venue as any).findById(id)
         .select(
           'name type description capacity location amenities pricing images rating totalReviews isAvailable isVerified'
         )
@@ -284,7 +284,7 @@ export class OptimizedDataService {
    * Search vendors with text search
    */
   async searchVendors(
-    searchTerm: string,
+    _searchTerm: string,
     options: {
       page?: number;
       limit?: number;
@@ -379,7 +379,7 @@ export class OptimizedDataService {
     let validEntries = 0;
     let expiredEntries = 0;
 
-    Array.from(dataCache.entries()).forEach(([key, value]) => {
+    Array.from(dataCache.entries()).forEach(([_key, value]) => {
       if (now - value.timestamp < DATA_CACHE_TTL) {
         validEntries++;
       } else {

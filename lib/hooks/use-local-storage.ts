@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 export function useLocalStorage<T>(
-  key: string,
+  _key: string,
   initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void] {
   // State to store our value

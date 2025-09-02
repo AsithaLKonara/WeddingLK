@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Camera, Utensils, Music, Flower, Users, Car } from 'lucide-react';
 
 interface VendorCategoriesProps {
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
+  _selectedCategory: string;
+  onCategoryChange: (_category: string) => void;
 }
 
 export function VendorCategories({

@@ -20,16 +20,16 @@ import { SocialLoginButtons } from '../../../components/auth/social-login-button
 import { DynamicFormFactory } from '@/lib/forms/dynamic-form-engine';
 
 interface RegistrationData {
-  [key: string]: any;
+  [_key: string]: any;
 }
 
 interface RegistrationStep {
-  id: string;
-  title: string;
-  description: string;
+  _id: string;
+  _title: string;
+  _description: string;
   status: 'pending' | 'in_progress' | 'completed' | 'error';
-  required: boolean;
-  estimatedTime: number;
+  _required: boolean;
+  _estimatedTime: number;
 }
 
 function EnhancedRegistrationContent() {
@@ -115,7 +115,7 @@ function EnhancedRegistrationContent() {
     // Note: In a real implementation, you'd update the steps state here
   }, [currentStep, selectedRole, registrationSteps]);
 
-  const handleRoleselection = (role: string) => {
+  const handleRoleselection = (_role: string) => {
     setselectedRole(role);
     setFormData(prev => ({ ...prev, role }));
     setCurrentStep(1); // Move to next step
@@ -125,7 +125,7 @@ function EnhancedRegistrationContent() {
     setFormData(prev => ({ ...prev, ...data }));
   };
 
-  const handleStepNavigation = (stepIndex: number) => {
+  const handleStepNavigation = (_stepIndex: number) => {
     // Validate current step before allowing navigation
     if (stepIndex > currentStep && !canProceedToStep(stepIndex)) {
       setError('Please complete the current step before proceeding');
@@ -135,7 +135,7 @@ function EnhancedRegistrationContent() {
     setError(null);
   };
 
-  const canProceedToStep = (stepIndex: number): boolean => {
+  const canProceedToStep = (_stepIndex: number): boolean => {
     switch (stepIndex) {
       case 1: // Basic info
         return !!selectedRole;

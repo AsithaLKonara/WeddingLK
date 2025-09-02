@@ -68,8 +68,8 @@ export function LazyLoading({
 
 // Lazy load images with blur placeholder
 interface LazyImageProps {
-  src: string;
-  alt: string;
+  _src: string;
+  _alt: string;
   width?: number;
   height?: number;
   className?: string;

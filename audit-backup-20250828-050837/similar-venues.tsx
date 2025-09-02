@@ -10,20 +10,20 @@ import { Loader2, RefreshCw, MapPin, Star, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SimilarVenue {
-  id: string;
-  name: string;
-  location: string;
-  capacity: number;
-  price: number;
-  rating: number;
-  image: string;
-  amenities: string[];
+  _id: string;
+  _name: string;
+  _location: string;
+  _capacity: number;
+  _price: number;
+  _rating: number;
+  _image: string;
+  _amenities: string[];
   distance?: number;
   similarity?: number;
 }
 
 interface SimilarVenuesProps {
-  currentVenueId: string;
+  _currentVenueId: string;
   currentVenueLocation?: string;
   currentVenuePrice?: number;
 }
@@ -148,7 +148,7 @@ export function SimilarVenues({
     loadSimilarVenues();
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('en-LK', {
       style: 'currency',
       currency: 'LKR',
@@ -156,7 +156,7 @@ export function SimilarVenues({
     }).format(amount);
   };
 
-  const getSimilarityColor = (similarity: number) => {
+  const getSimilarityColor = (_similarity: number) => {
     if (similarity >= 80)
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
     if (similarity >= 70)
@@ -164,7 +164,7 @@ export function SimilarVenues({
     return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
   };
 
-  const getSimilarityLabel = (similarity: number) => {
+  const getSimilarityLabel = (_similarity: number) => {
     if (similarity >= 80) return 'Very Similar';
     if (similarity >= 70) return 'Similar';
     return 'Somewhat Similar';
@@ -235,7 +235,7 @@ export function SimilarVenues({
         ) : (
           <div className='space-y-6'>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-              {similarVenues.map(venue => (
+              {similarVenues.map((_venue: any) => (
                 <div key={venue.id} className='relative group'>
                   <VenueCard {...venue} id={parseInt(venue.id)} />
 

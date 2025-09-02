@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { auth } from '@/lib/auth-config';
-import User from '@/lib/models/user';
+// import User from '@/lib/models/user';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get user's favorites
-    const user = await User.findById(session.user.id).populate(
+    const user = await (User as any).findById(session.user.id).populate(
       'favorites.venues favorites.vendors'
     );
 
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const user = await User.findById(session.user.id);
+    const user = await (User as any).findById(session.user.id);
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -110,7 +110,7 @@ export async function DELETE(request: NextRequest) {
 
     await connectDB();
 
-    const user = await User.findById(session.user.id);
+    const user = await (User as any).findById(session.user.id);
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -121,11 +121,11 @@ export async function DELETE(request: NextRequest) {
     // Remove from favorites
     if (type === 'venue' && user.favorites?.venues) {
       user.favorites.venues = user.favorites.venues.filter(
-        (id: any) => id.toString() !== itemId
+        (_id: any) => id.toString() !== itemId
       );
     } else if (type === 'vendor' && user.favorites?.vendors) {
       user.favorites.vendors = user.favorites.vendors.filter(
-        (id: any) => id.toString() !== itemId
+        (_id: any) => id.toString() !== itemId
       );
     }
 

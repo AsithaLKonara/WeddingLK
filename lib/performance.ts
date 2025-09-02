@@ -10,7 +10,7 @@ export class PerformanceMonitor {
     return PerformanceMonitor.instance;
   }
 
-  startTimer(name: string): () => void {
+  startTimer(_name: string): () => void {
     const start = performance.now();
     return () => {
       const duration = performance.now() - start;
@@ -18,14 +18,14 @@ export class PerformanceMonitor {
     };
   }
 
-  recordMetric(name: string, value: number): void {
+  recordMetric(_name: string, _value: number): void {
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
     }
     this.metrics.get(name)!.push(value);
   }
 
-  getAverageMetric(name: string): number {
+  getAverageMetric(_name: string): number {
     const values = this.metrics.get(name);
     if (!values || values.length === 0) return 0;
     return values.reduce((sum, val) => sum + val, 0) / values.length;
@@ -59,7 +59,7 @@ export function measureWebVitals(): void {
     // Measure First Input Delay (FID)
     new PerformanceObserver(entryList => {
       const entries = entryList.getEntries();
-      entries.forEach((entry: any) => {
+      entries.forEach((_entry: any) => {
         console.log('FID:', entry.processingStart - entry.startTime);
       });
     }).observe({ entryTypes: ['first-input'] });
@@ -68,7 +68,7 @@ export function measureWebVitals(): void {
     new PerformanceObserver(entryList => {
       let cls = 0;
       const entries = entryList.getEntries();
-      entries.forEach((entry: any) => {
+      entries.forEach((_entry: any) => {
         if (!entry.hadRecentInput) {
           cls += entry.value;
         }

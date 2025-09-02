@@ -1,32 +1,32 @@
 interface GoogleAuthConfig {
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
+  _clientId: string;
+  _clientSecret: string;
+  _redirectUri: string;
 }
 
 interface GoogleUserInfo {
-  id: string;
-  email: string;
-  verified_email: boolean;
-  name: string;
-  given_name: string;
-  family_name: string;
-  picture: string;
-  locale: string;
+  _id: string;
+  _email: string;
+  _verified_email: boolean;
+  _name: string;
+  _given_name: string;
+  _family_name: string;
+  _picture: string;
+  _locale: string;
 }
 
 interface GoogleTokenResponse {
-  access_token: string;
+  _access_token: string;
   refresh_token?: string;
-  expires_in: number;
-  token_type: string;
-  scope: string;
+  _expires_in: number;
+  _token_type: string;
+  _scope: string;
 }
 
 export const googleAuthHandler = {
   async getAuthUrl(config: GoogleAuthConfig) {
     const params = new URLSearchParams({
-      client_id: config.clientId,
+      clientid: config.clientId,
       redirect_uri: config.redirectUri,
       scope: 'openid email profile',
       response_type: 'code',
@@ -38,7 +38,7 @@ export const googleAuthHandler = {
   },
 
   async exchangeCodeForToken(
-    code: string,
+    _code: string,
     config: GoogleAuthConfig
   ): Promise<GoogleTokenResponse> {
     const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -48,7 +48,7 @@ export const googleAuthHandler = {
       },
       body: new URLSearchParams({
         code,
-        client_id: config.clientId,
+        clientid: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: config.redirectUri,
         grant_type: 'authorization_code',
@@ -62,7 +62,7 @@ export const googleAuthHandler = {
     return response.json();
   },
 
-  async getUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+  async getUserInfo(_accessToken: string): Promise<GoogleUserInfo> {
     const response = await fetch(
       'https://www.googleapis.com/oauth2/v2/userinfo',
       {
@@ -80,7 +80,7 @@ export const googleAuthHandler = {
   },
 
   async refreshToken(
-    refreshToken: string,
+    _refreshToken: string,
     config: GoogleAuthConfig
   ): Promise<GoogleTokenResponse> {
     const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -90,7 +90,7 @@ export const googleAuthHandler = {
       },
       body: new URLSearchParams({
         refresh_token: refreshToken,
-        client_id: config.clientId,
+        clientid: config.clientId,
         client_secret: config.clientSecret,
         grant_type: 'refresh_token',
       }),
@@ -103,7 +103,7 @@ export const googleAuthHandler = {
     return response.json();
   },
 
-  async validateToken(accessToken: string): Promise<boolean> {
+  async validateToken(_accessToken: string): Promise<boolean> {
     try {
       const response = await fetch(
         'https://www.googleapis.com/oauth2/v2/userinfo',

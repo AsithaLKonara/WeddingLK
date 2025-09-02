@@ -16,40 +16,40 @@ import {
 import { DashboardLayout } from '@/components/templates/dashboard-layout';
 
 interface PlannerStats {
-  totalClients: number;
-  activeProjects: number;
-  completedProjects: number;
-  totalRevenue: number;
-  averageProjectValue: number;
-  upcomingDeadlines: number;
-  clientSatisfaction: number;
-  responseTime: number;
+  _totalClients: number;
+  _activeProjects: number;
+  _completedProjects: number;
+  _totalRevenue: number;
+  _averageProjectValue: number;
+  _upcomingDeadlines: number;
+  _clientSatisfaction: number;
+  _responseTime: number;
 }
 
 interface Client {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
+  _id: string;
+  _name: string;
+  _email: string;
+  _phone: string;
   weddingDate: Date;
   status: 'planning' | 'in_progress' | 'completed' | 'on_hold';
-  budget: number;
-  guestCount: number;
-  location: string;
+  _budget: number;
+  _guestCount: number;
+  _location: string;
   lastContact: Date;
   nextMeeting: Date;
 }
 
 interface Task {
-  id: string;
-  title: string;
-  description: string;
-  clientId: string;
-  clientName: string;
+  _id: string;
+  _title: string;
+  _description: string;
+  _clientId: string;
+  _clientName: string;
   dueDate: Date;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed';
-  category: string;
+  _category: string;
 }
 
 export default function PlannerDashboard() {
@@ -176,7 +176,7 @@ export default function PlannerDashboard() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (_amount: number) => {
     return new Intl.NumberFormat('si-LK', {
       style: 'currency',
       currency: 'LKR',
@@ -185,7 +185,7 @@ export default function PlannerDashboard() {
     }).format(amount);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (_status: string) => {
     switch (status) {
       case 'planning':
         return 'bg-blue-500';
@@ -200,7 +200,7 @@ export default function PlannerDashboard() {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (_status: string) => {
     switch (status) {
       case 'planning':
         return 'Planning';
@@ -215,7 +215,7 @@ export default function PlannerDashboard() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (_priority: string) => {
     switch (priority) {
       case 'urgent':
         return 'bg-red-500';

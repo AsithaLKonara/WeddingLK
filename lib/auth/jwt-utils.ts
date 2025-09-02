@@ -4,14 +4,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 export interface JWTPayload {
-  userId: string;
-  email: string;
-  role: string;
+  _userId: string;
+  _email: string;
+  _role: string;
   iat?: number;
   exp?: number;
 }
 
-export function generateJWT(user: any): string {
+export function generateJWT(_user: any): string {
   const payload: JWTPayload = {
     userId: user._id.toString(),
     email: user.email,
@@ -25,7 +25,7 @@ export function generateJWT(user: any): string {
   });
 }
 
-export function verifyJWT(token: string): JWTPayload | null {
+export function verifyJWT(_token: string): JWTPayload | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
       issuer: 'weddinglk',
@@ -39,7 +39,7 @@ export function verifyJWT(token: string): JWTPayload | null {
   }
 }
 
-export function decodeJWT(token: string): JWTPayload | null {
+export function decodeJWT(_token: string): JWTPayload | null {
   try {
     const decoded = jwt.decode(token) as JWTPayload;
     return decoded;
@@ -49,7 +49,7 @@ export function decodeJWT(token: string): JWTPayload | null {
   }
 }
 
-export function isTokenExpired(token: string): boolean {
+export function isTokenExpired(_token: string): boolean {
   try {
     const decoded = jwt.decode(token) as JWTPayload;
     if (!decoded.exp) return true;
@@ -61,14 +61,14 @@ export function isTokenExpired(token: string): boolean {
   }
 }
 
-export function refreshJWT(token: string): string | null {
+export function refreshJWT(_token: string): string | null {
   try {
     const decoded = verifyJWT(token);
     if (!decoded) return null;
 
     // Generate new token with same payload
     return generateJWT({
-      _id: decoded.userId,
+      id: decoded.userId,
       email: decoded.email,
       role: decoded.role,
     });
@@ -78,7 +78,7 @@ export function refreshJWT(token: string): string | null {
   }
 }
 
-export function extractTokenFromHeader(authHeader: string): string | null {
+export function extractTokenFromHeader(_authHeader: string): string | null {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
@@ -86,11 +86,11 @@ export function extractTokenFromHeader(authHeader: string): string | null {
   return authHeader.substring(7);
 }
 
-export function createAccessToken(user: any): string {
+export function createAccessToken(_user: any): string {
   return generateJWT(user);
 }
 
-export function createRefreshToken(user: any): string {
+export function createRefreshToken(_user: any): string {
   const payload: JWTPayload = {
     userId: user._id.toString(),
     email: user.email,
@@ -104,7 +104,7 @@ export function createRefreshToken(user: any): string {
   });
 }
 
-export function verifyRefreshToken(token: string): JWTPayload | null {
+export function verifyRefreshToken(_token: string): JWTPayload | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
       issuer: 'weddinglk',

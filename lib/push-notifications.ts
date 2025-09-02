@@ -1,30 +1,30 @@
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Notification } from '@/lib/models';
 import { User } from '@/lib/models';
 
 interface PushNotification {
-  id: string;
-  userId: string;
-  title: string;
-  message: string;
+  _id: string;
+  _userId: string;
+  _title: string;
+  _message: string;
   type: 'info' | 'success' | 'warning' | 'error';
   data?: Record<string, unknown>;
-  read: boolean;
+  _read: boolean;
   createdAt: Date;
   expiresAt?: Date;
 }
 
 interface PushNotificationPayload {
-  title: string;
-  message: string;
+  _title: string;
+  _message: string;
   icon?: string;
   badge?: string;
   image?: string;
   tag?: string;
   data?: Record<string, unknown>;
   actions?: Array<{
-    action: string;
-    title: string;
+    _action: string;
+    _title: string;
     icon?: string;
   }>;
   requireInteraction?: boolean;
@@ -44,7 +44,7 @@ interface PushNotificationOptions {
 
 class PushNotificationService {
   private static instance: PushNotificationService;
-  private vapidKeys: { publicKey: string; privateKey: string } | null = null;
+  private vapidKeys: { _publicKey: string; privateKey: string } | null = null;
 
   private constructor() {}
 
@@ -73,7 +73,7 @@ class PushNotificationService {
   }
 
   // Generate VAPID keys for web push
-  private generateVAPIDKeys(): { publicKey: string; privateKey: string } {
+  private generateVAPIDKeys(): { _publicKey: string; privateKey: string } {
     // In production, you should use proper VAPID key generation
     // For now, we'll use placeholder keys
     return {
@@ -84,7 +84,7 @@ class PushNotificationService {
 
   // Send push notification to specific user
   public async sendToUser(
-    userId: string,
+    _userId: string,
     notification: PushNotificationPayload,
     options?: PushNotificationOptions
   ): Promise<boolean> {
@@ -122,7 +122,7 @@ class PushNotificationService {
 
   // Send push notification to user group
   public async sendToGroup(
-    userGroup: string,
+    _userGroup: string,
     notification: PushNotificationPayload,
     options?: PushNotificationOptions
   ): Promise<number> {
@@ -225,7 +225,7 @@ class PushNotificationService {
 
   // Send actual push notification
   private async sendPushNotification(
-    subscription: any,
+    _subscription: any,
     notification: PushNotificationPayload,
     options?: PushNotificationOptions
   ): Promise<boolean> {
@@ -247,7 +247,7 @@ class PushNotificationService {
 
   // Store notification in database
   private async storeNotification(
-    userId: string,
+    _userId: string,
     notification: PushNotificationPayload,
     options?: PushNotificationOptions
   ): Promise<void> {
@@ -273,21 +273,21 @@ class PushNotificationService {
 
   // Get user's push notifications
   public async getUserNotifications(
-    userId: string,
+    _userId: string,
     limit: number = 20,
     offset: number = 0
   ): Promise<PushNotification[]> {
     try {
       await connectDB();
 
-      const notifications = await Notification.find({ userId })
+      const notifications = await (Notification as any).find({ userId })
         .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit);
 
-      return notifications.map(n => ({
+      return notifications.map((_n: any) => ({
         id: n._id.toString(),
-        userId: n.userId,
+        userId: n._userId,
         title: n.title,
         message: n.message,
         type: n.type,
@@ -303,11 +303,11 @@ class PushNotificationService {
   }
 
   // Mark notification as read
-  public async markAsRead(notificationId: string): Promise<boolean> {
+  public async markAsRead(_notificationId: string): Promise<boolean> {
     try {
       await connectDB();
 
-      const notification = await Notification.findByIdAndUpdate(
+      const notification = await (Notification as any).findByIdAndUpdate(
         notificationId,
         { read: true },
         { new: true }
@@ -324,7 +324,7 @@ class PushNotificationService {
   }
 
   // Mark all user notifications as read
-  public async markAllAsRead(userId: string): Promise<number> {
+  public async markAllAsRead(_userId: string): Promise<number> {
     try {
       await connectDB();
 
@@ -344,11 +344,11 @@ class PushNotificationService {
   }
 
   // Delete notification
-  public async deleteNotification(notificationId: string): Promise<boolean> {
+  public async deleteNotification(_notificationId: string): Promise<boolean> {
     try {
       await connectDB();
 
-      const result = await Notification.findByIdAndDelete(notificationId);
+      const result = await (Notification as any).findByIdAndDelete(notificationId);
       return !!result;
     } catch (error) {
       console.error(`Failed to delete notification ${notificationId}:`, error);
@@ -361,7 +361,7 @@ class PushNotificationService {
     try {
       await connectDB();
 
-      const result = await Notification.deleteMany({
+      const result = await (Notification as any).deleteMany({
         expiresAt: { $lt: new Date() },
       });
 

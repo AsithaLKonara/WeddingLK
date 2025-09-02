@@ -15,8 +15,8 @@ import {
 import { MapPin, Star, Filter } from 'lucide-react';
 
 interface VendorFiltersProps {
-  filters: any;
-  onFiltersChange: (filters: any) => void;
+  _filters: any;
+  onFiltersChange: (_filters: any) => void;
 }
 
 export function VendorFilters({

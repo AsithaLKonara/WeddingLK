@@ -16,17 +16,17 @@ import Link from 'next/link';
 
 interface BookingConfirmationProps {
   booking: {
-    id: string;
-    venueName: string;
-    date: string;
-    guests: number;
+    _id: string;
+    _venueName: string;
+    _date: string;
+    _guests: number;
     contactInfo: {
-      name: string;
-      email: string;
-      phone: string;
+      _name: string;
+      _email: string;
+      _phone: string;
     };
-    totalAmount: number;
-    status: string;
+    _totalAmount: number;
+    _status: string;
   };
 }
 

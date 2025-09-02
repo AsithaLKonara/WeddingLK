@@ -15,25 +15,25 @@ import { Star, MapPin, Phone, Mail } from 'lucide-react';
 
 interface FeaturedVendor {
   _id: string;
-  businessName: string;
-  name: string;
-  description: string;
-  category: string;
+  _businessName: string;
+  _name: string;
+  _description: string;
+  _category: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
   contact: {
-    phone: string;
-    email: string;
+    _phone: string;
+    _email: string;
   };
   reviewStats: {
-    averageRating: number;
-    count: number;
+    _averageRating: number;
+    _count: number;
   };
-  isVerified: boolean;
-  isActive: boolean;
-  featured: boolean;
+  _isVerified: boolean;
+  _isActive: boolean;
+  _featured: boolean;
 }
 
 export default function RealFeaturedVendors() {
@@ -97,7 +97,7 @@ export default function RealFeaturedVendors() {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {vendors.map(vendor => (
+          {vendors.map((_vendor: any) => (
             <Card
               key={vendor._id}
               className='hover:shadow-lg transition-shadow duration-300'

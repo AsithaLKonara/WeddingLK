@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { Venue } from '@/lib/models/venue';
 
 export async function GET(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if venue exists
-    const venue = await Venue.findById(venueId);
+    const venue = await (Venue as any).findById(venueId);
     if (!venue) {
       return NextResponse.json({ error: 'Venue not found' }, { status: 404 });
     }
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       const month = requestDate.getMonth() + 1; // 1-12
 
       const seasonal = venue.seasonalPricing.find(
-        (s: any) => month >= s.startMonth && month <= s.endMonth
+        (_s: any) => month >= s.startMonth && month <= s.endMonth
       );
 
       if (seasonal) {
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 
     // Get package pricing if available
     const packages = venue.packages || [];
-    const availablePackages = packages.map((pkg: any) => ({
+    const availablePackages = packages.map((_pkg: any) => ({
       name: pkg.name,
       description: pkg.description,
       price: pkg.price,
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate additional services
     const additionalServices = venue.additionalServices || [];
-    const servicePricing = additionalServices.map((service: any) => ({
+    const servicePricing = additionalServices.map((_service: any) => ({
       name: service.name,
       description: service.description,
       price: service.price,

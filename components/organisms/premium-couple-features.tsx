@@ -113,7 +113,7 @@ export function PremiumCoupleFeatures() {
     },
   ];
 
-  const handleUpgrade = async (plan: any) => {
+  const handleUpgrade = async (_plan: any) => {
     try {
       const response = await fetch('/api/payments', {
         method: 'POST',

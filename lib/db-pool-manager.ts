@@ -4,31 +4,31 @@
 import mongoose from 'mongoose';
 
 export interface PoolStats {
-  totalConnections: number;
-  activeConnections: number;
-  idleConnections: number;
-  pendingConnections: number;
-  maxConnections: number;
-  minConnections: number;
-  connectionUtilization: number;
-  averageResponseTime: number;
+  _totalConnections: number;
+  _activeConnections: number;
+  _idleConnections: number;
+  _pendingConnections: number;
+  _maxConnections: number;
+  _minConnections: number;
+  _connectionUtilization: number;
+  _averageResponseTime: number;
 }
 
 export interface PoolConfig {
-  maxPoolSize: number;
-  minPoolSize: number;
-  maxIdleTimeMS: number;
-  serverSelectionTimeoutMS: number;
-  socketTimeoutMS: number;
-  connectTimeoutMS: number;
-  heartbeatFrequencyMS: number;
-  maxConnecting: number;
+  _maxPoolSize: number;
+  _minPoolSize: number;
+  _maxIdleTimeMS: number;
+  _serverSelectionTimeoutMS: number;
+  _socketTimeoutMS: number;
+  _connectTimeoutMS: number;
+  _heartbeatFrequencyMS: number;
+  _maxConnecting: number;
 }
 
 export class DatabasePoolManager {
   private static instance: DatabasePoolManager;
   private poolStats: PoolStats;
-  private responseTimes: number[] = [];
+  private _responseTimes: number[] = [];
   private maxResponseTimeHistory = 100;
 
   private defaultConfig: PoolConfig = {
@@ -65,7 +65,7 @@ export class DatabasePoolManager {
   }
 
   // Configure connection pool
-  public configurePool(config: Partial<PoolConfig>): void {
+  public configurePool(_config: Partial<$2>): void {
     const finalConfig = { ...this.defaultConfig, ...config };
 
     // Update mongoose connection options - only use valid options
@@ -137,7 +137,7 @@ export class DatabasePoolManager {
   }
 
   // Record response time for monitoring
-  public recordResponseTime(responseTime: number): void {
+  public recordResponseTime(_responseTime: number): void {
     this.responseTimes.push(responseTime);
 
     // Keep only the last N response times
@@ -152,10 +152,10 @@ export class DatabasePoolManager {
 
   // Get performance metrics
   public getPerformanceMetrics(): {
-    averageResponseTime: number;
-    responseTimeHistory: number[];
-    poolUtilization: number;
-    connectionEfficiency: number;
+    _averageResponseTime: number;
+    _responseTimeHistory: number[];
+    _poolUtilization: number;
+    _connectionEfficiency: number;
   } {
     return {
       averageResponseTime: this.poolStats.averageResponseTime,
@@ -168,12 +168,12 @@ export class DatabasePoolManager {
 
   // Health check for the pool
   public async healthCheck(): Promise<{
-    isHealthy: boolean;
-    issues: string[];
-    recommendations: string[];
+    _isHealthy: boolean;
+    _issues: string[];
+    _recommendations: string[];
   }> {
-    const issues: string[] = [];
-    const recommendations: string[] = [];
+    const _issues: string[] = [];
+    const _recommendations: string[] = [];
 
     // Check connection status
     if (mongoose.connection.readyState !== 1) {

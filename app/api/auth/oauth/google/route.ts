@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       },
       body: new URLSearchParams({
         code,
-        client_id: config.clientId,
+        clientid: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: config.redirectURI,
         grant_type: 'authorization_code',

@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 
 export interface Notification {
-  id: string;
+  _id: string;
   type:
     | 'info'
     | 'success'
@@ -16,12 +16,12 @@ export interface Notification {
     | 'user_status_changed'
     | 'vendor_approved'
     | 'vendor_rejected';
-  title: string;
-  message: string;
+  _title: string;
+  _message: string;
   timestamp: Date;
-  read: boolean;
+  _read: boolean;
   actionUrl?: string;
-  userId: string;
+  _userId: string;
 }
 
 class NotificationService {
@@ -29,7 +29,7 @@ class NotificationService {
   private listeners: Map<string, (notification: Notification) => void> =
     new Map();
 
-  connect(userId: string) {
+  connect(_userId: string) {
     if (this.socket) return;
 
     // In production, use your actual server URL
@@ -68,7 +68,7 @@ class NotificationService {
     return id;
   }
 
-  unsubscribe(id: string) {
+  unsubscribe(_id: string) {
     this.listeners.delete(id);
   }
 
@@ -92,7 +92,7 @@ class NotificationService {
   }
 
   // Mark notification as read
-  markAsRead(notificationId: string) {
+  markAsRead(_notificationId: string) {
     if (this.socket) {
       this.socket.emit('mark-read', { notificationId });
     }

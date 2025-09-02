@@ -7,15 +7,15 @@ import { Check, X, Star, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface PackageFeatures {
-  [key: string]: boolean;
+  [_key: string]: boolean;
 }
 
 interface Package {
-  id: number;
-  title: string;
-  price: number;
-  originalPrice: number;
-  rating: number;
+  _id: number;
+  _title: string;
+  _price: number;
+  _originalPrice: number;
+  _rating: number;
   features: PackageFeatures;
 }
 

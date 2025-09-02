@@ -23,28 +23,28 @@ import Image from 'next/image';
 interface VendorProfileProps {
   vendor: {
     _id: string;
-    businessName: string;
-    category: string;
+    _businessName: string;
+    _category: string;
     location: {
-      address: string;
-      city: string;
-      province: string;
-      coordinates?: { lat: number; lng: number };
+      _address: string;
+      _city: string;
+      _province: string;
+      coordinates?: { _lat: number; lng: number };
     };
-    rating?: { average: number; count: number };
+    rating?: { _average: number; count: number };
     experience?: number;
     pricing?: { startingPrice: number };
     avatar?: string;
     coverImage?: string;
-    description: string;
+    _description: string;
     services?: Array<{
-      name: string;
-      description: string;
-      price: number;
+      _name: string;
+      _description: string;
+      _price: number;
     }>;
     contact: {
-      phone: string;
-      email: string;
+      _phone: string;
+      _email: string;
       website?: string;
     };
   };

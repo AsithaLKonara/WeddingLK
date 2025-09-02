@@ -53,7 +53,7 @@ export const getOAuthProviderConfig = (provider: keyof typeof oauthConfig) => {
 };
 
 export const validateOAuthConfig = () => {
-  const missingProviders: string[] = [];
+  const _missingProviders: string[] = [];
 
   Object.entries(oauthConfig).forEach(([provider, config]) => {
     if (!config.clientId || !config.clientSecret) {

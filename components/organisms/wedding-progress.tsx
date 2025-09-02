@@ -37,10 +37,10 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface Milestone {
-  id: string;
-  title: string;
-  completed: boolean;
-  date: string;
+  _id: string;
+  _title: string;
+  _completed: boolean;
+  _date: string;
   description?: string;
 }
 
@@ -92,9 +92,9 @@ export function WeddingProgress() {
     milestones.length > 0 ? (completedCount / milestones.length) * 100 : 0;
 
   const handleToggleMilestone = async (
-    milestoneId: string,
-    milestoneTitle: string,
-    currentStatus: boolean
+    _milestoneId: string,
+    _milestoneTitle: string,
+    _currentStatus: boolean
   ) => {
     setIsLoading(true);
     try {
@@ -203,8 +203,8 @@ export function WeddingProgress() {
   };
 
   const handleDeleteMilestone = async (
-    milestoneId: string,
-    milestoneTitle: string
+    _milestoneId: string,
+    _milestoneTitle: string
   ) => {
     setIsLoading(true);
     try {
@@ -235,7 +235,7 @@ export function WeddingProgress() {
     });
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (_dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',

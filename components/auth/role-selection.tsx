@@ -7,13 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star, Users, Building2, Calendar, Award } from 'lucide-react';
 
 interface RoleOption {
-  id: string;
-  title: string;
-  description: string;
+  _id: string;
+  _title: string;
+  _description: string;
   icon: React.ReactNode;
-  features: string[];
-  requirements: string[];
-  color: string;
+  _features: string[];
+  _requirements: string[];
+  _color: string;
   popular?: boolean;
 }
 
@@ -86,7 +86,7 @@ const roleOptions: RoleOption[] = [
 ];
 
 interface RoleSelectionProps {
-  onRoleSelect: (role: string) => void;
+  onRoleSelect: (_role: string) => void;
   onBack?: () => void;
 }
 

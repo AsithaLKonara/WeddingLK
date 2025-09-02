@@ -19,14 +19,14 @@ export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: {
-    code: string;
-    message: string;
+    _code: string;
+    _message: string;
     details?: any;
-    timestamp: string;
-    requestId: string;
+    _timestamp: string;
+    _requestId: string;
   };
-  timestamp: string;
-  requestId: string;
+  _timestamp: string;
+  _requestId: string;
 }
 
 // Rate limiting configuration
@@ -38,7 +38,7 @@ const rateLimitConfig = {
 };
 
 // In-memory store for rate limiting (use Redis in production)
-const requestCounts = new Map<string, { count: number; resetTime: number }>();
+const requestCounts = new Map<string, { _count: number; resetTime: number }>();
 
 // Rate limiting middleware
 export function rateLimitMiddleware(request: NextRequest): NextResponse | null {
@@ -53,13 +53,13 @@ export function rateLimitMiddleware(request: NextRequest): NextResponse | null {
   if (!requestData || now > requestData.resetTime) {
     // Reset counter for new window
     requestCounts.set(ip, {
-      count: 1,
+      _count: 1,
       resetTime: now + rateLimitConfig.windowMs,
     });
     return null;
   }
 
-  if (requestData.count >= rateLimitConfig.maxRequests) {
+  if (requestData._count >= rateLimitConfig.maxRequests) {
     return NextResponse.json(
       {
         success: false,
@@ -74,7 +74,7 @@ export function rateLimitMiddleware(request: NextRequest): NextResponse | null {
     );
   }
 
-  requestData.count++;
+  requestData._count++;
   return null;
 }
 

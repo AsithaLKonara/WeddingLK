@@ -1,79 +1,38 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Development-friendly settings for university presentation
-  experimental: {
-    // Enable experimental features for better performance
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
-  },
-
+  // Basic configuration for deployment
+  output: 'standalone',
+  
   // Image optimization
   images: {
     domains: ['localhost', '127.0.0.1'],
-    unoptimized: true, // Bypass image optimization errors for demo
+    unoptimized: true,
   },
 
-  // Webpack configuration for development
-  webpack: (config, { dev, isServer }) => {
-    // Handle SVG imports
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack'],
-    });
-
-    // Bypass some common build errors for development
-    if (dev) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
+  // Webpack configuration
+  webpack: (config) => {
+    // Handle Lucide React icon aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'lucide-react/dist/esm/icons/circle-question-mark.js': 'lucide-react/dist/esm/icons/help-circle.js',
+      'lucide-react/dist/esm/icons/funnel.js': 'lucide-react/dist/esm/icons/filter.js',
+    };
 
     return config;
   },
 
-  // Environment variables
-  env: {
-    CUSTOM_KEY: 'university-presentation-2024',
-  },
-
-  // Output configuration for Docker
-  output: 'standalone',
-
-  // Disable telemetry
-  telemetry: false,
-
-  // Development optimizations
-  swcMinify: true,
-  compress: false, // Faster builds in development
-
-  // Handle common errors gracefully
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
-
-  // Bypass strict mode issues for demo
-  reactStrictMode: false,
-
   // Handle TypeScript errors gracefully
   typescript: {
-    ignoreBuildErrors: true, // Bypass TS errors for presentation
+    ignoreBuildErrors: true,
   },
 
   // Handle ESLint errors gracefully
   eslint: {
-    ignoreDuringBuilds: true, // Bypass lint errors for presentation
+    ignoreDuringBuilds: true,
   },
+
+  // Bypass strict mode issues for demo
+  reactStrictMode: false,
 };
 
 export default nextConfig;

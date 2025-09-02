@@ -7,8 +7,8 @@ import {
 } from '@/lib/services/user-avatar-service';
 
 interface UseAvatarDataReturn {
-  loading: boolean;
-  error: string | null;
+  _loading: boolean;
+  _error: string | null;
   refresh: () => void;
 }
 
@@ -18,18 +18,18 @@ interface UseUserAvatarReturn extends UseAvatarDataReturn {
 
 interface UseVendorsWithAvatarsReturn extends UseAvatarDataReturn {
   vendors: VendorAvatarData[];
-  total: number;
+  _total: number;
 }
 
 interface UseVenuesWithAvatarsReturn extends UseAvatarDataReturn {
   venues: VenueAvatarData[];
-  total: number;
+  _total: number;
 }
 
 /**
  * Hook to fetch user avatar data by ID
  */
-export function useUserAvatar(userId: string): UseUserAvatarReturn {
+export function useUserAvatar(_userId: string): UseUserAvatarReturn {
   const [user, setUser] = useState<UserAvatarData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export function useUserAvatar(userId: string): UseUserAvatarReturn {
 /**
  * Hook to fetch user avatar data by email
  */
-export function useUserAvatarByEmail(email: string): UseUserAvatarReturn {
+export function useUserAvatarByEmail(_email: string): UseUserAvatarReturn {
   const [user, setUser] = useState<UserAvatarData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -170,7 +170,7 @@ export function useVenuesWithAvatars(
  * Hook to fetch multiple users by IDs
  */
 export function useUsersByIds(
-  userIds: string[]
+  _userIds: string[]
 ): UseAvatarDataReturn & { users: UserAvatarData[] } {
   const [users, setUsers] = useState<UserAvatarData[]>([]);
   const [loading, setLoading] = useState(true);

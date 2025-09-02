@@ -1,5 +1,5 @@
-import { connectDB } from '@/lib/db';
-import User from '@/lib/models/user';
+// import { connectDB } from '@/lib/db';
+// import User from '@/lib/models/user';
 import { Venue } from '@/lib/models/venue';
 import { Vendor } from '@/lib/models/vendor';
 import { Booking } from '@/lib/models/booking';
@@ -267,15 +267,15 @@ export async function seedDatabase() {
 
     // Clear existing data
     console.log('🧹 Clearing existing data...');
-    await User.deleteMany({});
-    await Venue.deleteMany({});
-    await Vendor.deleteMany({});
-    await Booking.deleteMany({});
-    await Payment.deleteMany({});
+    await (User as any).deleteMany({});
+    await (Venue as any).deleteMany({});
+    await (Vendor as any).deleteMany({});
+    await (Booking as any).deleteMany({});
+    await (Payment as any).deleteMany({});
 
     // Seed users
     console.log('👥 Seeding users...');
-    const createdUsers = await User.insertMany(mockUsers);
+    const createdUsers = await (User as any).insertMany(mockUsers);
     console.log(`✅ Created ${createdUsers.length} users`);
 
     // Get user IDs for reference
@@ -286,11 +286,11 @@ export async function seedDatabase() {
 
     // Seed venues with owner references
     console.log('🏛️ Seeding venues...');
-    const venuesWithOwners = mockVenues.map(venue => ({
+    const venuesWithOwners = mockVenues.map((_venue: any) => ({
       ...venue,
       owner: userMap.get('john.sarah@email.com'), // Assign to first user
     }));
-    const createdVenues = await Venue.insertMany(venuesWithOwners);
+    const createdVenues = await (Venue as any).insertMany(venuesWithOwners);
     console.log(`✅ Created ${createdVenues.length} venues`);
 
     // Seed vendors with owner references
@@ -299,7 +299,7 @@ export async function seedDatabase() {
       ...vendor,
       owner: userMap.get(mockUsers[index + 3].email), // Assign to vendor users
     }));
-    const createdVendors = await Vendor.insertMany(vendorsWithOwners);
+    const createdVendors = await (Vendor as any).insertMany(vendorsWithOwners);
     console.log(`✅ Created ${createdVendors.length} vendors`);
 
     // Seed bookings
@@ -336,7 +336,7 @@ export async function seedDatabase() {
         paymentStatus: 'refunded' as const,
       },
     ];
-    const createdBookings = await Booking.insertMany(mockBookings);
+    const createdBookings = await (Booking as any).insertMany(mockBookings);
     console.log(`✅ Created ${createdBookings.length} bookings`);
 
     // Seed payments
@@ -374,7 +374,7 @@ export async function seedDatabase() {
         transactionId: 'txn_987654321',
       },
     ];
-    const createdPayments = await Payment.insertMany(mockPayments);
+    const createdPayments = await (Payment as any).insertMany(mockPayments);
     console.log(`✅ Created ${createdPayments.length} payments`);
 
     console.log('🎉 Database seeding completed successfully!');

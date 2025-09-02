@@ -38,27 +38,27 @@ import Link from 'next/link';
 
 interface Venue {
   _id: string;
-  name: string;
-  description: string;
+  _name: string;
+  _description: string;
   location: {
-    city: string;
-    province: string;
+    _city: string;
+    _province: string;
   };
   capacity: {
-    min: number;
-    max: number;
+    _min: number;
+    _max: number;
   };
   pricing: {
-    basePrice: number;
-    perPerson: number;
-    minimumGuests: number;
+    _basePrice: number;
+    _perPerson: number;
+    _minimumGuests: number;
   };
-  amenities: string[];
+  _amenities: string[];
   reviewStats: {
-    averageRating: number;
-    count: number;
+    _averageRating: number;
+    _count: number;
   };
-  isActive: boolean;
+  _isActive: boolean;
 }
 
 export default function VenuesPage() {
@@ -232,7 +232,7 @@ export default function VenuesPage() {
             </div>
           ) : (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-              {venues.map(venue => (
+              {venues.map((_venue: any) => (
                 <div
                   key={venue._id}
                   className='hover:shadow-lg transition-shadow duration-300'

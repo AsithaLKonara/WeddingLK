@@ -11,8 +11,8 @@ export function DashboardHeader() {
   const userEmail = session?.user?.email || 'user@example.com';
   const userRole = session?.user?.role || 'user';
 
-  const getRoleDisplayName = (role: string) => {
-    switch (role) {
+  const getRoleDisplayName = (_role: string) => {
+    switch (_role) {
       case 'admin':
         return 'Administrator';
       case 'vendor':

@@ -20,13 +20,13 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface ChecklistItem {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  timeline: string;
+  _id: string;
+  _title: string;
+  _description: string;
+  _category: string;
+  _timeline: string;
   priority: 'high' | 'medium' | 'low';
-  completed: boolean;
+  _completed: boolean;
 }
 
 export function WeddingChecklist() {
@@ -180,7 +180,7 @@ export function WeddingChecklist() {
     setIsTaskSaving(false);
   };
 
-  const toggleItem = (id: string) => {
+  const toggleItem = (_id: string) => {
     setChecklist(prev =>
       prev.map(item => {
         if (item.id === id) {
@@ -202,7 +202,7 @@ export function WeddingChecklist() {
   const totalItems = checklist.length;
   const progressPercentage = (completedItems / totalItems) * 100;
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (_priority: string) => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';

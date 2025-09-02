@@ -6,10 +6,10 @@ import type { LucideIcon } from 'lucide-react';
 
 interface ServiceCardProps {
   icon: LucideIcon;
-  title: string;
-  description: string;
-  color: string;
-  count: string;
+  _title: string;
+  _description: string;
+  _color: string;
+  _count: string;
   className?: string;
 }
 

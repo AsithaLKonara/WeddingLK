@@ -11,7 +11,7 @@ if (!MONGODB_URI) {
 interface ConnectionCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
-  connecting: boolean;
+  _connecting: boolean;
 }
 
 declare global {
@@ -21,7 +21,7 @@ declare global {
 const cached: ConnectionCache = global.mongoose || {
   conn: null,
   promise: null,
-  connecting: false,
+  _connecting: false,
 };
 
 if (!global.mongoose) {
@@ -35,13 +35,13 @@ export async function connectDB() {
   }
 
   // If already connecting, wait for the existing promise
-  if (cached.connecting && cached.promise) {
+  if (cached._connecting && cached.promise) {
     try {
       cached.conn = await cached.promise;
       return cached.conn;
     } catch (error) {
       cached.promise = null;
-      cached.connecting = false;
+      cached._connecting = false;
       throw error;
     }
   }
@@ -80,13 +80,13 @@ export async function connectDB() {
       `🔌 Attempting to connect to MongoDB: ${uri.replace(/\/\/.*@/, '//***@')}`
     );
 
-    cached.connecting = true;
+    cached._connecting = true;
     cached.promise = mongoose.connect(uri, opts);
   }
 
   try {
     cached.conn = await cached.promise;
-    cached.connecting = false;
+    cached._connecting = false;
 
     console.log('✅ MongoDB connected successfully');
 
@@ -101,7 +101,7 @@ export async function connectDB() {
     return cached.conn;
   } catch (e) {
     cached.promise = null;
-    cached.connecting = false;
+    cached._connecting = false;
     console.error('❌ MongoDB connection failed:', e);
 
     // For development/production, try to continue without database

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+// import { connectDB } from '@/lib/db';
 import { User } from '@/lib/models/user';
 import { VendorProfile } from '@/lib/models/vendorProfile';
 import { WeddingPlannerProfile } from '@/lib/models/weddingPlannerProfile';
@@ -210,7 +210,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find user
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -241,7 +241,7 @@ export async function PUT(request: NextRequest) {
       updateData.isEmailVerified = updates.isEmailVerified;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+    const updatedUser = await (User as any).findByIdAndUpdate(userId, updateData, {
       new: true,
       runValidators: true,
     }).select('-password');
@@ -285,7 +285,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Find user
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -307,7 +307,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Soft delete - update status to suspended
-    await User.findByIdAndUpdate(userId, {
+    await (User as any).findByIdAndUpdate(userId, {
       status: 'suspended',
       updatedAt: new Date(),
     });

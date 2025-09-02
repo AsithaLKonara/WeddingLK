@@ -5,17 +5,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 // interface PaymentIntentRequest {
-//   amount: number;
+//   _amount: number;
 //   currency?: string;
 // }
 
 // interface CustomerRequest {
-//   email: string;
-//   name: string;
+//   _email: string;
+//   _name: string;
 // }
 
 export const createPaymentIntent = async (
-  amount: number,
+  _amount: number,
   currency: string = 'lkr'
 ) => {
   try {
@@ -35,7 +35,7 @@ export const createPaymentIntent = async (
   }
 };
 
-export const createCustomer = async (email: string, name: string) => {
+export const createCustomer = async (_email: string, _name: string) => {
   try {
     const customer = await stripe.customers.create({
       email,
@@ -51,8 +51,8 @@ export const createCustomer = async (email: string, name: string) => {
 };
 
 export const createSubscription = async (
-  customerId: string,
-  priceId: string
+  _customerId: string,
+  _priceId: string
 ) => {
   try {
     const subscription = await stripe.subscriptions.create({

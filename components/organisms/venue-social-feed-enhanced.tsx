@@ -20,29 +20,29 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
 interface VenueSocialFeedProps {
-  venueId: string;
+  _venueId: string;
 }
 
 interface Post {
-  id: string;
+  _id: string;
   user: {
-    name: string;
-    avatar: string;
+    _name: string;
+    _avatar: string;
     verified?: boolean;
   };
-  content: string;
+  _content: string;
   images?: string[];
-  likes: number;
-  comments: number;
-  shares: number;
-  date: string;
+  _likes: number;
+  _comments: number;
+  _shares: number;
+  _date: string;
   location?: string;
   tags?: string[];
   isLiked?: boolean;
   isBookmarked?: boolean;
 }
 
-export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
+export default function VenueSocialFeed({ _venueId }: VenueSocialFeedProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
@@ -108,7 +108,7 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
     },
   ]);
 
-  const handleLike = async (postId: string) => {
+  const handleLike = async (_postId: string) => {
     setIsLoading(postId);
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -140,7 +140,7 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
     }
   };
 
-  const handleComment = async (postId: string) => {
+  const handleComment = async (_postId: string) => {
     try {
       setIsLoading(postId);
       // Simulate API call
@@ -173,7 +173,7 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
         await navigator.share({
           title: 'Wedding Venue Post',
           text: post.content,
-          url: `/venues/${venueId}/posts/${post.id}`,
+          url: `/venues/${_venueId}/posts/${post.id}`,
         });
         toast({
           title: 'Post shared!',
@@ -182,7 +182,7 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(
-          `${post.content}: /venues/${venueId}/posts/${post.id}`
+          `${post.content}: /venues/${_venueId}/posts/${post.id}`
         );
         toast({
           title: 'Post link copied to clipboard!',
@@ -198,7 +198,7 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
     }
   };
 
-  const handleBookmark = async (postId: string) => {
+  const handleBookmark = async (_postId: string) => {
     setIsLoading(postId);
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -233,10 +233,10 @@ export default function VenueSocialFeed({ venueId }: VenueSocialFeedProps) {
     }
   };
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
+  const formatNumber = (_num: number) => {
+    if (_num >= 1000000) return `${(_num / 1000000).toFixed(1)}M`;
+    if (_num >= 1000) return `${(_num / 1000).toFixed(1)}K`;
+    return _num.toString();
   };
 
   return (
