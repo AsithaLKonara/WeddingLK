@@ -38,7 +38,35 @@ export function SimilarVenues({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [similarVenues, setSimilarVenues] = useState<SimilarVenue[]>([]);
 
-  // Mock similar venues data
+  // Fetch similar venues from API
+  useEffect(() => {
+    const fetchSimilarVenues = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/venues/similar?venueId=${currentVenueId}&location=${currentVenueLocation}&price=${currentVenuePrice}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSimilarVenues(data.venues || []);
+        } else {
+          console.error('Failed to fetch similar venues');
+          // Fallback to mock data
+          setSimilarVenues(mockSimilarVenues);
+        }
+      } catch (error) {
+        console.error('Error fetching similar venues:', error);
+        // Fallback to mock data
+        setSimilarVenues(mockSimilarVenues);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (currentVenueId) {
+      fetchSimilarVenues();
+    }
+  }, [currentVenueId, currentVenueLocation, currentVenuePrice]);
+
+  // Mock similar venues data (fallback)
   const mockSimilarVenues = useMemo<SimilarVenue[]>(
     () => [
       {

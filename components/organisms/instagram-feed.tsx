@@ -67,9 +67,30 @@ export default function InstagramFeed() {
       setIsLoading(true);
       setError(null);
       try {
-        // Simulate API call with shorter delay for testing
-        await new Promise(resolve => setTimeout(resolve, 100));
-        const mockPosts: FeedPost[] = [
+        const response = await fetch('/api/instagram/feed');
+        if (response.ok) {
+          const data = await response.json();
+          setPosts(data.posts || []);
+        } else {
+          console.error('Failed to fetch Instagram feed');
+          // Fallback to mock data
+          setPosts(mockPosts);
+        }
+      } catch (error) {
+        console.error('Error fetching Instagram feed:', error);
+        setError('Failed to load posts');
+        // Fallback to mock data
+        setPosts(mockPosts);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  // Mock data (fallback)
+  const mockPosts: FeedPost[] = [
           {
             id: '1',
             user: {
