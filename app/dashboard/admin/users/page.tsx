@@ -38,8 +38,33 @@ export default function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
-    // Mock data - replace with actual API call
-    const mockUsers: UserData[] = [
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/dashboard/admin/users');
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data.users || []);
+          setFilteredUsers(data.users || []);
+        } else {
+          console.error('Failed to fetch users');
+          setUsers([]);
+          setFilteredUsers([]);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setUsers([]);
+        setFilteredUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Mock data - replace with actual API call (fallback)
+  const mockUsers: UserData[] = [
       {
         id: '1',
         name: 'John Doe',
@@ -82,9 +107,7 @@ export default function AdminUsersPage() {
       },
     ];
 
-    setUsers(mockUsers);
-    setFilteredUsers(mockUsers);
-    setLoading(false);
+    // Mock data is now only used as fallback
   }, []);
 
   if (loading) {

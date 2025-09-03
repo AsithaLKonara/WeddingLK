@@ -70,69 +70,54 @@ export default function AdminDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setselectedStatus] = useState<string>('all');
 
-  // Mock data for demonstration
+  // Fetch real dashboard data
   useEffect(() => {
-    const mockStats: DashboardStats = {
-      totalUsers: 1247,
-      totalVendors: 89,
-      totalVenues: 156,
-      totalBookings: 2341,
-      totalRevenue: 45678900,
-      pendingApprovals: 23,
-      activeUsers: 892,
-      conversionRate: 12.5,
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch dashboard statistics
+        const statsResponse = await fetch('/api/dashboard/admin/stats');
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats(statsData);
+        }
+
+        // Fetch recent users
+        const usersResponse = await fetch('/api/dashboard/admin/users?limit=5');
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          setUsers(usersData.users || []);
+        }
+
+        // Fetch recent vendors
+        const vendorsResponse = await fetch('/api/dashboard/admin/vendors?limit=5');
+        if (vendorsResponse.ok) {
+          const vendorsData = await vendorsResponse.json();
+          setVendors(vendorsData.vendors || []);
+        }
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        // Set fallback data
+        setStats({
+          totalUsers: 0,
+          totalVendors: 0,
+          totalVenues: 0,
+          totalBookings: 0,
+          totalRevenue: 0,
+          pendingApprovals: 0,
+          activeUsers: 0,
+          conversionRate: 0,
+        });
+        setUsers([]);
+        setVendors([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const mockUsers: User[] = [
-      {
-        id: '1',
-        name: 'Sarah Johnson',
-        email: 'sarah@example.com',
-        role: 'user',
-        status: 'active',
-        joinDate: new Date('2024-01-15'),
-        lastActive: new Date(),
-        verified: true,
-      },
-      {
-        id: '2',
-        name: 'Michael Chen',
-        email: 'michael@example.com',
-        role: 'user',
-        status: 'active',
-        joinDate: new Date('2024-02-20'),
-        lastActive: new Date(),
-        verified: true,
-      },
-    ];
-
-    const mockVendors: Vendor[] = [
-      {
-        id: '1',
-        name: 'Elegant Events',
-        category: 'Event Planning',
-        status: 'approved',
-        rating: 4.8,
-        reviewCount: 127,
-        joinDate: new Date('2024-01-10'),
-        verified: true,
-      },
-      {
-        id: '2',
-        name: 'Perfect Photography',
-        category: 'Photography',
-        status: 'pending',
-        rating: 0,
-        reviewCount: 0,
-        joinDate: new Date('2024-03-15'),
-        verified: false,
-      },
-    ];
-
-    setStats(mockStats);
-    setUsers(mockUsers);
-    setVendors(mockVendors);
-    setLoading(false);
+    fetchDashboardData();
   }, []);
 
   if (loading) {

@@ -13,6 +13,9 @@ import { Client } from './client';
 import { Conversation } from './conversation';
 import { VendorProfile } from './vendorProfile';
 import { WeddingPlannerProfile } from './weddingPlannerProfile';
+import { Package } from './package';
+import { Photo } from './photo';
+import { SocialPost } from './socialPost';
 import Document from './document';
 
 // Export all models
@@ -31,6 +34,9 @@ export {
   Conversation,
   VendorProfile,
   WeddingPlannerProfile,
+  Package,
+  Photo,
+  SocialPost,
   Document,
 };
 
