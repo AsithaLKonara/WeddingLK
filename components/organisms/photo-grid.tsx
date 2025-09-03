@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart,
@@ -38,7 +38,7 @@ interface PhotoGridProps {
   _venue: string;
 }
 
-// Mock data for photos
+// Mock data for photos (fallback)
 const mockPhotos: Photo[] = [
   {
     _id: '1',
@@ -144,9 +144,35 @@ const mockPhotos: Photo[] = [
 ];
 
 export function PhotoGrid({ category, venue }: PhotoGridProps) {
-  const [photos, setPhotos] = useState<Photo[]>(mockPhotos);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch photos from API
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/photos');
+        if (response.ok) {
+          const data = await response.json();
+          setPhotos(data.photos || []);
+        } else {
+          console.error('Failed to fetch photos');
+          // Fallback to mock data
+          setPhotos(mockPhotos);
+        }
+      } catch (error) {
+        console.error('Error fetching photos:', error);
+        // Fallback to mock data
+        setPhotos(mockPhotos);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPhotos();
+  }, []);
 
   // Filter photos based on category and venue
   const filteredPhotos = photos.filter(photo => {

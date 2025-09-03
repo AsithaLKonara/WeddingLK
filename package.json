@@ -19,9 +19,9 @@
     "university-project"
   ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node init && next dev",
+    "build": "node init && next build",
+    "start": "node init && next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
@@ -34,7 +34,7 @@
     "e2e:open": "cypress open",
     "audit": "npm audit",
     "audit:fix": "npm audit fix",
-    "build:check": "npm run type-check && npm run lint && npm run build",
+    "build:check": "node init && npm run type-check && npm run lint && npm run build",
     "pre-commit": "npm run lint && npm run type-check && npm run format:check",
     "ci": "npm run lint && npm run type-check && npm run test && npm run build",
     "error-check": "npm run lint && npm run type-check && npm run format:check && npm run audit"
@@ -82,7 +82,6 @@
     "cmdk": "latest",
     "critters": "^0.0.23",
     "date-fns": "^4.1.0",
-    "dotenv": "^17.2.1",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "^12.23.12",
     "input-otp": "1.4.1",
