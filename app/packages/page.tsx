@@ -62,9 +62,37 @@ export default function WeddingPackagesPage() {
   const [sortBy, setSortBy] = useState<string>('popular');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Mock data for demonstration
+  // Fetch packages from API
   useEffect(() => {
-    const mockPackages: WeddingPackage[] = [
+    const fetchPackages = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/packages');
+        if (response.ok) {
+          const data = await response.json();
+          setPackages(data.packages || []);
+          setFilteredPackages(data.packages || []);
+        } else {
+          console.error('Failed to fetch packages');
+          // Fallback to empty array if API fails
+          setPackages([]);
+          setFilteredPackages([]);
+        }
+      } catch (error) {
+        console.error('Error fetching packages:', error);
+        // Fallback to empty array if API fails
+        setPackages([]);
+        setFilteredPackages([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
+
+  // Mock data for demonstration (fallback)
+  const mockPackages: WeddingPackage[] = [
       {
         id: '1',
         name: 'Dream Wedding Package',
@@ -183,9 +211,7 @@ export default function WeddingPackagesPage() {
       },
     ];
 
-    setPackages(mockPackages);
-    setFilteredPackages(mockPackages);
-    setLoading(false);
+    // Mock data is now only used as fallback in the component
   }, []);
 
   // Filter and sort packages
