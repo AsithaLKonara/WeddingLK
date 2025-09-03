@@ -19,9 +19,9 @@
     "university-project"
   ],
   "scripts": {
-    "dev": "next dev",
+    "dev": "node api.js && next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node api.js && next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
@@ -82,7 +82,6 @@
     "cmdk": "latest",
     "critters": "^0.0.23",
     "date-fns": "^4.1.0",
-    "dotenv": "^17.2.1",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "^12.23.12",
     "input-otp": "1.4.1",
